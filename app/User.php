@@ -57,4 +57,38 @@ class User extends Authenticatable
     {
         return $this->hasMany(Biaya::class);
     }
+
+    /**
+     * Check if user is super admin
+     */
+    public function isSuperAdmin()
+    {
+        return $this->role === 'super_admin';
+    }
+
+    /**
+     * Check if user is admin or super admin
+     */
+    public function isAdmin()
+    {
+        return in_array($this->role, ['admin', 'super_admin']);
+    }
+
+    /**
+     * Get available roles based on current user's role
+     */
+    public static function getAvailableRoles()
+    {
+        if (auth()->user()->isSuperAdmin()) {
+            return [
+                'user' => 'User',
+                'admin' => 'Admin',
+                'super_admin' => 'Super Admin',
+            ];
+        }
+        return [
+            'user' => 'User',
+            'admin' => 'Admin',
+        ];
+    }
 }

@@ -50,8 +50,9 @@
                         <div class="form-group">
                             <label for="role">Role *</label>
                             <select class="form-control @error('role') is-invalid @enderror" id="role" name="role" required>
-                                <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
-                                <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                @foreach($roles as $value => $label)
+                                    <option value="{{ $value }}" {{ old('role') == $value ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
                             </select>
                             @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
