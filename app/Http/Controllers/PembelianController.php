@@ -201,7 +201,7 @@ class PembelianController extends Controller
         $produks = Produk::all();
         $gudangs = Gudang::all();
         $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
-        $kontaks = Kontak::where('tipe', 'Vendor')->get();
+        $kontaks = Kontak::all();
         $pembelian->load('items');
 
         $dateCode = $pembelian->created_at->format('Ymd');
