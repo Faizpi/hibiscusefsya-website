@@ -1,0 +1,163 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container-fluid">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Detail Pembelian #{{ $pembelian->custom_number ?? $pembelian->id }}</h1>
+        <div>
+            @php $user = auth()->user(); @endphp
+
+            {{-- Tombol Approve (Admin) --}}
+            @if($pembelian->status == 'Pending' && ($user->role == 'super_admin' || ($user->role == 'admin' && $pembelian->approver_id == $user->id)))
+                <form action="{{ route('pembelian.approve', $pembelian->id) }}" method="POST" class="d-inline" title="Setujui data ini">
+                    @csrf
+                    <button type="submit" class="btn btn-success btn-sm shadow-sm"><i class="fas fa-check fa-sm"></i> Setujui</button>
+                </form>
+            @endif
+
+            {{-- Tombol Cancel (Admin) --}}
+            @if($pembelian->status != 'Canceled' && in_array($user->role, ['admin', 'super_admin']))
+                <form action="{{ route('pembelian.cancel', $pembelian->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Batalkan transaksi ini?')">
+                    @csrf
+                    <button type="submit" class="btn btn-dark btn-sm shadow-sm"><i class="fas fa-ban fa-sm"></i> Cancel</button>
+                </form>
+            @endif
+            
+            {{-- Tombol Print & Kembali --}}
+            <a href="{{ route('pembelian.print', $pembelian->id) }}" target="_blank" class="btn btn-info btn-sm shadow-sm">
+                <i class="fas fa-print fa-sm"></i> Cetak Struk
+            </a>
+            <a href="{{ route('pembelian.index') }}" class="btn btn-secondary btn-sm shadow-sm">
+                <i class="fas fa-arrow-left fa-sm"></i> Kembali
+            </a>
+        </div>
+    </div>
+
+    @if (session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
+    @if (session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Info Utama</h6></div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr><td style="width: 30%;"><strong>Pembuat</strong></td><td>: {{ $pembelian->user->name }}</td></tr>
+                        <tr><td><strong>Staf Penyetuju</strong></td><td>: {{ $pembelian->staf_penyetuju }}</td></tr>
+                        <tr><td><strong>Approver</strong></td><td>: {{ $pembelian->approver->name ?? '-' }}</td></tr>
+                        <tr><td><strong>Gudang</strong></td><td>: {{ $pembelian->gudang->nama_gudang ?? '-' }}</td></tr>
+                        <tr><td><strong>Email Penyetuju</strong></td><td>: {{ $pembelian->email_penyetuju ?? '-' }}</td></tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr><td><strong>Tanggal</strong></td><td>: {{ $pembelian->tgl_transaksi->format('d F Y') }}</td></tr>
+                        <tr><td><strong>Jatuh Tempo</strong></td><td>: {{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d F Y') : '-' }}</td></tr>
+                        <tr><td><strong>Syarat Bayar</strong></td><td>: {{ $pembelian->syarat_pembayaran }}</td></tr>
+                        <tr>
+                            <td><strong>Status</strong></td>
+                            <td>: 
+                                @if($pembelian->status == 'Approved') <span class="badge badge-success">Approved</span>
+                                @elseif($pembelian->status == 'Pending') <span class="badge badge-warning">Pending</span>
+                                @elseif($pembelian->status == 'Canceled') <span class="badge badge-secondary">Canceled</span>
+                                @endif
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Rincian Produk</h6></div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Produk</th>
+                            <th>Deskripsi</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-right">Harga</th>
+                            <th class="text-center">Disc%</th>
+                            <th class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php $subtotal = 0; @endphp
+                        @foreach($pembelian->items as $item)
+                        @php 
+                            $totalRow = ($item->kuantitas * $item->harga_satuan) * (1 - ($item->diskon/100)); 
+                            $subtotal += $totalRow;
+                        @endphp
+                        <tr>
+                            <td>{{ $item->produk->nama_produk }} ({{ $item->produk->item_code }})</td>
+                            <td>{{ $item->deskripsi ?? '-' }}</td>
+                            <td class="text-center">{{ $item->kuantitas }} {{ $item->unit }}</td>
+                            <td class="text-right">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                            <td class="text-center">{{ $item->diskon }}%</td>
+                            <td class="text-right">Rp {{ number_format($totalRow, 0, ',', '.') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            
+            {{-- KALKULASI TOTAL --}}
+            <div class="row justify-content-end mt-3">
+                <div class="col-md-5">
+                    <table class="table table-sm table-borderless text-right">
+                        <tr>
+                            <td>Subtotal</td>
+                            <td class="font-weight-bold">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                        </tr>
+                        @if($pembelian->diskon_akhir > 0)
+                        <tr>
+                            <td>Diskon Akhir</td>
+                            <td class="text-danger">- Rp {{ number_format($pembelian->diskon_akhir, 0, ',', '.') }}</td>
+                        </tr>
+                        @endif
+                        <tr>
+                            @php
+                                $kenaPajak = max(0, $subtotal - $pembelian->diskon_akhir);
+                                $pajakNominal = $kenaPajak * ($pembelian->tax_percentage / 100);
+                            @endphp
+                            <td>Pajak ({{ $pembelian->tax_percentage }}%)</td>
+                            <td>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+                        </tr>
+                        <tr class="border-top">
+                            <td class="h4 font-weight-bold">Grand Total</td>
+                            <td class="h4 font-weight-bold text-primary">Rp {{ number_format($pembelian->grand_total, 0, ',', '.') }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Memo</h6></div>
+                <div class="card-body">{{ $pembelian->memo ?? 'Tidak ada memo.' }}</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+             <div class="card shadow mb-4">
+                <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Lampiran</h6></div>
+                <div class="card-body">
+                    @if($pembelian->lampiran_path)
+                        <a href="{{ asset('storage/' . $pembelian->lampiran_path) }}" target="_blank" class="btn btn-primary btn-sm">
+                            <i class="fas fa-file-download"></i> Lihat Lampiran
+                        </a>
+                    @else
+                        <p class="text-muted">Tidak ada lampiran.</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

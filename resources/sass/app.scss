@@ -1,0 +1,74 @@
+// File: resources/sass/app.scss
+
+// 1. Impor khusus SCSS harus di paling atas
+@import 'variables';
+@import '~bootstrap/scss/bootstrap';
+
+// 2. Impor standar CSS (seperti Google Fonts) diletakkan setelahnya
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Mochiy+Pop+One&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+// ==========================================
+// CUSTOM STYLE UNTUK LOGIN GLASSMORPHISM
+// ==========================================
+
+// Background utama halaman
+body.auth-page {
+    background: #20a2e7;  /* fallback for old browsers */
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+// Card login utama (semua style digabung dalam satu blok)
+.glass-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+
+    // Styling text & form di dalam card
+    .card-header {
+        background: transparent;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    label {
+        color: #f8f9fa;
+        font-weight: bold;
+    }
+
+    .form-control {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 0.5rem;
+        color: #fff;
+
+        &::placeholder {
+            color: #ced4da;
+        }
+
+        &:focus {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            box-shadow: none;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+    }
+
+    .btn-primary {
+        background: #007bff;
+        border: none;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background: #0056b3;
+        }
+    }
+
+    .form-check-label, .btn-link {
+        color: #f8f9fa;
+    }
+}
