@@ -19,7 +19,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_USER: ${{ secrets.SSH_USERNAME }}
           REMOTE_PORT: ${{ secrets.SSH_PORT }}
-          TARGET: /home/u123456789/domains/dev.hibiscusefsya.com/public_html/
+          TARGET: /home/u983003565/domains/hibiscusefsya.com/public_html/dev/
           EXCLUDE: |
             .git/
             .github/
