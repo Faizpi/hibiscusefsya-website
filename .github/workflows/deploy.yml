@@ -20,14 +20,5 @@ jobs:
           REMOTE_USER: ${{ secrets.SSH_USERNAME }}
           REMOTE_PORT: ${{ secrets.SSH_PORT }}
           TARGET: /home/u983003565/domains/hibiscusefsya.com/public_html/dev/
-          EXCLUDE: |
-            .git/
-            .github/
-            node_modules/
-            .env
-            .env.example
-            composer.lock
-            package-lock.json
-            phpunit.xml
-            tests/
-            storage/logs/
+          EXCLUDE: ".git/, .github/, node_modules/, .env, .env.example, composer.lock, package-lock.json, phpunit.xml, tests/, storage/logs/, vendor/"
+          ARGS: "-rlgoDzvc -i --delete-excluded"
