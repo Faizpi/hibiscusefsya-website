@@ -22,17 +22,3 @@ jobs:
           TARGET: /home/u983003565/domains/hibiscusefsya.com/public_html/dev/
           EXCLUDE: ".git/, .github/, node_modules/, .env, .env.example, composer.lock, package-lock.json, phpunit.xml, tests/, storage/logs/, vendor/"
           ARGS: "-rlgoDzvc -i --delete-excluded"
-
-      - name: Run Migrations & Clear Cache
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            cd /home/u983003565/domains/hibiscusefsya.com/public_html/dev
-            php artisan migrate --force
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
