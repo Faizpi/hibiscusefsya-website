@@ -10,6 +10,125 @@
     <link href="{{ asset('template/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link href="{{ asset('template/css/sb-admin-2.min.css') }}" rel="stylesheet">
+    
+    <style>
+        /* Modern Sidebar Styles */
+        .sidebar-modern {
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fc 100%) !important;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .sidebar-modern .sidebar-brand {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            padding: 1.5rem 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-modern .sidebar-brand-icon img {
+            filter: brightness(0) invert(1);
+        }
+        
+        .sidebar-modern .nav-item {
+            margin: 4px 12px;
+        }
+        
+        .sidebar-modern .nav-link {
+            color: #5a5c69 !important;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-modern .nav-link i {
+            color: #b7b9cc;
+            margin-right: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-modern .nav-link:hover {
+            background: linear-gradient(135deg, #eef2ff 0%, #e8efff 100%);
+            color: #4e73df !important;
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(78, 115, 223, 0.15);
+        }
+        
+        .sidebar-modern .nav-link:hover i {
+            color: #4e73df;
+        }
+        
+        .sidebar-modern .nav-item.active .nav-link {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: #ffffff !important;
+            box-shadow: 0 6px 20px rgba(78, 115, 223, 0.4);
+            transform: translateX(5px);
+        }
+        
+        .sidebar-modern .nav-item.active .nav-link i {
+            color: #ffffff;
+        }
+        
+        .sidebar-modern .sidebar-heading {
+            color: #4e73df;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 1rem 1.5rem 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .sidebar-modern .sidebar-divider {
+            border-top: 1px solid #e3e6f0;
+            margin: 0.5rem 1rem;
+        }
+        
+        .sidebar-modern #sidebarToggle {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            width: 2.5rem;
+            height: 2.5rem;
+            box-shadow: 0 4px 15px rgba(78, 115, 223, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-modern #sidebarToggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(78, 115, 223, 0.5);
+        }
+        
+        .sidebar-modern #sidebarToggle::after {
+            color: #ffffff;
+        }
+        
+        /* Scrollbar styling */
+        .sidebar-modern::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .sidebar-modern::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .sidebar-modern::-webkit-scrollbar-thumb {
+            background: #4e73df;
+            border-radius: 10px;
+        }
+        
+        /* Content wrapper adjustment */
+        #content-wrapper {
+            background: #f4f6f9;
+        }
+        
+        /* Topbar enhancement */
+        .topbar {
+            border-radius: 0;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05) !important;
+        }
+    </style>
 </head>
 <body id="page-top" class="{{ Request::is('login') || Request::is('register') ? 'bg-gradient-primary' : '' }}">
     @guest
@@ -22,7 +141,7 @@
     @auth
     <div id="wrapper">
 
-<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+<ul class="navbar-nav sidebar sidebar-modern accordion" id="accordionSidebar">
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
                 <div class="sidebar-brand-icon">
                     <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo" class="img-fluid" style="max-height: 40px;">
