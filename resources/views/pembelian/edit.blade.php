@@ -417,7 +417,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    tableBody.querySelectorAll('tr').forEach(row => calculateRow(row));
+    // INIT: Hitung semua baris saat halaman dimuat
+    setTimeout(function() {
+        tableBody.querySelectorAll('tr').forEach(row => calculateRow(row));
+    }, 100);
 
     document.querySelectorAll('.custom-file-input').forEach(input => {
         input.addEventListener('change', function(e) {
