@@ -38,17 +38,17 @@ class DashboardController extends Controller
             $penjualans->each(function ($item) {
                 $item->type = 'Penjualan';
                 $item->route = route('penjualan.show', $item->id);
-                $item->number = $item->custom_number;
+                $item->number = $item->custom_number ?? 'INV-' . $item->id;
             });
             $pembelians->each(function ($item) {
                 $item->type = 'Pembelian';
                 $item->route = route('pembelian.show', $item->id);
-                $item->number = $item->custom_number;
+                $item->number = $item->custom_number ?? 'PR-' . $item->id;
             });
             $biayas->each(function ($item) {
                 $item->type = 'Biaya';
                 $item->route = route('biaya.show', $item->id);
-                $item->number = $item->custom_number;
+                $item->number = $item->custom_number ?? 'EXP-' . $item->id;
             });
 
             $allTransactions = $penjualans->concat($pembelians)->concat($biayas);
@@ -76,17 +76,17 @@ class DashboardController extends Controller
             $penjualans->each(function ($item) {
                 $item->type = 'Penjualan';
                 $item->route = route('penjualan.show', $item->id);
-                $item->number = $item->custom_number;
+                $item->number = $item->custom_number ?? 'INV-' . $item->id;
             });
             $pembelians->each(function ($item) {
                 $item->type = 'Pembelian';
                 $item->route = route('pembelian.show', $item->id);
-                $item->number = $item->custom_number;
+                $item->number = $item->custom_number ?? 'PR-' . $item->id;
             });
             $biayas->each(function ($item) {
                 $item->type = 'Biaya';
                 $item->route = route('biaya.show', $item->id);
-                $item->number = $item->custom_number;
+                $item->number = $item->custom_number ?? 'EXP-' . $item->id;
             });
 
             $allTransactions = $penjualans->concat($pembelians)->concat($biayas);
@@ -149,17 +149,17 @@ class DashboardController extends Controller
         $penjualans->each(function ($item) {
             $item->type = 'Penjualan';
             $item->route = route('penjualan.show', $item->id);
-            $item->number = $item->custom_number;
+            $item->number = $item->custom_number ?? 'INV-' . $item->id;
         });
         $pembelians->each(function ($item) {
             $item->type = 'Pembelian';
             $item->route = route('pembelian.show', $item->id);
-            $item->number = $item->custom_number;
+            $item->number = $item->custom_number ?? 'PR-' . $item->id;
         });
         $biayas->each(function ($item) {
             $item->type = 'Biaya';
             $item->route = route('biaya.show', $item->id);
-            $item->number = $item->custom_number;
+            $item->number = $item->custom_number ?? 'EXP-' . $item->id;
         });
 
         $allTransactions = $penjualans->concat($pembelians)->concat($biayas)->sortBy('tgl_transaksi');
