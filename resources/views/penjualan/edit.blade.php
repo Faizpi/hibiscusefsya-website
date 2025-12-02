@@ -86,7 +86,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="koordinat" name="koordinat"
                                         value="{{ old('koordinat', $penjualan->koordinat) }}"
-                                        placeholder="-6.123456, 106.123456">
+                                        placeholder="-6.123456, 106.123456" readonly>
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-outline-primary" id="btn-get-location"
                                             title="Ambil Lokasi Saat Ini">
@@ -98,7 +98,6 @@
                                         </button>
                                     </div>
                                 </div>
-                                <small class="text-muted">Format: latitude, longitude</small>
                             </div>
                             <div class="form-group"><label>Tag</label><input type="text" class="form-control" name="tag"
                                     value="{{ old('tag', $penjualan->tag) }}" readonly></div>
