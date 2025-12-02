@@ -29,12 +29,23 @@
         
         body {
             background: var(--bg-light);
+            overflow-x: hidden;
+        }
+        
+        /* ========== WRAPPER ========== */
+        #wrapper {
+            display: flex;
+            min-height: 100vh;
         }
         
         /* ========== SIDEBAR - Mekari Style ========== */
         .sidebar {
             background: var(--sidebar-bg) !important;
             min-height: 100vh;
+            width: 14rem !important;
+            flex-shrink: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
         
         .sidebar .sidebar-brand {
@@ -191,10 +202,17 @@
         /* ========== CONTENT ========== */
         #content-wrapper {
             background: var(--bg-light);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
         }
         
         #content {
             padding-top: 0;
+            flex: 1;
         }
         
         .container-fluid {
@@ -492,7 +510,8 @@
         /* ========== SIDEBAR TOGGLED (Minimized) ========== */
         .sidebar.toggled {
             width: 6.5rem !important;
-            overflow: visible;
+            overflow-x: visible;
+            overflow-y: auto;
         }
         
         .sidebar.toggled .sidebar-brand {
@@ -512,6 +531,7 @@
             padding: 0.75rem;
             justify-content: center;
             text-align: center;
+            overflow: visible;
         }
         
         .sidebar.toggled .nav-item .nav-link i {
@@ -535,6 +555,7 @@
         /* Tooltip for minimized sidebar */
         .sidebar.toggled .nav-item {
             position: relative;
+            overflow: visible;
         }
         
         .sidebar.toggled .nav-item .nav-link::after {
@@ -552,6 +573,7 @@
             white-space: nowrap;
             opacity: 0;
             visibility: hidden;
+            pointer-events: none;
             transition: all 0.15s ease;
             z-index: 1100;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -560,6 +582,22 @@
         .sidebar.toggled .nav-item:hover .nav-link::after {
             opacity: 1;
             visibility: visible;
+        }
+        
+        /* ========== TABLES RESPONSIVE ========== */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .table {
+            min-width: 100%;
+            white-space: nowrap;
+        }
+        
+        .table td, .table th {
+            white-space: normal;
+            word-wrap: break-word;
         }
         
         /* Responsive */
@@ -571,6 +609,7 @@
             
             .sidebar {
                 width: 6.5rem !important;
+                overflow-x: visible;
             }
             
             .sidebar .sidebar-brand {
@@ -581,6 +620,7 @@
             .sidebar .nav-item .nav-link {
                 padding: 0.75rem;
                 justify-content: center;
+                overflow: visible;
             }
             
             .sidebar .nav-item .nav-link i {
@@ -591,6 +631,15 @@
             .sidebar .sidebar-heading {
                 display: none;
             }
+            
+            .container-fluid {
+                padding: 1rem;
+            }
+        }
+        
+        /* Fix DataTables overflow */
+        .dataTables_wrapper {
+            overflow-x: auto;
         }
     </style>
 </head>
