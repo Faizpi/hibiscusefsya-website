@@ -50,9 +50,12 @@
         }
         
         .sidebar .sidebar-brand {
-            padding: 1.5rem 1rem;
+            height: 65px;
+            padding: 0 1rem;
             background: transparent;
             border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
         }
         
         .sidebar .sidebar-brand-text {
@@ -63,6 +66,7 @@
         
         .sidebar .sidebar-brand-icon img {
             filter: none !important;
+            height: 36px;
         }
         
         .sidebar .nav-item {
@@ -137,13 +141,15 @@
             color: #fff;
         }
         
-        /* ========== TOPBAR - Mekari Style ========== */
+        /* ========== TOPBAR ========== */
         .topbar {
             background: #fff;
-            height: auto;
-            padding: 0.75rem 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            height: 65px;
+            padding: 0 1.5rem;
+            box-shadow: none;
             border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
         }
         
         .topbar .navbar-nav .nav-item .nav-link {
