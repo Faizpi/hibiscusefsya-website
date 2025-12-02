@@ -104,6 +104,20 @@
                                     @endif
                                 </td>
                             </tr>
+                            <tr>
+                                <td><strong>Koordinat</strong></td>
+                                <td>: 
+                                    @if($pembelian->koordinat)
+                                        {{ $pembelian->koordinat }}
+                                        <a href="https://www.google.com/maps?q={{ str_replace(' ', '', $pembelian->koordinat) }}" 
+                                           target="_blank" class="ml-2 btn btn-outline-success btn-sm" title="Buka di Google Maps">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                            </tr>
                         </table>
                     </div>
                 </div>

@@ -81,6 +81,25 @@
                                     value="{{ $penjualan->custom_number ?? '[Auto]' }}" disabled></div>
                             <div class="form-group"><label>No. Referensi</label><input type="text" class="form-control"
                                     name="no_referensi" value="{{ old('no_referensi', $penjualan->no_referensi) }}"></div>
+                            <div class="form-group">
+                                <label>Koordinat (GPS)</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="koordinat" name="koordinat"
+                                        value="{{ old('koordinat', $penjualan->koordinat) }}"
+                                        placeholder="-6.123456, 106.123456">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-primary" id="btn-get-location"
+                                            title="Ambil Lokasi Saat Ini">
+                                            <i class="fa fa-map-marker-alt"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-success" id="btn-open-maps"
+                                            title="Buka di Google Maps">
+                                            <i class="fa fa-external-link-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Format: latitude, longitude</small>
+                            </div>
                             <div class="form-group"><label>Tag</label><input type="text" class="form-control" name="tag"
                                     value="{{ old('tag', $penjualan->tag) }}" readonly></div>
 
@@ -338,6 +357,50 @@
             setTimeout(function () {
                 tableBody.querySelectorAll('tr').forEach(row => calculateRow(row));
             }, 100);
+
+            // --- KOORDINAT LOKASI ---
+            const koordinatInput = document.getElementById('koordinat');
+            const btnGetLocation = document.getElementById('btn-get-location');
+            const btnOpenMaps = document.getElementById('btn-open-maps');
+
+            function updateMapsLink() {
+                const coords = koordinatInput.value.trim();
+                if(coords && coords.includes(',')) {
+                    btnOpenMaps.onclick = function() {
+                        window.open('https://www.google.com/maps?q=' + coords.replace(' ', ''), '_blank');
+                    };
+                    btnOpenMaps.classList.remove('disabled');
+                } else {
+                    btnOpenMaps.onclick = null;
+                    btnOpenMaps.classList.add('disabled');
+                }
+            }
+
+            function getLocation() {
+                if (navigator.geolocation) {
+                    btnGetLocation.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const lat = position.coords.latitude.toFixed(6);
+                            const lng = position.coords.longitude.toFixed(6);
+                            koordinatInput.value = lat + ', ' + lng;
+                            btnGetLocation.innerHTML = '<i class="fa fa-map-marker-alt"></i>';
+                            updateMapsLink();
+                        },
+                        function(error) {
+                            console.log('Location error: ' + error.message);
+                            btnGetLocation.innerHTML = '<i class="fa fa-map-marker-alt"></i>';
+                        }
+                    );
+                }
+            }
+
+            if(btnGetLocation) {
+                btnGetLocation.addEventListener('click', getLocation);
+            }
+
+            koordinatInput.addEventListener('input', updateMapsLink);
+            updateMapsLink();
         });
     </script>
 @endpush

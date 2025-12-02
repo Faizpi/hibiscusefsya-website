@@ -8,7 +8,7 @@ class Penjualan extends Model
 {
     protected $fillable = [
         'user_id', 'approver_id', 'no_urut_harian', 'gudang_id', 
-        'pelanggan', 'email', 'alamat_penagihan', 
+        'pelanggan', 'email', 'alamat_penagihan', 'koordinat',
         'tgl_transaksi', 'tgl_jatuh_tempo', 'syarat_pembayaran', 
         'no_referensi', 'tag', 'memo', 'lampiran_path', 'status',
         'diskon_akhir', 'tax_percentage', 'grand_total'

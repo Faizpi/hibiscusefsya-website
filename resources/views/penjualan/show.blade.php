@@ -146,6 +146,20 @@
                                 <td><strong>Tag</strong></td>
                                 <td>: {{ $penjualan->tag ?? '-' }}</td>
                             </tr>
+                            <tr>
+                                <td><strong>Koordinat</strong></td>
+                                <td>: 
+                                    @if($penjualan->koordinat)
+                                        {{ $penjualan->koordinat }}
+                                        <a href="https://www.google.com/maps?q={{ str_replace(' ', '', $penjualan->koordinat) }}" 
+                                           target="_blank" class="ml-2 btn btn-outline-success btn-sm" title="Buka di Google Maps">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                            </tr>
                         </table>
                     </div>
                 </div>

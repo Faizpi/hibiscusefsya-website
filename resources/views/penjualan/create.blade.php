@@ -101,6 +101,22 @@
                             @error('no_referensi') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="form-group">
+                            <label for="koordinat">Koordinat Lokasi</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control @error('koordinat') is-invalid @enderror" id="koordinat" name="koordinat" value="{{ old('koordinat') }}" placeholder="-6.123456, 106.123456">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-primary" id="btn-get-location" title="Ambil Lokasi Saat Ini">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </button>
+                                    <a href="#" class="btn btn-outline-success" id="btn-open-maps" target="_blank" title="Buka di Google Maps">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <small class="text-muted">Format: latitude, longitude</small>
+                            @error('koordinat') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="form-group">
                             <label for="tag">Tag (Sales)</label>
                             <input type="text" class="form-control @error('tag') is-invalid @enderror" id="tag" name="tag" value="{{ auth()->user()->name }}" readonly>
                             @error('tag') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -437,6 +453,65 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Init Calc
     tableBody.querySelectorAll('tr').forEach(row => calculateRow(row));
+
+    // --- 8. KOORDINAT LOKASI ---
+    const koordinatInput = document.getElementById('koordinat');
+    const btnGetLocation = document.getElementById('btn-get-location');
+    const btnOpenMaps = document.getElementById('btn-open-maps');
+
+    // Ambil lokasi saat ini
+    if(btnGetLocation) {
+        btnGetLocation.addEventListener('click', function() {
+            if (navigator.geolocation) {
+                btnGetLocation.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude.toFixed(6);
+                        const lng = position.coords.longitude.toFixed(6);
+                        koordinatInput.value = lat + ', ' + lng;
+                        btnGetLocation.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+                        updateMapsLink();
+                    },
+                    function(error) {
+                        alert('Gagal mendapatkan lokasi: ' + error.message);
+                        btnGetLocation.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+                    }
+                );
+            } else {
+                alert('Browser tidak mendukung Geolocation');
+            }
+        });
+    }
+
+    // Update link Google Maps
+    function updateMapsLink() {
+        const coords = koordinatInput.value.trim();
+        if(coords && coords.includes(',')) {
+            btnOpenMaps.href = 'https://www.google.com/maps?q=' + coords.replace(' ', '');
+            btnOpenMaps.classList.remove('disabled');
+        } else {
+            btnOpenMaps.href = '#';
+            btnOpenMaps.classList.add('disabled');
+        }
+    }
+
+    koordinatInput.addEventListener('input', updateMapsLink);
+    updateMapsLink();
+
+    // Auto-get location saat halaman load
+    if (navigator.geolocation && !koordinatInput.value) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude.toFixed(6);
+                const lng = position.coords.longitude.toFixed(6);
+                koordinatInput.value = lat + ', ' + lng;
+                updateMapsLink();
+            },
+            function(error) {
+                console.log('Auto-location failed: ' + error.message);
+            }
+        );
+    }
 });
 </script>
 @endpush

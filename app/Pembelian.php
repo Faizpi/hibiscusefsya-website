@@ -22,6 +22,7 @@ class Pembelian extends Model
         'urgensi', 
         'tahun_anggaran', 
         'tag', 
+        'koordinat',
         'memo', 
         'lampiran_path', 
         'status',

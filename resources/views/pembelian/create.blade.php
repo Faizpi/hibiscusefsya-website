@@ -149,6 +149,23 @@
                             <label for="tag">Tag (Pembuat)</label>
                             <input type="text" class="form-control" id="tag" name="tag" value="{{ auth()->user()->name }}" readonly>
                         </div>
+                        
+                        {{-- KOORDINAT LOKASI (AUTO) --}}
+                        <div class="form-group">
+                            <label for="koordinat">Koordinat Lokasi</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="koordinat" name="koordinat" value="{{ old('koordinat') }}" placeholder="-6.123456, 106.123456" readonly>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-primary" id="btn-get-location" title="Refresh Lokasi">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </button>
+                                    <a href="#" class="btn btn-outline-success" id="btn-open-maps" target="_blank" title="Buka di Google Maps">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <small class="text-muted">Otomatis terisi saat halaman dimuat</small>
+                        </div>
                     </div>
                 </div>
 
@@ -429,6 +446,53 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    // --- KOORDINAT LOKASI ---
+    const koordinatInput = document.getElementById('koordinat');
+    const btnGetLocation = document.getElementById('btn-get-location');
+    const btnOpenMaps = document.getElementById('btn-open-maps');
+
+    function updateMapsLink() {
+        const coords = koordinatInput.value.trim();
+        if(coords && coords.includes(',')) {
+            btnOpenMaps.href = 'https://www.google.com/maps?q=' + coords.replace(' ', '');
+            btnOpenMaps.classList.remove('disabled');
+        } else {
+            btnOpenMaps.href = '#';
+            btnOpenMaps.classList.add('disabled');
+        }
+    }
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            btnGetLocation.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude.toFixed(6);
+                    const lng = position.coords.longitude.toFixed(6);
+                    koordinatInput.value = lat + ', ' + lng;
+                    btnGetLocation.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+                    updateMapsLink();
+                },
+                function(error) {
+                    console.log('Location error: ' + error.message);
+                    btnGetLocation.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+                }
+            );
+        }
+    }
+
+    if(btnGetLocation) {
+        btnGetLocation.addEventListener('click', getLocation);
+    }
+
+    koordinatInput.addEventListener('input', updateMapsLink);
+    updateMapsLink();
+
+    // Auto-get location saat halaman load
+    if (!koordinatInput.value) {
+        getLocation();
+    }
 });
 </script>
 @endpush
