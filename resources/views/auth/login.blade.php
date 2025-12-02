@@ -14,12 +14,17 @@
 
         <div class="row justify-content-center align-items-center" style="min-height:80vh;">
 
+            {{-- Logo Desktop (samping form) --}}
             <div class="col-lg-6 text-center d-none d-lg-block">
-                <img src="{{ asset('assets/img/logoHE.png') }}" alt="Mekari Jurnal Logo" class="img-fluid px-5">
+                <img src="{{ asset('assets/img/logoHE.png') }}" alt="Hibiscus Efsya Logo" class="img-fluid px-5">
                 <h4 class="text-gray-700 mt-4">Platform Akuntansi Online No. 1 di Indonesia</h4>
             </div>
 
             <div class="col-lg-6">
+                {{-- Logo Mobile (di atas form) --}}
+                <div class="text-center d-lg-none mb-4">
+                    <img src="{{ asset('assets/img/logoHE.png') }}" alt="Hibiscus Efsya Logo" style="max-width: 200px; height: auto;">
+                </div>
                 <div class="card o-hidden border-0 shadow-lg">
                     <div class="card-body p-0">
                         
