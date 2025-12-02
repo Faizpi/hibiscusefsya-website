@@ -1,40 +1,40 @@
 name: Deploy to Hostinger
 
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Deploy via SSH
-        uses: easingthemes/ssh-deploy@v5.1.0
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: ${{ secrets.SSH_HOST }}
-          REMOTE_USER: ${{ secrets.SSH_USERNAME }}
-          REMOTE_PORT: ${{ secrets.SSH_PORT }}
-          TARGET: /home/u983003565/domains/hibiscusefsya.com/public_html/dev/
-          EXCLUDE: ".git/, .github/, node_modules/, .env, .env.example, phpunit.xml, tests/, storage/logs/"
-          ARGS: "-rlgoDzvc -i"
+            - name: Deploy via SSH
+              uses: easingthemes/ssh-deploy@v5.1.0
+              with:
+                  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+                  REMOTE_HOST: ${{ secrets.SSH_HOST }}
+                  REMOTE_USER: ${{ secrets.SSH_USERNAME }}
+                  REMOTE_PORT: ${{ secrets.SSH_PORT }}
+                  TARGET: /home/u983003565/domains/hibiscusefsya.com/public_html/dev/
+                  EXCLUDE: ".git/, .github/, node_modules/, .env, .env.example, phpunit.xml, tests/, storage/logs/"
+                  ARGS: "-rlgoDzvc -i"
 
-      - name: Fix Permissions & Install Dependencies
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            cd /home/u983003565/domains/hibiscusefsya.com/public_html/dev
-            composer install --no-dev --optimize-autoloader
-            chmod -R 775 storage bootstrap/cache
-            php artisan migrate --force
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
+            - name: Fix Permissions & Install Dependencies
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USERNAME }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: ${{ secrets.SSH_PORT }}
+                  script: |
+                      cd /home/u983003565/domains/hibiscusefsya.com/public_html/dev
+                      composer install --no-dev --optimize-autoloader
+                      chmod -R 775 storage bootstrap/cache
+                      php artisan migrate --force
+                      php artisan config:cache
+                      php artisan route:cache
+                      php artisan view:cache

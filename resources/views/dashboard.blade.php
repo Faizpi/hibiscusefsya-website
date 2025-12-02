@@ -78,11 +78,12 @@
 </div>
 
 <div class="row">
-    @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
+    @if(auth()->user()->role == 'super_admin')
+        {{-- SUPER ADMIN: Lihat semua aktivitas --}}
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Aktivitas Terbaru (Semua User)</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Semua Aktivitas Transaksi</h6>
                     <div class="col-lg-4 col-md-6 col-sm-8">
                         <input type="text" class="form-control form-control-sm" id="adminSearchInput" placeholder="Cari data (Ketik ID, Tipe, Pembuat, Status...)">
                     </div>
@@ -140,6 +141,71 @@
                                     @empty
                                         <tr>
                                             <td colspan="6" class="text-center">Belum ada transaksi sama sekali.</td>
+                                        </tr>
+                                    @endforelse
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    @elseif(auth()->user()->role == 'admin')
+        {{-- ADMIN: Hanya lihat transaksi yang perlu approval --}}
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Transaksi Menunggu Approval</h6>
+                    <div class="col-lg-4 col-md-6 col-sm-8">
+                        <input type="text" class="form-control form-control-sm" id="adminSearchInput" placeholder="Cari data (Ketik ID, Tipe, Pembuat...)">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="adminMasterTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Tipe</th>
+                                    <th>Nomor</th>
+                                    <th>Tanggal</th>
+                                    <th>Pembuat</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminMasterTableBody">
+                                @if(isset($allTransactions))
+                                    @forelse($allTransactions as $item)
+                                        <tr>
+                                            <td>
+                                                @if($item->type == 'Penjualan')
+                                                    <span class="badge badge-primary">Penjualan</span>
+                                                @elseif($item->type == 'Pembelian')
+                                                    <span class="badge badge-success">Pembelian</span>
+                                                @else
+                                                    <span class="badge badge-info">Biaya</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="{{ $item->route }}"><strong>{{ $item->number }}</strong></a>
+                                            </td>
+                                            <td>{{ $item->tgl_transaksi->format('d/m/Y') }}</td>
+                                            <td>{{ $item->user->name }}</td>
+                                            <td class="text-center">
+                                                <span class="badge badge-warning">{{ $item->status }}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                @if(isset($item->grand_total))
+                                                    Rp {{ number_format($item->grand_total, 0, ',', '.') }}
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center">Tidak ada transaksi yang menunggu approval.</td>
                                         </tr>
                                     @endforelse
                                 @endif

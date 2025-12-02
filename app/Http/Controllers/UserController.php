@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\User;     
-use App\Gudang;   
+use App\User;
+use App\Gudang;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -13,7 +13,7 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = User::with('gudang')->get(); 
+        $users = User::with('gudang')->get();
         return view('users.index', compact('users'));
     }
 
@@ -37,7 +37,7 @@ class UserController extends Controller
             'role' => ['required', Rule::in($allowedRoles)],
             'alamat' => ['nullable', 'string'],
             'no_telp' => ['nullable', 'string', 'max:20'],
-            'gudang_id' => ['nullable', 'exists:gudangs,id'], 
+            'gudang_id' => ['nullable', 'exists:gudangs,id'],
         ]);
 
         User::create([
@@ -77,7 +77,7 @@ class UserController extends Controller
 
         // Jika bukan super_admin dan mencoba mengubah role super_admin, pertahankan role asli
         $roleValidation = ['required', Rule::in($allowedRoles)];
-        
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
@@ -85,7 +85,7 @@ class UserController extends Controller
             'alamat' => ['nullable', 'string'],
             'no_telp' => ['nullable', 'string', 'max:20'],
             'gudang_id' => ['nullable', 'exists:gudangs,id'],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'], 
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
         $data = $request->only('name', 'email', 'alamat', 'no_telp', 'gudang_id');
