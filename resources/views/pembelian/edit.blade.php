@@ -29,45 +29,29 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div class="row">
+                            {{-- 1. APPROVER (ADMIN) --}}
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="staf_penyetuju">Staf Penyetuju (Vendor) *</label>
-                                    <select class="form-control @error('staf_penyetuju') is-invalid @enderror" id="kontak-select" name="staf_penyetuju" required>
-                                        <option value="">Pilih kontak...</option>
-                                        @foreach($kontaks as $kontak)
-                                            <option value="{{ $kontak->nama }}"
-                                                    data-email="{{ $kontak->email }}"
-                                                    data-diskon="{{ $kontak->diskon_persen }}"
-                                                    {{ old('staf_penyetuju', $pembelian->staf_penyetuju) == $kontak->nama ? 'selected' : '' }}>
-                                                {{ $kontak->nama }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('staf_penyetuju') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="email_penyetuju">Email Penyetuju (CC)</label>
-                                    <input type="email" class="form-control @error('email_penyetuju') is-invalid @enderror" id="email-input" name="email_penyetuju" value="{{ old('email_penyetuju', $pembelian->email_penyetuju) }}">
-                                    @error('email_penyetuju') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            {{-- Approver --}}
-                            <div class="col-md-12 mb-3">
-                                <div class="form-group">
-                                    <label for="approver_id">Ajukan Kepada (Penyetuju) *</label>
+                                    <label for="approver_id">Staf Penyetuju (Admin) *</label>
                                     <select class="form-control @error('approver_id') is-invalid @enderror" id="approver_id" name="approver_id" required>
                                         <option value="">Pilih Atasan...</option>
-                                        @foreach($approvers as $approver)
-                                            <option value="{{ $approver->id }}" {{ old('approver_id', $pembelian->approver_id) == $approver->id ? 'selected' : '' }}>
-                                                {{ $approver->name }} ({{ ucfirst($approver->role) }})
+                                        @foreach($approvers as $admin)
+                                            <option value="{{ $admin->id }}" 
+                                                    data-email="{{ $admin->email }}"
+                                                    {{ old('approver_id', $pembelian->approver_id) == $admin->id ? 'selected' : '' }}>
+                                                {{ $admin->name }} ({{ ucfirst($admin->role) }})
                                             </option>
                                         @endforeach
                                     </select>
                                     @error('approver_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            
+                            {{-- 2. EMAIL (AUTOFILL) --}}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email_penyetuju">Email Penyetuju</label>
+                                    <input type="email" class="form-control @error('email_penyetuju') is-invalid @enderror" id="email_penyetuju" name="email_penyetuju" value="{{ old('email_penyetuju', $pembelian->email_penyetuju) }}" readonly>
                                 </div>
                             </div>
                         </div>
@@ -283,8 +267,22 @@ document.addEventListener('DOMContentLoaded', function () {
     const addRowBtn = document.getElementById('add-product-row');
     const taxInput = document.getElementById('tax_percentage_input');
     const discAkhirInput = document.getElementById('diskon_akhir_input');
-    const kontakSelect = document.getElementById('kontak-select');
-    const emailInput = document.getElementById('email-input');
+
+    // 1. AUTOFILL APPROVER
+    const approverSelect = document.getElementById('approver_id');
+    const emailInput = document.getElementById('email_penyetuju');
+    
+    if(approverSelect){
+        approverSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            emailInput.value = selectedOption.dataset.email || '';
+        });
+        // Trigger jika old value ada
+        if(approverSelect.value) {
+            const selectedOption = approverSelect.options[approverSelect.selectedIndex];
+            emailInput.value = selectedOption.dataset.email || '';
+        }
+    }
 
     // --- JATUH TEMPO AUTO ---
     function updateDueDate() {
@@ -302,21 +300,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('tgl_transaksi').addEventListener('change', updateDueDate);
     document.getElementById('syarat_pembayaran').addEventListener('change', updateDueDate);
     updateDueDate();
-
-    // Autofill Kontak
-    if(kontakSelect){
-        kontakSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            emailInput.value = selectedOption.dataset.email || '';
-            tableBody.querySelectorAll('tr').forEach(row => {
-                const diskonInput = row.querySelector('.product-discount');
-                if (diskonInput) {
-                    diskonInput.value = selectedOption.dataset.diskon || 0;
-                    calculateRow(row);
-                }
-            });
-        });
-    }
 
     const productDropdownHtml = `
         <select class="form-control product-select" name="produk_id[]" required>
@@ -368,10 +351,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const deskripsi = selectedOption.dataset.deskripsi || '';
         row.querySelector('.product-price').value = harga;
         row.querySelector('.product-description').value = deskripsi;
-        const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
-        if (kontakOption) {
-            row.querySelector('.product-discount').value = kontakOption.dataset.diskon || 0;
-        }
         calculateRow(row);
     };
 
@@ -403,11 +382,6 @@ document.addEventListener('DOMContentLoaded', function () {
             <td><input type="text" class="form-control text-right product-line-total" name="jumlah[]" placeholder="0" readonly></td>
             <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
         `;
-        const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
-        const diskonInput = newRow.querySelector('.product-discount');
-        if (diskonInput && kontakOption) {
-            diskonInput.value = kontakOption.dataset.diskon || 0;
-        }
     });
 
     tableBody.addEventListener('click', function (event) {

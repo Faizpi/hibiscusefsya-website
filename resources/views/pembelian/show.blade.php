@@ -44,10 +44,11 @@
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr><td style="width: 30%;"><strong>Pembuat</strong></td><td>: {{ $pembelian->user->name }}</td></tr>
-                        <tr><td><strong>Staf Penyetuju</strong></td><td>: {{ $pembelian->staf_penyetuju }}</td></tr>
-                        <tr><td><strong>Approver</strong></td><td>: {{ $pembelian->approver->name ?? '-' }}</td></tr>
+                        <tr><td><strong>Staf Penyetuju</strong></td><td>: {{ $pembelian->approver->name ?? '-' }}</td></tr>
+                        <tr><td><strong>Email Penyetuju</strong></td><td>: {{ $pembelian->approver->email ?? '-' }}</td></tr>
                         <tr><td><strong>Gudang</strong></td><td>: {{ $pembelian->gudang->nama_gudang ?? '-' }}</td></tr>
-                        <tr><td><strong>Email Penyetuju</strong></td><td>: {{ $pembelian->email_penyetuju ?? '-' }}</td></tr>
+                        <tr><td><strong>Urgensi</strong></td><td>: {{ $pembelian->urgensi ?? '-' }}</td></tr>
+                        <tr><td><strong>Tahun Anggaran</strong></td><td>: {{ $pembelian->tahun_anggaran ?? '-' }}</td></tr>
                     </table>
                 </div>
                 <div class="col-md-6">
