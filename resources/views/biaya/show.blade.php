@@ -142,7 +142,8 @@
                 <h6 class="m-0 font-weight-bold text-primary">Rincian Biaya</h6>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
+                {{-- DESKTOP TABLE --}}
+                <div class="table-responsive desktop-product-table">
                     <table class="table table-bordered">
                         <thead class="thead-light">
                             <tr>
@@ -161,6 +162,22 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                {{-- MOBILE CARDS --}}
+                <div class="mobile-product-cards">
+                    @foreach($biaya->items as $item)
+                        <div class="show-product-card">
+                            <div class="item-name">{{ $item->kategori }}</div>
+                            @if($item->deskripsi)
+                                <div class="item-desc">{{ $item->deskripsi }}</div>
+                            @endif
+                            <div class="item-total">
+                                <span class="total-label">Jumlah</span>
+                                <span class="total-value">Rp {{ number_format($item->jumlah, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>

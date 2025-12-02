@@ -169,8 +169,8 @@
                     </div>
                 </div>
 
-                {{-- TABEL PRODUK --}}
-                <div class="table-responsive mt-3">
+                {{-- TABEL PRODUK (DESKTOP) --}}
+                <div class="table-responsive mt-3 desktop-product-table">
                     <table class="table table-bordered">
                         <thead class="thead-light">
                             <tr>
@@ -246,6 +246,12 @@
                         </tbody>
                     </table>
                 </div>
+
+                {{-- MOBILE CARDS --}}
+                <div class="mobile-product-cards mt-3" id="mobile-product-cards">
+                    {{-- Cards akan di-generate via JavaScript --}}
+                </div>
+
                 <button type="button" class="btn btn-link pl-0" id="add-row-btn">+ Tambah Baris</button>
                 @error('produk_id.*') <div class="text-danger small mt-2">Error: Produk wajib dipilih</div> @enderror
                 @error('kuantitas.*') <div class="text-danger small mt-2">Error: Kuantitas wajib diisi</div> @enderror
@@ -327,7 +333,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const selectedOption = this.options[this.selectedIndex];
             emailInput.value = selectedOption.dataset.email || '';
         });
-        // Trigger jika old value ada
         if(approverSelect.value) {
             const selectedOption = approverSelect.options[approverSelect.selectedIndex];
             emailInput.value = selectedOption.dataset.email || '';
@@ -353,8 +358,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // 3. KALKULASI
     const tableBody = document.getElementById('product-table-body');
     const addRowBtn = document.getElementById('add-row-btn');
+    const mobileCardsContainer = document.getElementById('mobile-product-cards');
     const taxInput = document.getElementById('tax_percentage_input');
     const discAkhirInput = document.getElementById('diskon_akhir_input');
+
+    // Product Options HTML for mobile cards
+    const productOptionsHtml = `@foreach($produks as $p)<option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}">{{ $p->nama_produk }}</option>@endforeach`;
 
     function formatRupiah(num) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num); }
     
@@ -375,11 +384,129 @@ document.addEventListener('DOMContentLoaded', function () {
         let taxAmount = kenaPajak * (taxPercent / 100);
         let grandTotal = kenaPajak + taxAmount;
 
-        // UPDATE SEMUA DISPLAY
         document.getElementById('subtotal-display').innerText = formatRupiah(subtotal);
         document.getElementById('tax-amount-display').innerText = formatRupiah(taxAmount);
         document.getElementById('grand-total-bottom').innerText = formatRupiah(grandTotal);
         document.getElementById('grand-total-display').innerText = `Total ${formatRupiah(grandTotal)}`;
+        
+        syncMobileCards();
+    }
+
+    // --- MOBILE CARDS SYNC ---
+    function syncMobileCards() {
+        if (!mobileCardsContainer) return;
+        
+        mobileCardsContainer.innerHTML = '';
+        const rows = tableBody.querySelectorAll('tr');
+        
+        rows.forEach((row, index) => {
+            const select = row.querySelector('.product-select');
+            const desc = row.querySelector('.product-desc').value || '-';
+            const qty = row.querySelector('.product-qty').value || 0;
+            const unit = row.querySelector('select[name="unit[]"]').value || 'Pcs';
+            const price = row.querySelector('.product-price').value || 0;
+            const disc = row.querySelector('.product-disc').value || 0;
+            const total = row.querySelector('.product-total').value || 0;
+            
+            const card = document.createElement('div');
+            card.className = 'product-card-mobile';
+            card.dataset.rowIndex = index;
+            card.innerHTML = `
+                <div class="card-header-mobile">
+                    <select class="form-control product-select-mobile" data-row="${index}">
+                        <option value="">Pilih...</option>
+                        ${productOptionsHtml}
+                    </select>
+                    ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
+                </div>
+                <div class="card-body-mobile">
+                    <div class="field-group full-width">
+                        <span class="field-label">Deskripsi</span>
+                        <input type="text" class="form-control product-desc-mobile" data-row="${index}" value="${desc}" placeholder="Deskripsi">
+                    </div>
+                    <div class="field-group">
+                        <span class="field-label">Qty</span>
+                        <input type="number" class="form-control product-qty-mobile" data-row="${index}" value="${qty}" min="1">
+                    </div>
+                    <div class="field-group">
+                        <span class="field-label">Unit</span>
+                        <select class="form-control product-unit-mobile" data-row="${index}">
+                            <option value="Pcs" ${unit === 'Pcs' ? 'selected' : ''}>Pcs</option>
+                            <option value="Box" ${unit === 'Box' ? 'selected' : ''}>Box</option>
+                            <option value="Karton" ${unit === 'Karton' ? 'selected' : ''}>Karton</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <span class="field-label">Harga</span>
+                        <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
+                    </div>
+                    <div class="field-group">
+                        <span class="field-label">Disc%</span>
+                        <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
+                    </div>
+                </div>
+                <div class="total-row">
+                    <span class="total-label">Total</span>
+                    <span class="total-value">${formatRupiah(total)}</span>
+                </div>
+            `;
+            mobileCardsContainer.appendChild(card);
+            
+            const mobileSelect = card.querySelector('.product-select-mobile');
+            mobileSelect.value = select.value;
+        });
+    }
+
+    // Mobile card event listeners
+    if (mobileCardsContainer) {
+        mobileCardsContainer.addEventListener('change', function(e) {
+            const rowIndex = e.target.dataset.row;
+            if (!rowIndex) return;
+            const row = tableBody.querySelectorAll('tr')[rowIndex];
+            if (!row) return;
+
+            if (e.target.classList.contains('product-select-mobile')) {
+                row.querySelector('.product-select').value = e.target.value;
+                row.querySelector('.product-select').dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (e.target.classList.contains('product-unit-mobile')) {
+                row.querySelector('select[name="unit[]"]').value = e.target.value;
+            }
+        });
+
+        mobileCardsContainer.addEventListener('input', function(e) {
+            const rowIndex = e.target.dataset.row;
+            if (!rowIndex) return;
+            const row = tableBody.querySelectorAll('tr')[rowIndex];
+            if (!row) return;
+
+            if (e.target.classList.contains('product-desc-mobile')) {
+                row.querySelector('.product-desc').value = e.target.value;
+            }
+            if (e.target.classList.contains('product-qty-mobile')) {
+                row.querySelector('.product-qty').value = e.target.value;
+                calculateTotal();
+            }
+            if (e.target.classList.contains('product-price-mobile')) {
+                row.querySelector('.product-price').value = e.target.value;
+                calculateTotal();
+            }
+            if (e.target.classList.contains('product-disc-mobile')) {
+                row.querySelector('.product-disc').value = e.target.value;
+                calculateTotal();
+            }
+        });
+
+        mobileCardsContainer.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-btn-mobile')) {
+                const rowIndex = e.target.closest('.remove-btn-mobile').dataset.row;
+                const row = tableBody.querySelectorAll('tr')[rowIndex];
+                if (row) {
+                    row.remove();
+                    calculateTotal();
+                }
+            }
+        });
     }
 
     // Event Listener Global untuk Kalkulasi
@@ -426,6 +553,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <td><input type="text" class="form-control text-right product-total" readonly></td>
             <td><button type="button" class="btn btn-danger btn-sm remove-btn">X</button></td>
         `;
+        syncMobileCards();
     });
 
     // Hapus Baris
@@ -438,6 +566,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Init - Kalkulasi awal
     calculateTotal();
+    syncMobileCards();
 
     document.querySelectorAll('.custom-file-input').forEach(input => {
         input.addEventListener('change', function(e) {

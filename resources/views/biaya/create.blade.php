@@ -161,8 +161,8 @@
                     </div>
                 </div>
 
-                {{-- TABEL AKUN BIAYA --}}
-                <div class="table-responsive mt-3">
+                {{-- TABEL AKUN BIAYA (DESKTOP) --}}
+                <div class="table-responsive mt-3 desktop-product-table">
                     <table class="table table-bordered">
                         <thead class="thead-light">
                             <tr>
@@ -198,6 +198,12 @@
                         </tbody>
                     </table>
                 </div>
+
+                {{-- MOBILE CARDS --}}
+                <div class="mobile-product-cards mt-3" id="mobile-expense-cards">
+                    {{-- Cards akan di-generate via JavaScript --}}
+                </div>
+
                 <button type="button" class="btn btn-dark btn-sm" id="add-row-btn">+ Tambah Data</button>
                 @error('kategori.*') <div class="text-danger small mt-2">Error: Kategori wajib diisi</div> @enderror
                 @error('total.*') <div class="text-danger small mt-2">Error: Jumlah wajib diisi</div> @enderror
@@ -263,6 +269,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const tableBody = document.getElementById('expense-table-body');
     const addRowBtn = document.getElementById('add-row-btn');
+    const mobileCardsContainer = document.getElementById('mobile-expense-cards');
     const taxInput = document.getElementById('tax_percentage_input');
     
     // Display Elements
@@ -291,7 +298,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const selectedOption = this.options[this.selectedIndex];
             emailApproverInput.value = selectedOption.dataset.email || '';
         });
-        // Trigger on load if old value present
         if(approverSelect.value) {
             const selectedOption = approverSelect.options[approverSelect.selectedIndex];
             emailApproverInput.value = selectedOption.dataset.email || '';
@@ -310,14 +316,88 @@ document.addEventListener('DOMContentLoaded', function () {
         let taxAmount = subtotal * (taxPercentage / 100);
         const total = subtotal + taxAmount;
         
-        // Update Tampilan
         subtotalDisplay.innerText = formatRupiah(subtotal);
         taxDisplay.innerText = formatRupiah(taxAmount);
-        
-        // Update Total Bawah & Atas
         grandTotalBottom.innerText = formatRupiah(total);
         grandTotalTop.innerText = `Total ${formatRupiah(total)}`;
+        
+        syncMobileCards();
     };
+
+    // --- MOBILE CARDS SYNC ---
+    function syncMobileCards() {
+        if (!mobileCardsContainer) return;
+        
+        mobileCardsContainer.innerHTML = '';
+        const rows = tableBody.querySelectorAll('tr');
+        
+        rows.forEach((row, index) => {
+            const kategori = row.querySelector('input[name="kategori[]"]').value || '';
+            const deskripsi = row.querySelector('input[name="deskripsi_akun[]"]').value || '';
+            const jumlah = row.querySelector('.expense-amount').value || 0;
+            
+            const card = document.createElement('div');
+            card.className = 'product-card-mobile';
+            card.dataset.rowIndex = index;
+            card.innerHTML = `
+                <div class="card-header-mobile">
+                    <span class="item-number">Item ${index + 1}</span>
+                    ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
+                </div>
+                <div class="card-body-mobile">
+                    <div class="field-group full-width">
+                        <span class="field-label">Akun Biaya</span>
+                        <input type="text" class="form-control kategori-mobile" data-row="${index}" value="${kategori}" placeholder="Contoh: Biaya Listrik">
+                    </div>
+                    <div class="field-group full-width">
+                        <span class="field-label">Deskripsi</span>
+                        <input type="text" class="form-control deskripsi-mobile" data-row="${index}" value="${deskripsi}" placeholder="Deskripsi">
+                    </div>
+                    <div class="field-group full-width">
+                        <span class="field-label">Jumlah</span>
+                        <input type="number" class="form-control text-right jumlah-mobile" data-row="${index}" value="${jumlah}">
+                    </div>
+                </div>
+                <div class="total-row">
+                    <span class="total-label">Jumlah</span>
+                    <span class="total-value">${formatRupiah(jumlah)}</span>
+                </div>
+            `;
+            mobileCardsContainer.appendChild(card);
+        });
+    }
+
+    // Mobile card event listeners
+    if (mobileCardsContainer) {
+        mobileCardsContainer.addEventListener('input', function(e) {
+            const rowIndex = e.target.dataset.row;
+            if (!rowIndex) return;
+            const row = tableBody.querySelectorAll('tr')[rowIndex];
+            if (!row) return;
+
+            if (e.target.classList.contains('kategori-mobile')) {
+                row.querySelector('input[name="kategori[]"]').value = e.target.value;
+            }
+            if (e.target.classList.contains('deskripsi-mobile')) {
+                row.querySelector('input[name="deskripsi_akun[]"]').value = e.target.value;
+            }
+            if (e.target.classList.contains('jumlah-mobile')) {
+                row.querySelector('.expense-amount').value = e.target.value;
+                calculateTotalExpense();
+            }
+        });
+
+        mobileCardsContainer.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-btn-mobile')) {
+                const rowIndex = e.target.closest('.remove-btn-mobile').dataset.row;
+                const row = tableBody.querySelectorAll('tr')[rowIndex];
+                if (row) {
+                    row.remove();
+                    calculateTotalExpense();
+                }
+            }
+        });
+    }
 
     // Event Listener Input
     document.addEventListener('input', function(e) {
@@ -335,6 +415,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <td><input type="number" class="form-control text-right expense-amount" name="total[]" value="0" required></td>
             <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
         `;
+        syncMobileCards();
     });
 
     // Hapus Baris
@@ -347,6 +428,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Hitung total saat halaman dimuat
     calculateTotalExpense();
+    syncMobileCards();
 
     // Nama File
     document.querySelectorAll('.custom-file-input').forEach(input => {

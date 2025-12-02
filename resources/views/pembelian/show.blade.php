@@ -129,7 +129,8 @@
                 <h6 class="m-0 font-weight-bold text-primary">Rincian Produk</h6>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
+                {{-- DESKTOP TABLE --}}
+                <div class="table-responsive desktop-product-table">
                     <table class="table table-bordered">
                         <thead class="thead-light">
                             <tr>
@@ -159,6 +160,42 @@
                             @endforeach
             </tbody>
                     </table>
+                </div>
+
+                {{-- MOBILE CARDS --}}
+                <div class="mobile-product-cards">
+                    @php $subtotalMobile = 0; @endphp
+                    @foreach($pembelian->items as $item)
+                        @php 
+                            $totalRowMobile = ($item->kuantitas * $item->harga_satuan) * (1 - ($item->diskon / 100));
+                            $subtotalMobile += $totalRowMobile;
+                        @endphp
+                        <div class="show-product-card">
+                            <div class="item-name">{{ $item->produk->nama_produk }}</div>
+                            <div class="item-code">{{ $item->produk->item_code ?? '-' }}</div>
+                            @if($item->deskripsi)
+                                <div class="item-desc">{{ $item->deskripsi }}</div>
+                            @endif
+                            <div class="item-details">
+                                <div class="detail-item">
+                                    <div class="label">Qty</div>
+                                    <div class="value">{{ $item->kuantitas }} {{ $item->unit }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="label">Harga</div>
+                                    <div class="value">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="label">Disc</div>
+                                    <div class="value">{{ $item->diskon }}%</div>
+                                </div>
+                            </div>
+                            <div class="item-total">
+                                <span class="total-label">Total</span>
+                                <span class="total-value">Rp {{ number_format($totalRowMobile, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
 
                 {{-- KALKULASI TOTAL --}}
