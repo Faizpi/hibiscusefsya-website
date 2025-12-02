@@ -259,7 +259,7 @@
                                 </tr>
                                 <tr class="border-top">
                                     <td class="h5"><strong>Total</strong></td>
-                                    <td class="h5" id="grand-total-display">Rp0,00</td>
+                                    <td class="h5" id="grand-total-bottom">Rp0,00</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -357,6 +357,10 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('subtotal-display').innerText = formatRupiah(subtotal);
         document.getElementById('tax-amount-display').innerText = formatRupiah(taxAmount);
         document.getElementById('grand-total-display').innerText = `Total ${formatRupiah(total)}`;
+        
+        // Update total bawah jika ada
+        const grandTotalBottom = document.getElementById('grand-total-bottom');
+        if(grandTotalBottom) grandTotalBottom.innerText = formatRupiah(total);
     };
 
     const handleProductChange = (event) => {
