@@ -489,10 +489,106 @@
             background: var(--sidebar-active) !important;
         }
         
+        /* ========== SIDEBAR TOGGLED (Minimized) ========== */
+        .sidebar.toggled {
+            width: 6.5rem !important;
+            overflow: visible;
+        }
+        
+        .sidebar.toggled .sidebar-brand {
+            padding: 1.25rem 0;
+            justify-content: center;
+        }
+        
+        .sidebar.toggled .sidebar-brand .sidebar-brand-icon {
+            margin: 0 auto;
+        }
+        
+        .sidebar.toggled .sidebar-brand .sidebar-brand-icon img {
+            height: 28px !important;
+        }
+        
+        .sidebar.toggled .nav-item .nav-link {
+            padding: 0.75rem;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .sidebar.toggled .nav-item .nav-link i {
+            margin-right: 0;
+            font-size: 1.1rem;
+            width: auto;
+        }
+        
+        .sidebar.toggled .nav-item .nav-link span {
+            display: none;
+        }
+        
+        .sidebar.toggled .sidebar-heading {
+            display: none;
+        }
+        
+        .sidebar.toggled hr.sidebar-divider {
+            margin: 0.5rem 0.75rem;
+        }
+        
+        /* Tooltip for minimized sidebar */
+        .sidebar.toggled .nav-item {
+            position: relative;
+        }
+        
+        .sidebar.toggled .nav-item .nav-link::after {
+            content: attr(data-title);
+            position: absolute;
+            left: calc(100% + 0.5rem);
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--sidebar-bg);
+            color: #fff;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.15s ease;
+            z-index: 1100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .sidebar.toggled .nav-item:hover .nav-link::after {
+            opacity: 1;
+            visibility: visible;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .topbar .user-name,
             .topbar .user-role {
+                display: none;
+            }
+            
+            .sidebar {
+                width: 6.5rem !important;
+            }
+            
+            .sidebar .sidebar-brand {
+                padding: 1.25rem 0;
+                justify-content: center;
+            }
+            
+            .sidebar .nav-item .nav-link {
+                padding: 0.75rem;
+                justify-content: center;
+            }
+            
+            .sidebar .nav-item .nav-link i {
+                margin-right: 0;
+            }
+            
+            .sidebar .nav-item .nav-link span,
+            .sidebar .sidebar-heading {
                 display: none;
             }
         }
@@ -509,17 +605,16 @@
     <div id="wrapper">
         <!-- Sidebar -->
         <ul class="navbar-nav sidebar accordion" id="accordionSidebar">
-            <a class="sidebar-brand d-flex align-items-center" href="{{ route('dashboard') }}">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
                 <div class="sidebar-brand-icon">
-                    <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo" style="height: 32px; filter: brightness(0) invert(1);">
+                    <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo" style="height: 36px; filter: brightness(0) invert(1);">
                 </div>
-                <div class="sidebar-brand-text mx-2">Hibiscus</div>
             </a>
             
             <hr class="sidebar-divider my-0">
 
             <li class="nav-item {{ Route::is('dashboard') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('dashboard') }}">
+                <a class="nav-link" href="{{ route('dashboard') }}" data-title="Dashboard">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
@@ -529,19 +624,19 @@
             <div class="sidebar-heading">Transaksi</div>
 
             <li class="nav-item {{ Route::is('penjualan.*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('penjualan.index') }}">
+                <a class="nav-link" href="{{ route('penjualan.index') }}" data-title="Penjualan">
                     <i class="fas fa-file-invoice-dollar"></i>
                     <span>Penjualan</span>
                 </a>
             </li>
             <li class="nav-item {{ Route::is('pembelian.*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('pembelian.index') }}">
+                <a class="nav-link" href="{{ route('pembelian.index') }}" data-title="Pembelian">
                     <i class="fas fa-shopping-bag"></i>
                     <span>Pembelian</span>
                 </a>
             </li>
             <li class="nav-item {{ Route::is('biaya.*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('biaya.index') }}">
+                <a class="nav-link" href="{{ route('biaya.index') }}" data-title="Biaya">
                     <i class="fas fa-wallet"></i>
                     <span>Biaya</span>
                 </a>
@@ -552,19 +647,19 @@
                 <div class="sidebar-heading">Pengaturan</div>
 
                 <li class="nav-item {{ Route::is('users.*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('users.index') }}">
+                    <a class="nav-link" href="{{ route('users.index') }}" data-title="Pengguna">
                         <i class="fas fa-users"></i>
                         <span>Pengguna</span>
                     </a>
                 </li>
                 <li class="nav-item {{ Route::is('gudang.*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('gudang.index') }}">
+                    <a class="nav-link" href="{{ route('gudang.index') }}" data-title="Gudang">
                         <i class="fas fa-warehouse"></i>
                         <span>Gudang</span>
                     </a>
                 </li>
                 <li class="nav-item {{ Route::is('produk.*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('produk.index') }}">
+                    <a class="nav-link" href="{{ route('produk.index') }}" data-title="Produk">
                         <i class="fas fa-box"></i>
                         <span>Produk</span>
                     </a>
@@ -578,13 +673,13 @@
                 @endif
                 
                 <li class="nav-item {{ Route::is('kontak.*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('kontak.index') }}">
+                    <a class="nav-link" href="{{ route('kontak.index') }}" data-title="Kontak">
                         <i class="fas fa-address-card"></i>
                         <span>Kontak</span>
                     </a>
                 </li>
                 <li class="nav-item {{ Route::is('stok.*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('stok.index') }}">
+                    <a class="nav-link" href="{{ route('stok.index') }}" data-title="Stok Gudang">
                         <i class="fas fa-boxes"></i>
                         <span>Stok Gudang</span>
                     </a>
@@ -617,11 +712,6 @@
                                 <img class="img-profile rounded-circle" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3b82f6&color=fff&size=128">
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user-circle mr-2"></i>
-                                    Profil Saya
-                                </a>
-                                <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                                     <i class="fas fa-sign-out-alt mr-2"></i>
                                     Keluar
