@@ -1,8 +1,35 @@
-/vendor
 /node_modules
+/public/storage
+/vendor
+/.idea
+/.vscode
+
+# Laravel 
 .env
 .env.*
-!.env.example
-/public/storage
+.env.backup
+phpunit.xml
+Homestead.yaml
+Homestead.json
+
+# Laravel Logs
 /storage/*.key
-.phpunit.result.cache
+/storage/logs
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/views
+/storage/framework/testing
+
+# Cache
+bootstrap/cache/*.php
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Composer 
+composer.phar
+
+# npm
+npm-debug.log
+yarn-error.log
