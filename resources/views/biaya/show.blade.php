@@ -4,14 +4,28 @@
 <div class="container-fluid">
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Detail Biaya #{{ $biaya->id }}</h1>
+        <h1 class="h3 mb-0 text-gray-800">Detail Biaya #{{ $biaya->custom_number ?? $biaya->id }}</h1>
         <div>
-            @if(auth()->user()->role == 'admin' && $biaya->status == 'Pending')
-                <form action="{{ route('biaya.approve', $biaya->id) }}" method="POST" class="d-inline" title="Setujui data ini">
+            @php $user = auth()->user(); @endphp
+
+            {{-- Tombol Approve (Super Admin atau Admin yang ditunjuk) --}}
+            @if($biaya->status == 'Pending')
+                @if($user->role == 'super_admin' || ($user->role == 'admin' && $biaya->approver_id == $user->id))
+                    <form action="{{ route('biaya.approve', $biaya->id) }}" method="POST" class="d-inline" title="Setujui data ini">
+                        @csrf
+                        <button type="submit" class="btn btn-success btn-sm shadow-sm"><i class="fas fa-check fa-sm"></i> Setujui</button>
+                    </form>
+                @endif
+            @endif
+
+            {{-- Tombol Cancel (Admin/Super Admin) --}}
+            @if($biaya->status != 'Canceled' && in_array($user->role, ['admin', 'super_admin']))
+                <form action="{{ route('biaya.cancel', $biaya->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Batalkan transaksi ini?')">
                     @csrf
-                    <button type="submit" class="btn btn-success btn-sm shadow-sm"><i class="fas fa-check fa-sm"></i> Setujui</button>
+                    <button type="submit" class="btn btn-dark btn-sm shadow-sm"><i class="fas fa-ban fa-sm"></i> Cancel</button>
                 </form>
             @endif
+
             <a href="{{ route('biaya.print', $biaya->id) }}" target="_blank" class="btn btn-info btn-sm shadow-sm">
                 <i class="fas fa-print fa-sm"></i> Cetak Struk
             </a>
@@ -20,6 +34,9 @@
             </a>
         </div>
     </div>
+    
+    @if (session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
+    @if (session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
@@ -33,6 +50,10 @@
                         <tr>
                             <td style="width: 30%;"><strong>Pembuat</strong></td>
                             <td>: {{ $biaya->user->name }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Approver</strong></td>
+                            <td>: {{ $biaya->approver->name ?? '-' }}</td>
                         </tr>
                         <tr>
                             <td><strong>Penerima</strong></td>

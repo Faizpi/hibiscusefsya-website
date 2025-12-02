@@ -37,7 +37,23 @@
                             @error('bayar_dari') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                     </div>
-                    <div class="col-md-8 pt-4">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="approver_id">Ajukan Kepada (Admin) *</label>
+                            <select class="form-control @error('approver_id') is-invalid @enderror" id="approver_id" name="approver_id" required>
+                                <option value="">Pilih Atasan...</option>
+                                @foreach($approvers as $admin)
+                                    <option value="{{ $admin->id }}" 
+                                            data-email="{{ $admin->email }}"
+                                            {{ old('approver_id', $biaya->approver_id) == $admin->id ? 'selected' : '' }}>
+                                        {{ $admin->name }} ({{ ucfirst($admin->role) }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('approver_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-4 pt-4">
                          <div class="custom-control custom-switch">
                             <input type="checkbox" class="custom-control-input" id="bayar_nanti">
                             <label class="custom-control-label" for="bayar_nanti">Bayar Nanti</label>
