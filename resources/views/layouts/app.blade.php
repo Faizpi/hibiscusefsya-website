@@ -685,14 +685,20 @@
                 display: none;
             }
 
+            /* Default: sidebar icon-only mode */
             .sidebar {
-                width: 6.5rem !important;
+                width: 4rem !important;
                 overflow-x: visible;
+                transition: all 0.2s ease;
             }
 
             .sidebar .sidebar-brand {
-                padding: 1.25rem 0;
+                padding: 1rem 0;
                 justify-content: center;
+            }
+
+            .sidebar .sidebar-brand-icon img {
+                height: 28px !important;
             }
 
             .sidebar .nav-item .nav-link {
@@ -703,6 +709,7 @@
 
             .sidebar .nav-item .nav-link i {
                 margin-right: 0;
+                font-size: 1.1rem;
             }
 
             .sidebar .nav-item .nav-link span,
@@ -710,8 +717,59 @@
                 display: none;
             }
 
+            .sidebar hr.sidebar-divider {
+                margin: 0.25rem 0.5rem;
+            }
+
+            .sidebar .nav-item {
+                margin: 2px 4px;
+            }
+
+            /* Hidden state: sidebar completely hidden */
+            .sidebar.sidebar-hidden {
+                width: 0 !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+
+            .sidebar.sidebar-hidden * {
+                opacity: 0;
+                visibility: hidden;
+            }
+
+            /* Content adjusts when sidebar hidden */
+            #content-wrapper {
+                transition: all 0.2s ease;
+            }
+
             .container-fluid {
                 padding: 1rem;
+            }
+
+            /* Toggle button style */
+            #sidebarToggleTop {
+                background: var(--sidebar-hover);
+                width: 36px;
+                height: 36px;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px !important;
+                margin-right: 0.5rem;
+            }
+
+            #sidebarToggleTop i {
+                color: var(--sidebar-active);
+                font-size: 1rem;
+            }
+
+            #sidebarToggleTop:hover {
+                background: var(--sidebar-active);
+            }
+
+            #sidebarToggleTop:hover i {
+                color: #fff;
             }
         }
 
@@ -1105,6 +1163,28 @@
     <script src="{{ asset('template/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('template/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
     <script src="{{ asset('template/js/sb-admin-2.min.js') }}"></script>
+
+    {{-- Custom Mobile Sidebar Toggle --}}
+    <script>
+    $(document).ready(function() {
+        // Mobile sidebar toggle - hide/show completely
+        $('#sidebarToggleTop').off('click').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var sidebar = $('.sidebar');
+            sidebar.toggleClass('sidebar-hidden');
+            
+            // Change icon based on state
+            var icon = $(this).find('i');
+            if (sidebar.hasClass('sidebar-hidden')) {
+                icon.removeClass('fa-bars').addClass('fa-chevron-right');
+            } else {
+                icon.removeClass('fa-chevron-right').addClass('fa-bars');
+            }
+        });
+    });
+    </script>
 
     @stack('scripts')
 </body>
