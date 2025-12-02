@@ -60,9 +60,8 @@
                         <tr><td><strong>Email</strong></td><td>: {{ $penjualan->email ?? '-' }}</td></tr>
                         <tr><td><strong>Tgl. Transaksi</strong></td><td>: {{ $penjualan->tgl_transaksi->format('d F Y') }}</td></tr>
                         <tr><td><strong>Jatuh Tempo</strong></td><td>: {{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d F Y') : '-' }}</td></tr>
-                        
-                        {{-- PERBAIKAN DI SINI: PANGGIL nama_gudang --}}
                         <tr><td><strong>Gudang</strong></td><td>: {{ $penjualan->gudang->nama_gudang ?? '-' }}</td></tr>
+                        <tr><td><strong>Approver</strong></td><td>: {{ $penjualan->approver->name ?? '-' }}</td></tr>
                     </table>
                 </div>
                 <div class="col-md-6">
