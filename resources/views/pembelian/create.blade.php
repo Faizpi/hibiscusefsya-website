@@ -154,7 +154,7 @@
                         <div class="form-group">
                             <label for="koordinat">Koordinat Lokasi</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="koordinat" name="koordinat" value="{{ old('koordinat') }}" placeholder="-6.123456, 106.123456" readonly>
+                                <input type="text" class="form-control" id="koordinat" name="koordinat" value="{{ old('koordinat') }}" placeholder="-6.123456, 106.123456">
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-primary" id="btn-get-location" title="Refresh Lokasi">
                                         <i class="fas fa-map-marker-alt"></i>
@@ -164,7 +164,7 @@
                                     </a>
                                 </div>
                             </div>
-                            <small class="text-muted">Otomatis terisi saat halaman dimuat</small>
+                            <small class="text-muted">Klik tombol lokasi atau isi manual</small>
                         </div>
                     </div>
                 </div>
