@@ -13,8 +13,8 @@
     
     <style>
         :root {
-            --sidebar-bg: #1e2a3b;
-            --sidebar-hover: #2d3e50;
+            --sidebar-bg: #ffffff;
+            --sidebar-hover: #eff6ff;
             --sidebar-active: #3b82f6;
             --text-primary: #1f2937;
             --text-secondary: #6b7280;
@@ -38,7 +38,7 @@
             min-height: 100vh;
         }
         
-        /* ========== SIDEBAR - Mekari Style ========== */
+        /* ========== SIDEBAR - White Blue Style ========== */
         .sidebar {
             background: var(--sidebar-bg) !important;
             min-height: 100vh;
@@ -46,85 +46,95 @@
             flex-shrink: 0;
             overflow-y: auto;
             overflow-x: hidden;
+            border-right: 1px solid var(--border-color);
         }
         
         .sidebar .sidebar-brand {
             padding: 1.5rem 1rem;
             background: transparent;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid var(--border-color);
         }
         
         .sidebar .sidebar-brand-text {
-            color: #fff;
+            color: var(--sidebar-active);
             font-weight: 700;
             font-size: 1.1rem;
         }
         
+        .sidebar .sidebar-brand-icon img {
+            filter: none !important;
+        }
+        
         .sidebar .nav-item {
-            margin: 2px 0;
+            margin: 2px 8px;
         }
         
         .sidebar .nav-item .nav-link {
-            color: rgba(255,255,255,0.7);
+            color: var(--text-secondary);
             font-weight: 500;
             font-size: 0.875rem;
-            padding: 0.75rem 1.25rem;
+            padding: 0.75rem 1rem;
             display: flex;
             align-items: center;
             transition: all 0.15s ease;
+            border-radius: 8px;
         }
         
         .sidebar .nav-item .nav-link i {
             width: 20px;
             font-size: 1rem;
             margin-right: 0.75rem;
-            opacity: 0.7;
+            color: var(--text-muted);
         }
         
         .sidebar .nav-item .nav-link:hover {
             background: var(--sidebar-hover);
-            color: #fff;
+            color: var(--sidebar-active);
         }
         
         .sidebar .nav-item .nav-link:hover i {
-            opacity: 1;
+            color: var(--sidebar-active);
         }
         
         .sidebar .nav-item.active .nav-link {
-            background: var(--sidebar-active);
-            color: #fff;
+            background: var(--sidebar-hover);
+            color: var(--sidebar-active);
             font-weight: 600;
         }
         
         .sidebar .nav-item.active .nav-link i {
-            opacity: 1;
+            color: var(--sidebar-active);
         }
         
         .sidebar .sidebar-heading {
-            color: rgba(255,255,255,0.4);
+            color: var(--text-muted);
             font-size: 0.7rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding: 1.25rem 1.25rem 0.5rem;
+            padding: 1.25rem 1rem 0.5rem;
         }
         
         .sidebar hr.sidebar-divider {
-            border-top: 1px solid rgba(255,255,255,0.1);
-            margin: 0.75rem 1rem;
+            border-top: 1px solid var(--border-color);
+            margin: 0.5rem 1rem;
         }
         
         .sidebar #sidebarToggle {
             background: var(--sidebar-hover);
-            border: none;
+            border: 1px solid var(--border-color);
         }
         
         .sidebar #sidebarToggle::after {
-            color: rgba(255,255,255,0.5);
+            color: var(--sidebar-active);
         }
         
         .sidebar #sidebarToggle:hover {
             background: var(--sidebar-active);
+        }
+        
+        .sidebar #sidebarToggle:hover::after {
+            color: #fff;
         }
         
         /* ========== TOPBAR - Mekari Style ========== */
@@ -622,7 +632,7 @@
             left: calc(100% + 0.5rem);
             top: 50%;
             transform: translateY(-50%);
-            background: var(--sidebar-bg);
+            background: var(--sidebar-active);
             color: #fff;
             padding: 0.5rem 0.75rem;
             border-radius: 6px;
@@ -714,7 +724,7 @@
         <ul class="navbar-nav sidebar accordion" id="accordionSidebar">
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
                 <div class="sidebar-brand-icon">
-                    <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo" style="height: 36px; filter: brightness(0) invert(1);">
+                    <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo" style="height: 36px;">
                 </div>
             </a>
             
