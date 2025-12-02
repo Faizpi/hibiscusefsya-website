@@ -81,9 +81,9 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="tgl_jatuh_tempo">Tgl. Jatuh Tempo</label>
-                                    <input type="date" class="form-control @error('tgl_jatuh_tempo') is-invalid @enderror" id="tgl_jatuh_tempo" name="tgl_jatuh_tempo" value="{{ old('tgl_jatuh_tempo', $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('Y-m-d') : '') }}">
-                                    @error('tgl_jatuh_tempo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    <label for="tgl_jatuh_tempo_display">Jatuh Tempo (Auto)</label>
+                                    <input type="text" class="form-control bg-light" id="tgl_jatuh_tempo_display" readonly>
+                                    <input type="hidden" id="tgl_jatuh_tempo" name="tgl_jatuh_tempo" value="{{ old('tgl_jatuh_tempo', $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('Y-m-d') : '') }}">
                                 </div>
                             </div>
                         </div>
@@ -276,6 +276,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const tableBody = document.getElementById('product-table-body');
@@ -284,6 +285,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const discAkhirInput = document.getElementById('diskon_akhir_input');
     const kontakSelect = document.getElementById('kontak-select');
     const emailInput = document.getElementById('email-input');
+
+    // --- JATUH TEMPO AUTO ---
+    function updateDueDate() {
+        let tgl = document.getElementById('tgl_transaksi').value;
+        let term = document.getElementById('syarat_pembayaran').value;
+        if(!tgl) return;
+        let date = moment(tgl);
+        if(term === 'Net 7') date.add(7, 'days');
+        else if(term === 'Net 14') date.add(14, 'days');
+        else if(term === 'Net 30') date.add(30, 'days');
+        else if(term === 'Net 60') date.add(60, 'days');
+        document.getElementById('tgl_jatuh_tempo_display').value = date.format('YYYY-MM-DD');
+        document.getElementById('tgl_jatuh_tempo').value = date.format('YYYY-MM-DD');
+    }
+    document.getElementById('tgl_transaksi').addEventListener('change', updateDueDate);
+    document.getElementById('syarat_pembayaran').addEventListener('change', updateDueDate);
+    updateDueDate();
 
     // Autofill Kontak
     if(kontakSelect){

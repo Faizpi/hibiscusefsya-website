@@ -40,20 +40,20 @@
                         
                         <div class="row">
                              <div class="col-md-4">
-                                <div class="form-group"><label>Tgl. Transaksi *</label><input type="date" class="form-control" name="tgl_transaksi" value="{{ old('tgl_transaksi', $penjualan->tgl_transaksi->format('Y-m-d')) }}" required></div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group"><label>Jatuh Tempo</label><input type="date" class="form-control" name="tgl_jatuh_tempo" value="{{ old('tgl_jatuh_tempo', $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('Y-m-d') : '') }}"></div>
+                                <div class="form-group"><label>Tgl. Transaksi *</label><input type="date" class="form-control" id="tgl_transaksi" name="tgl_transaksi" value="{{ old('tgl_transaksi', $penjualan->tgl_transaksi->format('Y-m-d')) }}" required></div>
                             </div>
                              <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Syarat Pembayaran *</label>
-                                    <select class="form-control" name="syarat_pembayaran" required>
+                                    <select class="form-control" id="syarat_pembayaran" name="syarat_pembayaran" required>
                                         @foreach(['Cash', 'Net 7', 'Net 14', 'Net 30', 'Net 60'] as $opt)
                                             <option value="{{ $opt }}" {{ old('syarat_pembayaran', $penjualan->syarat_pembayaran) == $opt ? 'selected' : '' }}>{{ $opt }}</option>
                                         @endforeach
                                     </select>
                                 </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group"><label>Jatuh Tempo (Auto)</label><input type="text" class="form-control bg-light" id="tgl_jatuh_tempo_display" readonly><input type="hidden" id="tgl_jatuh_tempo" name="tgl_jatuh_tempo" value="{{ old('tgl_jatuh_tempo', $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('Y-m-d') : '') }}"></div>
                             </div>
                         </div>
                     </div>
@@ -155,6 +155,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const tableBody = document.getElementById('product-table-body');
@@ -164,6 +165,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const kontakSelect = document.getElementById('kontak-select');
     const emailInput = document.getElementById('email-input');
     const alamatInput = document.getElementById('alamat-input');
+
+    // --- JATUH TEMPO AUTO ---
+    function updateDueDate() {
+        let tgl = document.getElementById('tgl_transaksi').value;
+        let term = document.getElementById('syarat_pembayaran').value;
+        if(!tgl) return;
+        let date = moment(tgl);
+        if(term === 'Net 7') date.add(7, 'days');
+        else if(term === 'Net 14') date.add(14, 'days');
+        else if(term === 'Net 30') date.add(30, 'days');
+        else if(term === 'Net 60') date.add(60, 'days');
+        document.getElementById('tgl_jatuh_tempo_display').value = date.format('YYYY-MM-DD');
+        document.getElementById('tgl_jatuh_tempo').value = date.format('YYYY-MM-DD');
+    }
+    document.getElementById('tgl_transaksi').addEventListener('change', updateDueDate);
+    document.getElementById('syarat_pembayaran').addEventListener('change', updateDueDate);
+    updateDueDate();
 
     if(kontakSelect){
         kontakSelect.addEventListener('change', function() {
