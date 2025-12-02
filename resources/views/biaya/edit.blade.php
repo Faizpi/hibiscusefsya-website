@@ -206,7 +206,7 @@
                                 </tr>
                                 <tr class="border-top">
                                     <td class="h5"><strong>Total</strong></td>
-                                    <td class="h5" id="grand-total-display">Rp0,00</td>
+                                    <td class="h5" id="grand-total-bottom">Rp0</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -253,6 +253,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         document.getElementById('subtotal-display').innerText = formatRupiah(subtotal);
         document.getElementById('tax-amount-display').innerText = formatRupiah(taxAmount);
+        document.getElementById('grand-total-bottom').innerText = formatRupiah(total);
         document.getElementById('grand-total-display').innerText = `Total ${formatRupiah(total)}`;
     };
 
@@ -282,7 +283,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     
     // Hitung total saat halaman dimuat (PENTING UNTUK EDIT)
-    calculateTotalExpense();
+    setTimeout(function() {
+        calculateTotalExpense();
+    }, 100);
 
     document.querySelectorAll('.custom-file-input').forEach(input => {
         input.addEventListener('change', function(e) {
