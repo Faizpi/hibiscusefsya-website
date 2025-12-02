@@ -143,7 +143,7 @@
                             <tr><td><strong>Diskon Akhir (Rp)</strong></td><td><input type="number" class="form-control text-right" id="diskon_akhir_input" name="diskon_akhir" value="{{ old('diskon_akhir', $penjualan->diskon_akhir) }}"></td></tr>
                             <tr><td><strong>Pajak (%)</strong></td><td width="50%"><input type="number" class="form-control text-right" id="tax_percentage_input" name="tax_percentage" value="{{ old('tax_percentage', $penjualan->tax_percentage) }}"></td></tr>
                             <tr><td>Jumlah Pajak</td><td id="tax-amount-display">Rp0</td></tr>
-                            <tr class="border-top"><td class="h5"><strong>Total</strong></td><td class="h5" id="grand-total-display">Rp0</td></tr>
+                            <tr class="border-top"><td class="h5"><strong>Total</strong></td><td class="h5" id="grand-total-bottom">Rp0</td></tr>
                         </table>
                     </div>
                 </div>
@@ -232,6 +232,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('subtotal-display').innerText = formatRupiah(subtotal);
         document.getElementById('tax-amount-display').innerText = formatRupiah(taxAmount);
         document.getElementById('grand-total-display').innerText = `Total ${formatRupiah(total)}`;
+        document.getElementById('grand-total-bottom').innerText = formatRupiah(total);
     };
 
     const handleProductChange = (event) => {

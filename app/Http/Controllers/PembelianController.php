@@ -8,6 +8,7 @@ use App\Produk;
 use App\Gudang;
 use App\GudangProduk;
 use App\User;
+use App\Kontak;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -200,13 +201,14 @@ class PembelianController extends Controller
         $produks = Produk::all();
         $gudangs = Gudang::all();
         $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
+        $kontaks = Kontak::where('tipe', 'Vendor')->get();
         $pembelian->load('items');
 
         $dateCode = $pembelian->created_at->format('Ymd');
         $noUrutPadded = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $pembelian->custom_number = "PR-{$dateCode}-{$pembelian->user_id}-{$noUrutPadded}";
 
-        return view('pembelian.edit', compact('pembelian', 'produks', 'gudangs', 'approvers'));
+        return view('pembelian.edit', compact('pembelian', 'produks', 'gudangs', 'approvers', 'kontaks'));
     }
 
     public function update(Request $request, Pembelian $pembelian)

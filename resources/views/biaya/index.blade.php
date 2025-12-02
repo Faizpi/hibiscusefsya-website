@@ -81,6 +81,11 @@
                         <td class="text-center">
                             @php $role = auth()->user()->role; @endphp
 
+                            {{-- EDIT --}}
+                            @if($role == 'super_admin' || ($item->user_id == auth()->id() && $item->status == 'Pending') || $role == 'admin')
+                                <a href="{{ route('biaya.edit', $item->id) }}" class="btn btn-warning btn-circle btn-sm" title="Edit"><i class="fas fa-edit"></i></a>
+                            @endif
+
                             {{-- APPROVE --}}
                             @if( ($role == 'super_admin' || ( $role == 'admin' && $item->approver_id == auth()->id() )) && $item->status == 'Pending')
                                 <form action="{{ route('biaya.approve', $item->id) }}" method="POST" class="d-inline">
