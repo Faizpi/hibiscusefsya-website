@@ -24,9 +24,9 @@ class PembelianController extends Controller
 
         if ($user->role == 'super_admin') {
         } elseif ($user->role == 'admin') {
-            $query->where(function($q) use ($user) {
+            $query->where(function ($q) use ($user) {
                 $q->where('approver_id', $user->id)
-                  ->orWhere('user_id', $user->id);
+                    ->orWhere('user_id', $user->id);
             });
         } else {
             $query->where('user_id', $user->id);
@@ -34,7 +34,7 @@ class PembelianController extends Controller
 
         $allPembelian = $query->latest()->get();
 
-        $allPembelian->transform(function($item) {
+        $allPembelian->transform(function ($item) {
             $dateCode = $item->created_at->format('Ymd');
             $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
             $item->custom_number = "PR-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
@@ -94,7 +94,7 @@ class PembelianController extends Controller
 
         $path = null;
         $publicFolder = public_path('storage/lampiran_pembelian');
-        if (! File::exists($publicFolder)) {
+        if (!File::exists($publicFolder)) {
             File::makeDirectory($publicFolder, 0755, true);
         }
 
@@ -108,10 +108,14 @@ class PembelianController extends Controller
 
         $tglJatuhTempo = Carbon::parse($request->tgl_transaksi);
         $term = $request->syarat_pembayaran;
-        if ($term == 'Net 7') $tglJatuhTempo->addDays(7);
-        elseif ($term == 'Net 14') $tglJatuhTempo->addDays(14);
-        elseif ($term == 'Net 30') $tglJatuhTempo->addDays(30);
-        elseif ($term == 'Net 60') $tglJatuhTempo->addDays(60);
+        if ($term == 'Net 7')
+            $tglJatuhTempo->addDays(7);
+        elseif ($term == 'Net 14')
+            $tglJatuhTempo->addDays(14);
+        elseif ($term == 'Net 30')
+            $tglJatuhTempo->addDays(30);
+        elseif ($term == 'Net 60')
+            $tglJatuhTempo->addDays(60);
 
         $subTotal = 0;
         foreach ($request->produk_id as $index => $produkId) {
@@ -221,7 +225,8 @@ class PembelianController extends Controller
             $canUpdate = true;
         }
 
-        if (!$canUpdate) return redirect()->route('pembelian.index')->with('error', 'Akses ditolak.');
+        if (!$canUpdate)
+            return redirect()->route('pembelian.index')->with('error', 'Akses ditolak.');
 
         $request->validate([
             'approver_id' => 'required|exists:users,id',
@@ -244,7 +249,7 @@ class PembelianController extends Controller
 
         $path = $pembelian->lampiran_path;
         $publicFolder = public_path('storage/lampiran_pembelian');
-        if (! File::exists($publicFolder)) {
+        if (!File::exists($publicFolder)) {
             File::makeDirectory($publicFolder, 0755, true);
         }
 
@@ -261,10 +266,14 @@ class PembelianController extends Controller
 
         $tglJatuhTempo = Carbon::parse($request->tgl_transaksi);
         $term = $request->syarat_pembayaran;
-        if ($term == 'Net 7') $tglJatuhTempo->addDays(7);
-        elseif ($term == 'Net 14') $tglJatuhTempo->addDays(14);
-        elseif ($term == 'Net 30') $tglJatuhTempo->addDays(30);
-        elseif ($term == 'Net 60') $tglJatuhTempo->addDays(60);
+        if ($term == 'Net 7')
+            $tglJatuhTempo->addDays(7);
+        elseif ($term == 'Net 14')
+            $tglJatuhTempo->addDays(14);
+        elseif ($term == 'Net 30')
+            $tglJatuhTempo->addDays(30);
+        elseif ($term == 'Net 60')
+            $tglJatuhTempo->addDays(60);
 
         $subTotal = 0;
         foreach ($request->produk_id as $index => $produkId) {
@@ -333,8 +342,10 @@ class PembelianController extends Controller
     public function approve(Pembelian $pembelian)
     {
         $user = Auth::user();
-        if ($user->role == 'user') return back()->with('error', 'Akses ditolak.');
-        if ($user->role == 'admin' && $pembelian->approver_id != $user->id) return back()->with('error', 'Bukan wewenang Anda.');
+        if ($user->role == 'user')
+            return back()->with('error', 'Akses ditolak.');
+        if ($user->role == 'admin' && $pembelian->approver_id != $user->id)
+            return back()->with('error', 'Bukan wewenang Anda.');
 
         DB::beginTransaction();
         try {
@@ -358,7 +369,8 @@ class PembelianController extends Controller
     public function cancel(Pembelian $pembelian)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['admin', 'super_admin'])) return back()->with('error', 'Akses ditolak.');
+        if (!in_array($user->role, ['admin', 'super_admin']))
+            return back()->with('error', 'Akses ditolak.');
 
         if ($pembelian->status == 'Approved') {
             foreach ($pembelian->items as $item) {
@@ -379,10 +391,13 @@ class PembelianController extends Controller
     {
         $user = Auth::user();
         $canDelete = false;
-        if (in_array($user->role, ['admin', 'super_admin'])) $canDelete = true;
-        elseif ($pembelian->user_id == $user->id && $pembelian->status == 'Pending') $canDelete = true;
+        if (in_array($user->role, ['admin', 'super_admin']))
+            $canDelete = true;
+        elseif ($pembelian->user_id == $user->id && $pembelian->status == 'Pending')
+            $canDelete = true;
 
-        if (!$canDelete) return back()->with('error', 'Akses ditolak.');
+        if (!$canDelete)
+            return back()->with('error', 'Akses ditolak.');
 
         if ($pembelian->lampiran_path) {
             $full = public_path('storage/' . $pembelian->lampiran_path);
@@ -399,11 +414,15 @@ class PembelianController extends Controller
     {
         $user = Auth::user();
         $allow = false;
-        if ($user->role == 'super_admin') $allow = true;
-        elseif ($user->role == 'admin' && $pembelian->approver_id == $user->id) $allow = true;
-        elseif ($pembelian->user_id == $user->id) $allow = true;
+        if ($user->role == 'super_admin')
+            $allow = true;
+        elseif ($user->role == 'admin' && $pembelian->approver_id == $user->id)
+            $allow = true;
+        elseif ($pembelian->user_id == $user->id)
+            $allow = true;
 
-        if (!$allow) return redirect()->route('pembelian.index')->with('error', 'Akses ditolak.');
+        if (!$allow)
+            return redirect()->route('pembelian.index')->with('error', 'Akses ditolak.');
 
         $pembelian->load('items.produk', 'user', 'gudang', 'approver');
         $dateCode = $pembelian->created_at->format('Ymd');
@@ -417,11 +436,15 @@ class PembelianController extends Controller
     {
         $user = Auth::user();
         $allow = false;
-        if ($user->role == 'super_admin') $allow = true;
-        elseif ($user->role == 'admin' && $pembelian->approver_id == $user->id) $allow = true;
-        elseif ($pembelian->user_id == $user->id) $allow = true;
+        if ($user->role == 'super_admin')
+            $allow = true;
+        elseif ($user->role == 'admin' && $pembelian->approver_id == $user->id)
+            $allow = true;
+        elseif ($pembelian->user_id == $user->id)
+            $allow = true;
 
-        if (!$allow) return redirect()->route('pembelian.index')->with('error', 'Akses ditolak.');
+        if (!$allow)
+            return redirect()->route('pembelian.index')->with('error', 'Akses ditolak.');
 
         $pembelian->load('items.produk', 'user', 'gudang', 'approver');
         return view('pembelian.print', compact('pembelian'));

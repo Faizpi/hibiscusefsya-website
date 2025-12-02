@@ -25,32 +25,32 @@ class DashboardController extends Controller
             $penjualanQuery = Penjualan::query();
             $pembelianQuery = Pembelian::query();
             $biayaQuery = Biaya::query();
-            
+
             $data['card_4_title'] = 'Jumlah User Terdaftar';
             $data['card_4_value'] = User::count();
             $data['card_4_icon'] = 'fa-users';
-            
+
             // Ambil semua transaksi
             $penjualans = Penjualan::with('user')->get();
             $pembelians = Pembelian::with('user')->get();
             $biayas = Biaya::with('user')->get();
-            
-            $penjualans->each(function($item) { 
-                $item->type = 'Penjualan'; 
+
+            $penjualans->each(function ($item) {
+                $item->type = 'Penjualan';
                 $item->route = route('penjualan.show', $item->id);
-                $item->number = 'INV-' . $item->id;
+                $item->number = $item->custom_number;
             });
-            $pembelians->each(function($item) { 
-                $item->type = 'Pembelian'; 
+            $pembelians->each(function ($item) {
+                $item->type = 'Pembelian';
                 $item->route = route('pembelian.show', $item->id);
-                $item->number = 'PR-' . $item->id;
+                $item->number = $item->custom_number;
             });
-            $biayas->each(function($item) { 
-                $item->type = 'Biaya'; 
+            $biayas->each(function ($item) {
+                $item->type = 'Biaya';
                 $item->route = route('biaya.show', $item->id);
-                $item->number = 'EXP-' . $item->id;
+                $item->number = $item->custom_number;
             });
-            
+
             $allTransactions = $penjualans->concat($pembelians)->concat($biayas);
             $data['allTransactions'] = $allTransactions->sortByDesc('created_at');
 
@@ -59,36 +59,36 @@ class DashboardController extends Controller
             $penjualanQuery = Penjualan::query();
             $pembelianQuery = Pembelian::query();
             $biayaQuery = Biaya::query();
-            
+
             $pendingCount = Penjualan::where('status', 'Pending')->count()
-                           + Pembelian::where('status', 'Pending')->count()
-                           + Biaya::where('status', 'Pending')->count();
-            
+                + Pembelian::where('status', 'Pending')->count()
+                + Biaya::where('status', 'Pending')->count();
+
             $data['card_4_title'] = 'Menunggu Approval';
             $data['card_4_value'] = $pendingCount;
             $data['card_4_icon'] = 'fa-clock';
-            
+
             // Ambil hanya transaksi dengan status Pending untuk di-approve
             $penjualans = Penjualan::with('user')->where('status', 'Pending')->get();
             $pembelians = Pembelian::with('user')->where('status', 'Pending')->get();
             $biayas = Biaya::with('user')->where('status', 'Pending')->get();
-            
-            $penjualans->each(function($item) { 
-                $item->type = 'Penjualan'; 
+
+            $penjualans->each(function ($item) {
+                $item->type = 'Penjualan';
                 $item->route = route('penjualan.show', $item->id);
-                $item->number = 'INV-' . $item->id;
+                $item->number = $item->custom_number;
             });
-            $pembelians->each(function($item) { 
-                $item->type = 'Pembelian'; 
+            $pembelians->each(function ($item) {
+                $item->type = 'Pembelian';
                 $item->route = route('pembelian.show', $item->id);
-                $item->number = 'PR-' . $item->id;
+                $item->number = $item->custom_number;
             });
-            $biayas->each(function($item) { 
-                $item->type = 'Biaya'; 
+            $biayas->each(function ($item) {
+                $item->type = 'Biaya';
                 $item->route = route('biaya.show', $item->id);
-                $item->number = 'EXP-' . $item->id;
+                $item->number = $item->custom_number;
             });
-            
+
             $allTransactions = $penjualans->concat($pembelians)->concat($biayas);
             $data['allTransactions'] = $allTransactions->sortByDesc('created_at');
 
@@ -98,10 +98,10 @@ class DashboardController extends Controller
             $penjualanQuery = Penjualan::where('user_id', $userId);
             $pembelianQuery = Pembelian::where('user_id', $userId);
             $biayaQuery = Biaya::where('user_id', $userId);
-            
+
             $pendingCount = (clone $penjualanQuery)->where('status', 'Pending')->count()
-                           + (clone $pembelianQuery)->where('status', 'Pending')->count()
-                           + (clone $biayaQuery)->where('status', 'Pending')->count();
+                + (clone $pembelianQuery)->where('status', 'Pending')->count()
+                + (clone $biayaQuery)->where('status', 'Pending')->count();
 
             $data['card_4_title'] = 'Data Menunggu Persetujuan';
             $data['card_4_value'] = $pendingCount;
@@ -137,26 +137,29 @@ class DashboardController extends Controller
         $dateTo = $request->date_to;
 
         $penjualans = Penjualan::with('user', 'gudang')
-                        ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo])
-                        ->get();
+            ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo])
+            ->get();
         $pembelians = Pembelian::with('user', 'gudang')
-                        ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo])
-                        ->get();
+            ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo])
+            ->get();
         $biayas = Biaya::with('user')
-                        ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo])
-                        ->get();
+            ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo])
+            ->get();
 
-        $penjualans->each(function($item) { 
-            $item->type = 'Penjualan'; $item->route = route('penjualan.show', $item->id);
-            $item->number = 'INV-' . $item->id;
+        $penjualans->each(function ($item) {
+            $item->type = 'Penjualan';
+            $item->route = route('penjualan.show', $item->id);
+            $item->number = $item->custom_number;
         });
-        $pembelians->each(function($item) { 
-            $item->type = 'Pembelian'; $item->route = route('pembelian.show', $item->id);
-            $item->number = 'PR-' . $item->id;
+        $pembelians->each(function ($item) {
+            $item->type = 'Pembelian';
+            $item->route = route('pembelian.show', $item->id);
+            $item->number = $item->custom_number;
         });
-        $biayas->each(function($item) { 
-            $item->type = 'Biaya'; $item->route = route('biaya.show', $item->id);
-            $item->number = 'EXP-' . $item->id;
+        $biayas->each(function ($item) {
+            $item->type = 'Biaya';
+            $item->route = route('biaya.show', $item->id);
+            $item->number = $item->custom_number;
         });
 
         $allTransactions = $penjualans->concat($pembelians)->concat($biayas)->sortBy('tgl_transaksi');
