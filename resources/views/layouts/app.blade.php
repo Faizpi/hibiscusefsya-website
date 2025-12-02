@@ -733,8 +733,6 @@
                     <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo" style="height: 36px;">
                 </div>
             </a>
-            
-            <hr class="sidebar-divider my-0">
 
             <li class="nav-item {{ Route::is('dashboard') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('dashboard') }}" data-title="Dashboard">
