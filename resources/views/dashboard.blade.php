@@ -8,6 +8,7 @@
             height: 300px;
             width: 100%;
         }
+
         .chart-pie {
             position: relative;
             height: 250px;
@@ -97,50 +98,50 @@
 
     {{-- CHARTS SECTION (untuk Super Admin & Admin) --}}
     @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
-    <div class="row">
-        {{-- Line Chart: Tren 6 Bulan --}}
-        <div class="col-xl-8 col-lg-7">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-line mr-2"></i>Tren Transaksi 6 Bulan Terakhir
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-area">
-                        <canvas id="trendChart"></canvas>
+        <div class="row">
+            {{-- Line Chart: Tren 6 Bulan --}}
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-chart-line mr-2"></i>Tren Transaksi 6 Bulan Terakhir
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="trendChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {{-- Doughnut Chart: Status Transaksi --}}
-        <div class="col-xl-4 col-lg-5">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-pie mr-2"></i>Komposisi Status
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-pie pt-4 pb-2">
-                        <canvas id="statusChart"></canvas>
+            {{-- Doughnut Chart: Status Transaksi --}}
+            <div class="col-xl-4 col-lg-5">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-chart-pie mr-2"></i>Komposisi Status
+                        </h6>
                     </div>
-                    <div class="mt-4 text-center small">
-                        <span class="mr-2">
-                            <i class="fas fa-circle text-warning"></i> Pending
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle text-success"></i> Approved
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle text-secondary"></i> Canceled
-                        </span>
+                    <div class="card-body">
+                        <div class="chart-pie pt-4 pb-2">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-center small">
+                            <span class="mr-2">
+                                <i class="fas fa-circle text-warning"></i> Pending
+                            </span>
+                            <span class="mr-2">
+                                <i class="fas fa-circle text-success"></i> Approved
+                            </span>
+                            <span class="mr-2">
+                                <i class="fas fa-circle text-secondary"></i> Canceled
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     @endif
 
     <div class="row">
@@ -406,139 +407,139 @@
 @push('scripts')
     {{-- Chart.js CDN --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    
+
     {{-- Chart Scripts --}}
     @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Data dari Controller
-            const chartLabels = @json($chartLabels ?? []);
-            const chartPenjualan = @json($chartPenjualan ?? []);
-            const chartPembelian = @json($chartPembelian ?? []);
-            const chartBiaya = @json($chartBiaya ?? []);
-            
-            const statusPending = {{ $statusPending ?? 0 }};
-            const statusApproved = {{ $statusApproved ?? 0 }};
-            const statusCanceled = {{ $statusCanceled ?? 0 }};
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Data dari Controller
+                const chartLabels = @json($chartLabels ?? []);
+                const chartPenjualan = @json($chartPenjualan ?? []);
+                const chartPembelian = @json($chartPembelian ?? []);
+                const chartBiaya = @json($chartBiaya ?? []);
 
-            // Helper format Rupiah
-            function formatRupiah(value) {
-                return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
-            }
+                const statusPending = {{ $statusPending ?? 0 }};
+                const statusApproved = {{ $statusApproved ?? 0 }};
+                const statusCanceled = {{ $statusCanceled ?? 0 }};
 
-            // LINE CHART: Tren 6 Bulan
-            const trendCtx = document.getElementById('trendChart');
-            if (trendCtx) {
-                new Chart(trendCtx, {
-                    type: 'line',
-                    data: {
-                        labels: chartLabels,
-                        datasets: [
-                            {
-                                label: 'Penjualan',
-                                data: chartPenjualan,
-                                borderColor: 'rgb(78, 115, 223)',
-                                backgroundColor: 'rgba(78, 115, 223, 0.1)',
-                                tension: 0.3,
-                                fill: true
-                            },
-                            {
-                                label: 'Pembelian',
-                                data: chartPembelian,
-                                borderColor: 'rgb(28, 200, 138)',
-                                backgroundColor: 'rgba(28, 200, 138, 0.1)',
-                                tension: 0.3,
-                                fill: true
-                            },
-                            {
-                                label: 'Biaya',
-                                data: chartBiaya,
-                                borderColor: 'rgb(54, 185, 204)',
-                                backgroundColor: 'rgba(54, 185, 204, 0.1)',
-                                tension: 0.3,
-                                fill: true
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.dataset.label + ': ' + formatRupiah(context.parsed.y);
+                // Helper format Rupiah
+                function formatRupiah(value) {
+                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+                }
+
+                // LINE CHART: Tren 6 Bulan
+                const trendCtx = document.getElementById('trendChart');
+                if (trendCtx) {
+                    new Chart(trendCtx, {
+                        type: 'line',
+                        data: {
+                            labels: chartLabels,
+                            datasets: [
+                                {
+                                    label: 'Penjualan',
+                                    data: chartPenjualan,
+                                    borderColor: 'rgb(78, 115, 223)',
+                                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                                    tension: 0.3,
+                                    fill: true
+                                },
+                                {
+                                    label: 'Pembelian',
+                                    data: chartPembelian,
+                                    borderColor: 'rgb(28, 200, 138)',
+                                    backgroundColor: 'rgba(28, 200, 138, 0.1)',
+                                    tension: 0.3,
+                                    fill: true
+                                },
+                                {
+                                    label: 'Biaya',
+                                    data: chartBiaya,
+                                    borderColor: 'rgb(54, 185, 204)',
+                                    backgroundColor: 'rgba(54, 185, 204, 0.1)',
+                                    tension: 0.3,
+                                    fill: true
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            return context.dataset.label + ': ' + formatRupiah(context.parsed.y);
+                                        }
                                     }
                                 }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) {
-                                        if (value >= 1000000) {
-                                            return 'Rp ' + (value / 1000000).toFixed(1) + 'jt';
-                                        } else if (value >= 1000) {
-                                            return 'Rp ' + (value / 1000).toFixed(0) + 'rb';
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function (value) {
+                                            if (value >= 1000000) {
+                                                return 'Rp ' + (value / 1000000).toFixed(1) + 'jt';
+                                            } else if (value >= 1000) {
+                                                return 'Rp ' + (value / 1000).toFixed(0) + 'rb';
+                                            }
+                                            return 'Rp ' + value;
                                         }
-                                        return 'Rp ' + value;
                                     }
                                 }
                             }
                         }
-                    }
-                });
-            }
+                    });
+                }
 
-            // DOUGHNUT CHART: Status Transaksi
-            const statusCtx = document.getElementById('statusChart');
-            if (statusCtx) {
-                new Chart(statusCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Pending', 'Approved', 'Canceled'],
-                        datasets: [{
-                            data: [statusPending, statusApproved, statusCanceled],
-                            backgroundColor: [
-                                '#f6c23e', // warning - Pending
-                                '#1cc88a', // success - Approved
-                                '#858796'  // secondary - Canceled
-                            ],
-                            hoverBackgroundColor: [
-                                '#dda20a',
-                                '#17a673',
-                                '#6b6c77'
-                            ],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
-                                        return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                // DOUGHNUT CHART: Status Transaksi
+                const statusCtx = document.getElementById('statusChart');
+                if (statusCtx) {
+                    new Chart(statusCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Pending', 'Approved', 'Canceled'],
+                            datasets: [{
+                                data: [statusPending, statusApproved, statusCanceled],
+                                backgroundColor: [
+                                    '#f6c23e', // warning - Pending
+                                    '#1cc88a', // success - Approved
+                                    '#858796'  // secondary - Canceled
+                                ],
+                                hoverBackgroundColor: [
+                                    '#dda20a',
+                                    '#17a673',
+                                    '#6b6c77'
+                                ],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                            return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                        }
                                     }
                                 }
-                            }
-                        },
-                        cutout: '60%'
-                    }
-                });
-            }
-        });
-    </script>
+                            },
+                            cutout: '60%'
+                        }
+                    });
+                }
+            });
+        </script>
     @endif
 
     {{-- Script untuk FUNGSI SEARCH --}}

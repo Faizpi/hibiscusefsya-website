@@ -44,6 +44,8 @@
         #wrapper {
             display: flex;
             min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
         }
 
         /* ========== SIDEBAR - White Blue Style ========== */
@@ -51,10 +53,13 @@
             background: var(--sidebar-bg) !important;
             min-height: 100vh;
             width: 14rem !important;
+            min-width: 14rem;
             flex-shrink: 0;
             overflow-y: auto;
             overflow-x: hidden;
             border-right: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            z-index: 1000;
         }
 
         .sidebar .sidebar-brand {
@@ -668,7 +673,8 @@
         /* ========== SIDEBAR TOGGLED (Minimized) ========== */
         .sidebar.toggled {
             width: 6.5rem !important;
-            overflow-x: visible;
+            min-width: 6.5rem;
+            overflow-x: hidden;
             overflow-y: auto;
         }
 
@@ -689,7 +695,7 @@
             padding: 0.75rem;
             justify-content: center;
             text-align: center;
-            overflow: visible;
+            overflow: hidden;
         }
 
         .sidebar.toggled .nav-item .nav-link i {
@@ -713,6 +719,10 @@
         /* Tooltip for minimized sidebar */
         .sidebar.toggled .nav-item {
             position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar.toggled .nav-item:hover {
             overflow: visible;
         }
 
@@ -767,62 +777,59 @@
                 display: none;
             }
 
-            /* Default: sidebar icon-only mode */
+            /* Mobile: Sidebar hidden by default */
             .sidebar {
-                width: 4rem !important;
-                overflow-x: visible;
-                transition: all 0.2s ease;
+                position: fixed !important;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 14rem !important;
+                min-width: 14rem;
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+                z-index: 1050;
+                box-shadow: none;
             }
 
-            .sidebar .sidebar-brand {
-                padding: 1rem 0;
-                justify-content: center;
+            /* Sidebar visible on mobile */
+            .sidebar.mobile-show {
+                transform: translateX(0);
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
             }
 
-            .sidebar .sidebar-brand-icon img {
-                height: 28px !important;
+            .sidebar.mobile-show .nav-item .nav-link span,
+            .sidebar.mobile-show .sidebar-heading {
+                display: inline !important;
             }
 
-            .sidebar .nav-item .nav-link {
-                padding: 0.75rem;
-                justify-content: center;
-                overflow: visible;
+            .sidebar.mobile-show .nav-item .nav-link {
+                justify-content: flex-start !important;
             }
 
-            .sidebar .nav-item .nav-link i {
-                margin-right: 0;
-                font-size: 1.1rem;
+            .sidebar.mobile-show .nav-item .nav-link i {
+                margin-right: 0.75rem !important;
             }
 
-            .sidebar .nav-item .nav-link span,
-            .sidebar .sidebar-heading {
+            /* Overlay when sidebar open */
+            .sidebar-overlay {
                 display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1040;
             }
 
-            .sidebar hr.sidebar-divider {
-                margin: 0.25rem 0.5rem;
+            .sidebar-overlay.show {
+                display: block;
             }
 
-            .sidebar .nav-item {
-                margin: 2px 4px;
-            }
-
-            /* Hidden state: sidebar completely hidden */
-            .sidebar.sidebar-hidden {
-                width: 0 !important;
-                min-width: 0 !important;
-                padding: 0 !important;
-                overflow: hidden !important;
-            }
-
-            .sidebar.sidebar-hidden * {
-                opacity: 0;
-                visibility: hidden;
-            }
-
-            /* Content adjusts when sidebar hidden */
+            /* Content wrapper full width on mobile */
             #content-wrapper {
-                transition: all 0.2s ease;
+                width: 100% !important;
+                margin-left: 0 !important;
             }
 
             .container-fluid {
@@ -832,18 +839,19 @@
             /* Toggle button style */
             #sidebarToggleTop {
                 background: var(--sidebar-hover);
-                width: 36px;
-                height: 36px;
+                width: 40px;
+                height: 40px;
                 display: flex !important;
                 align-items: center;
                 justify-content: center;
                 border-radius: 8px !important;
                 margin-right: 0.5rem;
+                border: none !important;
             }
 
             #sidebarToggleTop i {
                 color: var(--sidebar-active);
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
 
             #sidebarToggleTop:hover {
@@ -852,6 +860,22 @@
 
             #sidebarToggleTop:hover i {
                 color: #fff;
+            }
+
+            /* Hide desktop toggle on mobile */
+            #sidebarToggle {
+                display: none !important;
+            }
+        }
+
+        /* Desktop: ensure no horizontal scroll */
+        @media (min-width: 769px) {
+            #sidebarToggleTop {
+                display: none !important;
+            }
+
+            .sidebar-overlay {
+                display: none !important;
             }
         }
 
@@ -1080,6 +1104,9 @@
 
     @auth
         <div id="wrapper">
+            <!-- Sidebar Overlay (Mobile) -->
+            <div class="sidebar-overlay" id="sidebarOverlay"></div>
+            
             <!-- Sidebar -->
             <ul class="navbar-nav sidebar accordion" id="accordionSidebar">
                 <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
@@ -1254,22 +1281,44 @@
     {{-- Custom Mobile Sidebar Toggle --}}
     <script>
         $(document).ready(function () {
-            // Mobile sidebar toggle - hide/show completely
-            $('#sidebarToggleTop').off('click').on('click', function (e) {
+            var sidebar = $('.sidebar');
+            var overlay = $('#sidebarOverlay');
+            var toggleBtn = $('#sidebarToggleTop');
+
+            // Mobile sidebar toggle
+            toggleBtn.off('click').on('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                var sidebar = $('.sidebar');
-                sidebar.toggleClass('sidebar-hidden');
+                sidebar.toggleClass('mobile-show');
+                overlay.toggleClass('show');
 
                 // Change icon based on state
                 var icon = $(this).find('i');
-                if (sidebar.hasClass('sidebar-hidden')) {
-                    icon.removeClass('fa-bars').addClass('fa-chevron-right');
+                if (sidebar.hasClass('mobile-show')) {
+                    icon.removeClass('fa-bars').addClass('fa-times');
                 } else {
-                    icon.removeClass('fa-chevron-right').addClass('fa-bars');
+                    icon.removeClass('fa-times').addClass('fa-bars');
                 }
             });
+
+            // Close sidebar when clicking overlay
+            overlay.on('click', function () {
+                sidebar.removeClass('mobile-show');
+                overlay.removeClass('show');
+                toggleBtn.find('i').removeClass('fa-times').addClass('fa-bars');
+            });
+
+            // Close sidebar when clicking a link (mobile)
+            if ($(window).width() <= 768) {
+                sidebar.find('.nav-link').on('click', function () {
+                    if (!$(this).attr('href').includes('#')) {
+                        sidebar.removeClass('mobile-show');
+                        overlay.removeClass('show');
+                        toggleBtn.find('i').removeClass('fa-times').addClass('fa-bars');
+                    }
+                });
+            }
         });
     </script>
 

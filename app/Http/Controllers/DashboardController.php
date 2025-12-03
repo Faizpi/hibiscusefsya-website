@@ -88,12 +88,12 @@ class DashboardController extends Controller
                         ->whereMonth('tgl_transaksi', $month->month)
                         ->whereIn('status', ['Approved', 'Lunas'])
                         ->sum('grand_total');
-                    
+
                     $chartPembelian[] = Pembelian::whereYear('tgl_transaksi', $month->year)
                         ->whereMonth('tgl_transaksi', $month->month)
                         ->where('status', 'Approved')
                         ->sum('grand_total');
-                    
+
                     $chartBiaya[] = Biaya::whereYear('tgl_transaksi', $month->year)
                         ->whereMonth('tgl_transaksi', $month->month)
                         ->where('status', 'Approved')
@@ -105,13 +105,13 @@ class DashboardController extends Controller
                         ->whereMonth('tgl_transaksi', $month->month)
                         ->whereIn('status', ['Approved', 'Lunas'])
                         ->sum('grand_total');
-                    
+
                     $chartPembelian[] = Pembelian::where('approver_id', $userId)
                         ->whereYear('tgl_transaksi', $month->year)
                         ->whereMonth('tgl_transaksi', $month->month)
                         ->where('status', 'Approved')
                         ->sum('grand_total');
-                    
+
                     $chartBiaya[] = Biaya::where('approver_id', $userId)
                         ->whereYear('tgl_transaksi', $month->year)
                         ->whereMonth('tgl_transaksi', $month->month)
