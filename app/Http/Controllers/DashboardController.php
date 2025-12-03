@@ -61,23 +61,25 @@ class DashboardController extends Controller
             $data['allTransactions'] = $allTransactions->sortByDesc('created_at');
 
         } elseif ($role == 'admin') {
-            // ADMIN: Hanya lihat transaksi yang perlu approval (status Pending)
-            $penjualanQuery = Penjualan::query();
-            $pembelianQuery = Pembelian::query();
-            $biayaQuery = Biaya::query();
+            // ADMIN: Hanya lihat transaksi yang DIA sebagai approver
+            $userId = Auth::id();
+            
+            $penjualanQuery = Penjualan::where('approver_id', $userId);
+            $pembelianQuery = Pembelian::where('approver_id', $userId);
+            $biayaQuery = Biaya::where('approver_id', $userId);
 
-            $pendingCount = Penjualan::where('status', 'Pending')->count()
-                + Pembelian::where('status', 'Pending')->count()
-                + Biaya::where('status', 'Pending')->count();
+            $pendingCount = Penjualan::where('approver_id', $userId)->where('status', 'Pending')->count()
+                + Pembelian::where('approver_id', $userId)->where('status', 'Pending')->count()
+                + Biaya::where('approver_id', $userId)->where('status', 'Pending')->count();
 
-            $data['card_4_title'] = 'Menunggu Approval';
+            $data['card_4_title'] = 'Menunggu Approval Anda';
             $data['card_4_value'] = $pendingCount;
             $data['card_4_icon'] = 'fa-clock';
 
-            // Ambil hanya transaksi dengan status Pending untuk di-approve
-            $penjualans = Penjualan::with('user')->where('status', 'Pending')->get();
-            $pembelians = Pembelian::with('user')->where('status', 'Pending')->get();
-            $biayas = Biaya::with('user')->where('status', 'Pending')->get();
+            // Ambil transaksi yang dia sebagai approver
+            $penjualans = Penjualan::with('user')->where('approver_id', $userId)->get();
+            $pembelians = Pembelian::with('user')->where('approver_id', $userId)->get();
+            $biayas = Biaya::with('user')->where('approver_id', $userId)->get();
 
             $penjualans->each(function ($item) {
                 $dateCode = $item->created_at->format('Ymd');
