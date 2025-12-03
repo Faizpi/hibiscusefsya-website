@@ -331,6 +331,37 @@ document.addEventListener('DOMContentLoaded', function () {
     // Product Options HTML
     const productOptionsHtml = `@foreach($produks as $p)<option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}">{{ $p->nama_produk }}</option>@endforeach`;
 
+    // --- INISIALISASI SELECT2 ---
+    function initSelect2(selectElement) {
+        $(selectElement).select2({
+            placeholder: 'Cari produk...',
+            allowClear: true,
+            width: '100%'
+        }).on('select2:select', function(e) {
+            // Trigger change event untuk autofill harga & deskripsi
+            let option = this.options[this.selectedIndex];
+            let row = this.closest('tr');
+            if(row) {
+                row.querySelector('.product-price').value = option.dataset.harga || 0;
+                row.querySelector('.product-desc').value = option.dataset.deskripsi || '';
+                
+                // Cek Diskon Kontak
+                if(kontakSelect) {
+                    const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
+                    if(kontakOption && kontakOption.value) {
+                        row.querySelector('.product-disc').value = kontakOption.dataset.diskon || 0;
+                    }
+                }
+                calculateRow(row);
+            }
+        });
+    }
+
+    // Init Select2 untuk semua dropdown produk yang sudah ada
+    $('.product-select').each(function() {
+        initSelect2(this);
+    });
+
     // --- 2. LOGIKA KALKULASI (AUTO UPDATE) ---
     function formatRupiah(num) { 
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num); 
@@ -555,13 +586,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- 7. ADD/REMOVE ROW ---
     document.getElementById('add-row-btn').addEventListener('click', function() {
-        let row = tableBody.rows[0].cloneNode(true);
+        // Destroy Select2 sebelum clone
+        let firstRow = tableBody.rows[0];
+        let firstSelect = $(firstRow).find('.product-select');
+        let wasSelect2 = firstSelect.hasClass('select2-hidden-accessible');
+        if(wasSelect2) {
+            firstSelect.select2('destroy');
+        }
+        
+        let row = firstRow.cloneNode(true);
         row.querySelectorAll('input').forEach(i => i.value = '');
         row.querySelector('.product-qty').value = 1;
         row.querySelector('.product-price').value = 0;
+        row.querySelector('.product-select').value = '';
         
         // Terapkan diskon kontak ke baris baru
-        const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
+        const kontakOption = kontakSelect ? kontakSelect.options[kontakSelect.selectedIndex] : null;
         if(kontakOption && kontakOption.value) {
              row.querySelector('.product-disc').value = kontakOption.dataset.diskon || 0;
         } else {
@@ -573,6 +613,13 @@ document.addEventListener('DOMContentLoaded', function () {
             td.innerHTML = '<button type="button" class="btn btn-danger btn-sm remove-btn">X</button>';
         }
         tableBody.appendChild(row);
+        
+        // Re-init Select2 untuk first row dan new row
+        if(wasSelect2) {
+            initSelect2(firstSelect[0]);
+        }
+        initSelect2(row.querySelector('.product-select'));
+        
         syncMobileCards();
     });
 

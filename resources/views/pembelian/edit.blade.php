@@ -321,6 +321,28 @@ document.addEventListener('DOMContentLoaded', function () {
         </select>
     `;
 
+    // --- INISIALISASI SELECT2 ---
+    function initSelect2(selectElement) {
+        $(selectElement).select2({
+            placeholder: 'Cari produk...',
+            allowClear: true,
+            width: '100%'
+        }).on('select2:select', function(e) {
+            let option = this.options[this.selectedIndex];
+            let row = this.closest('tr');
+            if(row) {
+                row.querySelector('.product-price').value = option.dataset.harga || 0;
+                row.querySelector('.product-description').value = option.dataset.deskripsi || '';
+                calculateRow(row);
+            }
+        });
+    }
+
+    // Init Select2 untuk semua dropdown produk yang sudah ada
+    $('.product-select').each(function() {
+        initSelect2(this);
+    });
+
     const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
 
     const calculateRow = (row) => {
@@ -513,6 +535,8 @@ document.addEventListener('DOMContentLoaded', function () {
             <td><input type="text" class="form-control text-right product-line-total" name="jumlah[]" placeholder="0" readonly></td>
             <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
         `;
+        // Init Select2 untuk dropdown baru
+        initSelect2(newRow.querySelector('.product-select'));
         syncMobileCards();
     });
 

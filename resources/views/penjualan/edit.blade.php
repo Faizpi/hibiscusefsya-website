@@ -274,6 +274,34 @@
                 </select>
             `;
 
+            // --- INISIALISASI SELECT2 ---
+            function initSelect2(selectElement) {
+                $(selectElement).select2({
+                    placeholder: 'Cari produk...',
+                    allowClear: true,
+                    width: '100%'
+                }).on('select2:select', function(e) {
+                    let option = this.options[this.selectedIndex];
+                    let row = this.closest('tr');
+                    if(row) {
+                        row.querySelector('.product-price').value = option.dataset.harga || 0;
+                        row.querySelector('.product-description').value = option.dataset.deskripsi || '';
+                        if(kontakSelect) {
+                            const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
+                            if(kontakOption) {
+                                row.querySelector('.product-discount').value = kontakOption.dataset.diskon || 0;
+                            }
+                        }
+                        calculateRow(row);
+                    }
+                });
+            }
+
+            // Init Select2 untuk semua dropdown produk yang sudah ada
+            $('.product-select').each(function() {
+                initSelect2(this);
+            });
+
             const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
 
             const calculateRow = (row) => {
@@ -456,6 +484,8 @@
                 `;
                 const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
                 if (kontakOption) newRow.querySelector('.product-discount').value = kontakOption.dataset.diskon || 0;
+                // Init Select2 untuk dropdown baru
+                initSelect2(newRow.querySelector('.product-select'));
                 syncMobileCards();
             });
 

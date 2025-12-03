@@ -12,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link href="{{ asset('template/css/sb-admin-2.min.css') }}" rel="stylesheet">
+    {{-- Select2 CSS --}}
+    <link href="{{ asset('assets/bundle/select2/dist/css/select2.min.css') }}" rel="stylesheet">
 
     <style>
         :root {
@@ -1163,6 +1165,8 @@
     <script src="{{ asset('template/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('template/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
     <script src="{{ asset('template/js/sb-admin-2.min.js') }}"></script>
+    {{-- Select2 JS --}}
+    <script src="{{ asset('assets/bundle/select2/dist/js/select2.min.js') }}"></script>
 
     {{-- Custom Mobile Sidebar Toggle --}}
     <script>

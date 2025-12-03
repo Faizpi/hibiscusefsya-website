@@ -365,6 +365,28 @@ document.addEventListener('DOMContentLoaded', function () {
     // Product Options HTML for mobile cards
     const productOptionsHtml = `@foreach($produks as $p)<option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}">{{ $p->nama_produk }}</option>@endforeach`;
 
+    // --- INISIALISASI SELECT2 ---
+    function initSelect2(selectElement) {
+        $(selectElement).select2({
+            placeholder: 'Cari produk...',
+            allowClear: true,
+            width: '100%'
+        }).on('select2:select', function(e) {
+            let option = this.options[this.selectedIndex];
+            let row = this.closest('tr');
+            if(row) {
+                row.querySelector('.product-price').value = option.dataset.harga || 0;
+                row.querySelector('.product-desc').value = option.dataset.deskripsi || '';
+                calculateTotal();
+            }
+        });
+    }
+
+    // Init Select2 untuk semua dropdown produk yang sudah ada
+    $('.product-select').each(function() {
+        initSelect2(this);
+    });
+
     function formatRupiah(num) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num); }
     
     function calculateTotal() {
@@ -553,6 +575,8 @@ document.addEventListener('DOMContentLoaded', function () {
             <td><input type="text" class="form-control text-right product-total" readonly></td>
             <td><button type="button" class="btn btn-danger btn-sm remove-btn">X</button></td>
         `;
+        // Init Select2 untuk dropdown baru
+        initSelect2(newRow.querySelector('.product-select'));
         syncMobileCards();
     });
 
