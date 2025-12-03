@@ -729,22 +729,23 @@
         .sidebar.toggled .nav-item .nav-link::after {
             content: attr(data-title);
             position: absolute;
-            left: calc(100% + 0.5rem);
+            left: calc(100% + 0.25rem);
             top: 50%;
             transform: translateY(-50%);
-            background: var(--sidebar-active);
-            color: #fff;
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
+            background: transparent;
+            color: var(--sidebar-active);
+            padding: 0;
+            border-radius: 0;
             font-size: 0.8125rem;
-            font-weight: 500;
+            font-weight: 600;
             white-space: nowrap;
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
             transition: all 0.15s ease;
             z-index: 1100;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: none;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
         }
 
         .sidebar.toggled .nav-item:hover .nav-link::after {
@@ -1106,7 +1107,7 @@
         <div id="wrapper">
             <!-- Sidebar Overlay (Mobile) -->
             <div class="sidebar-overlay" id="sidebarOverlay"></div>
-            
+
             <!-- Sidebar -->
             <ul class="navbar-nav sidebar accordion" id="accordionSidebar">
                 <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
