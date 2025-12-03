@@ -945,7 +945,7 @@
             }
 
             /* Adjust form layout on mobile */
-            .row > [class*='col-md-'] {
+            .row>[class*='col-md-'] {
                 margin-bottom: 0.5rem;
             }
 
@@ -956,18 +956,18 @@
                 gap: 0.75rem;
             }
 
-            .d-sm-flex.align-items-center.justify-content-between > h3 {
+            .d-sm-flex.align-items-center.justify-content-between>h3 {
                 align-self: flex-end;
             }
 
             /* Show page action buttons */
-            .d-sm-flex > div {
+            .d-sm-flex>div {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 0.25rem;
             }
 
-            .d-sm-flex > div .btn {
+            .d-sm-flex>div .btn {
                 font-size: 0.75rem;
                 padding: 0.25rem 0.5rem;
             }
@@ -1166,24 +1166,24 @@
 
     {{-- Custom Mobile Sidebar Toggle --}}
     <script>
-    $(document).ready(function() {
-        // Mobile sidebar toggle - hide/show completely
-        $('#sidebarToggleTop').off('click').on('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            var sidebar = $('.sidebar');
-            sidebar.toggleClass('sidebar-hidden');
-            
-            // Change icon based on state
-            var icon = $(this).find('i');
-            if (sidebar.hasClass('sidebar-hidden')) {
-                icon.removeClass('fa-bars').addClass('fa-chevron-right');
-            } else {
-                icon.removeClass('fa-chevron-right').addClass('fa-bars');
-            }
+        $(document).ready(function () {
+            // Mobile sidebar toggle - hide/show completely
+            $('#sidebarToggleTop').off('click').on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var sidebar = $('.sidebar');
+                sidebar.toggleClass('sidebar-hidden');
+
+                // Change icon based on state
+                var icon = $(this).find('i');
+                if (sidebar.hasClass('sidebar-hidden')) {
+                    icon.removeClass('fa-bars').addClass('fa-chevron-right');
+                } else {
+                    icon.removeClass('fa-chevron-right').addClass('fa-bars');
+                }
+            });
         });
-    });
     </script>
 
     @stack('scripts')

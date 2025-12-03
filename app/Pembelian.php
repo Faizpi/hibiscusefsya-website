@@ -8,28 +8,28 @@ class Pembelian extends Model
 {
     // Pastikan semua kolom ini ada di fillable
     protected $fillable = [
-        'user_id', 
-        'approver_id', 
-        'no_urut_harian', 
-        'gudang_id', 
-        
+        'user_id',
+        'approver_id',
+        'no_urut_harian',
+        'gudang_id',
+
         // Field Transaksi
         'staf_penyetuju',    // <--- WAJIB ADA
         'email_penyetuju',   // <--- WAJIB ADA
-        'tgl_transaksi', 
-        'tgl_jatuh_tempo', 
+        'tgl_transaksi',
+        'tgl_jatuh_tempo',
         'syarat_pembayaran',
-        'urgensi', 
-        'tahun_anggaran', 
-        'tag', 
+        'urgensi',
+        'tahun_anggaran',
+        'tag',
         'koordinat',
-        'memo', 
-        'lampiran_path', 
+        'memo',
+        'lampiran_path',
         'status',
-        
+
         // Keuangan
-        'diskon_akhir', 
-        'tax_percentage', 
+        'diskon_akhir',
+        'tax_percentage',
         'grand_total'
     ];
 

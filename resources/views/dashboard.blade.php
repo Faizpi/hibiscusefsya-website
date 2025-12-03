@@ -3,7 +3,7 @@
 @section('content')
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+        <h1 class="h3 mb-2 mb-sm-0 text-gray-800">Dashboard</h1>
 
         {{-- Tombol Export hanya untuk Admin/Super Admin --}}
         @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
@@ -25,7 +25,8 @@
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 Penjualan (Bulan Ini)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($penjualanBulanIni, 0, ',', '.') }}</div>
+                                {{ number_format($penjualanBulanIni, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-shopping-cart fa-2x text-gray-300"></i></div>
                     </div>
@@ -55,7 +56,8 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Biaya (Bulan Ini)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($biayaBulanIni, 0, ',', '.') }}</div>
+                                {{ number_format($biayaBulanIni, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-receipt fa-2x text-gray-300"></i></div>
                     </div>
@@ -245,26 +247,71 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exportModalLabel">Export Laporan Transaksi</h5>
+                    <h5 class="modal-title" id="exportModalLabel">
+                        <i class="fas fa-file-excel text-success mr-2"></i>Generate Report
+                    </h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
                 <form action="{{ route('report.export') }}" method="GET">
                     <div class="modal-body">
-                        <p>Pilih rentang tanggal untuk data yang ingin Anda export.</p>
-                        <div class="form-group">
-                            <label for="date_from">Dari Tanggal</label>
-                            <input type="date" class="form-control" name="date_from" id="date_from" required>
+                        {{-- Info Role --}}
+                        <div class="alert alert-info small mb-3">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            @if(auth()->user()->role == 'super_admin')
+                                <strong>Super Admin:</strong> Anda dapat export semua data transaksi.
+                            @else
+                                <strong>Admin:</strong> Anda hanya dapat export data dimana Anda sebagai approver.
+                            @endif
                         </div>
+
+                        {{-- Tipe Transaksi --}}
                         <div class="form-group">
-                            <label for="date_to">Sampai Tanggal</label>
-                            <input type="date" class="form-control" name="date_to" id="date_to" required>
+                            <label for="transaction_type"><strong>Tipe Transaksi</strong></label>
+                            <select class="form-control" name="transaction_type" id="transaction_type" required>
+                                <option value="all">Semua Transaksi</option>
+                                <option value="penjualan">Penjualan</option>
+                                <option value="pembelian">Pembelian</option>
+                                <option value="biaya">Biaya</option>
+                            </select>
+                        </div>
+
+                        <hr>
+
+                        {{-- Rentang Tanggal --}}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="date_from">Dari Tanggal</label>
+                                    <input type="date" class="form-control" name="date_from" id="date_from" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="date_to">Sampai Tanggal</label>
+                                    <input type="date" class="form-control" name="date_to" id="date_to" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Status Filter --}}
+                        <div class="form-group">
+                            <label for="status_filter">Filter Status</label>
+                            <select class="form-control" name="status_filter" id="status_filter">
+                                <option value="all">Semua Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Rejected">Rejected</option>
+                                <option value="Canceled">Canceled</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Export ke Excel</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-download mr-1"></i> Export ke Excel
+                        </button>
                     </div>
                 </form>
             </div>

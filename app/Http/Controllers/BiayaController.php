@@ -22,9 +22,9 @@ class BiayaController extends Controller
         $query = Biaya::with(['user', 'approver']);
         if ($user->role == 'super_admin') {
         } elseif ($user->role == 'admin') {
-            $query->where(function($q) use ($user) {
+            $query->where(function ($q) use ($user) {
                 $q->where('approver_id', $user->id)
-                  ->orWhere('user_id', $user->id);
+                    ->orWhere('user_id', $user->id);
             });
         } else {
             $query->where('user_id', $user->id);
@@ -32,7 +32,7 @@ class BiayaController extends Controller
 
         $allBiaya = $query->latest()->get();
 
-        $allBiaya->transform(function($item) {
+        $allBiaya->transform(function ($item) {
             $dateCode = $item->created_at->format('Ymd');
             $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
             $item->custom_number = "EXP-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
@@ -42,11 +42,11 @@ class BiayaController extends Controller
         $totalBulanIni = $allBiaya->where('tgl_transaksi', '>=', Carbon::now()->startOfMonth())
             ->whereIn('status', ['Pending', 'Approved'])
             ->sum('grand_total');
-            
+
         $total30Hari = $allBiaya->where('tgl_transaksi', '>=', Carbon::now()->subDays(30))
             ->whereIn('status', ['Pending', 'Approved'])
             ->sum('grand_total');
-            
+
         $totalBelumDibayar = $allBiaya->where('status', 'Pending')->sum('grand_total');
 
         return view('biaya.index', [
@@ -61,20 +61,20 @@ class BiayaController extends Controller
     {
         $kontaks = Kontak::all();
         $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
-        
+
         return view('biaya.create', compact('kontaks', 'approvers'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'approver_id' => 'required|exists:users,id', 
+            'approver_id' => 'required|exists:users,id',
             'bayar_dari' => 'required|string',
             'tgl_transaksi' => 'required|date',
             'penerima' => 'nullable|string|max:255',
             'tax_percentage' => 'required|numeric|min:0',
             'lampiran' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
-            
+
             'kategori' => 'required|array|min:1',
             'total' => 'required|array|min:1',
             'kategori.*' => 'required|string|max:255',
@@ -86,7 +86,7 @@ class BiayaController extends Controller
 
         // Pastikan folder public/storage/lampiran_biaya ada
         $publicFolder = public_path('storage/lampiran_biaya');
-        if (! File::exists($publicFolder)) {
+        if (!File::exists($publicFolder)) {
             File::makeDirectory($publicFolder, 0755, true);
         }
 
@@ -103,7 +103,7 @@ class BiayaController extends Controller
         foreach ($request->total as $index => $jumlah) {
             $subTotal += $jumlah ?? 0;
         }
-        
+
         $pajakPersen = $request->tax_percentage ?? 0;
         $jumlahPajak = $subTotal * ($pajakPersen / 100);
         $grandTotal = $subTotal + $jumlahPajak;
@@ -157,9 +157,11 @@ class BiayaController extends Controller
     public function approve(Biaya $biaya)
     {
         $user = Auth::user();
-        
-        if ($user->role == 'user') return back()->with('error', 'Akses ditolak.');
-        if ($user->role == 'admin' && $biaya->approver_id != $user->id) return back()->with('error', 'Bukan wewenang Anda.');
+
+        if ($user->role == 'user')
+            return back()->with('error', 'Akses ditolak.');
+        if ($user->role == 'admin' && $biaya->approver_id != $user->id)
+            return back()->with('error', 'Bukan wewenang Anda.');
 
         $biaya->status = 'Approved';
         $biaya->save();
@@ -169,7 +171,8 @@ class BiayaController extends Controller
     public function cancel(Biaya $biaya)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['admin', 'super_admin'])) return back()->with('error', 'Akses ditolak.');
+        if (!in_array($user->role, ['admin', 'super_admin']))
+            return back()->with('error', 'Akses ditolak.');
 
         $biaya->status = 'Canceled';
         $biaya->save();
@@ -180,11 +183,14 @@ class BiayaController extends Controller
     {
         $user = Auth::user();
         $canDelete = false;
-        if (in_array($user->role, ['admin', 'super_admin'])) $canDelete = true;
-        elseif ($biaya->user_id == $user->id && $biaya->status == 'Pending') $canDelete = true;
+        if (in_array($user->role, ['admin', 'super_admin']))
+            $canDelete = true;
+        elseif ($biaya->user_id == $user->id && $biaya->status == 'Pending')
+            $canDelete = true;
 
-        if (!$canDelete) return back()->with('error', 'Akses ditolak.');
-        
+        if (!$canDelete)
+            return back()->with('error', 'Akses ditolak.');
+
         if ($biaya->lampiran_path) {
             $full = public_path('storage/' . $biaya->lampiran_path);
             if (File::exists($full)) {
@@ -203,9 +209,7 @@ class BiayaController extends Controller
 
         if (in_array($user->role, ['admin', 'super_admin'])) {
             $canEdit = true;
-        } 
-
-        elseif ($biaya->user_id == $user->id && $biaya->status == 'Pending') {
+        } elseif ($biaya->user_id == $user->id && $biaya->status == 'Pending') {
             $canEdit = true;
         }
 
@@ -230,7 +234,8 @@ class BiayaController extends Controller
             $canUpdate = true;
         }
 
-        if (!$canUpdate) return redirect()->route('biaya.index')->with('error', 'Akses ditolak.');
+        if (!$canUpdate)
+            return redirect()->route('biaya.index')->with('error', 'Akses ditolak.');
 
         $request->validate([
             'approver_id' => 'required|exists:users,id',
@@ -249,7 +254,7 @@ class BiayaController extends Controller
 
         // Pastikan folder public/storage/lampiran_biaya ada
         $publicFolder = public_path('storage/lampiran_biaya');
-        if (! File::exists($publicFolder)) {
+        if (!File::exists($publicFolder)) {
             File::makeDirectory($publicFolder, 0755, true);
         }
 
@@ -280,7 +285,7 @@ class BiayaController extends Controller
         DB::beginTransaction();
         try {
             $biaya->update([
-                'status' => 'Pending', 
+                'status' => 'Pending',
                 'approver_id' => $request->approver_id,
                 'bayar_dari' => $request->bayar_dari,
                 'penerima' => $request->penerima,
@@ -322,11 +327,15 @@ class BiayaController extends Controller
     {
         $user = Auth::user();
         $allow = false;
-        if ($user->role == 'super_admin') $allow = true;
-        elseif ($user->role == 'admin' && $biaya->approver_id == $user->id) $allow = true;
-        elseif ($biaya->user_id == $user->id) $allow = true;
+        if ($user->role == 'super_admin')
+            $allow = true;
+        elseif ($user->role == 'admin' && $biaya->approver_id == $user->id)
+            $allow = true;
+        elseif ($biaya->user_id == $user->id)
+            $allow = true;
 
-        if (!$allow) return redirect()->route('biaya.index')->with('error', 'Akses ditolak.');
+        if (!$allow)
+            return redirect()->route('biaya.index')->with('error', 'Akses ditolak.');
 
         $biaya->load('items', 'user', 'approver');
         $dateCode = $biaya->created_at->format('Ymd');
@@ -339,11 +348,15 @@ class BiayaController extends Controller
     {
         $user = Auth::user();
         $allow = false;
-        if ($user->role == 'super_admin') $allow = true;
-        elseif ($user->role == 'admin' && $biaya->approver_id == $user->id) $allow = true;
-        elseif ($biaya->user_id == $user->id) $allow = true;
+        if ($user->role == 'super_admin')
+            $allow = true;
+        elseif ($user->role == 'admin' && $biaya->approver_id == $user->id)
+            $allow = true;
+        elseif ($biaya->user_id == $user->id)
+            $allow = true;
 
-        if (!$allow) return redirect()->route('biaya.index')->with('error', 'Akses ditolak.');
+        if (!$allow)
+            return redirect()->route('biaya.index')->with('error', 'Akses ditolak.');
 
         $biaya->load('items', 'user', 'approver');
         return view('biaya.print', compact('biaya'));

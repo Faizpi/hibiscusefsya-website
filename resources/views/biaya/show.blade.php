@@ -110,7 +110,8 @@
                             <tr>
                                 <td><strong>Grand Total</strong></td>
                                 <td>: <h4 class="font-weight-bold text-primary">Rp
-                                        {{ number_format($biaya->grand_total, 0, ',', '.') }}</h4>
+                                        {{ number_format($biaya->grand_total, 0, ',', '.') }}
+                                    </h4>
                                 </td>
                             </tr>
                             <tr>
@@ -119,11 +120,12 @@
                             </tr>
                             <tr>
                                 <td><strong>Koordinat</strong></td>
-                                <td>: 
+                                <td>:
                                     @if($biaya->koordinat)
                                         {{ $biaya->koordinat }}
-                                        <a href="https://www.google.com/maps?q={{ str_replace(' ', '', $biaya->koordinat) }}" 
-                                           target="_blank" class="ml-2 btn btn-outline-success btn-sm" title="Buka di Google Maps">
+                                        <a href="https://www.google.com/maps?q={{ str_replace(' ', '', $biaya->koordinat) }}"
+                                            target="_blank" class="ml-2 btn btn-outline-success btn-sm"
+                                            title="Buka di Google Maps">
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>
                                     @else

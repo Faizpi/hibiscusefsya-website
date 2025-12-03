@@ -24,16 +24,16 @@ class PenjualanController extends Controller
 
         if ($user->role == 'super_admin') {
         } elseif ($user->role == 'admin') {
-            $query->where(function($q) use ($user) {
+            $query->where(function ($q) use ($user) {
                 $q->where('approver_id', $user->id)
-                  ->orWhere('user_id', $user->id);
+                    ->orWhere('user_id', $user->id);
             });
         } else {
             $query->where('user_id', $user->id);
         }
 
         $allPenjualan = $query->latest()->get();
-        $allPenjualan->transform(function($item) {
+        $allPenjualan->transform(function ($item) {
             $dateCode = $item->created_at->format('Ymd');
             $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
             $item->custom_number = "INV-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
@@ -41,7 +41,7 @@ class PenjualanController extends Controller
         });
 
         $totalBelumDibayar = $allPenjualan->whereIn('status', ['Pending', 'Approved'])->sum('grand_total');
-        
+
         $totalTelatDibayar = $allPenjualan->where('status', 'Approved')
             ->whereNotNull('tgl_jatuh_tempo')
             ->where('tgl_jatuh_tempo', '<', Carbon::now())
@@ -50,7 +50,7 @@ class PenjualanController extends Controller
         $pelunasan30Hari = $allPenjualan->where('status', 'Lunas')
             ->where('updated_at', '>=', Carbon::now()->subDays(30))
             ->sum('grand_total');
-            
+
         $totalCanceled = $allPenjualan->where('status', 'Canceled')->count();
 
         return view('penjualan.index', [
@@ -66,7 +66,7 @@ class PenjualanController extends Controller
     {
         $produks = Produk::all();
         $gudangs = Gudang::all();
-        $kontaks = Kontak::all(); 
+        $kontaks = Kontak::all();
         $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
 
         return view('penjualan.create', compact('produks', 'gudangs', 'kontaks', 'approvers'));
@@ -75,7 +75,7 @@ class PenjualanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'pelanggan' => 'required|string', 
+            'pelanggan' => 'required|string',
             'tgl_transaksi' => 'required|date',
             'syarat_pembayaran' => 'required|string',
             'approver_id' => 'required|exists:users,id',
@@ -83,7 +83,7 @@ class PenjualanController extends Controller
             'tax_percentage' => 'required|numeric|min:0',
             'diskon_akhir' => 'nullable|numeric|min:0',
             'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
-            
+
             'produk_id' => 'required|array|min:1',
             'produk_id.*' => 'required|exists:produks,id',
             'kuantitas.*' => 'required|numeric|min:1',
@@ -106,15 +106,19 @@ class PenjualanController extends Controller
             $file->move($publicFolder, $filename);
             $path = 'lampiran_penjualan/' . $filename;
         }
-        
+
         // Hitung jatuh tempo
         $tglJatuhTempo = Carbon::parse($request->tgl_transaksi);
         $term = $request->syarat_pembayaran;
 
-        if ($term == 'Net 7') $tglJatuhTempo->addDays(7);
-        elseif ($term == 'Net 14') $tglJatuhTempo->addDays(14);
-        elseif ($term == 'Net 30') $tglJatuhTempo->addDays(30);
-        elseif ($term == 'Net 60') $tglJatuhTempo->addDays(60);
+        if ($term == 'Net 7')
+            $tglJatuhTempo->addDays(7);
+        elseif ($term == 'Net 14')
+            $tglJatuhTempo->addDays(14);
+        elseif ($term == 'Net 30')
+            $tglJatuhTempo->addDays(30);
+        elseif ($term == 'Net 60')
+            $tglJatuhTempo->addDays(60);
 
         // Hitung subtotal
         $subTotal = 0;
@@ -201,8 +205,7 @@ class PenjualanController extends Controller
 
         if (in_array($user->role, ['admin', 'super_admin'])) {
             $canEdit = true;
-        } 
-        elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending') {
+        } elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending') {
             $canEdit = true;
         }
 
@@ -214,7 +217,7 @@ class PenjualanController extends Controller
         $gudangs = Gudang::all();
         $kontaks = Kontak::all();
         $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
-        
+
         $penjualan->load('items');
 
         $dateCode = $penjualan->created_at->format('Ymd');
@@ -229,10 +232,13 @@ class PenjualanController extends Controller
         $user = Auth::user();
         $canUpdate = false;
 
-        if (in_array($user->role, ['admin', 'super_admin'])) $canUpdate = true;
-        elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending') $canUpdate = true;
+        if (in_array($user->role, ['admin', 'super_admin']))
+            $canUpdate = true;
+        elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending')
+            $canUpdate = true;
 
-        if (!$canUpdate) return back()->with('error', 'Akses ditolak.');
+        if (!$canUpdate)
+            return back()->with('error', 'Akses ditolak.');
 
         $request->validate([
             'pelanggan' => 'required|string',
@@ -348,20 +354,22 @@ class PenjualanController extends Controller
     public function approve(Penjualan $penjualan)
     {
         $user = Auth::user();
-        if ($user->role == 'user') return back()->with('error', 'Akses ditolak.');
-        if ($user->role == 'admin' && $penjualan->approver_id != $user->id) 
+        if ($user->role == 'user')
+            return back()->with('error', 'Akses ditolak.');
+        if ($user->role == 'admin' && $penjualan->approver_id != $user->id)
             return back()->with('error', 'Bukan wewenang Anda.');
 
-        $gudangId = $penjualan->gudang_id; 
-        if (!$gudangId) return back()->with('error', 'Gagal! Transaksi ini tidak terhubung ke gudang manapun.');
+        $gudangId = $penjualan->gudang_id;
+        if (!$gudangId)
+            return back()->with('error', 'Gagal! Transaksi ini tidak terhubung ke gudang manapun.');
 
         DB::beginTransaction();
         try {
             foreach ($penjualan->items as $item) {
 
                 $stok = GudangProduk::where('gudang_id', $gudangId)
-                                    ->where('produk_id', $item->produk_id)
-                                    ->first();
+                    ->where('produk_id', $item->produk_id)
+                    ->first();
 
                 if (!$stok || $stok->stok < $item->kuantitas) {
                     $namaProduk = $item->produk->nama_produk ?? 'ID: ' . $item->produk_id;
@@ -390,7 +398,7 @@ class PenjualanController extends Controller
     {
         $user = Auth::user();
         if (!in_array($user->role, ['admin', 'super_admin'])) {
-             return back()->with('error', 'Akses ditolak.');
+            return back()->with('error', 'Akses ditolak.');
         }
 
         if ($penjualan->status == 'Approved') {
@@ -412,7 +420,7 @@ class PenjualanController extends Controller
     public function markAsPaid(Penjualan $penjualan)
     {
         if (!in_array(Auth::user()->role, ['admin', 'super_admin'])) {
-             return back()->with('error', 'Akses ditolak.');
+            return back()->with('error', 'Akses ditolak.');
         }
         $penjualan->status = 'Lunas';
         $penjualan->save();
@@ -425,11 +433,14 @@ class PenjualanController extends Controller
         $user = Auth::user();
         $canDelete = false;
 
-        if (in_array($user->role, ['admin', 'super_admin'])) $canDelete = true;
-        elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending') $canDelete = true;
+        if (in_array($user->role, ['admin', 'super_admin']))
+            $canDelete = true;
+        elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending')
+            $canDelete = true;
 
-        if (!$canDelete) return back()->with('error', 'Akses ditolak.');
-        
+        if (!$canDelete)
+            return back()->with('error', 'Akses ditolak.');
+
         if ($penjualan->lampiran_path) {
             $full = public_path('storage/' . $penjualan->lampiran_path);
             if (File::exists($full)) {
@@ -447,14 +458,18 @@ class PenjualanController extends Controller
         $user = Auth::user();
         $allow = false;
 
-        if ($user->role == 'super_admin') $allow = true;
-        elseif ($user->role == 'admin' && $penjualan->approver_id == $user->id) $allow = true;
-        elseif ($penjualan->user_id == $user->id) $allow = true;
+        if ($user->role == 'super_admin')
+            $allow = true;
+        elseif ($user->role == 'admin' && $penjualan->approver_id == $user->id)
+            $allow = true;
+        elseif ($penjualan->user_id == $user->id)
+            $allow = true;
 
-        if (!$allow) return redirect()->route('penjualan.index')->with('error', 'Akses ditolak.');
+        if (!$allow)
+            return redirect()->route('penjualan.index')->with('error', 'Akses ditolak.');
 
         $penjualan->load('items.produk', 'user', 'gudang', 'approver');
-        
+
         $dateCode = $penjualan->created_at->format('Ymd');
         $noUrutPadded = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $penjualan->custom_number = "INV-{$dateCode}-{$penjualan->user_id}-{$noUrutPadded}";
@@ -467,11 +482,15 @@ class PenjualanController extends Controller
         $user = Auth::user();
         $allow = false;
 
-        if ($user->role == 'super_admin') $allow = true;
-        elseif ($user->role == 'admin' && $penjualan->approver_id == $user->id) $allow = true;
-        elseif ($penjualan->user_id == $user->id) $allow = true;
+        if ($user->role == 'super_admin')
+            $allow = true;
+        elseif ($user->role == 'admin' && $penjualan->approver_id == $user->id)
+            $allow = true;
+        elseif ($penjualan->user_id == $user->id)
+            $allow = true;
 
-        if (!$allow) return redirect()->route('penjualan.index')->with('error', 'Akses ditolak.');
+        if (!$allow)
+            return redirect()->route('penjualan.index')->with('error', 'Akses ditolak.');
 
         $penjualan->load('items.produk', 'user', 'gudang', 'approver');
         return view('penjualan.print', compact('penjualan'));

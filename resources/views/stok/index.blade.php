@@ -13,6 +13,8 @@
     @endif
 
     <div class="row">
+        {{-- Form hanya tampil untuk Super Admin --}}
+        @if(auth()->user()->role == 'super_admin')
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
@@ -51,8 +53,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
-        <div class="col-lg-8">
+        {{-- Kolom daftar stok: full width untuk Admin, 8 kolom untuk Super Admin --}}
+        <div class="{{ auth()->user()->role == 'super_admin' ? 'col-lg-8' : 'col-lg-12' }}">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Daftar Stok per Gudang</h6>

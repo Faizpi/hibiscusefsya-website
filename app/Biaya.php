@@ -7,11 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 class Biaya extends Model
 {
     protected $fillable = [
-        'user_id', 'approver_id', 'no_urut_harian',
-        'bayar_dari', 'penerima', 'alamat_penagihan', 
-        'tgl_transaksi', 'cara_pembayaran', 'tag', 'koordinat',
-        'memo', 'lampiran_path', 'status',
-        'tax_percentage', 'grand_total'
+        'user_id',
+        'approver_id',
+        'no_urut_harian',
+        'bayar_dari',
+        'penerima',
+        'alamat_penagihan',
+        'tgl_transaksi',
+        'cara_pembayaran',
+        'tag',
+        'koordinat',
+        'memo',
+        'lampiran_path',
+        'status',
+        'tax_percentage',
+        'grand_total'
     ];
 
     protected $casts = [
