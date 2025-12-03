@@ -134,10 +134,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Grand Total</strong></td>
-                                <td>: <h4 class="font-weight-bold text-primary">Rp
-                                        {{ number_format($penjualan->grand_total, 0, ',', '.') }}
-                                    </h4>
-                                </td>
+                                <td>: <span class="font-weight-bold text-primary" style="font-size: 1.25rem;">Rp {{ number_format($penjualan->grand_total, 0, ',', '.') }}</span></td>
                             </tr>
                             <tr>
                                 <td><strong>No. Referensi</strong></td>

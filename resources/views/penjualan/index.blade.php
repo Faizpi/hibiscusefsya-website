@@ -25,7 +25,8 @@
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Total (Pending/Approved)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($totalBelumDibayar, 0, ',', '.') }}</div>
+                                {{ number_format($totalBelumDibayar, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i></div>
                     </div>
@@ -97,9 +98,10 @@
                                 </td>
                                 <td class="text-center">
                                     @php $role = auth()->user()->role; @endphp
-                                    
+
                                     <div class="dropdown action-dropdown">
-                                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-right shadow-sm">
@@ -107,12 +109,13 @@
                                             <a class="dropdown-item" href="{{ route('penjualan.show', $item->id) }}">
                                                 <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat Detail
                                             </a>
-                                            
+
                                             @if(in_array($role, ['admin', 'super_admin']))
                                                 {{-- APPROVE: Hanya jika Pending --}}
                                                 @if($item->status == 'Pending')
                                                     @if($role == 'super_admin' || $item->approver_id == auth()->id())
-                                                        <form action="{{ route('penjualan.approve', $item->id) }}" method="POST" class="d-inline">
+                                                        <form action="{{ route('penjualan.approve', $item->id) }}" method="POST"
+                                                            class="d-inline">
                                                             @csrf
                                                             <button type="submit" class="dropdown-item">
                                                                 <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
@@ -123,7 +126,8 @@
 
                                                 {{-- MARK PAID: Hanya jika Approved --}}
                                                 @if($item->status == 'Approved')
-                                                    <form action="{{ route('penjualan.markAsPaid', $item->id) }}" method="POST" class="d-inline">
+                                                    <form action="{{ route('penjualan.markAsPaid', $item->id) }}" method="POST"
+                                                        class="d-inline">
                                                         @csrf
                                                         <button type="submit" class="dropdown-item">
                                                             <i class="fas fa-dollar-sign fa-fw mr-2 text-primary"></i> Tandai Lunas
@@ -133,7 +137,8 @@
 
                                                 {{-- CANCEL: Jika belum Canceled --}}
                                                 @if($item->status != 'Canceled')
-                                                    <form action="{{ route('penjualan.cancel', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Batalkan transaksi ini?')">
+                                                    <form action="{{ route('penjualan.cancel', $item->id) }}" method="POST"
+                                                        class="d-inline" onsubmit="return confirm('Batalkan transaksi ini?')">
                                                         @csrf
                                                         <button type="submit" class="dropdown-item">
                                                             <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan
@@ -148,7 +153,9 @@
                                                 <a class="dropdown-item" href="{{ route('penjualan.edit', $item->id) }}">
                                                     <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
                                                 </a>
-                                                <button type="button" class="dropdown-item text-danger" data-toggle="modal" data-target="#deleteModal" data-action="{{ route('penjualan.destroy', $item->id) }}">
+                                                <button type="button" class="dropdown-item text-danger" data-toggle="modal"
+                                                    data-target="#deleteModal"
+                                                    data-action="{{ route('penjualan.destroy', $item->id) }}">
                                                     <i class="fas fa-trash fa-fw mr-2"></i> Hapus
                                                 </button>
                                             @endif
