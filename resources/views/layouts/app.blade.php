@@ -705,7 +705,12 @@
         }
 
         .sidebar.toggled .nav-item .nav-link span {
-            display: none;
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
         }
 
         .sidebar.toggled .sidebar-heading {
@@ -716,41 +721,14 @@
             margin: 0.5rem 0.75rem;
         }
 
-        /* Tooltip for minimized sidebar */
+        /* Tooltip style - remove completely, use native title */
         .sidebar.toggled .nav-item {
             position: relative;
-            overflow: hidden;
-        }
-
-        .sidebar.toggled .nav-item:hover {
-            overflow: visible;
         }
 
         .sidebar.toggled .nav-item .nav-link::after {
-            content: attr(data-title);
-            position: absolute;
-            left: calc(100% + 0.25rem);
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            color: var(--sidebar-active);
-            padding: 0;
-            border-radius: 0;
-            font-size: 0.8125rem;
-            font-weight: 600;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: all 0.15s ease;
-            z-index: 1100;
-            box-shadow: none;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
-        }
-
-        .sidebar.toggled .nav-item:hover .nav-link::after {
-            opacity: 1;
-            visibility: visible;
+            display: none !important;
+            content: none !important;
         }
 
         /* ========== TABLES RESPONSIVE ========== */
@@ -1117,7 +1095,7 @@
                 </a>
 
                 <li class="nav-item {{ Route::is('dashboard') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('dashboard') }}" data-title="Dashboard">
+                    <a class="nav-link" href="{{ route('dashboard') }}" title="Dashboard">
                         <i class="fas fa-home"></i>
                         <span>Dashboard</span>
                     </a>
@@ -1127,19 +1105,19 @@
                 <div class="sidebar-heading">Transaksi</div>
 
                 <li class="nav-item {{ Route::is('penjualan.*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('penjualan.index') }}" data-title="Penjualan">
+                    <a class="nav-link" href="{{ route('penjualan.index') }}" title="Penjualan">
                         <i class="fas fa-file-invoice-dollar"></i>
                         <span>Penjualan</span>
                     </a>
                 </li>
                 <li class="nav-item {{ Route::is('pembelian.*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('pembelian.index') }}" data-title="Pembelian">
+                    <a class="nav-link" href="{{ route('pembelian.index') }}" title="Pembelian">
                         <i class="fas fa-shopping-bag"></i>
                         <span>Pembelian</span>
                     </a>
                 </li>
                 <li class="nav-item {{ Route::is('biaya.*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('biaya.index') }}" data-title="Biaya">
+                    <a class="nav-link" href="{{ route('biaya.index') }}" title="Biaya">
                         <i class="fas fa-wallet"></i>
                         <span>Biaya</span>
                     </a>
@@ -1150,19 +1128,19 @@
                     <div class="sidebar-heading">Pengaturan</div>
 
                     <li class="nav-item {{ Route::is('users.*') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('users.index') }}" data-title="Pengguna">
+                        <a class="nav-link" href="{{ route('users.index') }}" title="Pengguna">
                             <i class="fas fa-users"></i>
                             <span>Pengguna</span>
                         </a>
                     </li>
                     <li class="nav-item {{ Route::is('gudang.*') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('gudang.index') }}" data-title="Gudang">
+                        <a class="nav-link" href="{{ route('gudang.index') }}" title="Gudang">
                             <i class="fas fa-warehouse"></i>
                             <span>Gudang</span>
                         </a>
                     </li>
                     <li class="nav-item {{ Route::is('produk.*') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('produk.index') }}" data-title="Produk">
+                        <a class="nav-link" href="{{ route('produk.index') }}" title="Produk">
                             <i class="fas fa-box"></i>
                             <span>Produk</span>
                         </a>
@@ -1176,13 +1154,13 @@
                     @endif
 
                     <li class="nav-item {{ Route::is('kontak.*') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('kontak.index') }}" data-title="Kontak">
+                        <a class="nav-link" href="{{ route('kontak.index') }}" title="Kontak">
                             <i class="fas fa-address-card"></i>
                             <span>Kontak</span>
                         </a>
                     </li>
                     <li class="nav-item {{ Route::is('stok.*') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('stok.index') }}" data-title="Stok Gudang">
+                        <a class="nav-link" href="{{ route('stok.index') }}" title="Stok Gudang">
                             <i class="fas fa-boxes"></i>
                             <span>Stok Gudang</span>
                         </a>
