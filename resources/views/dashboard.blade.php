@@ -89,9 +89,14 @@
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">Semua Aktivitas Transaksi</h6>
-                        <div class="col-lg-4 col-md-6 col-sm-8">
-                            <input type="text" class="form-control form-control-sm" id="adminSearchInput"
-                                placeholder="Cari data (Ketik ID, Tipe, Pembuat, Status...)">
+                        <div class="d-flex align-items-center">
+                            @if(isset($allTransactions))
+                                <span class="text-muted small mr-3">Total: {{ $allTransactions->total() }} data</span>
+                            @endif
+                            <div class="col-auto">
+                                <input type="text" class="form-control form-control-sm" id="adminSearchInput"
+                                    placeholder="Cari data..." style="width: 200px;">
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
@@ -153,6 +158,12 @@
                                 </tbody>
                             </table>
                         </div>
+                        {{-- Pagination Links --}}
+                        @if(isset($allTransactions) && $allTransactions->hasPages())
+                            <div class="d-flex justify-content-center mt-3">
+                                {{ $allTransactions->links() }}
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -163,9 +174,14 @@
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">Transaksi Menunggu Approval</h6>
-                        <div class="col-lg-4 col-md-6 col-sm-8">
-                            <input type="text" class="form-control form-control-sm" id="adminSearchInput"
-                                placeholder="Cari data (Ketik ID, Tipe, Pembuat...)">
+                        <div class="d-flex align-items-center">
+                            @if(isset($allTransactions))
+                                <span class="text-muted small mr-3">Total: {{ $allTransactions->total() }} data</span>
+                            @endif
+                            <div class="col-auto">
+                                <input type="text" class="form-control form-control-sm" id="adminSearchInput"
+                                    placeholder="Cari data..." style="width: 200px;">
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
@@ -219,6 +235,12 @@
                                 </tbody>
                             </table>
                         </div>
+                        {{-- Pagination Links --}}
+                        @if(isset($allTransactions) && $allTransactions->hasPages())
+                            <div class="d-flex justify-content-center mt-3">
+                                {{ $allTransactions->links() }}
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

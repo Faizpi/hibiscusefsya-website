@@ -51,8 +51,9 @@
 
     {{-- Data Table --}}
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">Daftar Penjualan</h6>
+            <span class="text-muted small">Total: {{ $penjualans->total() }} data</span>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -168,6 +169,10 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+            {{-- Pagination Links --}}
+            <div class="d-flex justify-content-center mt-3">
+                {{ $penjualans->links() }}
             </div>
         </div>
     </div>

@@ -11,14 +11,16 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransactionsExport;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $data = [];
         $now = Carbon::now();
         $role = Auth::user()->role;
+        $perPage = 20;
 
         if ($role == 'super_admin') {
             // SUPER ADMIN: Lihat SEMUA transaksi
@@ -57,8 +59,15 @@ class DashboardController extends Controller
                 $item->number = "EXP-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
             });
 
-            $allTransactions = $penjualans->concat($pembelians)->concat($biayas);
-            $data['allTransactions'] = $allTransactions->sortByDesc('created_at');
+            $allTransactions = $penjualans->concat($pembelians)->concat($biayas)->sortByDesc('created_at')->values();
+            
+            // Manual Pagination
+            $currentPage = $request->get('page', 1);
+            $currentItems = $allTransactions->slice(($currentPage - 1) * $perPage, $perPage)->values();
+            $data['allTransactions'] = new LengthAwarePaginator($currentItems, $allTransactions->count(), $perPage, $currentPage, [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]);
 
         } elseif ($role == 'admin') {
             // ADMIN: Hanya lihat transaksi yang DIA sebagai approver
@@ -103,8 +112,15 @@ class DashboardController extends Controller
                 $item->number = "EXP-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
             });
 
-            $allTransactions = $penjualans->concat($pembelians)->concat($biayas);
-            $data['allTransactions'] = $allTransactions->sortByDesc('created_at');
+            $allTransactions = $penjualans->concat($pembelians)->concat($biayas)->sortByDesc('created_at')->values();
+            
+            // Manual Pagination
+            $currentPage = $request->get('page', 1);
+            $currentItems = $allTransactions->slice(($currentPage - 1) * $perPage, $perPage)->values();
+            $data['allTransactions'] = new LengthAwarePaginator($currentItems, $allTransactions->count(), $perPage, $currentPage, [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]);
 
         } else {
             // USER: Hanya lihat transaksi milik sendiri

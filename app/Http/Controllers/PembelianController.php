@@ -32,24 +32,30 @@ class PembelianController extends Controller
             $query->where('user_id', $user->id);
         }
 
-        $allPembelian = $query->latest()->get();
+        // Clone query untuk summary calculations (semua data)
+        $summaryQuery = clone $query;
+        $allForSummary = $summaryQuery->get();
 
-        $allPembelian->transform(function ($item) {
+        $fakturBelumDibayar = $allForSummary->whereIn('status', ['Pending', 'Approved'])->sum('grand_total');
+        $fakturCanceled = $allForSummary->where('status', 'Canceled')->count();
+        $fakturTelatBayar = $allForSummary->where('status', 'Approved')
+            ->whereNotNull('tgl_jatuh_tempo')
+            ->filter(function ($item) {
+                return Carbon::parse($item->tgl_jatuh_tempo)->lt(Carbon::now());
+            })
+            ->sum('grand_total');
+
+        // Paginated data untuk table display
+        $pembelians = $query->latest()->paginate(20);
+        $pembelians->getCollection()->transform(function ($item) {
             $dateCode = $item->created_at->format('Ymd');
             $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
             $item->custom_number = "PR-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
             return $item;
         });
 
-        $fakturBelumDibayar = $allPembelian->whereIn('status', ['Pending', 'Approved'])->sum('grand_total');
-        $fakturCanceled = $allPembelian->where('status', 'Canceled')->count();
-        $fakturTelatBayar = $allPembelian->where('status', 'Approved')
-            ->whereNotNull('tgl_jatuh_tempo')
-            ->where('tgl_jatuh_tempo', '<', Carbon::now())
-            ->sum('grand_total');
-
         return view('pembelian.index', [
-            'pembelians' => $allPembelian,
+            'pembelians' => $pembelians,
             'fakturBelumDibayar' => $fakturBelumDibayar,
             'fakturCanceled' => $fakturCanceled,
             'fakturTelatBayar' => $fakturTelatBayar,

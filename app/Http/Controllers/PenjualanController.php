@@ -32,29 +32,38 @@ class PenjualanController extends Controller
             $query->where('user_id', $user->id);
         }
 
-        $allPenjualan = $query->latest()->get();
-        $allPenjualan->transform(function ($item) {
+        // Clone query untuk summary calculations (semua data)
+        $summaryQuery = clone $query;
+        $allForSummary = $summaryQuery->get();
+
+        $totalBelumDibayar = $allForSummary->whereIn('status', ['Pending', 'Approved'])->sum('grand_total');
+
+        $totalTelatDibayar = $allForSummary->where('status', 'Approved')
+            ->whereNotNull('tgl_jatuh_tempo')
+            ->filter(function ($item) {
+                return Carbon::parse($item->tgl_jatuh_tempo)->lt(Carbon::now());
+            })
+            ->sum('grand_total');
+
+        $pelunasan30Hari = $allForSummary->where('status', 'Lunas')
+            ->filter(function ($item) {
+                return Carbon::parse($item->updated_at)->gte(Carbon::now()->subDays(30));
+            })
+            ->sum('grand_total');
+
+        $totalCanceled = $allForSummary->where('status', 'Canceled')->count();
+
+        // Paginated data untuk table display
+        $penjualans = $query->latest()->paginate(20);
+        $penjualans->getCollection()->transform(function ($item) {
             $dateCode = $item->created_at->format('Ymd');
             $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
             $item->custom_number = "INV-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
             return $item;
         });
 
-        $totalBelumDibayar = $allPenjualan->whereIn('status', ['Pending', 'Approved'])->sum('grand_total');
-
-        $totalTelatDibayar = $allPenjualan->where('status', 'Approved')
-            ->whereNotNull('tgl_jatuh_tempo')
-            ->where('tgl_jatuh_tempo', '<', Carbon::now())
-            ->sum('grand_total');
-
-        $pelunasan30Hari = $allPenjualan->where('status', 'Lunas')
-            ->where('updated_at', '>=', Carbon::now()->subDays(30))
-            ->sum('grand_total');
-
-        $totalCanceled = $allPenjualan->where('status', 'Canceled')->count();
-
         return view('penjualan.index', [
-            'penjualans' => $allPenjualan,
+            'penjualans' => $penjualans,
             'totalBelumDibayar' => $totalBelumDibayar,
             'totalTelatDibayar' => $totalTelatDibayar,
             'pelunasan30Hari' => $pelunasan30Hari,

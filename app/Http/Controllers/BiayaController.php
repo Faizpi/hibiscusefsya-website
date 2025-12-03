@@ -30,27 +30,31 @@ class BiayaController extends Controller
             $query->where('user_id', $user->id);
         }
 
-        $allBiaya = $query->latest()->get();
+        // Clone query untuk summary calculations (semua data)
+        $summaryQuery = clone $query;
+        $allForSummary = $summaryQuery->get();
 
-        $allBiaya->transform(function ($item) {
+        $totalBulanIni = $allForSummary->filter(function ($item) {
+            return Carbon::parse($item->tgl_transaksi)->gte(Carbon::now()->startOfMonth());
+        })->whereIn('status', ['Pending', 'Approved'])->sum('grand_total');
+
+        $total30Hari = $allForSummary->filter(function ($item) {
+            return Carbon::parse($item->tgl_transaksi)->gte(Carbon::now()->subDays(30));
+        })->whereIn('status', ['Pending', 'Approved'])->sum('grand_total');
+
+        $totalBelumDibayar = $allForSummary->where('status', 'Pending')->sum('grand_total');
+
+        // Paginated data untuk table display
+        $biayas = $query->latest()->paginate(20);
+        $biayas->getCollection()->transform(function ($item) {
             $dateCode = $item->created_at->format('Ymd');
             $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
             $item->custom_number = "EXP-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
             return $item;
         });
 
-        $totalBulanIni = $allBiaya->where('tgl_transaksi', '>=', Carbon::now()->startOfMonth())
-            ->whereIn('status', ['Pending', 'Approved'])
-            ->sum('grand_total');
-
-        $total30Hari = $allBiaya->where('tgl_transaksi', '>=', Carbon::now()->subDays(30))
-            ->whereIn('status', ['Pending', 'Approved'])
-            ->sum('grand_total');
-
-        $totalBelumDibayar = $allBiaya->where('status', 'Pending')->sum('grand_total');
-
         return view('biaya.index', [
-            'biayas' => $allBiaya,
+            'biayas' => $biayas,
             'totalBulanIni' => $totalBulanIni,
             'total30Hari' => $total30Hari,
             'totalBelumDibayar' => $totalBelumDibayar,
