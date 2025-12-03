@@ -118,6 +118,13 @@
                             <label for="tag">Tag</label>
                             <input type="text" class="form-control" id="tag" name="tag" value="{{ old('tag', $pembelian->tag) }}" readonly>
                         </div>
+                        <div class="form-group">
+                            <label>Koordinat Lokasi</label>
+                            <input type="text" class="form-control bg-light" name="koordinat" value="{{ old('koordinat', $pembelian->koordinat) }}" readonly>
+                            @if($pembelian->koordinat)
+                                <small class="text-muted">Koordinat diambil saat transaksi dibuat</small>
+                            @endif
+                        </div>
                     </div>
                 </div>
 

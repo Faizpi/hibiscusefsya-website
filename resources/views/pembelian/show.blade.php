@@ -239,17 +239,32 @@
             </div>
 
 
-                                <div class="col-md-6">
-                 <div class="card shadow mb-4">
-                <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Lampiran<
-                           /h6></div>
-                <div class="card-body">
-                    @if($pembelian->lampiran_path)
-                        <a href="{{ asset('storage/' . $pembelian->lampiran_path) }}" target="_blank" class="btn btn-primary btn-sm">
-                        <i class="fas fa-file-download"></i> Lihat Lampiran
-                        </a>
-                    @else
-                            <p class="text-muted">Tidak ada lampiran.</p>
+            <div class="col-md-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Lampiran</h6>
+                    </div>
+                    <div class="card-body">
+                        @if($pembelian->lampiran_path)
+                            @php
+                                $path = $pembelian->lampiran_path;
+                                $isImage = in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                            @endphp
+                            @if($isImage)
+                                <a href="{{ asset('storage/' . $path) }}" target="_blank">
+                                    <img src="{{ asset('storage/' . $path) }}" alt="Lampiran" class="img-fluid rounded" style="max-height: 250px;">
+                                </a>
+                            @else
+                                <div class="alert alert-info d-flex align-items-center mb-0">
+                                    <i class="fas fa-file-alt fa-2x mr-3"></i>
+                                    <div>
+                                        <strong>File terlampir:</strong><br>
+                                        <a href="{{ asset('storage/' . $path) }}" target="_blank">{{ basename($path) }}</a>
+                                    </div>
+                                </div>
+                            @endif
+                        @else
+                            <p class="text-muted mb-0">Tidak ada lampiran.</p>
                         @endif
                     </div>
                 </div>

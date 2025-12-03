@@ -7,6 +7,8 @@ use App\Penjualan;
 use App\Pembelian;
 use App\Biaya;
 use App\User;
+use App\Produk;
+use App\GudangProduk;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,6 +24,7 @@ class DashboardController extends Controller
         $role = Auth::user()->role;
         $perPage = 20;
         $userId = Auth::id();
+        $user = Auth::user();
 
         // Inisialisasi query berdasarkan role
         if ($role == 'super_admin') {
@@ -32,6 +35,10 @@ class DashboardController extends Controller
             $data['card_4_title'] = 'Jumlah User Terdaftar';
             $data['card_4_value'] = User::count();
             $data['card_4_icon'] = 'fa-users';
+
+            // Statistik tambahan
+            $data['totalProduk'] = Produk::count();
+            $data['totalTransaksi'] = Penjualan::count() + Pembelian::count() + Biaya::count();
 
             // Ambil semua transaksi untuk tabel
             $penjualans = Penjualan::with('user')->get();
@@ -51,6 +58,12 @@ class DashboardController extends Controller
             $data['card_4_value'] = $pendingCount;
             $data['card_4_icon'] = 'fa-clock';
 
+            // Statistik tambahan untuk admin
+            $data['totalProduk'] = Produk::count();
+            $data['totalTransaksi'] = Penjualan::where('approver_id', $userId)->count()
+                + Pembelian::where('approver_id', $userId)->count()
+                + Biaya::where('approver_id', $userId)->count();
+
             // Ambil transaksi yang dia sebagai approver
             $penjualans = Penjualan::with('user')->where('approver_id', $userId)->get();
             $pembelians = Pembelian::with('user')->where('approver_id', $userId)->get();
@@ -68,7 +81,46 @@ class DashboardController extends Controller
             $data['card_4_title'] = 'Data Menunggu Persetujuan';
             $data['card_4_value'] = $pendingCount;
             $data['card_4_icon'] = 'fa-clock';
+
+            // Statistik produk untuk user berdasarkan gudang mereka
+            if ($user->gudang_id) {
+                $data['totalProduk'] = GudangProduk::where('gudang_id', $user->gudang_id)->count();
+            } else {
+                $data['totalProduk'] = 0;
+            }
+            $data['totalTransaksi'] = (clone $penjualanQuery)->count()
+                + (clone $pembelianQuery)->count()
+                + (clone $biayaQuery)->count();
         }
+
+        // ==================== STATISTIK TAMBAHAN ====================
+        // Jumlah transaksi per tipe bulan ini
+        $data['penjualanCountBulanIni'] = (clone $penjualanQuery)
+            ->whereYear('tgl_transaksi', $now->year)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->count();
+
+        $data['pembelianCountBulanIni'] = (clone $pembelianQuery)
+            ->whereYear('tgl_transaksi', $now->year)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->count();
+
+        $data['biayaCountBulanIni'] = (clone $biayaQuery)
+            ->whereYear('tgl_transaksi', $now->year)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->count();
+
+        // Total nominal keseluruhan (semua waktu)
+        $data['penjualanTotal'] = (clone $penjualanQuery)->sum('grand_total');
+        $data['pembelianTotal'] = (clone $pembelianQuery)->sum('grand_total');
+        $data['biayaTotal'] = (clone $biayaQuery)->sum('grand_total');
+
+        // Nominal pembelian bulan ini
+        $data['pembelianNominalBulanIni'] = (clone $pembelianQuery)
+            ->whereYear('tgl_transaksi', $now->year)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->sum('grand_total');
+        // ==================== END STATISTIK TAMBAHAN ====================
 
         // ==================== CHART DATA ====================
         if (in_array($role, ['super_admin', 'admin'])) {

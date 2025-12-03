@@ -48,10 +48,10 @@
             overflow-x: hidden;
         }
 
-        /* ========== SIDEBAR - White Blue Style ========== */
+        /* ========== SIDEBAR - White Blue Style (FIXED) ========== */
         .sidebar {
             background: var(--sidebar-bg) !important;
-            min-height: 100vh;
+            height: 100vh;
             width: 14rem !important;
             min-width: 14rem;
             flex-shrink: 0;
@@ -60,6 +60,9 @@
             border-right: 1px solid var(--border-color);
             transition: all 0.2s ease;
             z-index: 1000;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
 
         .sidebar .sidebar-brand {
@@ -155,7 +158,7 @@
             color: #fff;
         }
 
-        /* ========== TOPBAR ========== */
+        /* ========== TOPBAR (FIXED) ========== */
         .topbar {
             background: #fff;
             height: 65px;
@@ -164,6 +167,17 @@
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 14rem;
+            z-index: 999;
+            transition: left 0.2s ease;
+        }
+
+        /* Adjust topbar when sidebar is toggled */
+        .sidebar.toggled~#content-wrapper .topbar {
+            left: 6.5rem;
         }
 
         .topbar .navbar-nav .nav-item .nav-link {
@@ -209,42 +223,44 @@
         .topbar .nav-item.notification-bell {
             display: flex;
             align-items: center;
+            margin-right: 0.5rem;
         }
 
         .topbar .nav-item.notification-bell .nav-link {
             position: relative;
-            padding: 0.5rem;
+            padding: 0;
             color: var(--text-secondary);
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             transition: all 0.15s ease;
+            background: var(--bg-light);
         }
 
         .topbar .nav-item.notification-bell .nav-link:hover {
             color: var(--sidebar-active);
-            background: var(--bg-light);
+            background: #e5e7eb;
         }
 
         .topbar .nav-item.notification-bell .badge-counter {
             position: absolute;
-            top: 2px;
-            right: 2px;
-            height: 18px;
-            min-width: 18px;
-            font-size: 0.65rem;
+            top: -2px;
+            right: -4px;
+            height: 16px;
+            min-width: 16px;
+            font-size: 0.6rem;
             font-weight: 700;
-            padding: 0 5px;
-            line-height: 18px;
-            border-radius: 9px;
+            padding: 0 4px;
+            line-height: 16px;
+            border-radius: 8px;
             background: #ef4444;
             color: #fff;
             border: 2px solid #fff;
-            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+            box-shadow: 0 1px 3px rgba(239, 68, 68, 0.4);
         }
 
         .topbar .notification-dropdown {
@@ -398,10 +414,7 @@
         }
 
         .topbar .divider-vertical {
-            height: 24px;
-            width: 1px;
-            background: var(--border-color);
-            margin: 0 0.5rem;
+            display: none !important;
         }
 
         .topbar .dropdown-menu {
@@ -437,10 +450,17 @@
             min-height: 100vh;
             width: 100%;
             overflow-x: hidden;
+            margin-left: 14rem;
+            transition: margin-left 0.2s ease;
+        }
+
+        /* Adjust content-wrapper when sidebar is toggled */
+        .sidebar.toggled~#content-wrapper {
+            margin-left: 6.5rem;
         }
 
         #content {
-            padding-top: 0;
+            padding-top: 65px;
             flex: 1;
         }
 
@@ -878,6 +898,14 @@
             overflow-y: auto;
         }
 
+        .sidebar.toggled~#content-wrapper {
+            margin-left: 6.5rem;
+        }
+
+        .sidebar.toggled~#content-wrapper .topbar {
+            left: 6.5rem;
+        }
+
         .sidebar.toggled .sidebar-brand {
             padding: 1.25rem 0;
             justify-content: center;
@@ -933,8 +961,21 @@
 
         /* ========== TABLES RESPONSIVE ========== */
         .table-responsive {
-            overflow-x: auto;
+            overflow: visible !important;
             -webkit-overflow-scrolling: touch;
+        }
+
+        /* Fix dropdown terpotong di dalam table */
+        .card {
+            overflow: visible !important;
+        }
+
+        .card-body {
+            overflow: visible !important;
+        }
+
+        .table .dropdown-menu {
+            z-index: 1050;
         }
 
         .table {
@@ -956,6 +997,11 @@
                 display: none;
             }
 
+            /* Mobile: Topbar full width */
+            .topbar {
+                left: 0 !important;
+            }
+
             /* Mobile: Sidebar hidden by default, slide from left */
             .sidebar,
             .sidebar.toggled {
@@ -963,6 +1009,7 @@
                 left: 0;
                 top: 0;
                 bottom: 0;
+                height: 100vh;
                 width: 16rem !important;
                 min-width: 16rem !important;
                 max-width: 80vw !important;
@@ -1039,6 +1086,10 @@
             #content-wrapper {
                 width: 100% !important;
                 margin-left: 0 !important;
+            }
+
+            #content {
+                padding-top: 65px;
             }
 
             .container-fluid {
@@ -1443,8 +1494,10 @@
                                                             <div class="notification-subtitle">{{ $notif['subtitle'] }}</div>
                                                         </div>
                                                         <div class="notification-meta">
-                                                            <div class="notification-amount">Rp {{ number_format($notif['amount'] ?? 0, 0, ',', '.') }}</div>
-                                                            <div class="notification-time">{{ $notif['time']->diffForHumans(null, true, true) }}</div>
+                                                            <div class="notification-amount">Rp
+                                                                {{ number_format($notif['amount'] ?? 0, 0, ',', '.') }}</div>
+                                                            <div class="notification-time">
+                                                                {{ $notif['time']->diffForHumans(null, true, true) }}</div>
                                                         </div>
                                                     </a>
                                                 @endforeach
@@ -1581,6 +1634,7 @@
                     }
                 });
             }
+
         });
     </script>
 

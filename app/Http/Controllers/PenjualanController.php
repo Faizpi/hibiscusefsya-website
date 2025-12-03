@@ -73,7 +73,19 @@ class PenjualanController extends Controller
 
     public function create()
     {
-        $produks = Produk::all();
+        $user = Auth::user();
+
+        // Untuk user biasa, hanya tampilkan produk yang ada di gudang mereka
+        if ($user->role == 'user' && $user->gudang_id) {
+            // Ambil produk yang ada di gudang user (via tabel gudang_produk)
+            $produks = Produk::whereHas('stokDiGudang', function ($query) use ($user) {
+                $query->where('gudang_id', $user->gudang_id);
+            })->get();
+        } else {
+            // Admin & Super Admin bisa lihat semua produk
+            $produks = Produk::all();
+        }
+
         $gudangs = Gudang::all();
         $kontaks = Kontak::all();
         $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
@@ -175,6 +187,9 @@ class PenjualanController extends Controller
             ->count();
         $noUrut = $countToday + 1;
 
+        // Generate nomor transaksi
+        $nomor = Penjualan::generateNomor(Auth::id(), $noUrut, Carbon::now());
+
         DB::beginTransaction();
         try {
             $penjualanInduk = Penjualan::create([
@@ -182,6 +197,7 @@ class PenjualanController extends Controller
                 'status' => 'Pending',
                 'approver_id' => $request->approver_id,
                 'no_urut_harian' => $noUrut,
+                'nomor' => $nomor,
                 'gudang_id' => $request->gudang_id,
                 'pelanggan' => $request->pelanggan,
                 'email' => $request->email,
@@ -248,7 +264,15 @@ class PenjualanController extends Controller
             return redirect()->route('penjualan.index')->with('error', 'Akses ditolak.');
         }
 
-        $produks = Produk::all();
+        // Untuk user biasa, hanya tampilkan produk yang ada di gudang mereka
+        if ($user->role == 'user' && $user->gudang_id) {
+            $produks = Produk::whereHas('stokDiGudang', function ($query) use ($user) {
+                $query->where('gudang_id', $user->gudang_id);
+            })->get();
+        } else {
+            $produks = Produk::all();
+        }
+
         $gudangs = Gudang::all();
         $kontaks = Kontak::all();
         $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();

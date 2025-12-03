@@ -11,6 +11,7 @@ class Pembelian extends Model
         'user_id',
         'approver_id',
         'no_urut_harian',
+        'nomor',
         'gudang_id',
 
         // Field Transaksi
@@ -60,12 +61,25 @@ class Pembelian extends Model
 
     /**
      * Accessor untuk custom_number
-     * Format: PR-YYYYMMDD-USER_ID-NO_URUT
+     * Gunakan nomor dari DB jika ada, atau generate
      */
     public function getCustomNumberAttribute()
     {
+        if ($this->nomor) {
+            return $this->nomor;
+        }
         $dateCode = $this->created_at->format('Ymd');
         $noUrutPadded = str_pad($this->no_urut_harian, 3, '0', STR_PAD_LEFT);
         return "PR-{$dateCode}-{$this->user_id}-{$noUrutPadded}";
+    }
+
+    /**
+     * Generate nomor transaksi
+     */
+    public static function generateNomor($userId, $noUrut, $createdAt)
+    {
+        $dateCode = $createdAt->format('Ymd');
+        $noUrutPadded = str_pad($noUrut, 3, '0', STR_PAD_LEFT);
+        return "PR-{$dateCode}-{$userId}-{$noUrutPadded}";
     }
 }

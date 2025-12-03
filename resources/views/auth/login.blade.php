@@ -160,7 +160,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
         }
 
         .login-right-content {
@@ -171,17 +171,18 @@
         }
 
         .logo-box {
-            background: #ffffff;
+            background: transparent;
             border-radius: 24px;
             padding: 30px 40px;
             margin-bottom: 30px;
             display: inline-block;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            box-shadow: none;
         }
 
         .logo-box img {
-            max-width: 200px;
+            max-width: 280px;
             height: auto;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
         }
 
         .login-right-content h2 {
@@ -259,34 +260,41 @@
 
         /* Posisi melingkar di sekitar logo */
         .floating-card.card-1 {
-            top: 12%;
+            top: 8%;
             left: 50%;
             transform: translateX(-50%);
             animation: float1 5s ease-in-out infinite;
         }
 
         .floating-card.card-2 {
-            top: 30%;
-            left: 8%;
+            top: 25%;
+            left: 5%;
             animation: float2 6s ease-in-out infinite 1s;
         }
 
         .floating-card.card-3 {
-            top: 30%;
-            right: 8%;
+            top: 25%;
+            right: 5%;
             animation: float3 5.5s ease-in-out infinite 0.5s;
         }
 
         .floating-card.card-4 {
-            bottom: 28%;
-            left: 8%;
+            bottom: 22%;
+            left: 5%;
             animation: float4 6.5s ease-in-out infinite 2s;
         }
 
         .floating-card.card-5 {
-            bottom: 28%;
-            right: 8%;
+            bottom: 22%;
+            right: 5%;
             animation: float5 5s ease-in-out infinite 1.5s;
+        }
+
+        .floating-card.card-6 {
+            bottom: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: float6 5.5s ease-in-out infinite 0.8s;
         }
 
         .floating-card i {
@@ -299,6 +307,18 @@
             color: #1e3a5f;
             font-weight: 600;
             font-size: 0.85rem;
+        }
+
+        @keyframes float6 {
+
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            50% {
+                transform: translateX(-50%) translateY(-10px);
+            }
         }
 
         @keyframes float1 {
@@ -552,14 +572,16 @@
 
             <div class="login-right-content">
                 <div class="logo-box">
-                    <img src="{{ asset('assets/img/logoHE.png') }}" alt="Hibiscus Efsya Logo">
+                    <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Hibiscus Efsya Logo">
                 </div>
                 <h2>Hibiscus Efsya</h2>
                 <p>Platform Akuntansi Online Terpercaya untuk Mengelola Bisnis Anda</p>
-                <div class="feature-badge">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>Data Aman & Terpercaya</span>
-                </div>
+            </div>
+
+            <!-- Floating card Data Aman -->
+            <div class="floating-card card-6">
+                <i class="fas fa-shield-alt"></i>
+                <span>Data Aman & Terpercaya</span>
             </div>
         </div>
 

@@ -5,14 +5,37 @@
     <style>
         .chart-area {
             position: relative;
-            height: 300px;
+            height: 280px;
             width: 100%;
         }
 
         .chart-pie {
             position: relative;
-            height: 250px;
+            height: 240px;
             width: 100%;
+        }
+
+        /* Samakan tinggi card chart */
+        .row.chart-row {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .row.chart-row>div {
+            display: flex;
+        }
+
+        .row.chart-row .card {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .row.chart-row .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
     </style>
 
@@ -29,6 +52,7 @@
         @endif
     </div>
 
+    {{-- ROW 1: Cards Utama --}}
     <div class="row">
         {{-- Card Penjualan --}}
         <div class="col-xl-3 col-md-6 mb-4">
@@ -40,6 +64,9 @@
                                 Penjualan (Bulan Ini)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
                                 {{ number_format($penjualanBulanIni, 0, ',', '.') }}
+                            </div>
+                            <div class="text-xs text-muted mt-1">
+                                {{ $penjualanCountBulanIni ?? 0 }} transaksi
                             </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-shopping-cart fa-2x text-gray-300"></i></div>
@@ -55,7 +82,10 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Pembelian (Bulan Ini)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $pembelianBulanIni }} Transaksi</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($pembelianNominalBulanIni ?? 0, 0, ',', '.') }}</div>
+                            <div class="text-xs text-muted mt-1">
+                                {{ $pembelianBulanIni }} transaksi
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-box-open fa-2x text-gray-300"></i></div>
                     </div>
@@ -71,6 +101,9 @@
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Biaya (Bulan Ini)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
                                 {{ number_format($biayaBulanIni, 0, ',', '.') }}
+                            </div>
+                            <div class="text-xs text-muted mt-1">
+                                {{ $biayaCountBulanIni ?? 0 }} transaksi
                             </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-receipt fa-2x text-gray-300"></i></div>
@@ -96,12 +129,90 @@
         </div>
     </div>
 
+    {{-- ROW 2: Cards Statistik Tambahan --}}
+    <div class="row">
+        {{-- Card Total Penjualan --}}
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2" style="border-left-color: #6c5ce7 !important;">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #6c5ce7;">
+                                Total Penjualan (All Time)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($penjualanTotal ?? 0, 0, ',', '.') }}
+                            </div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-chart-line fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- Card Total Pembelian --}}
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2" style="border-left-color: #00b894 !important;">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #00b894;">
+                                Total Pembelian (All Time)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($pembelianTotal ?? 0, 0, ',', '.') }}
+                            </div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-chart-bar fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- Card Total Biaya --}}
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2" style="border-left-color: #e17055 !important;">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #e17055;">
+                                Total Biaya (All Time)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($biayaTotal ?? 0, 0, ',', '.') }}
+                            </div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-wallet fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- Card Produk & Transaksi --}}
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-dark shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                @if(auth()->user()->role == 'user')
+                                    Produk di Gudang Anda
+                                @else
+                                    Total Produk
+                                @endif
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalProduk ?? 0 }}</div>
+                            <div class="text-xs text-muted mt-1">
+                                {{ $totalTransaksi ?? 0 }} total transaksi
+                            </div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-boxes fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- CHARTS SECTION (untuk Super Admin & Admin) --}}
     @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
-        <div class="row">
+        <div class="row chart-row">
             {{-- Line Chart: Tren 6 Bulan --}}
-            <div class="col-xl-8 col-lg-7">
-                <div class="card shadow mb-4">
+            <div class="col-xl-8 col-lg-7 mb-4">
+                <div class="card shadow h-100">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fas fa-chart-line mr-2"></i>Tren Transaksi 6 Bulan Terakhir
@@ -116,18 +227,18 @@
             </div>
 
             {{-- Doughnut Chart: Status Transaksi --}}
-            <div class="col-xl-4 col-lg-5">
-                <div class="card shadow mb-4">
+            <div class="col-xl-4 col-lg-5 mb-4">
+                <div class="card shadow h-100">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fas fa-chart-pie mr-2"></i>Komposisi Status
                         </h6>
                     </div>
                     <div class="card-body">
-                        <div class="chart-pie pt-4 pb-2">
+                        <div class="chart-pie">
                             <canvas id="statusChart"></canvas>
                         </div>
-                        <div class="mt-4 text-center small">
+                        <div class="mt-3 text-center small">
                             <span class="mr-2">
                                 <i class="fas fa-circle text-warning"></i> Pending
                             </span>

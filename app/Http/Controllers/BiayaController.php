@@ -121,6 +121,11 @@ class BiayaController extends Controller
             ->count();
         $noUrut = $countToday + 1;
 
+        // Generate nomor transaksi: EXP-YYYYMMDD-USERID-NOURUT
+        $dateCode = Carbon::parse($request->tgl_transaksi)->format('Ymd');
+        $noUrutPadded = str_pad($noUrut, 3, '0', STR_PAD_LEFT);
+        $nomor = "EXP-{$dateCode}-" . Auth::id() . "-{$noUrutPadded}";
+
         DB::beginTransaction();
         try {
             $biayaInduk = Biaya::create([
@@ -128,6 +133,7 @@ class BiayaController extends Controller
                 'status' => 'Pending',
                 'approver_id' => $request->approver_id,
                 'no_urut_harian' => $noUrut,
+                'nomor' => $nomor,
                 'bayar_dari' => $request->bayar_dari,
                 'penerima' => $request->penerima,
                 'alamat_penagihan' => $request->alamat_penagihan,

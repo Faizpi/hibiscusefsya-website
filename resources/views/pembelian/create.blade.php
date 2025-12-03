@@ -265,7 +265,11 @@
                         </div>
                         <div class="form-group">
                             <label for="lampiran">Lampiran</label>
-                            <input type="file" class="form-control-file" id="lampiran" name="lampiran">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror" id="lampiran" name="lampiran">
+                                <label class="custom-file-label" for="lampiran">Pilih file...</label>
+                            </div>
+                            @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                         </div>
                     </div>
                     <div class="col-md-6">
