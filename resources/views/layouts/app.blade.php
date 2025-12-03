@@ -961,21 +961,45 @@
 
         /* ========== TABLES RESPONSIVE ========== */
         .table-responsive {
-            overflow: visible !important;
+            overflow-x: auto !important;
+            overflow-y: visible !important;
             -webkit-overflow-scrolling: touch;
+            position: relative;
         }
 
-        /* Fix dropdown terpotong di dalam table */
-        .card {
-            overflow: visible !important;
+        /* Fix dropdown terpotong di dalam table - hanya untuk desktop */
+        @media (min-width: 769px) {
+            .card {
+                overflow: visible !important;
+            }
+
+            .card-body {
+                overflow: visible !important;
+            }
+
+            .table-responsive {
+                overflow: visible !important;
+            }
         }
 
-        .card-body {
-            overflow: visible !important;
+        /* Mobile: enable horizontal scroll */
+        @media (max-width: 768px) {
+            .table-responsive {
+                overflow-x: auto !important;
+                overflow-y: visible !important;
+                -webkit-overflow-scrolling: touch;
+                display: block;
+                width: 100%;
+            }
+
+            .table-responsive .table {
+                min-width: 700px;
+            }
         }
 
         .table .dropdown-menu {
             z-index: 1050;
+            position: absolute;
         }
 
         .table {
@@ -985,8 +1009,7 @@
 
         .table td,
         .table th {
-            white-space: normal;
-            word-wrap: break-word;
+            white-space: nowrap;
         }
 
         /* Responsive */
