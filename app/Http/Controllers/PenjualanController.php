@@ -102,23 +102,23 @@ class PenjualanController extends Controller
         // VALIDASI STOK: Cek apakah stok mencukupi untuk semua produk
         $gudangId = $request->gudang_id;
         $stokErrors = [];
-        
+
         foreach ($request->produk_id as $index => $produkId) {
             $qty = $request->kuantitas[$index];
-            
+
             $stokGudang = GudangProduk::where('gudang_id', $gudangId)
                 ->where('produk_id', $produkId)
                 ->first();
-            
+
             $stokTersedia = $stokGudang ? $stokGudang->stok : 0;
-            
+
             if ($stokTersedia < $qty) {
                 $produk = Produk::find($produkId);
                 $namaProduk = $produk->nama_produk ?? "ID: $produkId";
                 $stokErrors[] = "Stok {$namaProduk} tidak cukup. Tersedia: {$stokTersedia}, Diminta: {$qty}";
             }
         }
-        
+
         if (!empty($stokErrors)) {
             return redirect()->back()
                 ->with('error', implode('<br>', $stokErrors))
@@ -293,23 +293,23 @@ class PenjualanController extends Controller
         // VALIDASI STOK: Cek apakah stok mencukupi untuk semua produk
         $gudangId = $request->gudang_id;
         $stokErrors = [];
-        
+
         foreach ($request->produk_id as $index => $produkId) {
             $qty = $request->kuantitas[$index];
-            
+
             $stokGudang = GudangProduk::where('gudang_id', $gudangId)
                 ->where('produk_id', $produkId)
                 ->first();
-            
+
             $stokTersedia = $stokGudang ? $stokGudang->stok : 0;
-            
+
             if ($stokTersedia < $qty) {
                 $produk = Produk::find($produkId);
                 $namaProduk = $produk->nama_produk ?? "ID: $produkId";
                 $stokErrors[] = "Stok {$namaProduk} tidak cukup. Tersedia: {$stokTersedia}, Diminta: {$qty}";
             }
         }
-        
+
         if (!empty($stokErrors)) {
             return redirect()->back()
                 ->with('error', implode('<br>', $stokErrors))

@@ -8,6 +8,16 @@
             <h3 class="font-weight-bold text-right" id="grand-total-display">Total Rp0,00</h3>
         </div>
 
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong><i class="fas fa-exclamation-triangle mr-2"></i>Gagal!</strong><br>
+                {!! session('error') !!}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>@foreach ($errors->all() as $e) <li>{{ $e }}</li> @endforeach</ul>
