@@ -382,6 +382,82 @@
             appearance: none;
         }
 
+        /* Action Dropdown Styling */
+        .action-dropdown .dropdown-toggle {
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.375rem 0.5rem;
+            color: #64748b;
+            transition: all 0.2s ease;
+        }
+
+        .action-dropdown .dropdown-toggle:hover {
+            background: #e2e8f0;
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+
+        .action-dropdown .dropdown-toggle:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+        }
+
+        .action-dropdown .dropdown-toggle::after {
+            display: none;
+        }
+
+        .action-dropdown .dropdown-menu {
+            min-width: 160px;
+            padding: 0.5rem 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            margin-top: 4px;
+        }
+
+        .action-dropdown .dropdown-item {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            transition: all 0.15s ease;
+        }
+
+        .action-dropdown .dropdown-item i {
+            width: 16px;
+            text-align: center;
+            font-size: 0.8125rem;
+        }
+
+        .action-dropdown .dropdown-item:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .action-dropdown .dropdown-item.text-primary:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .action-dropdown .dropdown-item.text-success:hover {
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .action-dropdown .dropdown-item.text-warning:hover {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .action-dropdown .dropdown-item.text-danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .action-dropdown .dropdown-divider {
+            margin: 0.375rem 0;
+            border-color: #e2e8f0;
+        }
+
         /* Select2 Styling */
         .select2-container--default .select2-selection--single {
             border: 1px solid var(--border-color) !important;

@@ -101,42 +101,59 @@
                                 <td class="text-center">
                                     @php $role = auth()->user()->role; @endphp
 
-                                    {{-- APPROVE --}}
-                                    @if(($role == 'super_admin' || ($role == 'admin' && $item->approver_id == auth()->id())) && $item->status == 'Pending')
-                                        <form action="{{ route('biaya.approve', $item->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-success btn-circle btn-sm" title="Approve"><i
-                                                    class="fas fa-check"></i></button>
-                                        </form>
-                                    @endif
-
-                                    {{-- CANCEL --}}
-                                    @if(in_array($role, ['admin', 'super_admin']) && $item->status != 'Canceled')
-                                        <form action="{{ route('biaya.cancel', $item->id) }}" method="POST" class="d-inline"
-                                            onsubmit="return confirm('Batalkan transaksi ini?')">
-                                            @csrf
-                                            <button type="submit" class="btn btn-dark btn-circle btn-sm" title="Cancel"><i
-                                                    class="fas fa-ban"></i></button>
-                                        </form>
-                                    @endif
-
-                                    {{-- EDIT & DELETE --}}
-                                    @if($role == 'super_admin' || ($item->user_id == auth()->id() && $item->status == 'Pending') || $role == 'admin')
-                                        <a href="{{ route('biaya.edit', $item->id) }}" class="btn btn-warning btn-circle btn-sm"
-                                            title="Edit"><i class="fas fa-pen"></i></a>
-                                    @endif
-
-                                    @if($role == 'super_admin' || $item->status == 'Pending')
-                                        <button type="button" class="btn btn-danger btn-circle btn-sm" data-toggle="modal"
-                                            data-target="#deleteModal" data-action="{{ route('biaya.destroy', $item->id) }}"
-                                            title="Hapus">
-                                            <i class="fas fa-trash"></i>
+                                    <div class="dropdown action-dropdown">
+                                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
                                         </button>
-                                    @endif
+                                        <div class="dropdown-menu dropdown-menu-right shadow-sm">
+                                            {{-- VIEW --}}
+                                            <a class="dropdown-item" href="{{ route('biaya.show', $item->id) }}">
+                                                <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat Detail
+                                            </a>
 
-                                    @if(!in_array($role, ['admin', 'super_admin']) && $item->status != 'Pending')
-                                        <span class="text-muted small">Terkunci</span>
-                                    @endif
+                                            {{-- APPROVE --}}
+                                            @if(($role == 'super_admin' || ($role == 'admin' && $item->approver_id == auth()->id())) && $item->status == 'Pending')
+                                                <form action="{{ route('biaya.approve', $item->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
+                                                    </button>
+                                                </form>
+                                            @endif
+
+                                            {{-- CANCEL --}}
+                                            @if(in_array($role, ['admin', 'super_admin']) && $item->status != 'Canceled')
+                                                <form action="{{ route('biaya.cancel', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Batalkan transaksi ini?')">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan
+                                                    </button>
+                                                </form>
+                                            @endif
+
+                                            {{-- EDIT & DELETE --}}
+                                            @php
+                                                $canEdit = $role == 'super_admin' || ($item->user_id == auth()->id() && $item->status == 'Pending') || $role == 'admin';
+                                                $canDelete = $role == 'super_admin' || $item->status == 'Pending';
+                                            @endphp
+
+                                            @if($canEdit || $canDelete)
+                                                <div class="dropdown-divider"></div>
+                                            @endif
+
+                                            @if($canEdit)
+                                                <a class="dropdown-item" href="{{ route('biaya.edit', $item->id) }}">
+                                                    <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
+                                                </a>
+                                            @endif
+
+                                            @if($canDelete)
+                                                <button type="button" class="dropdown-item text-danger" data-toggle="modal" data-target="#deleteModal" data-action="{{ route('biaya.destroy', $item->id) }}">
+                                                    <i class="fas fa-trash fa-fw mr-2"></i> Hapus
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

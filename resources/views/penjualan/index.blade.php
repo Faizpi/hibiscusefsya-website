@@ -97,51 +97,63 @@
                                 </td>
                                 <td class="text-center">
                                     @php $role = auth()->user()->role; @endphp
+                                    
+                                    <div class="dropdown action-dropdown">
+                                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right shadow-sm">
+                                            {{-- VIEW --}}
+                                            <a class="dropdown-item" href="{{ route('penjualan.show', $item->id) }}">
+                                                <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat Detail
+                                            </a>
+                                            
+                                            @if(in_array($role, ['admin', 'super_admin']))
+                                                {{-- APPROVE: Hanya jika Pending --}}
+                                                @if($item->status == 'Pending')
+                                                    @if($role == 'super_admin' || $item->approver_id == auth()->id())
+                                                        <form action="{{ route('penjualan.approve', $item->id) }}" method="POST" class="d-inline">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item">
+                                                                <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                @endif
 
-                                    @if(in_array($role, ['admin', 'super_admin']))
+                                                {{-- MARK PAID: Hanya jika Approved --}}
+                                                @if($item->status == 'Approved')
+                                                    <form action="{{ route('penjualan.markAsPaid', $item->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-dollar-sign fa-fw mr-2 text-primary"></i> Tandai Lunas
+                                                        </button>
+                                                    </form>
+                                                @endif
 
-                                        {{-- APPROVE: Hanya jika Pending --}}
-                                        @if($item->status == 'Pending')
-                                            {{-- Admin biasa hanya bisa approve jika dia yg ditunjuk --}}
-                                            @if($role == 'super_admin' || $item->approver_id == auth()->id())
-                                                <form action="{{ route('penjualan.approve', $item->id) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-success btn-circle btn-sm" title="Approve"><i
-                                                            class="fas fa-check"></i></button>
-                                                </form>
+                                                {{-- CANCEL: Jika belum Canceled --}}
+                                                @if($item->status != 'Canceled')
+                                                    <form action="{{ route('penjualan.cancel', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Batalkan transaksi ini?')">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             @endif
-                                        @endif
 
-                                        {{-- MARK PAID: Hanya jika Approved --}}
-                                        @if($item->status == 'Approved')
-                                            <form action="{{ route('penjualan.markAsPaid', $item->id) }}" method="POST"
-                                                class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-primary btn-circle btn-sm" title="Tandai Lunas"><i
-                                                        class="fas fa-dollar-sign"></i></button>
-                                            </form>
-                                        @endif
-
-                                        {{-- CANCEL: Jika belum Canceled --}}
-                                        @if($item->status != 'Canceled')
-                                            <form action="{{ route('penjualan.cancel', $item->id) }}" method="POST" class="d-inline"
-                                                onsubmit="return confirm('Batalkan transaksi ini?')">
-                                                @csrf
-                                                <button type="submit" class="btn btn-dark btn-circle btn-sm" title="Cancel"><i
-                                                        class="fas fa-ban"></i></button>
-                                            </form>
-                                        @endif
-
-                                    @endif
-
-                                    {{-- DELETE: Super Admin kapan saja, sisanya jika Pending --}}
-                                    @if($role == 'super_admin' || $item->status == 'Pending')
-                                        <a href="{{ route('penjualan.edit', $item->id) }}"
-                                            class="btn btn-warning btn-circle btn-sm"><i class="fas fa-pen"></i></a>
-                                        <button type="button" class="btn btn-danger btn-circle btn-sm" data-toggle="modal"
-                                            data-target="#deleteModal" data-action="{{ route('penjualan.destroy', $item->id) }}"><i
-                                                class="fas fa-trash"></i></button>
-                                    @endif
+                                            {{-- EDIT & DELETE: Super Admin kapan saja, sisanya jika Pending --}}
+                                            @if($role == 'super_admin' || $item->status == 'Pending')
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="{{ route('penjualan.edit', $item->id) }}">
+                                                    <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
+                                                </a>
+                                                <button type="button" class="dropdown-item text-danger" data-toggle="modal" data-target="#deleteModal" data-action="{{ route('penjualan.destroy', $item->id) }}">
+                                                    <i class="fas fa-trash fa-fw mr-2"></i> Hapus
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

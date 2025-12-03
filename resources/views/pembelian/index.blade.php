@@ -124,52 +124,58 @@
                                 <td class="text-center">
                                     @php $role = auth()->user()->role; @endphp
 
-                                    {{-- TOMBOL APPROVE (Hanya jika Pending & Role Sesuai) --}}
-                                    @if($item->status == 'Pending')
-                                        @if($role == 'super_admin' || ($role == 'admin' && $item->approver_id == auth()->id()))
-                                            <form action="{{ route('pembelian.approve', $item->id) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success btn-circle btn-sm" title="Approve">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            </form>
-                                        @endif
-                                    @endif
-
-                                    {{-- TOMBOL CANCEL (Admin/Super Admin, jika belum Canceled) --}}
-                                    @if(in_array($role, ['admin', 'super_admin']) && $item->status != 'Canceled')
-                                        <form action="{{ route('pembelian.cancel', $item->id) }}" method="POST" class="d-inline"
-                                            onsubmit="return confirm('Batalkan transaksi ini?')">
-                                            @csrf
-                                            <button type="submit" class="btn btn-dark btn-circle btn-sm" title="Cancel Transaksi">
-                                                <i class="fas fa-ban"></i>
-                                            </button>
-                                        </form>
-                                    @endif
-
-                                    {{-- TOMBOL EDIT & DELETE --}}
-                                    {{-- Super Admin/Admin: Bebas. User: Hanya jika Pending. --}}
-                                    @php
-                                        $canEdit = false;
-                                        if (in_array($role, ['admin', 'super_admin']))
-                                            $canEdit = true;
-                                        elseif ($item->user_id == auth()->id() && $item->status == 'Pending')
-                                            $canEdit = true;
-                                    @endphp
-
-                                    @if($canEdit)
-                                        <a href="{{ route('pembelian.edit', $item->id) }}" class="btn btn-warning btn-circle btn-sm"
-                                            title="Edit">
-                                            <i class="fas fa-pen"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-danger btn-circle btn-sm" data-toggle="modal"
-                                            data-target="#deleteModal" data-action="{{ route('pembelian.destroy', $item->id) }}"
-                                            title="Hapus">
-                                            <i class="fas fa-trash"></i>
+                                    <div class="dropdown action-dropdown">
+                                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
                                         </button>
-                                    @else
-                                        <span class="text-muted small">Locked</span>
-                                    @endif
+                                        <div class="dropdown-menu dropdown-menu-right shadow-sm">
+                                            {{-- VIEW --}}
+                                            <a class="dropdown-item" href="{{ route('pembelian.show', $item->id) }}">
+                                                <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat Detail
+                                            </a>
+
+                                            {{-- APPROVE: Hanya jika Pending & Role Sesuai --}}
+                                            @if($item->status == 'Pending')
+                                                @if($role == 'super_admin' || ($role == 'admin' && $item->approver_id == auth()->id()))
+                                                    <form action="{{ route('pembelian.approve', $item->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            @endif
+
+                                            {{-- CANCEL: Admin/Super Admin, jika belum Canceled --}}
+                                            @if(in_array($role, ['admin', 'super_admin']) && $item->status != 'Canceled')
+                                                <form action="{{ route('pembelian.cancel', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Batalkan transaksi ini?')">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan
+                                                    </button>
+                                                </form>
+                                            @endif
+
+                                            {{-- EDIT & DELETE --}}
+                                            @php
+                                                $canEdit = false;
+                                                if (in_array($role, ['admin', 'super_admin']))
+                                                    $canEdit = true;
+                                                elseif ($item->user_id == auth()->id() && $item->status == 'Pending')
+                                                    $canEdit = true;
+                                            @endphp
+
+                                            @if($canEdit)
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="{{ route('pembelian.edit', $item->id) }}">
+                                                    <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
+                                                </a>
+                                                <button type="button" class="dropdown-item text-danger" data-toggle="modal" data-target="#deleteModal" data-action="{{ route('pembelian.destroy', $item->id) }}">
+                                                    <i class="fas fa-trash fa-fw mr-2"></i> Hapus
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
