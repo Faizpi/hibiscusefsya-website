@@ -51,7 +51,7 @@
         <tr><td class="label">Jatuh Tempo</td><td class="colon">:</td><td class="value">{{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td></tr>
         <tr><td class="label">Pembayaran</td><td class="colon">:</td><td class="value">{{ $pembelian->syarat_pembayaran ?? '-' }}</td></tr>
         <tr><td class="label">Vendor</td><td class="colon">:</td><td class="value">{{ $pembelian->staf_penyetuju }}</td></tr>
-        <tr><td class="label">Dibuat</td><td class="colon">:</td><td class="value">{{ $pembelian->user->name }}</td></tr>
+        <tr><td class="label">Sales</td><td class="colon">:</td><td class="value">{{ $pembelian->user->name }}</td></tr>
         <tr><td class="label">Disetujui</td><td class="colon">:</td><td class="value">{{ $pembelian->approver->name ?? '-' }}</td></tr>
         <tr><td class="label">Gudang</td><td class="colon">:</td><td class="value">{{ $pembelian->gudang->nama_gudang ?? '-' }}</td></tr>
         <tr><td class="label">Status</td><td class="colon">:</td><td class="value">{{ $pembelian->status }}</td></tr>
