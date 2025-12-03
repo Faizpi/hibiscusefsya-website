@@ -53,10 +53,11 @@ class AppServiceProvider extends ServiceProvider
                         ->latest()->take(5)->get();
                 }
 
-                // Helper to format nomor
-                $formatNomor = function($item, $prefix) {
-                    $date = $item->tgl_transaksi ? Carbon::parse($item->tgl_transaksi) : $item->created_at;
-                    return sprintf('%s-%s%02d', $prefix, $date->format('ymd'), $item->no_urut_harian);
+                // Helper to format nomor (same format as controllers)
+                $formatNomor = function ($item, $prefix) {
+                    $dateCode = $item->created_at->format('Ymd');
+                    $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
+                    return "{$prefix}-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
                 };
 
                 // Map to notifications
@@ -65,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
                         'type' => 'penjualan',
                         'icon' => 'fa-shopping-cart',
                         'color' => 'primary',
-                        'title' => $formatNomor($item, 'PJ'),
+                        'title' => $formatNomor($item, 'INV'),
                         'subtitle' => $item->pelanggan ?: ($item->user->name ?? '-'),
                         'amount' => $item->grand_total,
                         'url' => route('penjualan.show', $item->id),
@@ -78,7 +79,7 @@ class AppServiceProvider extends ServiceProvider
                         'type' => 'pembelian',
                         'icon' => 'fa-truck',
                         'color' => 'success',
-                        'title' => $formatNomor($item, 'PB'),
+                        'title' => $formatNomor($item, 'PR'),
                         'subtitle' => $item->staf_penyetuju ?: ($item->user->name ?? '-'),
                         'amount' => $item->grand_total,
                         'url' => route('pembelian.show', $item->id),
@@ -91,7 +92,7 @@ class AppServiceProvider extends ServiceProvider
                         'type' => 'biaya',
                         'icon' => 'fa-receipt',
                         'color' => 'warning',
-                        'title' => $formatNomor($item, 'BY'),
+                        'title' => $formatNomor($item, 'EXP'),
                         'subtitle' => $item->penerima ?: ($item->user->name ?? '-'),
                         'amount' => $item->grand_total,
                         'url' => route('biaya.show', $item->id),
