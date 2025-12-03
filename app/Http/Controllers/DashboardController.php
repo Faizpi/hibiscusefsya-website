@@ -60,7 +60,7 @@ class DashboardController extends Controller
             });
 
             $allTransactions = $penjualans->concat($pembelians)->concat($biayas)->sortByDesc('created_at')->values();
-            
+
             // Manual Pagination
             $currentPage = $request->get('page', 1);
             $currentItems = $allTransactions->slice(($currentPage - 1) * $perPage, $perPage)->values();
@@ -113,7 +113,7 @@ class DashboardController extends Controller
             });
 
             $allTransactions = $penjualans->concat($pembelians)->concat($biayas)->sortByDesc('created_at')->values();
-            
+
             // Manual Pagination
             $currentPage = $request->get('page', 1);
             $currentItems = $allTransactions->slice(($currentPage - 1) * $perPage, $perPage)->values();

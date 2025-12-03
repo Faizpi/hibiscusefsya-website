@@ -99,6 +99,32 @@ class PenjualanController extends Controller
             'harga_satuan.*' => 'required|numeric|min:0',
         ]);
 
+        // VALIDASI STOK: Cek apakah stok mencukupi untuk semua produk
+        $gudangId = $request->gudang_id;
+        $stokErrors = [];
+        
+        foreach ($request->produk_id as $index => $produkId) {
+            $qty = $request->kuantitas[$index];
+            
+            $stokGudang = GudangProduk::where('gudang_id', $gudangId)
+                ->where('produk_id', $produkId)
+                ->first();
+            
+            $stokTersedia = $stokGudang ? $stokGudang->stok : 0;
+            
+            if ($stokTersedia < $qty) {
+                $produk = Produk::find($produkId);
+                $namaProduk = $produk->nama_produk ?? "ID: $produkId";
+                $stokErrors[] = "Stok {$namaProduk} tidak cukup. Tersedia: {$stokTersedia}, Diminta: {$qty}";
+            }
+        }
+        
+        if (!empty($stokErrors)) {
+            return redirect()->back()
+                ->with('error', implode('<br>', $stokErrors))
+                ->withInput();
+        }
+
         $path = null;
 
         // Pastikan folder storage public ada
@@ -263,6 +289,32 @@ class PenjualanController extends Controller
             'kuantitas.*' => 'required|numeric|min:1',
             'harga_satuan.*' => 'required|numeric|min:0',
         ]);
+
+        // VALIDASI STOK: Cek apakah stok mencukupi untuk semua produk
+        $gudangId = $request->gudang_id;
+        $stokErrors = [];
+        
+        foreach ($request->produk_id as $index => $produkId) {
+            $qty = $request->kuantitas[$index];
+            
+            $stokGudang = GudangProduk::where('gudang_id', $gudangId)
+                ->where('produk_id', $produkId)
+                ->first();
+            
+            $stokTersedia = $stokGudang ? $stokGudang->stok : 0;
+            
+            if ($stokTersedia < $qty) {
+                $produk = Produk::find($produkId);
+                $namaProduk = $produk->nama_produk ?? "ID: $produkId";
+                $stokErrors[] = "Stok {$namaProduk} tidak cukup. Tersedia: {$stokTersedia}, Diminta: {$qty}";
+            }
+        }
+        
+        if (!empty($stokErrors)) {
+            return redirect()->back()
+                ->with('error', implode('<br>', $stokErrors))
+                ->withInput();
+        }
 
         $path = $penjualan->lampiran_path;
 
