@@ -17,29 +17,58 @@
 
     {{-- Kartu Ringkasan --}}
     <div class="row">
-        <div class="col-xl-4 col-md-6 mb-4">
+        {{-- Card 1: Total Pending/Approved --}}
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Total (Pending/Approved)
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($totalBelumDibayar, 0, ',', '.') }}
-                            </div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Total (Pending/Approved)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($totalBelumDibayar, 0, ',', '.') }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i></div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-4 col-md-6 mb-4">
+
+        {{-- Card 2: Jatuh Tempo Lewat --}}
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Jatuh Tempo Lewat</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($totalTelatDibayar, 0, ',', '.') }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Card 3: Pelunasan 30 Hari --}}
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Lunas (30 Hari Terakhir)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($pelunasan30Hari, 0, ',', '.') }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-check-circle fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Card 4: Canceled --}}
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-secondary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Dibatalkan (Canceled)
-                            </div>
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Dibatalkan (Canceled)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalCanceled }} Transaksi</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-ban fa-2x text-gray-300"></i></div>

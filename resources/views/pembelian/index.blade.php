@@ -25,16 +25,29 @@
     @endif
 
     <div class="row">
-        <div class="col-xl-4 col-md-6 mb-4">
+        {{-- Card 1: Pending Approval --}}
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Total (Pending/Approved)
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($fakturBelumDibayar, 0, ',', '.') }}
-                            </div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Approval</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($fakturPending, 0, ',', '.') }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Card 2: Total Aktif --}}
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total (Pending/Approved)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($fakturBelumDibayar, 0, ',', '.') }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i></div>
                     </div>
@@ -42,15 +55,14 @@
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6 mb-4">
+        {{-- Card 3: Jatuh Tempo Lewat --}}
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-danger shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Jatuh Tempo Lewat</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($fakturTelatBayar, 0, ',', '.') }}
-                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($fakturTelatBayar, 0, ',', '.') }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i></div>
                     </div>
@@ -58,13 +70,13 @@
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6 mb-4">
+        {{-- Card 4: Canceled --}}
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-secondary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Dibatalkan (Canceled)
-                            </div>
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Dibatalkan (Canceled)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $fakturCanceled }} Transaksi</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-ban fa-2x text-gray-300"></i></div>

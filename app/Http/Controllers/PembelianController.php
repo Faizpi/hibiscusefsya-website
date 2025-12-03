@@ -36,6 +36,7 @@ class PembelianController extends Controller
         $summaryQuery = clone $query;
         $allForSummary = $summaryQuery->get();
 
+        $fakturPending = $allForSummary->where('status', 'Pending')->sum('grand_total');
         $fakturBelumDibayar = $allForSummary->whereIn('status', ['Pending', 'Approved'])->sum('grand_total');
         $fakturCanceled = $allForSummary->where('status', 'Canceled')->count();
         $fakturTelatBayar = $allForSummary->where('status', 'Approved')
@@ -56,6 +57,7 @@ class PembelianController extends Controller
 
         return view('pembelian.index', [
             'pembelians' => $pembelians,
+            'fakturPending' => $fakturPending,
             'fakturBelumDibayar' => $fakturBelumDibayar,
             'fakturCanceled' => $fakturCanceled,
             'fakturTelatBayar' => $fakturTelatBayar,

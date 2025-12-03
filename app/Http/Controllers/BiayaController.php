@@ -43,6 +43,8 @@ class BiayaController extends Controller
         })->whereIn('status', ['Pending', 'Approved'])->sum('grand_total');
 
         $totalBelumDibayar = $allForSummary->where('status', 'Pending')->sum('grand_total');
+        $totalApproved = $allForSummary->where('status', 'Approved')->sum('grand_total');
+        $totalCanceled = $allForSummary->where('status', 'Canceled')->count();
 
         // Paginated data untuk table display
         $biayas = $query->latest()->paginate(20);
@@ -58,6 +60,8 @@ class BiayaController extends Controller
             'totalBulanIni' => $totalBulanIni,
             'total30Hari' => $total30Hari,
             'totalBelumDibayar' => $totalBelumDibayar,
+            'totalApproved' => $totalApproved,
+            'totalCanceled' => $totalCanceled,
         ]);
     }
 
