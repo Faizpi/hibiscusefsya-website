@@ -695,27 +695,23 @@
 
         .sidebar.toggled .nav-item .nav-link {
             padding: 0.75rem 1rem;
-            justify-content: flex-start;
-            text-align: left;
-            overflow: hidden;
-            width: 100%;
+            justify-content: center;
+            text-align: center;
         }
 
         .sidebar.toggled .nav-item .nav-link i {
-            margin-right: 0.75rem;
+            margin-right: 0;
             font-size: 1.1rem;
-            width: 20px;
+            width: auto;
             flex-shrink: 0;
         }
 
         .sidebar.toggled .nav-item .nav-link span {
-            display: inline !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            width: auto !important;
-            height: auto !important;
-            overflow: visible !important;
-            font-size: 0.85rem;
+            display: none !important;
+        }
+
+        .sidebar.toggled .sidebar-brand-text {
+            display: none !important;
         }
 
         .sidebar.toggled .sidebar-heading {
