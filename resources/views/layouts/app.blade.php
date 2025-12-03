@@ -206,40 +206,56 @@
         }
 
         /* Notification Bell Styles */
+        .topbar .nav-item.notification-bell {
+            display: flex;
+            align-items: center;
+        }
+
         .topbar .nav-item.notification-bell .nav-link {
             position: relative;
-            padding: 0.5rem 0.75rem;
+            padding: 0.5rem;
             color: var(--text-secondary);
-            font-size: 1.1rem;
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            transition: all 0.15s ease;
         }
 
         .topbar .nav-item.notification-bell .nav-link:hover {
             color: var(--sidebar-active);
+            background: var(--bg-light);
         }
 
         .topbar .nav-item.notification-bell .badge-counter {
             position: absolute;
-            top: 4px;
-            right: 4px;
+            top: 2px;
+            right: 2px;
             height: 18px;
             min-width: 18px;
             font-size: 0.65rem;
-            font-weight: 600;
+            font-weight: 700;
             padding: 0 5px;
             line-height: 18px;
-            border-radius: 10px;
+            border-radius: 9px;
             background: #ef4444;
             color: #fff;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
         }
 
         .topbar .notification-dropdown {
-            min-width: 320px;
-            max-width: 360px;
+            min-width: 340px;
+            max-width: 380px;
             padding: 0;
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             border-radius: 12px;
             overflow: hidden;
+            margin-top: 0.5rem;
         }
 
         .notification-dropdown .dropdown-header {
@@ -266,8 +282,8 @@
 
         .notification-dropdown .notification-item {
             display: flex;
-            align-items: flex-start;
-            padding: 0.85rem 1rem;
+            align-items: center;
+            padding: 0.75rem 1rem;
             border-bottom: 1px solid var(--border-color);
             text-decoration: none;
             transition: background 0.15s ease;
@@ -282,15 +298,15 @@
         }
 
         .notification-dropdown .notification-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 0.75rem;
             flex-shrink: 0;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
 
         .notification-dropdown .notification-icon.bg-primary {
@@ -331,11 +347,24 @@
             text-overflow: ellipsis;
         }
 
+        .notification-dropdown .notification-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-left: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .notification-dropdown .notification-amount {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
         .notification-dropdown .notification-time {
             font-size: 0.7rem;
             color: var(--text-muted);
-            margin-left: 0.5rem;
-            flex-shrink: 0;
         }
 
         .notification-dropdown .dropdown-footer {
@@ -1386,52 +1415,54 @@
                         <ul class="navbar-nav ml-auto">
                             <!-- Notification Bell -->
                             @if(in_array(Auth::user()->role, ['super_admin', 'admin']))
-                            <li class="nav-item dropdown no-arrow notification-bell">
-                                <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-bell"></i>
-                                    @if(isset($totalPending) && $totalPending > 0)
-                                        <span class="badge-counter">{{ $totalPending > 99 ? '99+' : $totalPending }}</span>
-                                    @endif
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="alertsDropdown">
-                                    <div class="dropdown-header">
-                                        <span>Menunggu Persetujuan</span>
+                                <li class="nav-item dropdown no-arrow notification-bell">
+                                    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-bell"></i>
                                         @if(isset($totalPending) && $totalPending > 0)
-                                            <span class="badge badge-danger">{{ $totalPending }}</span>
+                                            <span class="badge-counter">{{ $totalPending > 99 ? '99+' : $totalPending }}</span>
                                         @endif
-                                    </div>
-                                    <div class="notification-list">
-                                        @if(isset($pendingNotifications) && $pendingNotifications->count() > 0)
-                                            @foreach($pendingNotifications as $notif)
-                                                <a href="{{ $notif['url'] }}" class="notification-item">
-                                                    <div class="notification-icon bg-{{ $notif['color'] }}">
-                                                        <i class="fas {{ $notif['icon'] }}"></i>
-                                                    </div>
-                                                    <div class="notification-content">
-                                                        <div class="notification-title">{{ $notif['title'] }}</div>
-                                                        <div class="notification-subtitle">{{ $notif['subtitle'] }}</div>
-                                                    </div>
-                                                    <div class="notification-time">
-                                                        {{ $notif['time']->diffForHumans(null, true, true) }}
-                                                    </div>
-                                                </a>
-                                            @endforeach
-                                        @else
-                                            <div class="empty-notification">
-                                                <i class="fas fa-check-circle d-block"></i>
-                                                <span>Tidak ada transaksi pending</span>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right notification-dropdown"
+                                        aria-labelledby="alertsDropdown">
+                                        <div class="dropdown-header">
+                                            <span>Menunggu Persetujuan</span>
+                                            @if(isset($totalPending) && $totalPending > 0)
+                                                <span class="badge badge-danger">{{ $totalPending }}</span>
+                                            @endif
+                                        </div>
+                                        <div class="notification-list">
+                                            @if(isset($pendingNotifications) && $pendingNotifications->count() > 0)
+                                                @foreach($pendingNotifications as $notif)
+                                                    <a href="{{ $notif['url'] }}" class="notification-item">
+                                                        <div class="notification-icon bg-{{ $notif['color'] }}">
+                                                            <i class="fas {{ $notif['icon'] }}"></i>
+                                                        </div>
+                                                        <div class="notification-content">
+                                                            <div class="notification-title">{{ $notif['title'] }}</div>
+                                                            <div class="notification-subtitle">{{ $notif['subtitle'] }}</div>
+                                                        </div>
+                                                        <div class="notification-meta">
+                                                            <div class="notification-amount">Rp {{ number_format($notif['amount'] ?? 0, 0, ',', '.') }}</div>
+                                                            <div class="notification-time">{{ $notif['time']->diffForHumans(null, true, true) }}</div>
+                                                        </div>
+                                                    </a>
+                                                @endforeach
+                                            @else
+                                                <div class="empty-notification">
+                                                    <i class="fas fa-check-circle d-block"></i>
+                                                    <span>Tidak ada transaksi pending</span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        @if(isset($totalPending) && $totalPending > 0)
+                                            <div class="dropdown-footer">
+                                                <a href="{{ route('dashboard') }}">Lihat Semua Transaksi</a>
                                             </div>
                                         @endif
                                     </div>
-                                    @if(isset($totalPending) && $totalPending > 0)
-                                    <div class="dropdown-footer">
-                                        <a href="{{ route('dashboard') }}">Lihat Semua Transaksi</a>
-                                    </div>
-                                    @endif
-                                </div>
-                            </li>
-                            <li class="divider-vertical d-none d-sm-block"></li>
+                                </li>
+                                <li class="divider-vertical d-none d-sm-block"></li>
                             @endif
 
                             <!-- User Dropdown -->

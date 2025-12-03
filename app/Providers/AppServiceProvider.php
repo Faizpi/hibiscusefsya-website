@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Penjualan;
 use App\Pembelian;
 use App\Biaya;
+use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,21 +37,27 @@ class AppServiceProvider extends ServiceProvider
 
                 if ($user->role === 'super_admin') {
                     // Super admin sees all pending
-                    $pendingPenjualan = Penjualan::where('status', 'pending')->latest()->take(5)->get();
-                    $pendingPembelian = Pembelian::where('status', 'pending')->latest()->take(5)->get();
-                    $pendingBiaya = Biaya::where('status', 'pending')->latest()->take(5)->get();
+                    $pendingPenjualan = Penjualan::with('user')->where('status', 'pending')->latest()->take(5)->get();
+                    $pendingPembelian = Pembelian::with('user')->where('status', 'pending')->latest()->take(5)->get();
+                    $pendingBiaya = Biaya::with('user')->where('status', 'pending')->latest()->take(5)->get();
                 } else {
                     // Admin sees only their pending (as approver)
-                    $pendingPenjualan = Penjualan::where('status', 'pending')
+                    $pendingPenjualan = Penjualan::with('user')->where('status', 'pending')
                         ->where('approver_id', $user->id)
                         ->latest()->take(5)->get();
-                    $pendingPembelian = Pembelian::where('status', 'pending')
+                    $pendingPembelian = Pembelian::with('user')->where('status', 'pending')
                         ->where('approver_id', $user->id)
                         ->latest()->take(5)->get();
-                    $pendingBiaya = Biaya::where('status', 'pending')
+                    $pendingBiaya = Biaya::with('user')->where('status', 'pending')
                         ->where('approver_id', $user->id)
                         ->latest()->take(5)->get();
                 }
+
+                // Helper to format nomor
+                $formatNomor = function($item, $prefix) {
+                    $date = $item->tgl_transaksi ? Carbon::parse($item->tgl_transaksi) : $item->created_at;
+                    return sprintf('%s-%s%02d', $prefix, $date->format('ymd'), $item->no_urut_harian);
+                };
 
                 // Map to notifications
                 foreach ($pendingPenjualan as $item) {
@@ -58,8 +65,9 @@ class AppServiceProvider extends ServiceProvider
                         'type' => 'penjualan',
                         'icon' => 'fa-shopping-cart',
                         'color' => 'primary',
-                        'title' => 'Penjualan #' . $item->nomor,
-                        'subtitle' => $item->kontak->nama ?? 'N/A',
+                        'title' => $formatNomor($item, 'PJ'),
+                        'subtitle' => $item->pelanggan ?: ($item->user->name ?? '-'),
+                        'amount' => $item->grand_total,
                         'url' => route('penjualan.show', $item->id),
                         'time' => $item->created_at,
                     ]);
@@ -70,8 +78,9 @@ class AppServiceProvider extends ServiceProvider
                         'type' => 'pembelian',
                         'icon' => 'fa-truck',
                         'color' => 'success',
-                        'title' => 'Pembelian #' . $item->nomor,
-                        'subtitle' => $item->kontak->nama ?? 'N/A',
+                        'title' => $formatNomor($item, 'PB'),
+                        'subtitle' => $item->staf_penyetuju ?: ($item->user->name ?? '-'),
+                        'amount' => $item->grand_total,
                         'url' => route('pembelian.show', $item->id),
                         'time' => $item->created_at,
                     ]);
@@ -80,10 +89,11 @@ class AppServiceProvider extends ServiceProvider
                 foreach ($pendingBiaya as $item) {
                     $pendingNotifications->push([
                         'type' => 'biaya',
-                        'icon' => 'fa-file-invoice-dollar',
+                        'icon' => 'fa-receipt',
                         'color' => 'warning',
-                        'title' => 'Biaya #' . $item->nomor,
-                        'subtitle' => $item->nama_biaya ?? 'N/A',
+                        'title' => $formatNomor($item, 'BY'),
+                        'subtitle' => $item->penerima ?: ($item->user->name ?? '-'),
+                        'amount' => $item->grand_total,
                         'url' => route('biaya.show', $item->id),
                         'time' => $item->created_at,
                     ]);
