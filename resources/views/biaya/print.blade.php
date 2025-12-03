@@ -47,9 +47,12 @@
 
     <table class="info-table">
         <tr><td class="label">Nomor</td><td class="colon">:</td><td class="value">{{ $nomorInvoice }}</td></tr>
-        <tr><td class="label">Tanggal</td><td class="colon">:</td><td class="value">{{ $biaya->created_at->format('d/m/y H:i') }}</td></tr>
+        <tr><td class="label">Tanggal</td><td class="colon">:</td><td class="value">{{ $biaya->tgl_transaksi->format('d/m/Y') }}</td></tr>
+        <tr><td class="label">Pembayaran</td><td class="colon">:</td><td class="value">{{ $biaya->cara_pembayaran ?? '-' }}</td></tr>
+        <tr><td class="label">Bayar Dari</td><td class="colon">:</td><td class="value">{{ $biaya->bayar_dari ?? '-' }}</td></tr>
         <tr><td class="label">Penerima</td><td class="colon">:</td><td class="value">{{ $biaya->penerima }}</td></tr>
-        <tr><td class="label">Sales</td><td class="colon">:</td><td class="value">{{ $biaya->user->name }}</td></tr>
+        <tr><td class="label">Dibuat</td><td class="colon">:</td><td class="value">{{ $biaya->user->name }}</td></tr>
+        <tr><td class="label">Disetujui</td><td class="colon">:</td><td class="value">{{ $biaya->approver->name ?? '-' }}</td></tr>
         <tr><td class="label">Status</td><td class="colon">:</td><td class="value">{{ $biaya->status }}</td></tr>
     </table>
 

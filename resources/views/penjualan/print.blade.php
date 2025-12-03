@@ -75,9 +75,12 @@
 
     <table class="info-table">
         <tr><td class="label">Nomor</td><td class="colon">:</td><td class="value">{{ $nomorInvoice }}</td></tr>
-        <tr><td class="label">Tanggal</td><td class="colon">:</td><td class="value">{{ $penjualan->created_at->format('d/m/y H:i') }}</td></tr>
+        <tr><td class="label">Tanggal</td><td class="colon">:</td><td class="value">{{ $penjualan->tgl_transaksi->format('d/m/Y') }}</td></tr>
+        <tr><td class="label">Jatuh Tempo</td><td class="colon">:</td><td class="value">{{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td></tr>
+        <tr><td class="label">Pembayaran</td><td class="colon">:</td><td class="value">{{ $penjualan->syarat_pembayaran ?? '-' }}</td></tr>
         <tr><td class="label">Pelanggan</td><td class="colon">:</td><td class="value">{{ $penjualan->pelanggan }}</td></tr>
-        <tr><td class="label">Sales</td><td class="colon">:</td><td class="value">{{ $penjualan->user->name }}</td></tr>
+        <tr><td class="label">Dibuat</td><td class="colon">:</td><td class="value">{{ $penjualan->user->name }}</td></tr>
+        <tr><td class="label">Disetujui</td><td class="colon">:</td><td class="value">{{ $penjualan->approver->name ?? '-' }}</td></tr>
         <tr><td class="label">Gudang</td><td class="colon">:</td><td class="value">{{ $penjualan->gudang->nama_gudang ?? '-' }}</td></tr>
         <tr><td class="label">Status</td><td class="colon">:</td><td class="value">{{ $penjualan->status }}</td></tr>
     </table>

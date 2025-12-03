@@ -692,25 +692,28 @@
         }
 
         .sidebar.toggled .nav-item .nav-link {
-            padding: 0.75rem;
-            justify-content: center;
-            text-align: center;
+            padding: 0.75rem 1rem;
+            justify-content: flex-start;
+            text-align: left;
             overflow: hidden;
+            width: 100%;
         }
 
         .sidebar.toggled .nav-item .nav-link i {
-            margin-right: 0;
+            margin-right: 0.75rem;
             font-size: 1.1rem;
-            width: auto;
+            width: 20px;
+            flex-shrink: 0;
         }
 
         .sidebar.toggled .nav-item .nav-link span {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            width: 0 !important;
-            height: 0 !important;
-            overflow: hidden !important;
+            display: inline !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            width: auto !important;
+            height: auto !important;
+            overflow: visible !important;
+            font-size: 0.85rem;
         }
 
         .sidebar.toggled .sidebar-heading {
@@ -756,37 +759,67 @@
                 display: none;
             }
 
-            /* Mobile: Sidebar hidden by default */
-            .sidebar {
+            /* Mobile: Sidebar hidden by default, slide from left */
+            .sidebar,
+            .sidebar.toggled {
                 position: fixed !important;
                 left: 0;
                 top: 0;
                 bottom: 0;
-                width: 14rem !important;
-                min-width: 14rem;
+                width: 16rem !important;
+                min-width: 16rem !important;
+                max-width: 80vw !important;
                 transform: translateX(-100%);
                 transition: transform 0.25s ease;
                 z-index: 1050;
                 box-shadow: none;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
             }
 
-            /* Sidebar visible on mobile */
-            .sidebar.mobile-show {
-                transform: translateX(0);
+            /* Sidebar visible on mobile - full width menu */
+            .sidebar.mobile-show,
+            .sidebar.toggled.mobile-show {
+                transform: translateX(0) !important;
                 box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
             }
 
-            .sidebar.mobile-show .nav-item .nav-link span,
-            .sidebar.mobile-show .sidebar-heading {
-                display: inline !important;
-            }
-
-            .sidebar.mobile-show .nav-item .nav-link {
+            /* Reset toggled styles on mobile */
+            .sidebar.mobile-show .nav-item .nav-link,
+            .sidebar.toggled.mobile-show .nav-item .nav-link {
+                padding: 0.75rem 1rem !important;
                 justify-content: flex-start !important;
+                text-align: left !important;
+                width: 100% !important;
             }
 
-            .sidebar.mobile-show .nav-item .nav-link i {
+            .sidebar.mobile-show .nav-item .nav-link span,
+            .sidebar.toggled.mobile-show .nav-item .nav-link span {
+                display: inline !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                width: auto !important;
+                height: auto !important;
+                font-size: 0.875rem !important;
+            }
+
+            .sidebar.mobile-show .nav-item .nav-link i,
+            .sidebar.toggled.mobile-show .nav-item .nav-link i {
                 margin-right: 0.75rem !important;
+                width: 20px !important;
+            }
+
+            .sidebar.mobile-show .sidebar-heading,
+            .sidebar.toggled.mobile-show .sidebar-heading {
+                display: block !important;
+                text-align: left !important;
+                padding: 1rem 1rem 0.5rem !important;
+            }
+
+            .sidebar.mobile-show .sidebar-brand,
+            .sidebar.toggled.mobile-show .sidebar-brand {
+                padding: 1rem !important;
+                justify-content: flex-start !important;
             }
 
             /* Overlay when sidebar open */
