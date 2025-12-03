@@ -80,6 +80,7 @@
         .sidebar .sidebar-brand-icon img {
             filter: none !important;
             height: 36px;
+            border-radius: 8px;
         }
 
         .sidebar .nav-item {
@@ -689,6 +690,7 @@
 
         .sidebar.toggled .sidebar-brand .sidebar-brand-icon img {
             height: 28px !important;
+            border-radius: 6px;
         }
 
         .sidebar.toggled .nav-item .nav-link {

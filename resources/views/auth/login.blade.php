@@ -302,6 +302,7 @@
         }
 
         @keyframes float1 {
+
             0%,
             100% {
                 transform: translateX(-50%) translateY(0);
