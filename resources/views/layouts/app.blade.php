@@ -205,6 +205,176 @@
             margin-left: 0.75rem;
         }
 
+        /* Notification Bell Styles */
+        .topbar .nav-item.notification-bell .nav-link {
+            position: relative;
+            padding: 0.5rem 0.75rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .topbar .nav-item.notification-bell .nav-link:hover {
+            color: var(--sidebar-active);
+        }
+
+        .topbar .nav-item.notification-bell .badge-counter {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            height: 18px;
+            min-width: 18px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0 5px;
+            line-height: 18px;
+            border-radius: 10px;
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .topbar .notification-dropdown {
+            min-width: 320px;
+            max-width: 360px;
+            padding: 0;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .notification-dropdown .dropdown-header {
+            background: var(--bg-light);
+            padding: 0.85rem 1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-dropdown .dropdown-header .badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .notification-dropdown .notification-list {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .notification-dropdown .notification-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            text-decoration: none;
+            transition: background 0.15s ease;
+        }
+
+        .notification-dropdown .notification-item:hover {
+            background: var(--bg-light);
+        }
+
+        .notification-dropdown .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-dropdown .notification-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+            font-size: 0.85rem;
+        }
+
+        .notification-dropdown .notification-icon.bg-primary {
+            background: rgba(59, 130, 246, 0.15) !important;
+            color: #3b82f6;
+        }
+
+        .notification-dropdown .notification-icon.bg-success {
+            background: rgba(16, 185, 129, 0.15) !important;
+            color: #10b981;
+        }
+
+        .notification-dropdown .notification-icon.bg-warning {
+            background: rgba(245, 158, 11, 0.15) !important;
+            color: #f59e0b;
+        }
+
+        .notification-dropdown .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-dropdown .notification-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .notification-dropdown .notification-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .notification-dropdown .notification-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-left: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .notification-dropdown .dropdown-footer {
+            background: var(--bg-light);
+            padding: 0.75rem 1rem;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .notification-dropdown .dropdown-footer a {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--sidebar-active);
+            text-decoration: none;
+        }
+
+        .notification-dropdown .dropdown-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .notification-dropdown .empty-notification {
+            padding: 2rem 1rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .notification-dropdown .empty-notification i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+
+        .topbar .divider-vertical {
+            height: 24px;
+            width: 1px;
+            background: var(--border-color);
+            margin: 0 0.5rem;
+        }
+
         .topbar .dropdown-menu {
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -1214,6 +1384,57 @@
                         </button>
 
                         <ul class="navbar-nav ml-auto">
+                            <!-- Notification Bell -->
+                            @if(in_array(Auth::user()->role, ['super_admin', 'admin']))
+                            <li class="nav-item dropdown no-arrow notification-bell">
+                                <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-bell"></i>
+                                    @if(isset($totalPending) && $totalPending > 0)
+                                        <span class="badge-counter">{{ $totalPending > 99 ? '99+' : $totalPending }}</span>
+                                    @endif
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="alertsDropdown">
+                                    <div class="dropdown-header">
+                                        <span>Menunggu Persetujuan</span>
+                                        @if(isset($totalPending) && $totalPending > 0)
+                                            <span class="badge badge-danger">{{ $totalPending }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="notification-list">
+                                        @if(isset($pendingNotifications) && $pendingNotifications->count() > 0)
+                                            @foreach($pendingNotifications as $notif)
+                                                <a href="{{ $notif['url'] }}" class="notification-item">
+                                                    <div class="notification-icon bg-{{ $notif['color'] }}">
+                                                        <i class="fas {{ $notif['icon'] }}"></i>
+                                                    </div>
+                                                    <div class="notification-content">
+                                                        <div class="notification-title">{{ $notif['title'] }}</div>
+                                                        <div class="notification-subtitle">{{ $notif['subtitle'] }}</div>
+                                                    </div>
+                                                    <div class="notification-time">
+                                                        {{ $notif['time']->diffForHumans(null, true, true) }}
+                                                    </div>
+                                                </a>
+                                            @endforeach
+                                        @else
+                                            <div class="empty-notification">
+                                                <i class="fas fa-check-circle d-block"></i>
+                                                <span>Tidak ada transaksi pending</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    @if(isset($totalPending) && $totalPending > 0)
+                                    <div class="dropdown-footer">
+                                        <a href="{{ route('dashboard') }}">Lihat Semua Transaksi</a>
+                                    </div>
+                                    @endif
+                                </div>
+                            </li>
+                            <li class="divider-vertical d-none d-sm-block"></li>
+                            @endif
+
+                            <!-- User Dropdown -->
                             <li class="nav-item dropdown no-arrow">
                                 <a class="nav-link dropdown-toggle user-info" href="#" id="userDropdown" role="button"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
