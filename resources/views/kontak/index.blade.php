@@ -38,11 +38,7 @@
                             <td class="text-right">{{ $item->diskon_persen ?? 0 }}%</td>
                             <td class="text-center">
                                 <a href="{{ route('kontak.edit', $item->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                <form action="{{ route('kontak.destroy', $item->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus?')">Hapus</button>
-                                </form>
+                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-action="{{ route('kontak.destroy', $item->id) }}">Hapus</button>
                             </td>
                         </tr>
                         @empty
@@ -56,4 +52,37 @@
         </div>
     </div>
 </div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle mr-2"></i>Konfirmasi Hapus</h5>
+                <button class="close text-white" type="button" data-dismiss="modal"><span>×</span></button>
+            </div>
+            <div class="modal-body">
+                <p>Apakah Anda yakin ingin <strong>menghapus</strong> data ini?</p>
+                <p class="text-muted mb-0"><small>Data yang dihapus tidak dapat dikembalikan.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
+                <form id="deleteForm" method="POST">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var action = button.data('action');
+        $(this).find('#deleteForm').attr('action', action);
+    });
+</script>
+@endpush

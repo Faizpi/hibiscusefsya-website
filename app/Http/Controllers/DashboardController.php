@@ -63,7 +63,7 @@ class DashboardController extends Controller
         } elseif ($role == 'admin') {
             // ADMIN: Hanya lihat transaksi yang DIA sebagai approver
             $userId = Auth::id();
-            
+
             $penjualanQuery = Penjualan::where('approver_id', $userId);
             $pembelianQuery = Pembelian::where('approver_id', $userId);
             $biayaQuery = Biaya::where('approver_id', $userId);

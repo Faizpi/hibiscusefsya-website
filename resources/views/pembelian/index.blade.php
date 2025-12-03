@@ -33,7 +33,8 @@
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Total (Pending/Approved)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($fakturBelumDibayar, 0, ',', '.') }}</div>
+                                {{ number_format($fakturBelumDibayar, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i></div>
                     </div>
@@ -48,7 +49,8 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Jatuh Tempo Lewat</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($fakturTelatBayar, 0, ',', '.') }}</div>
+                                {{ number_format($fakturTelatBayar, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i></div>
                     </div>
@@ -125,7 +127,8 @@
                                     @php $role = auth()->user()->role; @endphp
 
                                     <div class="dropdown action-dropdown">
-                                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-right shadow-sm">
@@ -137,7 +140,8 @@
                                             {{-- APPROVE: Hanya jika Pending & Role Sesuai --}}
                                             @if($item->status == 'Pending')
                                                 @if($role == 'super_admin' || ($role == 'admin' && $item->approver_id == auth()->id()))
-                                                    <form action="{{ route('pembelian.approve', $item->id) }}" method="POST" class="d-inline">
+                                                    <form action="{{ route('pembelian.approve', $item->id) }}" method="POST"
+                                                        class="d-inline">
                                                         @csrf
                                                         <button type="submit" class="dropdown-item">
                                                             <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
@@ -169,7 +173,9 @@
                                                 <a class="dropdown-item" href="{{ route('pembelian.edit', $item->id) }}">
                                                     <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
                                                 </a>
-                                                <button type="button" class="dropdown-item text-danger" data-toggle="modal" data-target="#deleteModal" data-action="{{ route('pembelian.destroy', $item->id) }}">
+                                                <button type="button" class="dropdown-item text-danger" data-toggle="modal"
+                                                    data-target="#deleteModal"
+                                                    data-action="{{ route('pembelian.destroy', $item->id) }}">
                                                     <i class="fas fa-trash fa-fw mr-2"></i> Hapus
                                                 </button>
                                             @endif

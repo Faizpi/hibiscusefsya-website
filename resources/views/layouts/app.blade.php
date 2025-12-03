@@ -1216,18 +1216,21 @@
         <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Keluar dari Sistem</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="fas fa-sign-out-alt mr-2"></i>Keluar dari Sistem</h5>
+                        <button class="close text-white" type="button" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    <div class="modal-body">Apakah Anda yakin ingin keluar?</div>
+                    <div class="modal-body">
+                        <p>Apakah Anda yakin ingin <strong>keluar</strong> dari sistem?</p>
+                        <p class="text-muted mb-0"><small>Anda perlu login kembali untuk mengakses sistem.</small></p>
+                    </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
-                        <a class="btn btn-danger" href="#"
+                        <a class="btn btn-primary" href="#"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            <i class="fas fa-sign-out-alt mr-1"></i> Keluar
+                            <i class="fas fa-sign-out-alt mr-1"></i> Ya, Keluar
                         </a>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf
                         </form>

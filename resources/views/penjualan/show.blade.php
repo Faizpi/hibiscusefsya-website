@@ -32,12 +32,9 @@
 
                 {{-- Tombol Cancel (Admin) --}}
                 @if($penjualan->status != 'Canceled' && in_array($user->role, ['admin', 'super_admin']))
-                    <form action="{{ route('penjualan.cancel', $penjualan->id) }}" method="POST" class="d-inline"
-                        onsubmit="return confirm('Batalkan transaksi ini?')">
-                        @csrf
-                        <button type="submit" class="btn btn-dark btn-sm shadow-sm"><i class="fas fa-ban fa-sm"></i>
-                            Cancel</button>
-                    </form>
+                    <button type="button" class="btn btn-dark btn-sm shadow-sm" data-toggle="modal" data-target="#cancelModal">
+                        <i class="fas fa-ban fa-sm"></i> Cancel
+                    </button>
                 @endif
 
                 {{-- Tombol Print & Kembali --}}
@@ -258,6 +255,29 @@
                             <p class="text-muted">Tidak ada lampiran.</p>
                         @endif
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle mr-2"></i>Konfirmasi Pembatalan</h5>
+                    <button class="close" type="button" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Apakah Anda yakin ingin <strong>membatalkan</strong> transaksi ini?</p>
+                    <p class="text-muted mb-0"><small>Transaksi yang dibatalkan tidak dapat diproses kembali.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Tidak</button>
+                    <form action="{{ route('penjualan.cancel', $penjualan->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-warning">Ya, Batalkan</button>
+                    </form>
                 </div>
             </div>
         </div>
