@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Penjualan;
 use App\Pembelian;
 use App\Biaya;
-use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -53,20 +52,13 @@ class AppServiceProvider extends ServiceProvider
                         ->latest()->take(5)->get();
                 }
 
-                // Helper to format nomor (same format as controllers)
-                $formatNomor = function ($item, $prefix) {
-                    $dateCode = $item->created_at->format('Ymd');
-                    $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
-                    return "{$prefix}-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
-                };
-
-                // Map to notifications
+                // Map to notifications - using model accessor for custom_number
                 foreach ($pendingPenjualan as $item) {
                     $pendingNotifications->push([
                         'type' => 'penjualan',
                         'icon' => 'fa-shopping-cart',
                         'color' => 'primary',
-                        'title' => $formatNomor($item, 'INV'),
+                        'title' => $item->custom_number,
                         'subtitle' => $item->pelanggan ?: ($item->user->name ?? '-'),
                         'amount' => $item->grand_total,
                         'url' => route('penjualan.show', $item->id),
@@ -79,7 +71,7 @@ class AppServiceProvider extends ServiceProvider
                         'type' => 'pembelian',
                         'icon' => 'fa-truck',
                         'color' => 'success',
-                        'title' => $formatNomor($item, 'PR'),
+                        'title' => $item->custom_number,
                         'subtitle' => $item->staf_penyetuju ?: ($item->user->name ?? '-'),
                         'amount' => $item->grand_total,
                         'url' => route('pembelian.show', $item->id),
@@ -92,7 +84,7 @@ class AppServiceProvider extends ServiceProvider
                         'type' => 'biaya',
                         'icon' => 'fa-receipt',
                         'color' => 'warning',
-                        'title' => $formatNomor($item, 'EXP'),
+                        'title' => $item->custom_number,
                         'subtitle' => $item->penerima ?: ($item->user->name ?? '-'),
                         'amount' => $item->grand_total,
                         'url' => route('biaya.show', $item->id),

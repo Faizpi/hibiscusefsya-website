@@ -42,4 +42,15 @@ class Biaya extends Model
     {
         return $this->hasMany(BiayaItem::class);
     }
+
+    /**
+     * Accessor untuk custom_number
+     * Format: EXP-YYYYMMDD-USER_ID-NO_URUT
+     */
+    public function getCustomNumberAttribute()
+    {
+        $dateCode = $this->created_at->format('Ymd');
+        $noUrutPadded = str_pad($this->no_urut_harian, 3, '0', STR_PAD_LEFT);
+        return "EXP-{$dateCode}-{$this->user_id}-{$noUrutPadded}";
+    }
 }

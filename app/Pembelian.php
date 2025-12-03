@@ -57,4 +57,15 @@ class Pembelian extends Model
     {
         return $this->hasMany(PembelianItem::class);
     }
+
+    /**
+     * Accessor untuk custom_number
+     * Format: PR-YYYYMMDD-USER_ID-NO_URUT
+     */
+    public function getCustomNumberAttribute()
+    {
+        $dateCode = $this->created_at->format('Ymd');
+        $noUrutPadded = str_pad($this->no_urut_harian, 3, '0', STR_PAD_LEFT);
+        return "PR-{$dateCode}-{$this->user_id}-{$noUrutPadded}";
+    }
 }

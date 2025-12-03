@@ -52,4 +52,15 @@ class Penjualan extends Model
     {
         return $this->hasMany(PenjualanItem::class);
     }
+
+    /**
+     * Accessor untuk custom_number
+     * Format: INV-YYYYMMDD-USER_ID-NO_URUT
+     */
+    public function getCustomNumberAttribute()
+    {
+        $dateCode = $this->created_at->format('Ymd');
+        $noUrutPadded = str_pad($this->no_urut_harian, 3, '0', STR_PAD_LEFT);
+        return "INV-{$dateCode}-{$this->user_id}-{$noUrutPadded}";
+    }
 }
