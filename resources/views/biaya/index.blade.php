@@ -22,7 +22,8 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Bulan Ini</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($totalBulanIni, 0, ',', '.') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($totalBulanIni, 0, ',', '.') }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-calendar-alt fa-2x text-gray-300"></i></div>
                     </div>
@@ -37,7 +38,8 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Approval</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($totalBelumDibayar, 0, ',', '.') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($totalBelumDibayar, 0, ',', '.') }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
                     </div>
@@ -52,7 +54,8 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Approved</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($totalApproved, 0, ',', '.') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($totalApproved, 0, ',', '.') }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-check-circle fa-2x text-gray-300"></i></div>
                     </div>
@@ -66,7 +69,8 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Dibatalkan (Canceled)</div>
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Dibatalkan (Canceled)
+                            </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalCanceled }} Transaksi</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-ban fa-2x text-gray-300"></i></div>
@@ -120,7 +124,8 @@
                                     @php $role = auth()->user()->role; @endphp
 
                                     <div class="dropdown action-dropdown">
-                                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-right shadow-sm">
@@ -131,7 +136,8 @@
 
                                             {{-- APPROVE --}}
                                             @if(($role == 'super_admin' || ($role == 'admin' && $item->approver_id == auth()->id())) && $item->status == 'Pending')
-                                                <form action="{{ route('biaya.approve', $item->id) }}" method="POST" class="d-inline">
+                                                <form action="{{ route('biaya.approve', $item->id) }}" method="POST"
+                                                    class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="dropdown-item">
                                                         <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
@@ -142,8 +148,7 @@
                                             {{-- CANCEL --}}
                                             @if(in_array($role, ['admin', 'super_admin']) && $item->status != 'Canceled')
                                                 <button type="button" class="dropdown-item" data-toggle="modal"
-                                                    data-target="#cancelModal"
-                                                    data-action="{{ route('biaya.cancel', $item->id) }}">
+                                                    data-target="#cancelModal" data-action="{{ route('biaya.cancel', $item->id) }}">
                                                     <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan
                                                 </button>
                                             @endif
@@ -165,7 +170,9 @@
                                             @endif
 
                                             @if($canDelete)
-                                                <button type="button" class="dropdown-item text-danger" data-toggle="modal" data-target="#deleteModal" data-action="{{ route('biaya.destroy', $item->id) }}">
+                                                <button type="button" class="dropdown-item text-danger" data-toggle="modal"
+                                                    data-target="#deleteModal"
+                                                    data-action="{{ route('biaya.destroy', $item->id) }}">
                                                     <i class="fas fa-trash fa-fw mr-2"></i> Hapus
                                                 </button>
                                             @endif

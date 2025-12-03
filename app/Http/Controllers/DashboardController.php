@@ -21,9 +21,10 @@ class DashboardController extends Controller
         $now = Carbon::now();
         $role = Auth::user()->role;
         $perPage = 20;
+        $userId = Auth::id();
 
+        // Inisialisasi query berdasarkan role
         if ($role == 'super_admin') {
-            // SUPER ADMIN: Lihat SEMUA transaksi
             $penjualanQuery = Penjualan::query();
             $pembelianQuery = Pembelian::query();
             $biayaQuery = Biaya::query();
@@ -32,47 +33,12 @@ class DashboardController extends Controller
             $data['card_4_value'] = User::count();
             $data['card_4_icon'] = 'fa-users';
 
-            // Ambil semua transaksi
+            // Ambil semua transaksi untuk tabel
             $penjualans = Penjualan::with('user')->get();
             $pembelians = Pembelian::with('user')->get();
             $biayas = Biaya::with('user')->get();
 
-            $penjualans->each(function ($item) {
-                $dateCode = $item->created_at->format('Ymd');
-                $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
-                $item->type = 'Penjualan';
-                $item->route = route('penjualan.show', $item->id);
-                $item->number = "INV-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
-            });
-            $pembelians->each(function ($item) {
-                $dateCode = $item->created_at->format('Ymd');
-                $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
-                $item->type = 'Pembelian';
-                $item->route = route('pembelian.show', $item->id);
-                $item->number = "PR-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
-            });
-            $biayas->each(function ($item) {
-                $dateCode = $item->created_at->format('Ymd');
-                $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
-                $item->type = 'Biaya';
-                $item->route = route('biaya.show', $item->id);
-                $item->number = "EXP-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
-            });
-
-            $allTransactions = $penjualans->concat($pembelians)->concat($biayas)->sortByDesc('created_at')->values();
-
-            // Manual Pagination
-            $currentPage = $request->get('page', 1);
-            $currentItems = $allTransactions->slice(($currentPage - 1) * $perPage, $perPage)->values();
-            $data['allTransactions'] = new LengthAwarePaginator($currentItems, $allTransactions->count(), $perPage, $currentPage, [
-                'path' => $request->url(),
-                'query' => $request->query(),
-            ]);
-
         } elseif ($role == 'admin') {
-            // ADMIN: Hanya lihat transaksi yang DIA sebagai approver
-            $userId = Auth::id();
-
             $penjualanQuery = Penjualan::where('approver_id', $userId);
             $pembelianQuery = Pembelian::where('approver_id', $userId);
             $biayaQuery = Biaya::where('approver_id', $userId);
@@ -90,6 +56,92 @@ class DashboardController extends Controller
             $pembelians = Pembelian::with('user')->where('approver_id', $userId)->get();
             $biayas = Biaya::with('user')->where('approver_id', $userId)->get();
 
+        } else {
+            $penjualanQuery = Penjualan::where('user_id', $userId);
+            $pembelianQuery = Pembelian::where('user_id', $userId);
+            $biayaQuery = Biaya::where('user_id', $userId);
+
+            $pendingCount = (clone $penjualanQuery)->where('status', 'Pending')->count()
+                + (clone $pembelianQuery)->where('status', 'Pending')->count()
+                + (clone $biayaQuery)->where('status', 'Pending')->count();
+
+            $data['card_4_title'] = 'Data Menunggu Persetujuan';
+            $data['card_4_value'] = $pendingCount;
+            $data['card_4_icon'] = 'fa-clock';
+        }
+
+        // ==================== CHART DATA ====================
+        if (in_array($role, ['super_admin', 'admin'])) {
+            // LINE CHART: Tren 6 bulan terakhir
+            $chartLabels = [];
+            $chartPenjualan = [];
+            $chartPembelian = [];
+            $chartBiaya = [];
+
+            for ($i = 5; $i >= 0; $i--) {
+                $month = Carbon::now()->subMonths($i);
+                $chartLabels[] = $month->translatedFormat('M Y');
+
+                // Query berdasarkan role
+                if ($role == 'super_admin') {
+                    $chartPenjualan[] = Penjualan::whereYear('tgl_transaksi', $month->year)
+                        ->whereMonth('tgl_transaksi', $month->month)
+                        ->whereIn('status', ['Approved', 'Lunas'])
+                        ->sum('grand_total');
+                    
+                    $chartPembelian[] = Pembelian::whereYear('tgl_transaksi', $month->year)
+                        ->whereMonth('tgl_transaksi', $month->month)
+                        ->where('status', 'Approved')
+                        ->sum('grand_total');
+                    
+                    $chartBiaya[] = Biaya::whereYear('tgl_transaksi', $month->year)
+                        ->whereMonth('tgl_transaksi', $month->month)
+                        ->where('status', 'Approved')
+                        ->sum('grand_total');
+                } else {
+                    // Admin: hanya yang dia sebagai approver
+                    $chartPenjualan[] = Penjualan::where('approver_id', $userId)
+                        ->whereYear('tgl_transaksi', $month->year)
+                        ->whereMonth('tgl_transaksi', $month->month)
+                        ->whereIn('status', ['Approved', 'Lunas'])
+                        ->sum('grand_total');
+                    
+                    $chartPembelian[] = Pembelian::where('approver_id', $userId)
+                        ->whereYear('tgl_transaksi', $month->year)
+                        ->whereMonth('tgl_transaksi', $month->month)
+                        ->where('status', 'Approved')
+                        ->sum('grand_total');
+                    
+                    $chartBiaya[] = Biaya::where('approver_id', $userId)
+                        ->whereYear('tgl_transaksi', $month->year)
+                        ->whereMonth('tgl_transaksi', $month->month)
+                        ->where('status', 'Approved')
+                        ->sum('grand_total');
+                }
+            }
+
+            $data['chartLabels'] = $chartLabels;
+            $data['chartPenjualan'] = $chartPenjualan;
+            $data['chartPembelian'] = $chartPembelian;
+            $data['chartBiaya'] = $chartBiaya;
+
+            // DOUGHNUT CHART: Status transaksi
+            if ($role == 'super_admin') {
+                $allForStatus = Penjualan::all()->concat(Pembelian::all())->concat(Biaya::all());
+            } else {
+                $allForStatus = Penjualan::where('approver_id', $userId)->get()
+                    ->concat(Pembelian::where('approver_id', $userId)->get())
+                    ->concat(Biaya::where('approver_id', $userId)->get());
+            }
+
+            $data['statusPending'] = $allForStatus->where('status', 'Pending')->count();
+            $data['statusApproved'] = $allForStatus->whereIn('status', ['Approved', 'Lunas'])->count();
+            $data['statusCanceled'] = $allForStatus->where('status', 'Canceled')->count();
+        }
+        // ==================== END CHART DATA ====================
+
+        // Transform transaksi untuk tabel
+        if (in_array($role, ['super_admin', 'admin'])) {
             $penjualans->each(function ($item) {
                 $dateCode = $item->created_at->format('Ymd');
                 $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
@@ -121,21 +173,6 @@ class DashboardController extends Controller
                 'path' => $request->url(),
                 'query' => $request->query(),
             ]);
-
-        } else {
-            // USER: Hanya lihat transaksi milik sendiri
-            $userId = Auth::id();
-            $penjualanQuery = Penjualan::where('user_id', $userId);
-            $pembelianQuery = Pembelian::where('user_id', $userId);
-            $biayaQuery = Biaya::where('user_id', $userId);
-
-            $pendingCount = (clone $penjualanQuery)->where('status', 'Pending')->count()
-                + (clone $pembelianQuery)->where('status', 'Pending')->count()
-                + (clone $biayaQuery)->where('status', 'Pending')->count();
-
-            $data['card_4_title'] = 'Data Menunggu Persetujuan';
-            $data['card_4_value'] = $pendingCount;
-            $data['card_4_icon'] = 'fa-clock';
         }
 
         $data['penjualanBulanIni'] = (clone $penjualanQuery)
