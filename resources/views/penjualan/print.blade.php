@@ -1,21 +1,29 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Struk Penjualan</title>
     <style>
-        @page { size: 58mm; margin: 0; }
+        @page {
+            size: 58mm;
+            margin: 0;
+        }
+
         @media screen {
-            html { background-color: #E0E0E0; }
-            body { 
-                margin: 2rem auto !important; 
-                box-shadow: 0 0 6px rgba(0,0,0,0.3); 
-                background: #fff; 
+            html {
+                background-color: #E0E0E0;
+            }
+
+            body {
+                margin: 2rem auto !important;
+                box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+                background: #fff;
             }
         }
-        
+
         body {
-            width: 54mm; 
+            width: 54mm;
             font-family: 'Consolas', 'Courier New', monospace;
             font-size: 9pt;
             color: #000;
@@ -24,43 +32,126 @@
         }
 
         /* Header Logo */
-        .header { text-align: center; margin-bottom: 10px; }
-        .logo { max-width: 45mm; height: auto; margin-bottom: 5px; }
-        .title { font-size: 9pt; margin: 0; font-weight: bold; }
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            max-width: 45mm;
+            height: auto;
+            margin-bottom: 5px;
+        }
+
+        .title {
+            font-size: 9pt;
+            margin: 0;
+            font-weight: bold;
+        }
 
         /* Divider */
-        .divider { border-top: 1px dashed #000; margin: 6px 0; }
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 6px 0;
+        }
 
         /* Info Table */
-        .info-table { width: 100%; font-size: 8pt; }
-        .info-table td { vertical-align: top; padding-bottom: 2px; }
-        .info-table .label { width: 35%; }
-        .info-table .colon { width: 5%; text-align: center; }
-        .info-table .value { width: 60%; }
+        .info-table {
+            width: 100%;
+            font-size: 8pt;
+        }
+
+        .info-table td {
+            vertical-align: top;
+            padding-bottom: 2px;
+        }
+
+        .info-table .label {
+            width: 35%;
+        }
+
+        .info-table .colon {
+            width: 5%;
+            text-align: center;
+        }
+
+        .info-table .value {
+            width: 60%;
+        }
 
         /* Items */
-        .item-container { margin-bottom: 8px; }
-        .item-name { font-weight: bold; font-size: 9pt; margin-bottom: 2px; }
+        .item-container {
+            margin-bottom: 8px;
+        }
+
+        .item-name {
+            font-weight: bold;
+            font-size: 9pt;
+            margin-bottom: 2px;
+        }
 
         /* Details (Qty, Harga, dll) */
-        .details-table { width: 100%; font-size: 8.5pt; }
-        .details-table td { padding: 1px 0; }
-        .details-table .lbl { width: 35%; text-align: left; }
-        .details-table .val { width: 65%; text-align: right; }
+        .details-table {
+            width: 100%;
+            font-size: 8.5pt;
+        }
+
+        .details-table td {
+            padding: 1px 0;
+        }
+
+        .details-table .lbl {
+            width: 35%;
+            text-align: left;
+        }
+
+        .details-table .val {
+            width: 65%;
+            text-align: right;
+        }
 
         /* Total */
-        .total-table { width: 100%; font-size: 9pt; margin-top: 5px; }
-        .total-table td { padding: 1px 0; }
-        .total-table .lbl { font-weight: normal; }
-        .total-table .val { text-align: right; }
-        .grand-total { font-weight: bold; font-size: 11pt; padding-top: 5px; border-top: 1px dashed #000; }
+        .total-table {
+            width: 100%;
+            font-size: 9pt;
+            margin-top: 5px;
+        }
 
-        .footer { text-align: center; margin-top: 15px; font-size: 8pt; }
-        @media print { .no-print { display: none; } }
+        .total-table td {
+            padding: 1px 0;
+        }
+
+        .total-table .lbl {
+            font-weight: normal;
+        }
+
+        .total-table .val {
+            text-align: right;
+        }
+
+        .grand-total {
+            font-weight: bold;
+            font-size: 11pt;
+            padding-top: 5px;
+            border-top: 1px dashed #000;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 8pt;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
     </style>
 </head>
+
 <body onload="window.print()">
-    
+
     @php
         // GENERATE NOMOR CUSTOM DI SINI (Agar pasti muncul)
         $dateCode = $penjualan->created_at->format('Ymd');
@@ -74,46 +165,83 @@
     </div>
 
     <table class="info-table">
-        <tr><td class="label">Nomor</td><td class="colon">:</td><td class="value">{{ $nomorInvoice }}</td></tr>
-        <tr><td class="label">Tanggal</td><td class="colon">:</td><td class="value">{{ $penjualan->tgl_transaksi->format('d/m/Y') }}</td></tr>
-        <tr><td class="label">Jatuh Tempo</td><td class="colon">:</td><td class="value">{{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td></tr>
-        <tr><td class="label">Pembayaran</td><td class="colon">:</td><td class="value">{{ $penjualan->syarat_pembayaran ?? '-' }}</td></tr>
-        <tr><td class="label">Pelanggan</td><td class="colon">:</td><td class="value">{{ $penjualan->pelanggan }}</td></tr>
-        <tr><td class="label">Sales</td><td class="colon">:</td><td class="value">{{ $penjualan->user->name }}</td></tr>
-        <tr><td class="label">Disetujui</td><td class="colon">:</td><td class="value">{{ $penjualan->approver->name ?? '-' }}</td></tr>
-        <tr><td class="label">Gudang</td><td class="colon">:</td><td class="value">{{ $penjualan->gudang->nama_gudang ?? '-' }}</td></tr>
-        <tr><td class="label">Status</td><td class="colon">:</td><td class="value">{{ $penjualan->status }}</td></tr>
+        <tr>
+            <td class="label">Nomor</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $nomorInvoice }}</td>
+        </tr>
+        <tr>
+            <td class="label">Tanggal</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $penjualan->tgl_transaksi->format('d/m/Y') }}</td>
+        </tr>
+        <tr>
+            <td class="label">Jatuh Tempo</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Pembayaran</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $penjualan->syarat_pembayaran ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Pelanggan</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $penjualan->pelanggan }}</td>
+        </tr>
+        <tr>
+            <td class="label">Sales</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $penjualan->user->name }}</td>
+        </tr>
+        <tr>
+            <td class="label">Disetujui</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $penjualan->approver->name ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Gudang</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $penjualan->gudang->nama_gudang ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Status</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $penjualan->status }}</td>
+        </tr>
     </table>
 
     <div class="divider"></div>
 
     @foreach($penjualan->items as $item)
-    <div class="item-container">
-        <div class="item-name">
-            {{ $item->produk->nama_produk }} ({{ $item->produk->item_code ?? '-' }})
+        <div class="item-container">
+            <div class="item-name">
+                {{ $item->produk->nama_produk }} ({{ $item->produk->item_code ?? '-' }})
+            </div>
+
+            <table class="details-table">
+                <tr>
+                    <td class="lbl">Qty</td>
+                    <td class="val">{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }}</td>
+                </tr>
+                <tr>
+                    <td class="lbl">Harga</td>
+                    <td class="val">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                </tr>
+                @if($item->diskon > 0)
+                    <tr>
+                        <td class="lbl">Disc</td>
+                        <td class="val">{{ $item->diskon }}%</td>
+                    </tr>
+                @endif
+                <tr>
+                    <td class="lbl" style="font-weight: bold;">Jumlah</td>
+                    <td class="val" style="font-weight: bold;">Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
+                </tr>
+            </table>
         </div>
-        
-        <table class="details-table">
-            <tr>
-                <td class="lbl">Qty</td>
-                <td class="val">{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }}</td>
-            </tr>
-            <tr>
-                <td class="lbl">Harga</td>
-                <td class="val">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
-            </tr>
-            @if($item->diskon > 0)
-            <tr>
-                <td class="lbl">Disc</td>
-                <td class="val">{{ $item->diskon }}%</td>
-            </tr>
-            @endif
-            <tr>
-                <td class="lbl" style="font-weight: bold;">Jumlah</td>
-                <td class="val" style="font-weight: bold;">Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
-            </tr>
-        </table>
-    </div>
     @endforeach
 
     <div class="divider"></div>
@@ -123,25 +251,25 @@
             <td class="lbl">Subtotal</td>
             <td class="val">Rp {{ number_format($penjualan->items->sum('jumlah_baris'), 0, ',', '.') }}</td>
         </tr>
-        
+
         @if($penjualan->diskon_akhir > 0)
-        <tr>
-            <td class="lbl">Diskon Akhir</td>
-            <td class="val">- Rp {{ number_format($penjualan->diskon_akhir, 0, ',', '.') }}</td>
-        </tr>
+            <tr>
+                <td class="lbl">Diskon Akhir</td>
+                <td class="val">- Rp {{ number_format($penjualan->diskon_akhir, 0, ',', '.') }}</td>
+            </tr>
         @endif
 
         @if($penjualan->tax_percentage > 0)
-        @php
-            // Hitung ulang pajak untuk tampilan
-            $subtotal = $penjualan->items->sum('jumlah_baris');
-            $kenaPajak = max(0, $subtotal - $penjualan->diskon_akhir);
-            $pajakNominal = $kenaPajak * ($penjualan->tax_percentage / 100);
-        @endphp
-        <tr>
-            <td class="lbl">Pajak ({{ $penjualan->tax_percentage }}%)</td>
-            <td class="val">Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
-        </tr>
+            @php
+                // Hitung ulang pajak untuk tampilan
+                $subtotal = $penjualan->items->sum('jumlah_baris');
+                $kenaPajak = max(0, $subtotal - $penjualan->diskon_akhir);
+                $pajakNominal = $kenaPajak * ($penjualan->tax_percentage / 100);
+            @endphp
+            <tr>
+                <td class="lbl">Pajak ({{ $penjualan->tax_percentage }}%)</td>
+                <td class="val">Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+            </tr>
         @endif
 
         <tr>
@@ -153,8 +281,10 @@
     <div class="footer">
         <p>marketing@hibiscusefsya.com</p>
         <p>-- Terima Kasih --</p>
-        <button type="button" class="no-print" onclick="window.print()" style="margin-top:10px; padding:5px 10px;">Print Ulang</button>
+        <button type="button" class="no-print" onclick="window.print()" style="margin-top:10px; padding:5px 10px;">Print
+            Ulang</button>
     </div>
 
 </body>
+
 </html>

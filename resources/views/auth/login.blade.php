@@ -254,35 +254,38 @@
             z-index: 3;
             display: flex;
             align-items: center;
+            white-space: nowrap;
         }
 
+        /* Posisi melingkar di sekitar logo */
         .floating-card.card-1 {
-            top: 8%;
-            right: 12%;
+            top: 12%;
+            left: 50%;
+            transform: translateX(-50%);
             animation: float1 5s ease-in-out infinite;
         }
 
         .floating-card.card-2 {
-            top: 20%;
-            left: 5%;
+            top: 30%;
+            left: 8%;
             animation: float2 6s ease-in-out infinite 1s;
         }
 
         .floating-card.card-3 {
-            bottom: 25%;
-            right: 5%;
+            top: 30%;
+            right: 8%;
             animation: float3 5.5s ease-in-out infinite 0.5s;
         }
 
         .floating-card.card-4 {
-            bottom: 12%;
-            left: 10%;
+            bottom: 28%;
+            left: 8%;
             animation: float4 6.5s ease-in-out infinite 2s;
         }
 
         .floating-card.card-5 {
-            top: 45%;
-            left: 3%;
+            bottom: 28%;
+            right: 8%;
             animation: float5 5s ease-in-out infinite 1.5s;
         }
 
@@ -299,14 +302,13 @@
         }
 
         @keyframes float1 {
-
             0%,
             100% {
-                transform: translateY(0) rotate(0deg);
+                transform: translateX(-50%) translateY(0);
             }
 
             50% {
-                transform: translateY(-15px) rotate(2deg);
+                transform: translateX(-50%) translateY(-12px);
             }
         }
 
@@ -314,11 +316,11 @@
 
             0%,
             100% {
-                transform: translateY(0) rotate(0deg);
+                transform: translateY(0);
             }
 
             50% {
-                transform: translateY(-12px) rotate(-2deg);
+                transform: translateY(-10px);
             }
         }
 
@@ -326,11 +328,11 @@
 
             0%,
             100% {
-                transform: translateY(0) rotate(0deg);
+                transform: translateY(0);
             }
 
             50% {
-                transform: translateY(-18px) rotate(3deg);
+                transform: translateY(-10px);
             }
         }
 
@@ -338,11 +340,11 @@
 
             0%,
             100% {
-                transform: translateY(0) rotate(0deg);
+                transform: translateY(0);
             }
 
             50% {
-                transform: translateY(-10px) rotate(-1deg);
+                transform: translateY(-10px);
             }
         }
 
@@ -350,11 +352,11 @@
 
             0%,
             100% {
-                transform: translateY(0) rotate(0deg);
+                transform: translateY(0);
             }
 
             50% {
-                transform: translateY(-14px) rotate(2deg);
+                transform: translateY(-10px);
             }
         }
 
