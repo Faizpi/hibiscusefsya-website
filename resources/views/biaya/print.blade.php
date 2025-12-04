@@ -155,7 +155,7 @@
         <tr>
             <td class="label">Tanggal</td>
             <td class="colon">:</td>
-            <td class="value">{{ $biaya->tgl_transaksi->format('d/m/Y') }}</td>
+            <td class="value">{{ $biaya->tgl_transaksi->format('d/m/Y') }} | {{ $biaya->created_at->format('H:i') }}</td>
         </tr>
         <tr>
             <td class="label">Pembayaran</td>

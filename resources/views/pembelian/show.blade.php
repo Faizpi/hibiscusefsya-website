@@ -87,6 +87,16 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td><strong>Dibuat</strong></td>
+                                <td>: {{ $pembelian->created_at->format('d M Y, H:i') }} WIB</td>
+                            </tr>
+                            @if($pembelian->updated_at != $pembelian->created_at)
+                            <tr>
+                                <td><strong>Diupdate</strong></td>
+                                <td>: {{ $pembelian->updated_at->format('d M Y, H:i') }} WIB</td>
+                            </tr>
+                            @endif
+                            <tr>
                                 <td><strong>Syarat Bayar</strong></td>
                                 <td>: {{ $pembelian->syarat_pembayaran }}</td>
                             </tr>

@@ -389,7 +389,7 @@ class PembelianController extends Controller
                     ->where('produk_id', $item->produk_id)
                     ->lockForUpdate()
                     ->first();
-                
+
                 if ($stok) {
                     $stok->increment('stok', $item->kuantitas);
                 } else {
@@ -425,7 +425,7 @@ class PembelianController extends Controller
                         ->where('produk_id', $item->produk_id)
                         ->lockForUpdate()
                         ->first();
-                    
+
                     if ($stok && $stok->stok >= $item->kuantitas) {
                         $stok->decrement('stok', $item->kuantitas);
                     }
@@ -434,7 +434,7 @@ class PembelianController extends Controller
 
             $pembelian->status = 'Canceled';
             $pembelian->save();
-            
+
             DB::commit();
             return back()->with('success', 'Transaksi dibatalkan.');
         } catch (\Exception $e) {

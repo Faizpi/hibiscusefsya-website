@@ -67,6 +67,16 @@
                                 <td>: {{ $biaya->tgl_transaksi->format('d F Y') }}</td>
                             </tr>
                             <tr>
+                                <td><strong>Dibuat</strong></td>
+                                <td>: {{ $biaya->created_at->format('d M Y, H:i') }} WIB</td>
+                            </tr>
+                            @if($biaya->updated_at != $biaya->created_at)
+                            <tr>
+                                <td><strong>Diupdate</strong></td>
+                                <td>: {{ $biaya->updated_at->format('d M Y, H:i') }} WIB</td>
+                            </tr>
+                            @endif
+                            <tr>
                                 <td><strong>Bayar Dari</strong></td>
                                 <td>: {{ $biaya->bayar_dari }}</td>
                             </tr>

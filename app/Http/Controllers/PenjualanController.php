@@ -497,7 +497,7 @@ class PenjualanController extends Controller
                         ->where('produk_id', $item->produk_id)
                         ->lockForUpdate()
                         ->first();
-                    
+
                     if ($stok) {
                         $stok->increment('stok', $item->kuantitas);
                     } else {
@@ -512,7 +512,7 @@ class PenjualanController extends Controller
 
             $penjualan->status = 'Canceled';
             $penjualan->save();
-            
+
             DB::commit();
             return redirect()->route('penjualan.index')->with('success', 'Transaksi dibatalkan.');
         } catch (\Exception $e) {
