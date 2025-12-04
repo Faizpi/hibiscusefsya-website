@@ -365,9 +365,74 @@ document.addEventListener('DOMContentLoaded', function () {
     const mobileCardsContainer = document.getElementById('mobile-product-cards');
     const taxInput = document.getElementById('tax_percentage_input');
     const discAkhirInput = document.getElementById('diskon_akhir_input');
+    const gudangSelect = document.getElementById('gudang_id');
 
-    // Product Options HTML for mobile cards
-    const productOptionsHtml = `@foreach($produks as $p)<option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}">{{ $p->nama_produk }}</option>@endforeach`;
+    // Data produk per gudang (untuk admin/super_admin)
+    @if(isset($gudangProduks) && $gudangProduks)
+    const gudangProduks = @json($gudangProduks);
+    @else
+    const gudangProduks = null;
+    @endif
+
+    // Semua produk dengan data lengkap
+    const allProduks = [
+        @foreach($produks as $p)
+        { id: {{ $p->id }}, nama: "{{ addslashes($p->nama_produk) }}", harga: {{ $p->harga }}, deskripsi: "{{ addslashes($p->deskripsi ?? '') }}" },
+        @endforeach
+    ];
+
+    // Function untuk generate options HTML berdasarkan gudang
+    function getProductOptionsHtml(gudangId = null) {
+        let options = '<option value="">Pilih...</option>';
+        
+        allProduks.forEach(p => {
+            // Jika ada filter gudang dan ada data gudangProduks
+            if (gudangId && gudangProduks && gudangProduks[gudangId]) {
+                // Hanya tampilkan produk yang ada di gudang tersebut
+                if (gudangProduks[gudangId].includes(p.id)) {
+                    options += `<option value="${p.id}" data-harga="${p.harga}" data-deskripsi="${p.deskripsi}">${p.nama}</option>`;
+                }
+            } else if (!gudangProduks) {
+                // User biasa - tampilkan semua (sudah difilter dari controller)
+                options += `<option value="${p.id}" data-harga="${p.harga}" data-deskripsi="${p.deskripsi}">${p.nama}</option>`;
+            } else if (!gudangId) {
+                // Belum pilih gudang - tampilkan semua untuk pembelian
+                options += `<option value="${p.id}" data-harga="${p.harga}" data-deskripsi="${p.deskripsi}">${p.nama}</option>`;
+            }
+        });
+        
+        return options;
+    }
+
+    // Default product options
+    let productOptionsHtml = getProductOptionsHtml();
+
+    // Event listener untuk perubahan gudang (pembelian bisa tambah produk baru, jadi tampilkan semua)
+    // Untuk pembelian, kita tidak perlu filter ketat seperti penjualan
+    // Tapi jika ingin filter juga, uncomment kode di bawah:
+    /*
+    if (gudangSelect && gudangProduks) {
+        gudangSelect.addEventListener('change', function() {
+            const selectedGudang = this.value;
+            productOptionsHtml = getProductOptionsHtml(selectedGudang);
+            
+            document.querySelectorAll('.product-select').forEach(select => {
+                const currentValue = $(select).val();
+                $(select).select2('destroy');
+                select.innerHTML = productOptionsHtml;
+                if (currentValue) {
+                    const optionExists = select.querySelector(`option[value="${currentValue}"]`);
+                    if (optionExists) {
+                        select.value = currentValue;
+                    }
+                }
+                initSelect2(select);
+            });
+            
+            syncMobileCards();
+        });
+    }
+    */
 
     // --- INISIALISASI SELECT2 ---
     function initSelect2(selectElement) {

@@ -82,7 +82,8 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Pembelian (Bulan Ini)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($pembelianNominalBulanIni ?? 0, 0, ',', '.') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($pembelianNominalBulanIni ?? 0, 0, ',', '.') }}</div>
                             <div class="text-xs text-muted mt-1">
                                 {{ $pembelianBulanIni }} transaksi
                             </div>
@@ -301,7 +302,8 @@
                                                 <td>
                                                     <a href="{{ $item->route }}"><strong>{{ $item->number }}</strong></a>
                                                 </td>
-                                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
+                                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small
+                                                        class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
                                                 <td>{{ $item->user->name }}</td>
                                                 <td class="text-center">
                                                     @if($item->status == 'Approved')
@@ -386,7 +388,8 @@
                                                 <td>
                                                     <a href="{{ $item->route }}"><strong>{{ $item->number }}</strong></a>
                                                 </td>
-                                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
+                                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small
+                                                        class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
                                                 <td>{{ $item->user->name }}</td>
                                                 <td class="text-center">
                                                     <span class="badge badge-warning">{{ $item->status }}</span>

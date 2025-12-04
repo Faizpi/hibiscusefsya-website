@@ -87,10 +87,10 @@
                                 <td>: {{ $penjualan->created_at->format('d M Y, H:i') }} WIB</td>
                             </tr>
                             @if($penjualan->updated_at != $penjualan->created_at)
-                            <tr>
-                                <td><strong>Diupdate</strong></td>
-                                <td>: {{ $penjualan->updated_at->format('d M Y, H:i') }} WIB</td>
-                            </tr>
+                                <tr>
+                                    <td><strong>Diupdate</strong></td>
+                                    <td>: {{ $penjualan->updated_at->format('d M Y, H:i') }} WIB</td>
+                                </tr>
                             @endif
                             <tr>
                                 <td><strong>Gudang</strong></td>

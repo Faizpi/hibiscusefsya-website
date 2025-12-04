@@ -337,9 +337,83 @@ document.addEventListener('DOMContentLoaded', function () {
     const kontakSelect = document.getElementById('kontak-select');
     const emailInput = document.getElementById('email-input');
     const alamatInput = document.getElementById('alamat-input');
+    const gudangSelect = document.getElementById('gudang_id');
 
-    // Product Options HTML
-    const productOptionsHtml = `@foreach($produks as $p)<option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}">{{ $p->nama_produk }}</option>@endforeach`;
+    // Data produk per gudang (untuk admin/super_admin)
+    @if(isset($gudangProduks) && $gudangProduks)
+    const gudangProduks = @json($gudangProduks);
+    @else
+    const gudangProduks = null;
+    @endif
+
+    // Semua produk dengan data lengkap
+    const allProduks = [
+        @foreach($produks as $p)
+        { id: {{ $p->id }}, nama: "{{ addslashes($p->nama_produk) }}", harga: {{ $p->harga }}, deskripsi: "{{ addslashes($p->deskripsi ?? '') }}" },
+        @endforeach
+    ];
+
+    // Function untuk generate options HTML berdasarkan gudang
+    function getProductOptionsHtml(gudangId = null) {
+        let options = '<option value="">Pilih...</option>';
+        
+        allProduks.forEach(p => {
+            // Jika ada filter gudang dan ada data gudangProduks
+            if (gudangId && gudangProduks && gudangProduks[gudangId]) {
+                // Hanya tampilkan produk yang ada di gudang tersebut
+                if (gudangProduks[gudangId].includes(p.id)) {
+                    options += `<option value="${p.id}" data-harga="${p.harga}" data-deskripsi="${p.deskripsi}">${p.nama}</option>`;
+                }
+            } else if (!gudangProduks) {
+                // User biasa - tampilkan semua (sudah difilter dari controller)
+                options += `<option value="${p.id}" data-harga="${p.harga}" data-deskripsi="${p.deskripsi}">${p.nama}</option>`;
+            }
+        });
+        
+        return options;
+    }
+
+    // Default product options (semua produk)
+    let productOptionsHtml = getProductOptionsHtml();
+
+    // Event listener untuk perubahan gudang
+    if (gudangSelect && gudangProduks) {
+        gudangSelect.addEventListener('change', function() {
+            const selectedGudang = this.value;
+            productOptionsHtml = getProductOptionsHtml(selectedGudang);
+            
+            // Update semua dropdown produk
+            document.querySelectorAll('.product-select').forEach(select => {
+                const currentValue = $(select).val();
+                
+                // Destroy Select2, update options, reinit
+                $(select).select2('destroy');
+                select.innerHTML = productOptionsHtml;
+                
+                // Coba kembalikan nilai sebelumnya jika masih valid
+                if (currentValue) {
+                    const optionExists = select.querySelector(`option[value="${currentValue}"]`);
+                    if (optionExists) {
+                        select.value = currentValue;
+                    } else {
+                        select.value = '';
+                        // Reset row jika produk tidak ada di gudang baru
+                        const row = select.closest('tr');
+                        if (row) {
+                            row.querySelector('.product-price').value = 0;
+                            row.querySelector('.product-desc').value = '';
+                            row.querySelector('.product-total').value = 0;
+                            calculateGrandTotal();
+                        }
+                    }
+                }
+                
+                initSelect2(select);
+            });
+            
+            syncMobileCards();
+        });
+    }
 
     // --- INISIALISASI SELECT2 ---
     function initSelect2(selectElement) {
@@ -608,7 +682,11 @@ document.addEventListener('DOMContentLoaded', function () {
         row.querySelectorAll('input').forEach(i => i.value = '');
         row.querySelector('.product-qty').value = 1;
         row.querySelector('.product-price').value = 0;
-        row.querySelector('.product-select').value = '';
+        
+        // Update product options berdasarkan gudang yang dipilih
+        let productSelect = row.querySelector('.product-select');
+        productSelect.innerHTML = productOptionsHtml;
+        productSelect.value = '';
         
         // Terapkan diskon kontak ke baris baru
         const kontakOption = kontakSelect ? kontakSelect.options[kontakSelect.selectedIndex] : null;

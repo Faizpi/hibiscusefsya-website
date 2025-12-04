@@ -81,16 +81,26 @@ class PenjualanController extends Controller
             $produks = Produk::whereHas('stokDiGudang', function ($query) use ($user) {
                 $query->where('gudang_id', $user->gudang_id);
             })->get();
+            $gudangProduks = null; // User tidak perlu data ini
         } else {
             // Admin & Super Admin bisa lihat semua produk
             $produks = Produk::all();
+            
+            // Siapkan data stok per gudang untuk filter dinamis
+            $gudangProduks = GudangProduk::with('produk')
+                ->where('stok', '>', 0)
+                ->get()
+                ->groupBy('gudang_id')
+                ->map(function ($items) {
+                    return $items->pluck('produk_id')->toArray();
+                });
         }
 
         $gudangs = Gudang::all();
         $kontaks = Kontak::all();
         $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
 
-        return view('penjualan.create', compact('produks', 'gudangs', 'kontaks', 'approvers'));
+        return view('penjualan.create', compact('produks', 'gudangs', 'kontaks', 'approvers', 'gudangProduks'));
     }
 
     public function store(Request $request)

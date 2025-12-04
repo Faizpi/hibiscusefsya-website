@@ -23,7 +23,8 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Bulan Ini</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($totalBulanIni, 0, ',', '.') }}</div>
+                                {{ number_format($totalBulanIni, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-calendar-alt fa-2x text-gray-300"></i></div>
                     </div>
@@ -39,7 +40,8 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Approval</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($totalBelumDibayar, 0, ',', '.') }}</div>
+                                {{ number_format($totalBelumDibayar, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
                     </div>
@@ -55,7 +57,8 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Approved</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($totalApproved, 0, ',', '.') }}</div>
+                                {{ number_format($totalApproved, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-check-circle fa-2x text-gray-300"></i></div>
                     </div>
@@ -103,7 +106,8 @@
                     <tbody>
                         @forelse ($biayas as $item)
                             <tr>
-                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
+                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small
+                                        class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
                                 <td>
                                     <a href="{{ route('biaya.show', $item->id) }}">
                                         <strong>{{ $item->custom_number }}</strong>

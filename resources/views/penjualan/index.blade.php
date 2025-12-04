@@ -26,7 +26,8 @@
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Total (Pending/Approved)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($totalBelumDibayar, 0, ',', '.') }}</div>
+                                {{ number_format($totalBelumDibayar, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i></div>
                     </div>
@@ -42,7 +43,8 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Jatuh Tempo Lewat</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($totalTelatDibayar, 0, ',', '.') }}</div>
+                                {{ number_format($totalTelatDibayar, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i></div>
                     </div>
@@ -59,7 +61,8 @@
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Lunas (30 Hari Terakhir)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($pelunasan30Hari, 0, ',', '.') }}</div>
+                                {{ number_format($pelunasan30Hari, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-check-circle fa-2x text-gray-300"></i></div>
                     </div>
@@ -108,7 +111,8 @@
                     <tbody>
                         @forelse ($penjualans as $item)
                             <tr>
-                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
+                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small
+                                        class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
                                 <td>
                                     <a href="{{ route('penjualan.show', $item->id) }}">
                                         {{-- Tampilkan Nomor Custom --}}
