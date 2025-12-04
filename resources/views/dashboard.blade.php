@@ -301,7 +301,7 @@
                                                 <td>
                                                     <a href="{{ $item->route }}"><strong>{{ $item->number }}</strong></a>
                                                 </td>
-                                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}</td>
+                                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
                                                 <td>{{ $item->user->name }}</td>
                                                 <td class="text-center">
                                                     @if($item->status == 'Approved')
@@ -386,7 +386,7 @@
                                                 <td>
                                                     <a href="{{ $item->route }}"><strong>{{ $item->number }}</strong></a>
                                                 </td>
-                                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}</td>
+                                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
                                                 <td>{{ $item->user->name }}</td>
                                                 <td class="text-center">
                                                     <span class="badge badge-warning">{{ $item->status }}</span>
