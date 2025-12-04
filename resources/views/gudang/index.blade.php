@@ -38,10 +38,22 @@
                                     <td>{{ $item->nama_gudang }}</td>
                                     <td>{{ $item->alamat_gudang ?? '-' }}</td>
                                     <td class="text-center">
-                                        <a href="{{ route('gudang.edit', $item->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
-                                            data-target="#deleteModal"
-                                            data-action="{{ route('gudang.destroy', $item->id) }}">Hapus</button>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right shadow-sm">
+                                                <a class="dropdown-item" href="{{ route('gudang.edit', $item->id) }}">
+                                                    <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
+                                                </a>
+                                                <button type="button" class="dropdown-item text-danger" data-toggle="modal"
+                                                    data-target="#deleteModal"
+                                                    data-action="{{ route('gudang.destroy', $item->id) }}">
+                                                    <i class="fas fa-trash fa-fw mr-2"></i> Hapus
+                                                </button>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

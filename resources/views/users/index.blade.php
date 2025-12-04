@@ -46,14 +46,21 @@
                                     {{-- Tampilkan nama gudang, jika ada --}}
                                     <td>{{ $user->gudang->nama_gudang ?? '-' }}</td>
                                     <td class="text-center">
-                                        <a href="{{ route('users.edit', $user->id) }}"
-                                            class="btn btn-warning btn-circle btn-sm">
-                                            <i class="fas fa-pen"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-danger btn-circle btn-sm" data-toggle="modal"
-                                            data-target="#deleteModal" data-action="{{ route('users.destroy', $user->id) }}">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right shadow-sm">
+                                                <a class="dropdown-item" href="{{ route('users.edit', $user->id) }}">
+                                                    <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
+                                                </a>
+                                                <button type="button" class="dropdown-item text-danger" data-toggle="modal"
+                                                    data-target="#deleteModal" data-action="{{ route('users.destroy', $user->id) }}">
+                                                    <i class="fas fa-trash fa-fw mr-2"></i> Hapus
+                                                </button>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

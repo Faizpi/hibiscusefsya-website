@@ -85,7 +85,7 @@ class PenjualanController extends Controller
         } else {
             // Admin & Super Admin bisa lihat semua produk
             $produks = Produk::all();
-            
+
             // Siapkan data stok per gudang untuk filter dinamis
             $gudangProduks = GudangProduk::with('produk')
                 ->where('stok', '>', 0)
