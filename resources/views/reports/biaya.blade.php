@@ -5,6 +5,7 @@
             <th>No</th>
             <th>No Transaksi</th>
             <th>Tgl Transaksi</th>
+            <th>Jam</th>
             <th>Bayar Dari</th>
             <th>Penerima</th>
             <th>Alamat Penagihan</th>
@@ -24,6 +25,7 @@
                 <td>{{ $no++ }}</td>
                 <td>{{ $item->number }}</td>
                 <td>{{ $item->tgl_transaksi->format('d/m/Y') }}</td>
+                <td>{{ $item->created_at->format('H:i') }}</td>
                 <td>{{ $item->bayar_dari ?? '-' }}</td>
                 <td>{{ $item->penerima ?? '-' }}</td>
                 <td>{{ $item->alamat_penagihan ?? '-' }}</td>

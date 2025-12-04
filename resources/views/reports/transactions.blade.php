@@ -7,6 +7,7 @@
             <th>Tipe</th>
             <th>No Transaksi</th>
             <th>Tgl Transaksi</th>
+            <th>Jam</th>
             <th>Pembuat</th>
             <th>Approver</th>
             <th>Gudang</th>
@@ -29,6 +30,7 @@
                 <td>{{ $item->type }}</td>
                 <td>{{ $item->number }}</td>
                 <td>{{ $item->tgl_transaksi->format('d/m/Y') }}</td>
+                <td>{{ $item->created_at->format('H:i') }}</td>
                 <td>{{ $item->user->name ?? '-' }}</td>
                 <td>{{ $item->approver->name ?? '-' }}</td>
                 <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>

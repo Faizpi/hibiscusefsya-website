@@ -114,7 +114,7 @@
                     <tbody>
                         @forelse ($pembelians as $item)
                             <tr>
-                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}</td>
+                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
                                 <td>
                                     <a href="{{ route('pembelian.show', $item->id) }}">
                                         <strong>{{ $item->custom_number }}</strong>

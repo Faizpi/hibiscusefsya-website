@@ -5,6 +5,7 @@
             <th>No</th>
             <th>No Transaksi</th>
             <th>Tgl Transaksi</th>
+            <th>Jam</th>
             <th>Tgl Jatuh Tempo</th>
             <th>Staf Penyetuju</th>
             <th>Email Penyetuju</th>
@@ -28,6 +29,7 @@
                 <td>{{ $no++ }}</td>
                 <td>{{ $item->number }}</td>
                 <td>{{ $item->tgl_transaksi->format('d/m/Y') }}</td>
+                <td>{{ $item->created_at->format('H:i') }}</td>
                 <td>{{ $item->tgl_jatuh_tempo ? \Carbon\Carbon::parse($item->tgl_jatuh_tempo)->format('d/m/Y') : '-' }}</td>
                 <td>{{ $item->staf_penyetuju ?? '-' }}</td>
                 <td>{{ $item->email_penyetuju ?? '-' }}</td>
