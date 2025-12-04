@@ -384,11 +384,21 @@ class PembelianController extends Controller
         DB::beginTransaction();
         try {
             foreach ($pembelian->items as $item) {
-                $stok = GudangProduk::firstOrCreate(
-                    ['gudang_id' => $pembelian->gudang_id, 'produk_id' => $item->produk_id],
-                    ['stok' => 0]
-                );
-                $stok->increment('stok', $item->kuantitas);
+                // lockForUpdate() untuk mencegah race condition
+                $stok = GudangProduk::where('gudang_id', $pembelian->gudang_id)
+                    ->where('produk_id', $item->produk_id)
+                    ->lockForUpdate()
+                    ->first();
+                
+                if ($stok) {
+                    $stok->increment('stok', $item->kuantitas);
+                } else {
+                    GudangProduk::create([
+                        'gudang_id' => $pembelian->gudang_id,
+                        'produk_id' => $item->produk_id,
+                        'stok' => $item->kuantitas
+                    ]);
+                }
             }
             $pembelian->status = 'Approved';
             $pembelian->save();
@@ -406,19 +416,31 @@ class PembelianController extends Controller
         if (!in_array($user->role, ['admin', 'super_admin']))
             return back()->with('error', 'Akses ditolak.');
 
-        if ($pembelian->status == 'Approved') {
-            foreach ($pembelian->items as $item) {
-                $stok = GudangProduk::where('gudang_id', $pembelian->gudang_id)
-                    ->where('produk_id', $item->produk_id)->first();
-                if ($stok && $stok->stok >= $item->kuantitas) {
-                    $stok->decrement('stok', $item->kuantitas);
+        DB::beginTransaction();
+        try {
+            if ($pembelian->status == 'Approved') {
+                foreach ($pembelian->items as $item) {
+                    // lockForUpdate() untuk mencegah race condition
+                    $stok = GudangProduk::where('gudang_id', $pembelian->gudang_id)
+                        ->where('produk_id', $item->produk_id)
+                        ->lockForUpdate()
+                        ->first();
+                    
+                    if ($stok && $stok->stok >= $item->kuantitas) {
+                        $stok->decrement('stok', $item->kuantitas);
+                    }
                 }
             }
-        }
 
-        $pembelian->status = 'Canceled';
-        $pembelian->save();
-        return back()->with('success', 'Transaksi dibatalkan.');
+            $pembelian->status = 'Canceled';
+            $pembelian->save();
+            
+            DB::commit();
+            return back()->with('success', 'Transaksi dibatalkan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal membatalkan: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Pembelian $pembelian)

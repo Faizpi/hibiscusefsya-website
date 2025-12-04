@@ -452,8 +452,10 @@ class PenjualanController extends Controller
         try {
             foreach ($penjualan->items as $item) {
 
+                // lockForUpdate() untuk mencegah race condition
                 $stok = GudangProduk::where('gudang_id', $gudangId)
                     ->where('produk_id', $item->produk_id)
+                    ->lockForUpdate()
                     ->first();
 
                 if (!$stok || $stok->stok < $item->kuantitas) {
@@ -486,20 +488,37 @@ class PenjualanController extends Controller
             return back()->with('error', 'Akses ditolak.');
         }
 
-        if ($penjualan->status == 'Approved') {
-            foreach ($penjualan->items as $item) {
-                $stok = GudangProduk::firstOrCreate(
-                    ['gudang_id' => $penjualan->gudang_id, 'produk_id' => $item->produk_id],
-                    ['stok' => 0]
-                );
-                $stok->increment('stok', $item->kuantitas);
+        DB::beginTransaction();
+        try {
+            if ($penjualan->status == 'Approved') {
+                foreach ($penjualan->items as $item) {
+                    // lockForUpdate() untuk mencegah race condition
+                    $stok = GudangProduk::where('gudang_id', $penjualan->gudang_id)
+                        ->where('produk_id', $item->produk_id)
+                        ->lockForUpdate()
+                        ->first();
+                    
+                    if ($stok) {
+                        $stok->increment('stok', $item->kuantitas);
+                    } else {
+                        GudangProduk::create([
+                            'gudang_id' => $penjualan->gudang_id,
+                            'produk_id' => $item->produk_id,
+                            'stok' => $item->kuantitas
+                        ]);
+                    }
+                }
             }
+
+            $penjualan->status = 'Canceled';
+            $penjualan->save();
+            
+            DB::commit();
+            return redirect()->route('penjualan.index')->with('success', 'Transaksi dibatalkan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('penjualan.index')->with('error', 'Gagal membatalkan: ' . $e->getMessage());
         }
-
-        $penjualan->status = 'Canceled';
-        $penjualan->save();
-
-        return redirect()->route('penjualan.index')->with('success', 'Transaksi dibatalkan.');
     }
 
     public function markAsPaid(Penjualan $penjualan)
