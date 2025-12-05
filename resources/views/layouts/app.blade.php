@@ -868,6 +868,161 @@
             padding: 1rem 1.25rem;
         }
 
+        /* ========== MOBILE RESPONSIVE FOR FORMS ========== */
+        @media (max-width: 576px) {
+            /* Smaller font sizes for mobile */
+            body {
+                font-size: 0.8125rem;
+            }
+            
+            .h3, h3 {
+                font-size: 1.1rem !important;
+            }
+            
+            .h4, h4 {
+                font-size: 1rem !important;
+            }
+            
+            .h5, h5 {
+                font-size: 0.9rem !important;
+            }
+            
+            .h6, h6 {
+                font-size: 0.8rem !important;
+            }
+            
+            /* Card adjustments */
+            .card-body {
+                padding: 0.75rem !important;
+            }
+            
+            .card-header {
+                padding: 0.75rem !important;
+                font-size: 0.8rem;
+            }
+            
+            /* Form controls smaller */
+            .form-control {
+                font-size: 0.8rem !important;
+                padding: 0.375rem 0.5rem !important;
+                min-height: 34px !important;
+            }
+            
+            label {
+                font-size: 0.75rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+            
+            /* Buttons smaller */
+            .btn {
+                font-size: 0.75rem !important;
+                padding: 0.375rem 0.625rem !important;
+            }
+            
+            .btn-sm {
+                font-size: 0.7rem !important;
+                padding: 0.25rem 0.5rem !important;
+            }
+            
+            /* Tables on mobile */
+            .table {
+                font-size: 0.75rem !important;
+            }
+            
+            .table thead th {
+                padding: 0.5rem 0.375rem !important;
+                font-size: 0.65rem !important;
+            }
+            
+            .table tbody td {
+                padding: 0.5rem 0.375rem !important;
+            }
+            
+            /* Info table on show pages */
+            .table-borderless td {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.75rem !important;
+                word-break: break-word !important;
+            }
+            
+            .table-borderless td strong {
+                font-size: 0.7rem !important;
+            }
+            
+            /* Badges smaller */
+            .badge {
+                font-size: 0.65rem !important;
+                padding: 0.2rem 0.4rem !important;
+            }
+            
+            /* Alerts */
+            .alert {
+                font-size: 0.75rem !important;
+                padding: 0.5rem 0.75rem !important;
+            }
+            
+            /* Select2 mobile */
+            .select2-container--default .select2-selection--single {
+                height: 34px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: 24px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            /* Page header mobile */
+            .d-sm-flex {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.5rem;
+            }
+            
+            .d-sm-flex .btn, 
+            .d-sm-flex a.btn {
+                margin-bottom: 0.25rem;
+            }
+            
+            /* Number inputs */
+            input[type="number"] {
+                font-size: 0.8rem !important;
+            }
+            
+            /* Container padding */
+            .container-fluid {
+                padding: 0.75rem !important;
+            }
+            
+            /* Total display */
+            #grand-total-display,
+            #grand-total-bottom {
+                font-size: 1rem !important;
+            }
+            
+            /* Row items on forms */
+            .row {
+                margin-left: -0.375rem;
+                margin-right: -0.375rem;
+            }
+            
+            .row > [class*="col-"] {
+                padding-left: 0.375rem;
+                padding-right: 0.375rem;
+            }
+            
+            /* Textarea */
+            textarea.form-control {
+                font-size: 0.8rem !important;
+            }
+            
+            /* Summary table */
+            #summary-table td {
+                padding: 0.375rem 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
+        }
+
         /* ========== FOOTER ========== */
         .sticky-footer {
             background: #fff;
