@@ -449,7 +449,6 @@
             flex-direction: column;
             min-height: 100vh;
             width: 100%;
-            overflow-x: hidden;
             margin-left: 14rem;
             transition: margin-left 0.2s ease;
         }
@@ -466,6 +465,8 @@
 
         .container-fluid {
             padding: 1.5rem;
+            max-width: 100%;
+            overflow-x: auto;
         }
 
         /* Page Title */
@@ -507,7 +508,13 @@
 
         .card-body {
             padding: 1.25rem;
+            overflow: visible;
+        }
+
+        .card-body .table-responsive {
             overflow-x: auto;
+            margin: 0 -1.25rem;
+            padding: 0 1.25rem;
         }
 
         /* ========== BUTTONS ========== */
