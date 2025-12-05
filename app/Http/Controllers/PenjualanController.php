@@ -164,18 +164,28 @@ class PenjualanController extends Controller
             $path = 'lampiran_penjualan/' . $filename;
         }
 
-        // Hitung jatuh tempo
-        $tglJatuhTempo = Carbon::parse($request->tgl_transaksi);
+        // Hitung jatuh tempo dan tentukan status
         $term = $request->syarat_pembayaran;
-
-        if ($term == 'Net 7')
-            $tglJatuhTempo->addDays(7);
-        elseif ($term == 'Net 14')
-            $tglJatuhTempo->addDays(14);
-        elseif ($term == 'Net 30')
-            $tglJatuhTempo->addDays(30);
-        elseif ($term == 'Net 60')
-            $tglJatuhTempo->addDays(60);
+        $isCash = ($term == 'Cash');
+        
+        if ($isCash) {
+            // Cash = langsung lunas, tidak perlu jatuh tempo
+            $tglJatuhTempo = null;
+            $statusAwal = 'Lunas';
+        } else {
+            // Kredit = perlu approval, hitung jatuh tempo
+            $tglJatuhTempo = Carbon::parse($request->tgl_transaksi);
+            $statusAwal = 'Pending';
+            
+            if ($term == 'Net 7')
+                $tglJatuhTempo->addDays(7);
+            elseif ($term == 'Net 14')
+                $tglJatuhTempo->addDays(14);
+            elseif ($term == 'Net 30')
+                $tglJatuhTempo->addDays(30);
+            elseif ($term == 'Net 60')
+                $tglJatuhTempo->addDays(60);
+        }
 
         // Hitung subtotal
         $subTotal = 0;
@@ -204,7 +214,7 @@ class PenjualanController extends Controller
         try {
             $penjualanInduk = Penjualan::create([
                 'user_id' => Auth::id(),
-                'status' => 'Pending',
+                'status' => $statusAwal,
                 'approver_id' => $request->approver_id,
                 'no_urut_harian' => $noUrut,
                 'nomor' => $nomor,
@@ -388,18 +398,41 @@ class PenjualanController extends Controller
         $pajakPersen = $request->tax_percentage ?? 0;
         $grandTotal = $kenaPajak + ($kenaPajak * ($pajakPersen / 100));
 
+        // Hitung jatuh tempo dan tentukan status berdasarkan metode pembayaran
+        $term = $request->syarat_pembayaran;
+        $isCash = ($term == 'Cash');
+        
+        if ($isCash) {
+            // Cash = langsung lunas, tidak perlu jatuh tempo
+            $tglJatuhTempo = null;
+            $statusBaru = 'Lunas';
+        } else {
+            // Kredit = perlu approval, hitung jatuh tempo
+            $tglJatuhTempo = Carbon::parse($request->tgl_transaksi);
+            $statusBaru = 'Pending';
+            
+            if ($term == 'Net 7')
+                $tglJatuhTempo->addDays(7);
+            elseif ($term == 'Net 14')
+                $tglJatuhTempo->addDays(14);
+            elseif ($term == 'Net 30')
+                $tglJatuhTempo->addDays(30);
+            elseif ($term == 'Net 60')
+                $tglJatuhTempo->addDays(60);
+        }
+
         DB::beginTransaction();
 
         try {
             $penjualan->update([
-                'status' => 'Pending',
+                'status' => $statusBaru,
                 'approver_id' => $request->approver_id,
                 'gudang_id' => $request->gudang_id,
                 'pelanggan' => $request->pelanggan,
                 'email' => $request->email,
                 'alamat_penagihan' => $request->alamat_penagihan,
                 'tgl_transaksi' => $request->tgl_transaksi,
-                'tgl_jatuh_tempo' => Carbon::parse($request->tgl_transaksi),
+                'tgl_jatuh_tempo' => $tglJatuhTempo,
                 'syarat_pembayaran' => $request->syarat_pembayaran,
                 'no_referensi' => $request->no_referensi,
                 'tag' => $request->tag,

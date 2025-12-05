@@ -56,7 +56,8 @@
                                                     <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
                                                 </a>
                                                 <button type="button" class="dropdown-item text-danger" data-toggle="modal"
-                                                    data-target="#deleteModal" data-action="{{ route('users.destroy', $user->id) }}">
+                                                    data-target="#deleteModal"
+                                                    data-action="{{ route('users.destroy', $user->id) }}">
                                                     <i class="fas fa-trash fa-fw mr-2"></i> Hapus
                                                 </button>
                                             </div>
