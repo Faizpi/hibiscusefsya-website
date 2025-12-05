@@ -8,6 +8,7 @@ use App\Pembelian;
 use App\Biaya;
 use App\User;
 use App\Produk;
+use App\Gudang;
 use App\GudangProduk;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -189,6 +190,50 @@ class DashboardController extends Controller
             $data['statusPending'] = $allForStatus->where('status', 'Pending')->count();
             $data['statusApproved'] = $allForStatus->whereIn('status', ['Approved', 'Lunas'])->count();
             $data['statusCanceled'] = $allForStatus->where('status', 'Canceled')->count();
+
+            // BAR CHART: Transaksi per Gudang (bulan ini)
+            $gudangs = Gudang::all();
+            $gudangLabels = [];
+            $gudangPenjualan = [];
+            $gudangPembelian = [];
+
+            foreach ($gudangs as $gudang) {
+                $gudangLabels[] = $gudang->nama_gudang;
+
+                if ($role == 'super_admin') {
+                    $gudangPenjualan[] = Penjualan::where('gudang_id', $gudang->id)
+                        ->whereYear('tgl_transaksi', $now->year)
+                        ->whereMonth('tgl_transaksi', $now->month)
+                        ->whereIn('status', ['Approved', 'Lunas'])
+                        ->sum('grand_total');
+
+                    $gudangPembelian[] = Pembelian::where('gudang_id', $gudang->id)
+                        ->whereYear('tgl_transaksi', $now->year)
+                        ->whereMonth('tgl_transaksi', $now->month)
+                        ->where('status', 'Approved')
+                        ->sum('grand_total');
+                } else {
+                    // Admin: hanya yang dia sebagai approver
+                    $gudangPenjualan[] = Penjualan::where('gudang_id', $gudang->id)
+                        ->where('approver_id', $userId)
+                        ->whereYear('tgl_transaksi', $now->year)
+                        ->whereMonth('tgl_transaksi', $now->month)
+                        ->whereIn('status', ['Approved', 'Lunas'])
+                        ->sum('grand_total');
+
+                    $gudangPembelian[] = Pembelian::where('gudang_id', $gudang->id)
+                        ->where('approver_id', $userId)
+                        ->whereYear('tgl_transaksi', $now->year)
+                        ->whereMonth('tgl_transaksi', $now->month)
+                        ->where('status', 'Approved')
+                        ->sum('grand_total');
+                }
+            }
+
+            $data['gudangLabels'] = $gudangLabels;
+            $data['gudangPenjualan'] = $gudangPenjualan;
+            $data['gudangPembelian'] = $gudangPembelian;
+            $data['gudangs'] = $gudangs; // Untuk dropdown export
         }
         // ==================== END CHART DATA ====================
 
@@ -251,13 +296,15 @@ class DashboardController extends Controller
             'date_from' => 'required|date',
             'date_to' => 'required|date|after_or_equal:date_from',
             'transaction_type' => 'required|in:all,penjualan,pembelian,biaya',
-            'status_filter' => 'nullable|in:all,Pending,Approved,Rejected,Canceled',
+            'status_filter' => 'nullable|in:all,Pending,Approved,Rejected,Canceled,Lunas',
+            'gudang_id' => 'nullable|exists:gudangs,id',
         ]);
 
         $dateFrom = $request->date_from;
         $dateTo = $request->date_to;
         $transactionType = $request->transaction_type;
         $statusFilter = $request->status_filter ?? 'all';
+        $gudangId = $request->gudang_id;
         $user = Auth::user();
 
         $penjualans = collect();
@@ -281,6 +328,11 @@ class DashboardController extends Controller
                 $query->where('approver_id', $user->id);
             }
 
+            // Gudang filter
+            if ($gudangId) {
+                $query->where('gudang_id', $gudangId);
+            }
+
             // Status filter
             if ($statusFilter != 'all') {
                 $query->where('status', $statusFilter);
@@ -300,6 +352,11 @@ class DashboardController extends Controller
 
             if ($user->role == 'admin') {
                 $query->where('approver_id', $user->id);
+            }
+
+            // Gudang filter
+            if ($gudangId) {
+                $query->where('gudang_id', $gudangId);
             }
 
             if ($statusFilter != 'all') {
@@ -341,7 +398,13 @@ class DashboardController extends Controller
             'biaya' => 'Biaya'
         ];
 
-        $fileName = 'Laporan_' . $typeLabel[$transactionType] . '_' . $dateFrom . '_sd_' . $dateTo . '.xlsx';
+        $gudangLabel = '';
+        if ($gudangId) {
+            $gudang = Gudang::find($gudangId);
+            $gudangLabel = '_' . str_replace(' ', '_', $gudang->nama_gudang);
+        }
+
+        $fileName = 'Laporan_' . $typeLabel[$transactionType] . $gudangLabel . '_' . $dateFrom . '_sd_' . $dateTo . '.xlsx';
 
         // Export based on type
         if ($transactionType == 'all') {

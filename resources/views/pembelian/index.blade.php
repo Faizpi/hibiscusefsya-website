@@ -33,7 +33,8 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Approval</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($fakturPending, 0, ',', '.') }}</div>
+                                {{ number_format($fakturPending, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
                     </div>
@@ -50,7 +51,8 @@
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total (Pending/Approved)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($fakturBelumDibayar, 0, ',', '.') }}</div>
+                                {{ number_format($fakturBelumDibayar, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i></div>
                     </div>
@@ -66,7 +68,8 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Jatuh Tempo Lewat</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($fakturTelatBayar, 0, ',', '.') }}</div>
+                                {{ number_format($fakturTelatBayar, 0, ',', '.') }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i></div>
                     </div>
@@ -114,7 +117,8 @@
                     <tbody>
                         @forelse ($pembelians as $item)
                             <tr>
-                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
+                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small
+                                        class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
                                 <td>
                                     <a href="{{ route('pembelian.show', $item->id) }}">
                                         <strong>{{ $item->custom_number }}</strong>

@@ -15,6 +15,12 @@
             width: 100%;
         }
 
+        .chart-bar {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
         /* Samakan tinggi card chart */
         .row.chart-row {
             display: flex;
@@ -83,7 +89,8 @@
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Pembelian (Bulan Ini)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($pembelianNominalBulanIni ?? 0, 0, ',', '.') }}</div>
+                                {{ number_format($pembelianNominalBulanIni ?? 0, 0, ',', '.') }}
+                            </div>
                             <div class="text-xs text-muted mt-1">
                                 {{ $pembelianBulanIni }} transaksi
                             </div>
@@ -248,6 +255,33 @@
                             </span>
                             <span class="mr-2">
                                 <i class="fas fa-circle text-secondary"></i> Canceled
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- BAR CHART: Transaksi per Gudang --}}
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-warehouse mr-2"></i>Transaksi per Gudang (Bulan Ini)
+                        </h6>
+                        <span class="text-muted small">Data transaksi Approved/Lunas</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-bar">
+                            <canvas id="gudangChart"></canvas>
+                        </div>
+                        <div class="mt-3 text-center small">
+                            <span class="mr-3">
+                                <i class="fas fa-square" style="color: #4e73df;"></i> Penjualan
+                            </span>
+                            <span class="mr-3">
+                                <i class="fas fa-square" style="color: #1cc88a;"></i> Pembelian
                             </span>
                         </div>
                     </div>
@@ -500,10 +534,25 @@
                                 <option value="all">Semua Status</option>
                                 <option value="Pending">Pending</option>
                                 <option value="Approved">Approved</option>
+                                <option value="Lunas">Lunas</option>
                                 <option value="Rejected">Rejected</option>
                                 <option value="Canceled">Canceled</option>
                             </select>
                         </div>
+
+                        {{-- Gudang Filter --}}
+                        @if(isset($gudangs) && $gudangs->count() > 0)
+                            <div class="form-group" id="gudangFilterGroup">
+                                <label for="gudang_id">Filter Gudang</label>
+                                <select class="form-control" name="gudang_id" id="gudang_id">
+                                    <option value="">Semua Gudang</option>
+                                    @foreach($gudangs as $gudang)
+                                        <option value="{{ $gudang->id }}">{{ $gudang->nama_gudang }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">*Filter gudang hanya berlaku untuk Penjualan dan Pembelian</small>
+                            </div>
+                        @endif
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
@@ -652,6 +701,68 @@
                         }
                     });
                 }
+
+                // BAR CHART: Transaksi per Gudang
+                const gudangLabels = @json($gudangLabels ?? []);
+                const gudangPenjualan = @json($gudangPenjualan ?? []);
+                const gudangPembelian = @json($gudangPembelian ?? []);
+
+                const gudangCtx = document.getElementById('gudangChart');
+                if (gudangCtx) {
+                    new Chart(gudangCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: gudangLabels,
+                            datasets: [
+                                {
+                                    label: 'Penjualan',
+                                    data: gudangPenjualan,
+                                    backgroundColor: 'rgba(78, 115, 223, 0.8)',
+                                    borderColor: 'rgb(78, 115, 223)',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Pembelian',
+                                    data: gudangPembelian,
+                                    backgroundColor: 'rgba(28, 200, 138, 0.8)',
+                                    borderColor: 'rgb(28, 200, 138)',
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            return context.dataset.label + ': ' + formatRupiah(context.parsed.y);
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function (value) {
+                                            if (value >= 1000000) {
+                                                return 'Rp ' + (value / 1000000).toFixed(1) + 'jt';
+                                            } else if (value >= 1000) {
+                                                return 'Rp ' + (value / 1000).toFixed(0) + 'rb';
+                                            }
+                                            return 'Rp ' + value;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
             });
         </script>
     @endif
@@ -687,6 +798,30 @@
                         }
                     }
                 });
+            }
+
+            // Toggle Gudang Filter visibility based on Transaction Type
+            const transactionTypeSelect = document.getElementById('transaction_type');
+            const gudangFilterGroup = document.getElementById('gudangFilterGroup');
+            const gudangSelect = document.getElementById('gudang_id');
+
+            if (transactionTypeSelect && gudangFilterGroup) {
+                function toggleGudangFilter() {
+                    const selectedType = transactionTypeSelect.value;
+                    // Hide gudang filter if only "biaya" is selected
+                    if (selectedType === 'biaya') {
+                        gudangFilterGroup.style.display = 'none';
+                        if (gudangSelect) gudangSelect.value = '';
+                    } else {
+                        gudangFilterGroup.style.display = 'block';
+                    }
+                }
+
+                // Initial check
+                toggleGudangFilter();
+
+                // Listen to changes
+                transactionTypeSelect.addEventListener('change', toggleGudangFilter);
             }
         });
     </script>
