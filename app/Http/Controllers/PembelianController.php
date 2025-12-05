@@ -139,7 +139,7 @@ class PembelianController extends Controller
         // Hitung jatuh tempo dan tentukan status berdasarkan metode pembayaran
         $term = $request->syarat_pembayaran;
         $isCash = ($term == 'Cash');
-        
+
         if ($isCash) {
             // Cash = langsung lunas, tidak perlu jatuh tempo
             $tglJatuhTempo = null;
@@ -148,7 +148,7 @@ class PembelianController extends Controller
             // Kredit = perlu approval, hitung jatuh tempo
             $tglJatuhTempo = Carbon::parse($request->tgl_transaksi);
             $statusAwal = 'Pending';
-            
+
             if ($term == 'Net 7')
                 $tglJatuhTempo->addDays(7);
             elseif ($term == 'Net 14')
@@ -322,7 +322,7 @@ class PembelianController extends Controller
         // Hitung jatuh tempo dan tentukan status berdasarkan metode pembayaran
         $term = $request->syarat_pembayaran;
         $isCash = ($term == 'Cash');
-        
+
         if ($isCash) {
             // Cash = langsung lunas, tidak perlu jatuh tempo
             $tglJatuhTempo = null;
@@ -331,7 +331,7 @@ class PembelianController extends Controller
             // Kredit = perlu approval, hitung jatuh tempo
             $tglJatuhTempo = Carbon::parse($request->tgl_transaksi);
             $statusBaru = 'Pending';
-            
+
             if ($term == 'Net 7')
                 $tglJatuhTempo->addDays(7);
             elseif ($term == 'Net 14')

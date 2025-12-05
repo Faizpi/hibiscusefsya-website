@@ -507,6 +507,7 @@
 
         .card-body {
             padding: 1.25rem;
+            overflow-x: auto;
         }
 
         /* ========== BUTTONS ========== */
@@ -740,6 +741,15 @@
         /* ========== TABLES ========== */
         .table {
             font-size: 0.875rem;
+            width: 100%;
+            max-width: 100%;
+            table-layout: auto;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
         }
 
         .table thead th {
@@ -750,14 +760,16 @@
             text-transform: uppercase;
             letter-spacing: 0.025em;
             border-bottom: 1px solid var(--border-color);
-            padding: 0.875rem 1rem;
+            padding: 0.75rem 0.75rem;
+            white-space: nowrap;
         }
 
         .table tbody td {
-            padding: 0.875rem 1rem;
+            padding: 0.75rem 0.75rem;
             color: var(--text-primary);
             border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
+            word-break: break-word;
         }
 
         .table tbody tr:hover {
