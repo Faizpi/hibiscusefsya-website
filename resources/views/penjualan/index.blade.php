@@ -124,19 +124,18 @@
                                 <td>{{ $item->pelanggan }}</td>
                                 <td class="text-right font-weight-bold">Rp {{ number_format($item->grand_total, 0, ',', '.') }}
                                 </td>
-                                <td class="text-center">
-                                    @if($item->status == 'Approved') <span class="badge badge-info">Approved (Belum
-                                        Bayar)</span>
+                                <td class="text-center" style="white-space: nowrap;">
+                                    @if($item->status == 'Approved') <span class="badge badge-info">Approved</span>
                                     @elseif($item->status == 'Lunas') <span class="badge badge-success">Lunas</span>
                                     @elseif($item->status == 'Pending') <span class="badge badge-warning">Pending</span>
                                     @elseif($item->status == 'Canceled') <span class="badge badge-secondary">Canceled</span>
                                     @endif
 
                                     @if($item->status == 'Approved' && $item->tgl_jatuh_tempo && \Carbon\Carbon::parse($item->tgl_jatuh_tempo)->isPast())
-                                        <br><span class="badge badge-danger mt-1">Telat</span>
+                                        <span class="badge badge-danger">Telat</span>
                                     @endif
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center" style="white-space: nowrap;">
                                     @php $role = auth()->user()->role; @endphp
 
                                     <div class="dropdown action-dropdown">
