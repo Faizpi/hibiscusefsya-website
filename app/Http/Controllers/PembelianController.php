@@ -136,16 +136,28 @@ class PembelianController extends Controller
             $path = 'lampiran_pembelian/' . $filename;
         }
 
-        $tglJatuhTempo = Carbon::parse($request->tgl_transaksi);
+        // Hitung jatuh tempo dan tentukan status berdasarkan metode pembayaran
         $term = $request->syarat_pembayaran;
-        if ($term == 'Net 7')
-            $tglJatuhTempo->addDays(7);
-        elseif ($term == 'Net 14')
-            $tglJatuhTempo->addDays(14);
-        elseif ($term == 'Net 30')
-            $tglJatuhTempo->addDays(30);
-        elseif ($term == 'Net 60')
-            $tglJatuhTempo->addDays(60);
+        $isCash = ($term == 'Cash');
+        
+        if ($isCash) {
+            // Cash = langsung lunas, tidak perlu jatuh tempo
+            $tglJatuhTempo = null;
+            $statusAwal = 'Lunas';
+        } else {
+            // Kredit = perlu approval, hitung jatuh tempo
+            $tglJatuhTempo = Carbon::parse($request->tgl_transaksi);
+            $statusAwal = 'Pending';
+            
+            if ($term == 'Net 7')
+                $tglJatuhTempo->addDays(7);
+            elseif ($term == 'Net 14')
+                $tglJatuhTempo->addDays(14);
+            elseif ($term == 'Net 30')
+                $tglJatuhTempo->addDays(30);
+            elseif ($term == 'Net 60')
+                $tglJatuhTempo->addDays(60);
+        }
 
         $subTotal = 0;
         foreach ($request->produk_id as $index => $produkId) {
