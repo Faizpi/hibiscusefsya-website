@@ -61,13 +61,14 @@ class StokExport implements FromArray, WithStyles
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '5B9BD5']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
         ]);
+        $sheet->getRowDimension(4)->setRowHeight(20);
 
         // Hitung baris
         $rowCount = count($this->data);
         $lastRow = $rowCount; // baris total
         $headerRow = 4;
         $firstDataRow = 5;
-        $lastDataRow = $lastRow - 1; // sebelum baris total
+        $lastDataRow = $lastRow - 2; // sebelum blank row dan total row
 
         // Border untuk tabel + total
         $sheet->getStyle('A' . $headerRow . ':D' . $lastRow)->applyFromArray([
@@ -77,12 +78,6 @@ class StokExport implements FromArray, WithStyles
                     'color' => ['rgb' => 'D9D9D9'],
                 ],
             ],
-        ]);
-
-        // Style total row
-        $sheet->getStyle('A' . $lastRow . ':D' . $lastRow)->applyFromArray([
-            'font' => ['bold' => true],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F4B084']],
         ]);
 
         // Align kolom angka + zebra striping untuk keterbacaan
@@ -104,6 +99,19 @@ class StokExport implements FromArray, WithStyles
                 // Baris genap tetap putih (default, tidak perlu di-set)
             }
         }
+
+        // Re-apply header style AFTER borders/zebra to ensure it stays blue
+        $sheet->getStyle('A4:D4')->applyFromArray([
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '5B9BD5']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+
+        // Style total row
+        $sheet->getStyle('A' . $lastRow . ':D' . $lastRow)->applyFromArray([
+            'font' => ['bold' => true],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F4B084']],
+        ]);
         // Total row align
         $sheet->getStyle('D' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
         $sheet->getStyle('A' . $lastRow . ':D' . $lastRow)->getNumberFormat()->setFormatCode('#,##0');
