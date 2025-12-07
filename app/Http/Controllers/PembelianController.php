@@ -189,12 +189,35 @@ class PembelianController extends Controller
         // Generate nomor transaksi
         $nomor = Pembelian::generateNomor(Auth::id(), $noUrut, Carbon::now());
 
+        // Tentukan approver berdasarkan gudang (sama seperti penjualan)
+        $user = Auth::user();
+        $approverId = null;
+        
+        if ($user->role == 'user') {
+            // Sales: cari admin yang handle gudang yang dipilih
+            $adminGudang = User::where('role', 'admin')
+                ->where('current_gudang_id', $request->gudang_id)
+                ->first();
+            
+            if ($adminGudang) {
+                $approverId = $adminGudang->id;
+            } else {
+                // Jika tidak ada admin gudang, ke super admin
+                $superAdmin = User::where('role', 'super_admin')->first();
+                $approverId = $superAdmin ? $superAdmin->id : null;
+            }
+        } elseif ($user->role == 'admin') {
+            // Admin: ke super admin
+            $superAdmin = User::where('role', 'super_admin')->first();
+            $approverId = $superAdmin ? $superAdmin->id : null;
+        }
+
         DB::beginTransaction();
         try {
             $pembelianInduk = Pembelian::create([
                 'user_id' => Auth::id(),
                 'status' => $statusAwal,
-                'approver_id' => null, // Will be set when approved
+                'approver_id' => $approverId, // Set approver saat create
                 'no_urut_harian' => $noUrut,
                 'nomor' => $nomor,
                 'gudang_id' => $request->gudang_id,
@@ -355,10 +378,33 @@ class PembelianController extends Controller
         $pajakPersen = $request->tax_percentage ?? 0;
         $grandTotal = $kenaPajak + ($kenaPajak * ($pajakPersen / 100));
 
+        // Tentukan approver jika status pending
+        $approverId = $pembelian->approver_id; // Keep existing
+        
+        if ($statusBaru == 'Pending') {
+            // Re-calculate approver berdasarkan gudang
+            if ($user->role == 'user') {
+                $adminGudang = User::where('role', 'admin')
+                    ->where('current_gudang_id', $request->gudang_id)
+                    ->first();
+                
+                if ($adminGudang) {
+                    $approverId = $adminGudang->id;
+                } else {
+                    $superAdmin = User::where('role', 'super_admin')->first();
+                    $approverId = $superAdmin ? $superAdmin->id : null;
+                }
+            } elseif ($user->role == 'admin') {
+                $superAdmin = User::where('role', 'super_admin')->first();
+                $approverId = $superAdmin ? $superAdmin->id : null;
+            }
+        }
+
         DB::beginTransaction();
         try {
             $pembelian->update([
                 'status' => $statusBaru,
+                'approver_id' => $approverId,
                 'gudang_id' => $request->gudang_id,
                 'tgl_transaksi' => $request->tgl_transaksi,
                 'tgl_jatuh_tempo' => $tglJatuhTempo,
@@ -437,7 +483,7 @@ class PembelianController extends Controller
                     ]);
                 }
             }
-            
+
             // Set approver_id ke user yang sedang approve
             $pembelian->approver_id = $user->id;
 

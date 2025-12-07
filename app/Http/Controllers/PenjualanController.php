@@ -219,12 +219,36 @@ class PenjualanController extends Controller
         // Generate nomor transaksi
         $nomor = Penjualan::generateNomor(Auth::id(), $noUrut, Carbon::now());
 
+        // Tentukan approver berdasarkan gudang
+        $user = Auth::user();
+        $approverId = null;
+        
+        if ($user->role == 'user') {
+            // Sales: cari admin yang handle gudang yang dipilih
+            $adminGudang = User::where('role', 'admin')
+                ->where('current_gudang_id', $request->gudang_id)
+                ->first();
+            
+            if ($adminGudang) {
+                $approverId = $adminGudang->id;
+            } else {
+                // Jika tidak ada admin gudang, ke super admin
+                $superAdmin = User::where('role', 'super_admin')->first();
+                $approverId = $superAdmin ? $superAdmin->id : null;
+            }
+        } elseif ($user->role == 'admin') {
+            // Admin: ke super admin
+            $superAdmin = User::where('role', 'super_admin')->first();
+            $approverId = $superAdmin ? $superAdmin->id : null;
+        }
+        // Super admin tidak perlu approval, bisa langsung approved di logic lain jika perlu
+
         DB::beginTransaction();
         try {
             $penjualanInduk = Penjualan::create([
                 'user_id' => Auth::id(),
                 'status' => $statusAwal,
-                'approver_id' => null, // Will be set when approved
+                'approver_id' => $approverId, // Set approver saat create
                 'no_urut_harian' => $noUrut,
                 'nomor' => $nomor,
                 'gudang_id' => $request->gudang_id,
@@ -428,11 +452,34 @@ class PenjualanController extends Controller
                 $tglJatuhTempo->addDays(60);
         }
 
+        // Tentukan approver jika status pending (sama seperti store)
+        $approverId = $penjualan->approver_id; // Keep existing approver
+        
+        if ($statusBaru == 'Pending') {
+            // Re-calculate approver berdasarkan gudang yang dipilih
+            if ($user->role == 'user') {
+                $adminGudang = User::where('role', 'admin')
+                    ->where('current_gudang_id', $request->gudang_id)
+                    ->first();
+                
+                if ($adminGudang) {
+                    $approverId = $adminGudang->id;
+                } else {
+                    $superAdmin = User::where('role', 'super_admin')->first();
+                    $approverId = $superAdmin ? $superAdmin->id : null;
+                }
+            } elseif ($user->role == 'admin') {
+                $superAdmin = User::where('role', 'super_admin')->first();
+                $approverId = $superAdmin ? $superAdmin->id : null;
+            }
+        }
+
         DB::beginTransaction();
 
         try {
             $penjualan->update([
                 'status' => $statusBaru,
+                'approver_id' => $approverId,
                 'gudang_id' => $request->gudang_id,
                 'pelanggan' => $request->pelanggan,
                 'email' => $request->email,
@@ -541,7 +588,8 @@ class PenjualanController extends Controller
             return redirect()->route('penjualan.index')
                 ->with('error', 'Error: ' . $e->getMessage());
         }
-    }    public function cancel(Penjualan $penjualan)
+    }
+    public function cancel(Penjualan $penjualan)
     {
         $user = Auth::user();
         if (!in_array($user->role, ['admin', 'super_admin'])) {
