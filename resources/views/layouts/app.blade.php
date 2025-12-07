@@ -1607,6 +1607,13 @@
                     <hr class="sidebar-divider">
                     <div class="sidebar-heading">Pengaturan</div>
 
+                    <li class="nav-item {{ Route::is('admin-gudang.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin-gudang.index') }}" title="Admin Gudang">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Admin Gudang</span>
+                        </a>
+                    </li>
+
                     <li class="nav-item {{ Route::is('users.*') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('users.index') }}" title="Pengguna">
                             <i class="fas fa-users"></i>
@@ -1747,9 +1754,11 @@
                                             <div class="dropdown-divider"></div>
                                             <form method="POST" action="{{ route('admin.switchGudang') }}" id="switchGudangForm">
                                                 @csrf
-                                                <label class="dropdown-item" style="cursor: pointer; padding: 0.5rem 1rem;">
-                                                    Gudang Aktif:
-                                                    <select name="gudang_id" onchange="document.getElementById('switchGudangForm').submit();" style="margin-left: 10px;">
+                                                <div class="px-3 py-2">
+                                                    <small class="text-muted d-block mb-2">
+                                                        <i class="fas fa-warehouse mr-1"></i> <strong>Pilih Gudang Aktif</strong>
+                                                    </small>
+                                                    <select name="gudang_id" class="custom-select custom-select-sm" onchange="document.getElementById('switchGudangForm').submit();">
                                                         @foreach($adminGudangs as $gudang)
                                                             <option value="{{ $gudang->id }}" 
                                                                 {{ $currentGudang && $currentGudang->id === $gudang->id ? 'selected' : '' }}>
@@ -1757,13 +1766,15 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                </label>
+                                                </div>
                                             </form>
                                         @elseif($currentGudang)
                                             <div class="dropdown-divider"></div>
-                                            <span class="dropdown-item disabled">
-                                                <small>Gudang: {{ $currentGudang->nama_gudang }}</small>
-                                            </span>
+                                            <div class="px-3 py-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-warehouse mr-1"></i> <strong>{{ $currentGudang->nama_gudang }}</strong>
+                                                </small>
+                                            </div>
                                         @endif
                                         <div class="dropdown-divider"></div>
                                     @endif

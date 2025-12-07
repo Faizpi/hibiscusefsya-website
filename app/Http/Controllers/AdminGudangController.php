@@ -32,15 +32,27 @@ class AdminGudangController extends Controller
     /**
      * Edit gudang untuk admin tertentu
      */
-    public function edit(User $admin)
+    public function edit(Request $request, User $admin)
     {
         // Check super admin
         if (Auth::user()->role !== 'super_admin') {
             return back()->with('error', 'Akses ditolak.');
         }
 
+        // Ensure we resolve the correct user from route param (avoid binding issues)
+        $adminId = $request->route('admin_gudang');
+        $admin = User::find($adminId);
+
+        // Safety check - validate user exists and has a name
+        if (!$admin || !$admin->id || !$admin->name) {
+            return redirect()->route('admin-gudang.index')
+                ->with('error', 'User tidak valid atau tidak ditemukan.');
+        }
+
+        // Check if user is admin (strict check)
         if ($admin->role !== 'admin') {
-            return back()->with('error', 'User ini bukan admin.');
+            return redirect()->route('admin-gudang.index')
+                ->with('error', "Pengguna '{$admin->name}' (Role: {$admin->role}) bukan admin. Tidak bisa diubah gudangnya.");
         }
 
         $gudangs = Gudang::all();
@@ -59,8 +71,20 @@ class AdminGudangController extends Controller
             return back()->with('error', 'Akses ditolak.');
         }
 
+        // Ensure we resolve the correct user from route param (avoid binding issues)
+        $adminId = $request->route('admin_gudang');
+        $admin = User::find($adminId);
+
+        // Safety check - validate user exists and has a name
+        if (!$admin || !$admin->id || !$admin->name) {
+            return redirect()->route('admin-gudang.index')
+                ->with('error', 'User tidak valid atau tidak ditemukan.');
+        }
+
+        // Check if user is admin (strict check)
         if ($admin->role !== 'admin') {
-            return back()->with('error', 'User ini bukan admin.');
+            return redirect()->route('admin-gudang.index')
+                ->with('error', "Pengguna '{$admin->name}' (Role: {$admin->role}) bukan admin. Tidak bisa diubah gudangnya.");
         }
 
         // Validasi: admin minimal harus punya 1 gudang
