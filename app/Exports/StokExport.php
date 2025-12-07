@@ -33,7 +33,7 @@ class StokExport implements FromView, WithTitle, ShouldAutoSize, WithStyles
 
     public function title(): string
     {
-        return 'Stok ' . $this->gudang->nama_gudang;
+        return 'Stok ' . substr($this->gudang->nama_gudang, 0, 25);
     }
 
     public function styles(Worksheet $sheet)
@@ -86,8 +86,10 @@ class StokExport implements FromView, WithTitle, ShouldAutoSize, WithStyles
         ]);
 
         // Alignment untuk data
-        $sheet->getStyle('A4:A' . ($lastRow - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('D4:D' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        if ($lastRow > 3) {
+            $sheet->getStyle('A4:A' . ($lastRow - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('D4:D' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        }
 
         // Total row styling
         $sheet->getStyle('A' . $lastRow . ':D' . $lastRow)->applyFromArray([
