@@ -76,34 +76,10 @@ class StokController extends Controller
             ->with('produk')
             ->get();
 
-        // Siapkan data untuk export
-        $exportData = [];
-        $exportData[] = ['LAPORAN STOK BARANG - ' . strtoupper($gudang->nama_gudang), '', '', ''];
-        $exportData[] = ['Tanggal Export:', date('d-m-Y H:i:s'), '', ''];
-        $exportData[] = [];
-        $exportData[] = ['No', 'Produk', 'Item Code', 'Jumlah Stok'];
-
-        $no = 1;
-        $totalStok = 0;
-        foreach ($stokData as $item) {
-            if ($item->produk) {
-                $exportData[] = [
-                    $no++,
-                    $item->produk->nama_produk,
-                    $item->produk->item_code,
-                    $item->stok
-                ];
-                $totalStok += $item->stok;
-            }
-        }
-
-        $exportData[] = [];
-        $exportData[] = ['TOTAL', '', '', $totalStok];
-
         // Generate file name
         $fileName = 'Stok_' . str_replace(' ', '_', $gudang->nama_gudang) . '_' . date('Y-m-d_His') . '.xlsx';
 
-        // Export menggunakan library Excel
-        return Excel::download(new \App\Exports\StokExport($exportData), $fileName);
+        // Export menggunakan library Excel dengan FromView
+        return Excel::download(new \App\Exports\StokExport($gudang, $stokData), $fileName);
     }
 }

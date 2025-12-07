@@ -2,29 +2,102 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromArray;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Font;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 
-class StokExport implements FromArray, WithStyles
+class StokExport implements FromView, WithTitle, ShouldAutoSize, WithStyles
 {
-    protected $data;
+    protected $gudang;
+    protected $stokData;
 
-    public function __construct($data)
+    public function __construct($gudang, $stokData)
     {
-        $this->data = $data;
+        $this->gudang = $gudang;
+        $this->stokData = $stokData;
     }
 
-    public function array(): array
+    public function view(): View
     {
-        return $this->data;
+        return view('reports.stok', [
+            'gudang' => $this->gudang,
+            'stokData' => $this->stokData
+        ]);
+    }
+
+    public function title(): string
+    {
+        return 'Stok ' . $this->gudang->nama_gudang;
     }
 
     public function styles(Worksheet $sheet)
+    {
+        // Freeze panes agar header tetap terlihat saat scroll
+        $sheet->freezePane('A4');
+
+        // Set column widths
+        $sheet->getColumnDimension('A')->setWidth(6);
+        $sheet->getColumnDimension('B')->setWidth(30);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(15);
+
+        // Get last row
+        $lastRow = $sheet->getHighestRow();
+
+        // Style header rows (row 1-3)
+        $sheet->mergeCells('A1:D1');
+        $sheet->mergeCells('A2:D2');
+        
+        $sheet->getStyle('A1:D1')->applyFromArray([
+            'font' => ['bold' => true, 'size' => 13, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(24);
+
+        $sheet->getStyle('A2:D2')->applyFromArray([
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E7E6E6']],
+            'font' => ['bold' => true],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
+        ]);
+        $sheet->getRowDimension(2)->setRowHeight(18);
+
+        // Style table header (row 3)
+        $sheet->getStyle('A3:D3')->applyFromArray([
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '5B9BD5']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+
+        // Borders untuk semua tabel
+        $sheet->getStyle('A3:D' . $lastRow)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => 'CCCCCC'],
+                ],
+            ],
+        ]);
+
+        // Alignment untuk data
+        $sheet->getStyle('A4:A' . ($lastRow - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('D4:D' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+        // Total row styling
+        $sheet->getStyle('A' . $lastRow . ':D' . $lastRow)->applyFromArray([
+            'font' => ['bold' => true],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F4B084']],
+        ]);
+
+        return [];
+    }
+}
     {
         // Auto width columns
         $sheet->getColumnDimension('A')->setWidth(6);
@@ -55,82 +128,11 @@ class StokExport implements FromArray, WithStyles
         ]);
         $sheet->getRowDimension(2)->setRowHeight(18);
 
-        // Style table header (row 4) - FINAL, setelah semua styling lain
-        $sheet->getStyle('A4:D4')->applyFromArray([
-            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '5B9BD5']],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-        ]);
-        $sheet->getRowDimension(4)->setRowHeight(20);
-
-        // Hitung baris
-        $rowCount = count($this->data);
-        $lastRow = $rowCount; // baris total
-        $headerRow = 4;
-        $firstDataRow = 5;
-        $lastDataRow = $lastRow - 2; // sebelum blank row dan total row
-
-        // Border untuk header + data + total (termasuk row 4)
-        $sheet->getStyle('A' . $headerRow . ':D' . $lastRow)->applyFromArray([
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => 'D9D9D9'],
-                ],
-            ],
-        ]);
-
-        // Align kolom angka + style data rows (EXCLUDE header row 4)
-        if ($lastDataRow >= $firstDataRow) {
-            // Set white background untuk SEMUA data rows dulu
-            $sheet->getStyle('A' . $firstDataRow . ':D' . $lastDataRow)->applyFromArray([
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFFFFF']],
-            ]);
-
-            $sheet->getStyle('A' . $firstDataRow . ':A' . $lastDataRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('D' . $firstDataRow . ':D' . $lastDataRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-
-            // Number format ribuan
-            $sheet->getStyle('D' . $firstDataRow . ':D' . $lastDataRow)->getNumberFormat()->setFormatCode('#,##0');
-
-            // Zebra striping - hanya untuk baris ganjil
-            for ($r = $firstDataRow; $r <= $lastDataRow; $r++) {
-                if (($r - $firstDataRow) % 2 == 1) {
-                    // Baris ganjil (2nd, 4th, 6th data row) - light gray
-                    $sheet->getStyle('A' . $r . ':D' . $r)->applyFromArray([
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F2F2F2']],
-                    ]);
-                }
-            }
-        }
-
-        // Re-apply header style untuk OVERRIDE border effects
-        $sheet->getStyle('A4:D4')->applyFromArray([
-            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '5B9BD5']],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => 'D9D9D9'],
-                ],
-            ],
-        ]);
-
-        // Style total row (OVERRIDE semua style sebelumnya)
+        // Total row styling
         $sheet->getStyle('A' . $lastRow . ':D' . $lastRow)->applyFromArray([
             'font' => ['bold' => true],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F4B084']],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => 'D9D9D9'],
-                ],
-            ],
         ]);
-        // Total row align
-        $sheet->getStyle('D' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-        $sheet->getStyle('A' . $lastRow . ':D' . $lastRow)->getNumberFormat()->setFormatCode('#,##0');
 
         return [];
     }
