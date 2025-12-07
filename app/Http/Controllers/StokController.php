@@ -14,7 +14,7 @@ class StokController extends Controller
     public function index()
     {
         if (!in_array(Auth::user()->role, ['admin', 'super_admin'])) {
-             return redirect()->route('dashboard')->with('error', 'Akses ditolak.');
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak.');
         }
 
         $user = Auth::user();
@@ -38,7 +38,7 @@ class StokController extends Controller
     public function store(Request $request)
     {
         if (Auth::user()->role != 'super_admin') {
-             return redirect()->route('stok.index')->with('error', 'Hanya Super Admin yang boleh mengubah stok manual.');
+            return redirect()->route('stok.index')->with('error', 'Hanya Super Admin yang boleh mengubah stok manual.');
         }
 
         $request->validate([
@@ -58,7 +58,7 @@ class StokController extends Controller
     public function exportStok(Request $request)
     {
         $user = Auth::user();
-        
+
         // Validasi request
         $request->validate([
             'gudang_id' => 'required|exists:gudangs,id',

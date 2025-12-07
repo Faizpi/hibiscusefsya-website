@@ -564,7 +564,7 @@ class PembelianController extends Controller
         $allow = false;
         if ($user->role == 'super_admin')
             $allow = true;
-        elseif ($user->role == 'admin' && $pembelian->approver_id == $user->id)
+        elseif ($user->role == 'admin' && $user->canAccessGudang($pembelian->gudang_id))
             $allow = true;
         elseif ($pembelian->user_id == $user->id)
             $allow = true;
@@ -586,7 +586,7 @@ class PembelianController extends Controller
         $allow = false;
         if ($user->role == 'super_admin')
             $allow = true;
-        elseif ($user->role == 'admin' && $pembelian->approver_id == $user->id)
+        elseif ($user->role == 'admin' && $user->canAccessGudang($pembelian->gudang_id))
             $allow = true;
         elseif ($pembelian->user_id == $user->id)
             $allow = true;

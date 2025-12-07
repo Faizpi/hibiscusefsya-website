@@ -53,7 +53,7 @@ class StokExport implements FromView, WithTitle, ShouldAutoSize, WithStyles
         // Style header rows (row 1-3)
         $sheet->mergeCells('A1:D1');
         $sheet->mergeCells('A2:D2');
-        
+
         $sheet->getStyle('A1:D1')->applyFromArray([
             'font' => ['bold' => true, 'size' => 13, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
@@ -100,4 +100,3 @@ class StokExport implements FromView, WithTitle, ShouldAutoSize, WithStyles
         return [];
     }
 }
-    

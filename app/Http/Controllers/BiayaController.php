@@ -68,7 +68,7 @@ class BiayaController extends Controller
     public function create()
     {
         $kontaks = Kontak::all();
-        
+
         // Tidak perlu lagi, approver otomatis ditentukan di backend
         // $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
 
@@ -92,11 +92,11 @@ class BiayaController extends Controller
         ]);
 
         $user = Auth::user();
-        
+
         // Tentukan approver otomatis berdasarkan role user
         $approverId = null;
         $initialStatus = 'Pending';
-        
+
         if ($user->role == 'user') {
             // Sales: cari admin gudang tempat dia bekerja
             $gudang = $user->getCurrentGudang();
@@ -105,7 +105,7 @@ class BiayaController extends Controller
                 $adminGudang = User::where('role', 'admin')
                     ->where('current_gudang_id', $gudang->id)
                     ->first();
-                
+
                 if ($adminGudang) {
                     $approverId = $adminGudang->id;
                 } else {
@@ -204,10 +204,10 @@ class BiayaController extends Controller
             return redirect()->back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage())->withInput();
         }
 
-        $message = ($initialStatus == 'Approved') 
-            ? 'Data biaya berhasil disimpan dan langsung approved.' 
+        $message = ($initialStatus == 'Approved')
+            ? 'Data biaya berhasil disimpan dan langsung approved.'
             : 'Data biaya berhasil diajukan untuk approval.';
-            
+
         return redirect()->route('biaya.index')->with('success', $message);
     }
 
@@ -342,14 +342,14 @@ class BiayaController extends Controller
         // Tentukan approver otomatis berdasarkan role user (sama seperti store)
         $approverId = null;
         $initialStatus = 'Pending';
-        
+
         if ($user->role == 'user') {
             $gudang = $user->getCurrentGudang();
             if ($gudang) {
                 $adminGudang = User::where('role', 'admin')
                     ->where('current_gudang_id', $gudang->id)
                     ->first();
-                
+
                 if ($adminGudang) {
                     $approverId = $adminGudang->id;
                 } else {

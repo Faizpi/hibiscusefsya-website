@@ -52,7 +52,7 @@ Route::middleware(['auth'])->group(function () {
     // GRUP 2: Area Admin & Super Admin
     // ====================================================================
     Route::middleware(['role:admin'])->group(function () {
-        
+
         // Master Kontak
         Route::resource('kontak', 'KontakController');
 
@@ -72,7 +72,7 @@ Route::middleware(['auth'])->group(function () {
     // GRUP 3: Area Khusus Super Admin
     // ====================================================================
     Route::middleware(['role:super_admin'])->group(function () {
-        
+
         // Manajemen User & Role
         Route::resource('users', 'UserController');
 

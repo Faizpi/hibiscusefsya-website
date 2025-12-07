@@ -174,7 +174,8 @@
             <td class="label">Tanggal</td>
             <td class="colon">:</td>
             <td class="value">{{ $penjualan->tgl_transaksi->format('d/m/Y') }} |
-                {{ $penjualan->created_at->format('H:i') }}</td>
+                {{ $penjualan->created_at->format('H:i') }}
+            </td>
         </tr>
         <tr>
             <td class="label">Jatuh Tempo</td>

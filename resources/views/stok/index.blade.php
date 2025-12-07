@@ -63,7 +63,8 @@
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">Daftar Stok per Gudang</h6>
-                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#exportStokModal">
+                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal"
+                            data-target="#exportStokModal">
                             <i class="fas fa-download mr-1"></i> Export Excel
                         </button>
                     </div>
@@ -134,7 +135,8 @@
     </div>
 
     <!-- Modal Export Stok -->
-    <div class="modal fade" id="exportStokModal" tabindex="-1" role="dialog" aria-labelledby="exportStokModalLabel" aria-hidden="true">
+    <div class="modal fade" id="exportStokModal" tabindex="-1" role="dialog" aria-labelledby="exportStokModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">

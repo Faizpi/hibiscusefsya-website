@@ -39,8 +39,8 @@ class DashboardController extends Controller
 
             // Statistik tambahan (exclude Canceled)
             $data['totalProduk'] = Produk::count();
-            $data['totalTransaksi'] = Penjualan::where('status', '!=', 'Canceled')->count() 
-                + Pembelian::where('status', '!=', 'Canceled')->count() 
+            $data['totalTransaksi'] = Penjualan::where('status', '!=', 'Canceled')->count()
+                + Pembelian::where('status', '!=', 'Canceled')->count()
                 + Biaya::where('status', '!=', 'Canceled')->count();
 
             // Ambil semua transaksi untuk tabel (exclude Canceled)

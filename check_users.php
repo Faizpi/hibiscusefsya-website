@@ -11,11 +11,11 @@ echo "\n=== User Roles ===\n";
 echo str_pad('ID', 5) . ' | ' . str_pad('Name', 20) . ' | ' . str_pad('Email', 30) . ' | ' . 'Role' . "\n";
 echo str_repeat('-', 80) . "\n";
 
-foreach($users as $user) {
-    echo str_pad($user->id, 5) . ' | ' 
-         . str_pad($user->name, 20) . ' | ' 
-         . str_pad($user->email, 30) . ' | ' 
-         . $user->role . "\n";
+foreach ($users as $user) {
+    echo str_pad($user->id, 5) . ' | '
+        . str_pad($user->name, 20) . ' | '
+        . str_pad($user->email, 30) . ' | '
+        . $user->role . "\n";
 }
 
 echo "\n=== Users with role = 'admin' ===\n";

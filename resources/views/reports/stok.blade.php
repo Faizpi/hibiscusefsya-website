@@ -1,7 +1,8 @@
 <table>
     <thead>
         <tr>
-            <th colspan="4" style="background-color: #4472C4; color: white; font-weight: bold; text-align: left; padding: 10px;">
+            <th colspan="4"
+                style="background-color: #4472C4; color: white; font-weight: bold; text-align: left; padding: 10px;">
                 LAPORAN STOK BARANG - {{ strtoupper($gudang->nama_gudang) }}
             </th>
         </tr>
@@ -18,7 +19,8 @@
         </tr>
     </thead>
     <tbody>
-        @php $no = 1; $totalStok = 0; @endphp
+        @php $no = 1;
+        $totalStok = 0; @endphp
         @foreach($stokData as $item)
             @if($item->produk)
                 <tr style="background-color: {{ $no % 2 == 1 ? '#FFFFFF' : '#F2F2F2' }};">

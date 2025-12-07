@@ -200,7 +200,7 @@
     @php $subtotal = 0; @endphp
     @foreach($pembelian->items as $item)
         @php 
-                $totalRow = ($item->kuantitas * $item->harga_satuan) * (1 - ($item->diskon / 100));
+                        $totalRow = ($item->kuantitas * $item->harga_satuan) * (1 - ($item->diskon / 100));
             $subtotal += $totalRow;
         @endphp
         <div class="item-container">

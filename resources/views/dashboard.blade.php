@@ -560,7 +560,8 @@
                                     <i class="fas fa-warehouse text-primary mr-2"></i>
                                     <strong>{{ $gudangs->first()->nama_gudang }}</strong>
                                 </div>
-                                <small class="text-muted d-block mt-2">*Anda hanya dapat export data dari gudang yang aktif</small>
+                                <small class="text-muted d-block mt-2">*Anda hanya dapat export data dari gudang yang
+                                    aktif</small>
                             </div>
                         @endif
                     </div>

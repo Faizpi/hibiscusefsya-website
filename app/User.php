@@ -57,7 +57,7 @@ class User extends Authenticatable
     public function gudangs()
     {
         return $this->belongsToMany(Gudang::class, 'admin_gudang')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     /**

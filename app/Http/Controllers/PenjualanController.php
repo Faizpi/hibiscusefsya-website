@@ -672,7 +672,7 @@ class PenjualanController extends Controller
 
         if ($user->role == 'super_admin')
             $allow = true;
-        elseif ($user->role == 'admin' && $penjualan->approver_id == $user->id)
+        elseif ($user->role == 'admin' && $user->canAccessGudang($penjualan->gudang_id))
             $allow = true;
         elseif ($penjualan->user_id == $user->id)
             $allow = true;
@@ -696,7 +696,7 @@ class PenjualanController extends Controller
 
         if ($user->role == 'super_admin')
             $allow = true;
-        elseif ($user->role == 'admin' && $penjualan->approver_id == $user->id)
+        elseif ($user->role == 'admin' && $user->canAccessGudang($penjualan->gudang_id))
             $allow = true;
         elseif ($penjualan->user_id == $user->id)
             $allow = true;
