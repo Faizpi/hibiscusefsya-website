@@ -150,12 +150,22 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="export_gudang_id"><strong>Pilih Gudang</strong></label>
-                            <select class="form-control" name="gudang_id" id="export_gudang_id" required>
-                                <option value="">-- Pilih Gudang --</option>
-                                @foreach($gudangs as $gudang)
-                                    <option value="{{ $gudang->id }}">{{ $gudang->nama_gudang }}</option>
-                                @endforeach
-                            </select>
+
+                            @if(auth()->user()->role == 'admin' && $gudangs->count() == 1)
+                                {{-- Admin hanya punya satu gudang: tampilkan readonly --}}
+                                <input type="hidden" name="gudang_id" value="{{ $gudangs->first()->id }}">
+                                <div class="p-2 bg-light border rounded d-flex align-items-center">
+                                    <i class="fas fa-warehouse text-primary mr-2"></i>
+                                    <strong class="mb-0">{{ $gudangs->first()->nama_gudang }}</strong>
+                                </div>
+                            @else
+                                <select class="form-control" name="gudang_id" id="export_gudang_id" required>
+                                    <option value="">-- Pilih Gudang --</option>
+                                    @foreach($gudangs as $gudang)
+                                        <option value="{{ $gudang->id }}">{{ $gudang->nama_gudang }}</option>
+                                    @endforeach
+                                </select>
+                            @endif
                         </div>
                         <div class="alert alert-info small">
                             <i class="fas fa-info-circle mr-1"></i>

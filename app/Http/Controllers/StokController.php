@@ -17,10 +17,20 @@ class StokController extends Controller
              return redirect()->route('dashboard')->with('error', 'Akses ditolak.');
         }
 
-        $gudangs = Gudang::all();
-        $produks = Produk::all();
+        $user = Auth::user();
 
-        $gudangsWithStok = Gudang::with('produkStok.produk')->get();
+        // Filter gudang sesuai akses user
+        if ($user->role == 'super_admin') {
+            $gudangs = Gudang::all();
+            $gudangsWithStok = Gudang::with('produkStok.produk')->get();
+        } else {
+            // Admin: hanya gudang yang dia punya akses (pivot admin_gudang)
+            $gudangs = $user->gudangs()->with('produkStok.produk')->get();
+            $gudangsWithStok = $gudangs;
+        }
+
+        // Produk tetap semua (hanya super_admin yang pakai form create)
+        $produks = Produk::all();
 
         return view('stok.index', compact('gudangs', 'produks', 'gudangsWithStok'));
     }

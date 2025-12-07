@@ -3,12 +3,12 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class StokExport implements FromArray, WithStyles
 {
@@ -51,9 +51,22 @@ class StokExport implements FromArray, WithStyles
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
         ]);
 
-        // Count rows - find total row
+        // Hitung baris
         $rowCount = count($this->data);
-        $lastRow = $rowCount;
+        $lastRow = $rowCount; // baris total
+        $headerRow = 4;
+        $firstDataRow = 5;
+        $lastDataRow = $lastRow - 1; // sebelum baris total
+
+        // Border untuk tabel + total
+        $sheet->getStyle('A' . $headerRow . ':D' . $lastRow)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => 'D9D9D9'],
+                ],
+            ],
+        ]);
 
         // Style total row
         $sheet->getStyle('A' . $lastRow . ':D' . $lastRow)->applyFromArray([
@@ -61,11 +74,13 @@ class StokExport implements FromArray, WithStyles
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F4B084']],
         ]);
 
-        // Center align number columns
-        for ($i = 5; $i < $lastRow; $i++) {
-            $sheet->getStyle('A' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('D' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        // Align kolom angka
+        if ($lastDataRow >= $firstDataRow) {
+            $sheet->getStyle('A' . $firstDataRow . ':A' . $lastDataRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('D' . $firstDataRow . ':D' . $lastDataRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
         }
+        // Total row align
+        $sheet->getStyle('D' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
         return [];
     }
