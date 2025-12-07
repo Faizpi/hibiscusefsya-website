@@ -86,18 +86,24 @@ class StokExport implements FromArray, WithStyles
         ]);
 
         // Align kolom angka + zebra striping untuk keterbacaan
-        if ($lastDataRow >= $firstDataRow) {
+         if ($lastDataRow >= $firstDataRow) {
             $sheet->getStyle('A' . $firstDataRow . ':A' . $lastDataRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('D' . $firstDataRow . ':D' . $lastDataRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
             // Number format ribuan
             $sheet->getStyle('D' . $firstDataRow . ':D' . $lastDataRow)->getNumberFormat()->setFormatCode('#,##0');
 
-            // Zebra striping
+            // Zebra striping - alternate row colors
             for ($r = $firstDataRow; $r <= $lastDataRow; $r++) {
-                if (($r - $firstDataRow) % 2 == 1) {
+                if (($r - $firstDataRow) % 2 == 0) {
+                    // Baris genap (1st, 3rd, 5th data row) - putih
                     $sheet->getStyle('A' . $r . ':D' . $r)->applyFromArray([
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F7FBFF']],
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFFFFF']],
+                    ]);
+                } else {
+                    // Baris ganjil (2nd, 4th, 6th data row) - light blue
+                    $sheet->getStyle('A' . $r . ':D' . $r)->applyFromArray([
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F0F5FF']],
                     ]);
                 }
             }
