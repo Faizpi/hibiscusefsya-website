@@ -24,9 +24,10 @@ class PembelianController extends Controller
 
         if ($user->role == 'super_admin') {
         } elseif ($user->role == 'admin') {
-            // Admin hanya lihat transaksi di gudang yang dia pegang
-            if ($user->gudang_id) {
-                $query->where('gudang_id', $user->gudang_id);
+            // Admin hanya lihat transaksi di gudang yang sedang aktif (current_gudang_id)
+            $currentGudang = $user->getCurrentGudang();
+            if ($currentGudang) {
+                $query->where('gudang_id', $currentGudang->id);
             } else {
                 // Jika admin tidak punya gudang, tidak bisa lihat apapun
                 return view('pembelian.index', [
@@ -410,9 +411,9 @@ class PembelianController extends Controller
         if ($user->role == 'user')
             return back()->with('error', 'Akses ditolak.');
 
-        // Admin hanya bisa approve di gudang yang dia pegang
+        // Admin/super admin hanya bisa approve di gudang yang dia pegang
         if ($user->role == 'admin') {
-            if (!$user->gudang_id || $user->gudang_id != $pembelian->gudang_id) {
+            if (!$user->canAccessGudang($pembelian->gudang_id)) {
                 return back()->with('error', 'Anda hanya bisa approve di gudang yang Anda pegang.');
             }
         }

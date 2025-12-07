@@ -1732,6 +1732,42 @@
                                         src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3b82f6&color=fff&size=128">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                    {{-- Profile untuk Admin --}}
+                                    @if(Auth::user()->role === 'admin')
+                                        <div class="dropdown-divider"></div>
+                                        <h6 class="dropdown-header">{{ Auth::user()->name }}</h6>
+                                        
+                                        {{-- Show current gudang --}}
+                                        @php
+                                            $currentGudang = Auth::user()->getCurrentGudang();
+                                            $adminGudangs = Auth::user()->gudangs()->get();
+                                        @endphp
+                                        
+                                        @if($adminGudangs->count() > 1)
+                                            <div class="dropdown-divider"></div>
+                                            <form method="POST" action="{{ route('admin.switchGudang') }}" id="switchGudangForm">
+                                                @csrf
+                                                <label class="dropdown-item" style="cursor: pointer; padding: 0.5rem 1rem;">
+                                                    Gudang Aktif:
+                                                    <select name="gudang_id" onchange="document.getElementById('switchGudangForm').submit();" style="margin-left: 10px;">
+                                                        @foreach($adminGudangs as $gudang)
+                                                            <option value="{{ $gudang->id }}" 
+                                                                {{ $currentGudang && $currentGudang->id === $gudang->id ? 'selected' : '' }}>
+                                                                {{ $gudang->nama_gudang }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </label>
+                                            </form>
+                                        @elseif($currentGudang)
+                                            <div class="dropdown-divider"></div>
+                                            <span class="dropdown-item disabled">
+                                                <small>Gudang: {{ $currentGudang->nama_gudang }}</small>
+                                            </span>
+                                        @endif
+                                        <div class="dropdown-divider"></div>
+                                    @endif
+
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                                         <i class="fas fa-sign-out-alt mr-2"></i>
                                         Keluar

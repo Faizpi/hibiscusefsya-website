@@ -22,7 +22,8 @@ class User extends Authenticatable
         'role',
         'alamat',
         'no_telp',
-        'gudang_id', // Pastikan 'role' ada di sini
+        'gudang_id',
+        'current_gudang_id',
     ];
 
     /**
@@ -47,6 +48,51 @@ class User extends Authenticatable
     public function gudang()
     {
         return $this->belongsTo(Gudang::class);
+    }
+
+    /**
+     * Relationship: admin dapat handle multiple gudang
+     * Hanya untuk admin/super_admin
+     */
+    public function gudangs()
+    {
+        return $this->belongsToMany(Gudang::class, 'admin_gudang')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get current active gudang
+     * For admin: return current_gudang_id jika ada, else first assigned gudang
+     * For user: return single gudang
+     */
+    public function getCurrentGudang()
+    {
+        if ($this->role === 'user') {
+            return $this->gudang;
+        }
+
+        if ($this->current_gudang_id) {
+            return Gudang::find($this->current_gudang_id);
+        }
+
+        // Fallback: return first assigned gudang
+        return $this->gudangs()->first();
+    }
+
+    /**
+     * Check if admin can access specific gudang
+     */
+    public function canAccessGudang($gudangId)
+    {
+        if ($this->role === 'super_admin') {
+            return true;
+        }
+
+        if ($this->role === 'admin') {
+            return $this->gudangs()->where('gudangs.id', $gudangId)->exists();
+        }
+
+        return $this->gudang_id == $gudangId;
     }
 
     public function penjualans()

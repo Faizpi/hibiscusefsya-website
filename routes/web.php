@@ -61,6 +61,9 @@ Route::middleware(['auth'])->group(function () {
 
         // Export Excel
         Route::get('/report/export', 'DashboardController@export')->name('report.export');
+
+        // Switch gudang (admin dapat akses multiple gudang)
+        Route::post('admin/switch-gudang', 'AdminGudangController@switchGudang')->name('admin.switchGudang');
     });
 
 
@@ -71,6 +74,9 @@ Route::middleware(['auth'])->group(function () {
         
         // Manajemen User & Role
         Route::resource('users', 'UserController');
+
+        // Manage gudang per admin
+        Route::resource('admin-gudang', 'AdminGudangController');
 
         // Master Data Inti
         Route::resource('gudang', 'GudangController');
