@@ -68,15 +68,17 @@ class BiayaController extends Controller
     public function create()
     {
         $kontaks = Kontak::all();
-        $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
+        
+        // Tidak perlu lagi, approver otomatis ditentukan di backend
+        // $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
 
-        return view('biaya.create', compact('kontaks', 'approvers'));
+        return view('biaya.create', compact('kontaks'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'approver_id' => 'required|exists:users,id',
+            // approver_id tidak perlu lagi dari request, akan di-set otomatis
             'bayar_dari' => 'required|string',
             'tgl_transaksi' => 'required|date',
             'penerima' => 'nullable|string|max:255',
@@ -88,6 +90,43 @@ class BiayaController extends Controller
             'kategori.*' => 'required|string|max:255',
             'total.*' => 'required|numeric|min:0',
         ]);
+
+        $user = Auth::user();
+        
+        // Tentukan approver otomatis berdasarkan role user
+        $approverId = null;
+        $initialStatus = 'Pending';
+        
+        if ($user->role == 'user') {
+            // Sales: cari admin gudang tempat dia bekerja
+            $gudang = $user->getCurrentGudang();
+            if ($gudang) {
+                // Cari admin yang handle gudang ini
+                $adminGudang = User::where('role', 'admin')
+                    ->where('current_gudang_id', $gudang->id)
+                    ->first();
+                
+                if ($adminGudang) {
+                    $approverId = $adminGudang->id;
+                } else {
+                    // Kalau tidak ada admin gudang, ke super admin
+                    $superAdmin = User::where('role', 'super_admin')->first();
+                    $approverId = $superAdmin ? $superAdmin->id : null;
+                }
+            } else {
+                // Sales tidak punya gudang, ke super admin
+                $superAdmin = User::where('role', 'super_admin')->first();
+                $approverId = $superAdmin ? $superAdmin->id : null;
+            }
+        } elseif ($user->role == 'admin') {
+            // Admin: approver ke super admin
+            $superAdmin = User::where('role', 'super_admin')->first();
+            $approverId = $superAdmin ? $superAdmin->id : null;
+        } else {
+            // Super admin: langsung approved, tidak perlu approver
+            $initialStatus = 'Approved';
+            $approverId = null;
+        }
 
         // Default path null
         $path = null;
@@ -130,8 +169,8 @@ class BiayaController extends Controller
         try {
             $biayaInduk = Biaya::create([
                 'user_id' => Auth::id(),
-                'status' => 'Pending',
-                'approver_id' => $request->approver_id,
+                'status' => $initialStatus,
+                'approver_id' => $approverId,
                 'no_urut_harian' => $noUrut,
                 'nomor' => $nomor,
                 'bayar_dari' => $request->bayar_dari,
@@ -165,7 +204,11 @@ class BiayaController extends Controller
             return redirect()->back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage())->withInput();
         }
 
-        return redirect()->route('biaya.index')->with('success', 'Data biaya berhasil diajukan kepada Approver.');
+        $message = ($initialStatus == 'Approved') 
+            ? 'Data biaya berhasil disimpan dan langsung approved.' 
+            : 'Data biaya berhasil diajukan untuk approval.';
+            
+        return redirect()->route('biaya.index')->with('success', $message);
     }
 
     public function approve(Biaya $biaya)
@@ -233,9 +276,9 @@ class BiayaController extends Controller
 
         $biaya->load('items');
         $kontaks = Kontak::all();
-        $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
+        // Tidak perlu approvers, akan otomatis di backend
 
-        return view('biaya.edit', compact('biaya', 'kontaks', 'approvers'));
+        return view('biaya.edit', compact('biaya', 'kontaks'));
     }
 
     public function update(Request $request, Biaya $biaya)
@@ -252,7 +295,7 @@ class BiayaController extends Controller
             return redirect()->route('biaya.index')->with('error', 'Akses ditolak.');
 
         $request->validate([
-            'approver_id' => 'required|exists:users,id',
+            // approver_id tidak perlu validasi, akan di-set otomatis
             'bayar_dari' => 'required|string',
             'tgl_transaksi' => 'required|date',
             'tax_percentage' => 'required|numeric|min:0',
@@ -296,11 +339,41 @@ class BiayaController extends Controller
         $jumlahPajak = $subTotal * ($pajakPersen / 100);
         $grandTotal = $subTotal + $jumlahPajak;
 
+        // Tentukan approver otomatis berdasarkan role user (sama seperti store)
+        $approverId = null;
+        $initialStatus = 'Pending';
+        
+        if ($user->role == 'user') {
+            $gudang = $user->getCurrentGudang();
+            if ($gudang) {
+                $adminGudang = User::where('role', 'admin')
+                    ->where('current_gudang_id', $gudang->id)
+                    ->first();
+                
+                if ($adminGudang) {
+                    $approverId = $adminGudang->id;
+                } else {
+                    $superAdmin = User::where('role', 'super_admin')->first();
+                    $approverId = $superAdmin ? $superAdmin->id : null;
+                }
+            } else {
+                $superAdmin = User::where('role', 'super_admin')->first();
+                $approverId = $superAdmin ? $superAdmin->id : null;
+            }
+        } elseif ($user->role == 'admin') {
+            $superAdmin = User::where('role', 'super_admin')->first();
+            $approverId = $superAdmin ? $superAdmin->id : null;
+        } else {
+            // Super admin: langsung approved
+            $initialStatus = 'Approved';
+            $approverId = null;
+        }
+
         DB::beginTransaction();
         try {
             $biaya->update([
-                'status' => 'Pending',
-                'approver_id' => $request->approver_id,
+                'status' => $initialStatus,
+                'approver_id' => $approverId,
                 'bayar_dari' => $request->bayar_dari,
                 'penerima' => $request->penerima,
                 'alamat_penagihan' => $request->alamat_penagihan,

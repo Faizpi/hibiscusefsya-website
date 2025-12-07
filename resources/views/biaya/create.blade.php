@@ -44,30 +44,11 @@
                         </div>
                     </div>
                     
-                    {{-- APPROVER (ADMIN) --}}
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="approver_id">Ajukan Kepada (Admin) *</label>
-                            <select class="form-control @error('approver_id') is-invalid @enderror" id="approver_id" name="approver_id" required>
-                                <option value="">Pilih Atasan...</option>
-                                @foreach($approvers as $admin)
-                                    <option value="{{ $admin->id }}" 
-                                            data-email="{{ $admin->email }}"
-                                            {{ old('approver_id') == $admin->id ? 'selected' : '' }}>
-                                        {{ $admin->name }} ({{ ucfirst($admin->role) }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('approver_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    {{-- APPROVER OTOMATIS DITENTUKAN SISTEM --}}
+                    <div class="col-md-8">
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i> Approver akan ditentukan otomatis berdasarkan gudang Anda
                         </div>
-                    </div>
-                    
-                    {{-- EMAIL APPROVER (AUTOFILL) --}}
-                    <div class="col-md-4">
-                         <div class="form-group">
-                             <label for="email_approver">Email Approver</label>
-                             <input type="text" class="form-control" id="email_approver" readonly>
-                         </div>
                     </div>
                 </div>
                 
@@ -281,8 +262,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Autofill Elements
     const kontakSelect = document.getElementById('penerima');
     const alamatInput = document.getElementById('alamat_penagihan');
-    const approverSelect = document.getElementById('approver_id');
-    const emailApproverInput = document.getElementById('email_approver');
 
     // --- AUTOFILL KONTAK (Penerima) ---
     if(kontakSelect){
@@ -292,17 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // --- AUTOFILL APPROVER (Admin) ---
-    if(approverSelect){
-        approverSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            emailApproverInput.value = selectedOption.dataset.email || '';
-        });
-        if(approverSelect.value) {
-            const selectedOption = approverSelect.options[approverSelect.selectedIndex];
-            emailApproverInput.value = selectedOption.dataset.email || '';
-        }
-    }
+    // --- REMOVED: Approver autofill (sudah otomatis dari backend) ---
 
     const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
 
