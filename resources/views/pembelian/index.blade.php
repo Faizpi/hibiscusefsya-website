@@ -163,7 +163,17 @@
 
                                             {{-- APPROVE: Hanya jika Pending & Role Sesuai --}}
                                             @if($item->status == 'Pending')
-                                                @if($role == 'super_admin' || ($role == 'admin' && $item->approver_id == auth()->id()))
+                                                @php
+                                                    $canApprove = false;
+                                                    if ($role == 'super_admin') {
+                                                        $canApprove = true;
+                                                    } elseif ($role == 'admin') {
+                                                        // Admin bisa approve jika punya akses ke gudang ini
+                                                        $canApprove = auth()->user()->canAccessGudang($item->gudang_id);
+                                                    }
+                                                @endphp
+                                                
+                                                @if($canApprove)
                                                     <form action="{{ route('pembelian.approve', $item->id) }}" method="POST"
                                                         class="d-inline">
                                                         @csrf

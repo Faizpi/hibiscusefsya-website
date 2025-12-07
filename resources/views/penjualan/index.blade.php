@@ -152,7 +152,17 @@
                                             @if(in_array($role, ['admin', 'super_admin']))
                                                 {{-- APPROVE: Hanya jika Pending --}}
                                                 @if($item->status == 'Pending')
-                                                    @if($role == 'super_admin' || $item->approver_id == auth()->id())
+                                                    @php
+                                                        $canApprove = false;
+                                                        if ($role == 'super_admin') {
+                                                            $canApprove = true;
+                                                        } elseif ($role == 'admin') {
+                                                            // Admin bisa approve jika punya akses ke gudang ini
+                                                            $canApprove = auth()->user()->canAccessGudang($item->gudang_id);
+                                                        }
+                                                    @endphp
+                                                    
+                                                    @if($canApprove)
                                                         <form action="{{ route('penjualan.approve', $item->id) }}" method="POST"
                                                             class="d-inline">
                                                             @csrf
