@@ -24,10 +24,19 @@ class PenjualanController extends Controller
 
         if ($user->role == 'super_admin') {
         } elseif ($user->role == 'admin') {
-            $query->where(function ($q) use ($user) {
-                $q->where('approver_id', $user->id)
-                    ->orWhere('user_id', $user->id);
-            });
+            // Admin hanya lihat transaksi di gudang yang dia pegang
+            if ($user->gudang_id) {
+                $query->where('gudang_id', $user->gudang_id);
+            } else {
+                // Jika admin tidak punya gudang, tidak bisa lihat apapun
+                return view('penjualan.index', [
+                    'penjualans' => collect(),
+                    'totalBelumDibayar' => 0,
+                    'totalTelatDibayar' => 0,
+                    'pelunasan30Hari' => 0,
+                    'totalCanceled' => 0,
+                ]);
+            }
         } else {
             $query->where('user_id', $user->id);
         }
@@ -98,9 +107,8 @@ class PenjualanController extends Controller
 
         $gudangs = Gudang::all();
         $kontaks = Kontak::all();
-        $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
 
-        return view('penjualan.create', compact('produks', 'gudangs', 'kontaks', 'approvers', 'gudangProduks'));
+        return view('penjualan.create', compact('produks', 'gudangs', 'kontaks', 'gudangProduks'));
     }
 
     public function store(Request $request)
@@ -109,7 +117,6 @@ class PenjualanController extends Controller
             'pelanggan' => 'required|string',
             'tgl_transaksi' => 'required|date',
             'syarat_pembayaran' => 'required|string',
-            'approver_id' => 'required|exists:users,id',
             'gudang_id' => 'required|exists:gudangs,id',
             'tax_percentage' => 'required|numeric|min:0',
             'diskon_akhir' => 'nullable|numeric|min:0',
@@ -168,14 +175,15 @@ class PenjualanController extends Controller
         $term = $request->syarat_pembayaran;
         $isCash = ($term == 'Cash');
 
+        // Semua transaksi memerlukan approval terlebih dahulu
+        $statusAwal = 'Pending';
+
         if ($isCash) {
-            // Cash = langsung lunas, tidak perlu jatuh tempo
+            // Cash = tidak perlu jatuh tempo, tapi tetap pending approval
             $tglJatuhTempo = null;
-            $statusAwal = 'Lunas';
         } else {
-            // Kredit = perlu approval, hitung jatuh tempo
+            // Kredit = hitung jatuh tempo
             $tglJatuhTempo = Carbon::parse($request->tgl_transaksi);
-            $statusAwal = 'Pending';
 
             if ($term == 'Net 7')
                 $tglJatuhTempo->addDays(7);
@@ -215,7 +223,7 @@ class PenjualanController extends Controller
             $penjualanInduk = Penjualan::create([
                 'user_id' => Auth::id(),
                 'status' => $statusAwal,
-                'approver_id' => $request->approver_id,
+                'approver_id' => null, // Will be set when approved
                 'no_urut_harian' => $noUrut,
                 'nomor' => $nomor,
                 'gudang_id' => $request->gudang_id,
@@ -295,7 +303,6 @@ class PenjualanController extends Controller
 
         $gudangs = Gudang::all();
         $kontaks = Kontak::all();
-        $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
 
         $penjualan->load('items');
 
@@ -303,7 +310,7 @@ class PenjualanController extends Controller
         $noUrutPadded = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $penjualan->custom_number = "INV-{$dateCode}-{$penjualan->user_id}-{$noUrutPadded}";
 
-        return view('penjualan.edit', compact('penjualan', 'produks', 'gudangs', 'kontaks', 'approvers'));
+        return view('penjualan.edit', compact('penjualan', 'produks', 'gudangs', 'kontaks'));
     }
 
     public function update(Request $request, Penjualan $penjualan)
@@ -323,7 +330,6 @@ class PenjualanController extends Controller
             'pelanggan' => 'required|string',
             'tgl_transaksi' => 'required|date',
             'syarat_pembayaran' => 'required|string',
-            'approver_id' => 'required|exists:users,id',
             'gudang_id' => 'required|exists:gudangs,id',
             'diskon_akhir' => 'nullable|numeric|min:0',
             'tax_percentage' => 'required|numeric|min:0',
@@ -426,7 +432,6 @@ class PenjualanController extends Controller
         try {
             $penjualan->update([
                 'status' => $statusBaru,
-                'approver_id' => $request->approver_id,
                 'gudang_id' => $request->gudang_id,
                 'pelanggan' => $request->pelanggan,
                 'email' => $request->email,
@@ -484,8 +489,13 @@ class PenjualanController extends Controller
         $user = Auth::user();
         if ($user->role == 'user')
             return back()->with('error', 'Akses ditolak.');
-        if ($user->role == 'admin' && $penjualan->approver_id != $user->id)
-            return back()->with('error', 'Bukan wewenang Anda.');
+
+        // Admin hanya bisa approve di gudang yang dia pegang
+        if ($user->role == 'admin') {
+            if (!$user->gudang_id || $user->gudang_id != $penjualan->gudang_id) {
+                return back()->with('error', 'Anda hanya bisa approve di gudang yang Anda pegang.');
+            }
+        }
 
         $gudangId = $penjualan->gudang_id;
         if (!$gudangId)
@@ -509,7 +519,15 @@ class PenjualanController extends Controller
                 $stok->decrement('stok', $item->kuantitas);
             }
 
-            $penjualan->status = 'Approved';
+            // Set approver_id ke user yang sedang approve
+            $penjualan->approver_id = $user->id;
+
+            // Jika cash, langsung set status Lunas, jika tidak cash set ke Approved
+            if ($penjualan->syarat_pembayaran == 'Cash') {
+                $penjualan->status = 'Lunas';
+            } else {
+                $penjualan->status = 'Approved';
+            }
             $penjualan->save();
 
             DB::commit();
@@ -522,9 +540,7 @@ class PenjualanController extends Controller
             return redirect()->route('penjualan.index')
                 ->with('error', 'Error: ' . $e->getMessage());
         }
-    }
-
-    public function cancel(Penjualan $penjualan)
+    }    public function cancel(Penjualan $penjualan)
     {
         $user = Auth::user();
         if (!in_array($user->role, ['admin', 'super_admin'])) {

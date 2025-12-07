@@ -55,6 +55,18 @@ class Penjualan extends Model
     }
 
     /**
+     * Accessor untuk status display di invoice
+     * Jika cash maka tampil "Lunas", sebaliknya tampil status asli
+     */
+    public function getStatusDisplayAttribute()
+    {
+        if ($this->syarat_pembayaran === 'Cash') {
+            return 'Lunas';
+        }
+        return $this->status;
+    }
+
+    /**
      * Accessor untuk custom_number
      * Gunakan nomor dari DB jika ada, atau generate
      */

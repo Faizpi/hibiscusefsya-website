@@ -150,20 +150,6 @@
                             @endif
                             @error('gudang_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
-
-                        {{-- APPROVER --}}
-                        <div class="form-group">
-                            <label for="approver_id">Ajukan Kepada (Approver) *</label>
-                            <select class="form-control @error('approver_id') is-invalid @enderror" id="approver_id" name="approver_id" required>
-                                <option value="">Pilih Atasan...</option>
-                                @foreach($approvers as $approver)
-                                    <option value="{{ $approver->id }}" {{ old('approver_id') == $approver->id ? 'selected' : '' }}>
-                                        {{ $approver->name }} ({{ ucfirst($approver->role) }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('approver_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
                     </div>
                 </div>
 

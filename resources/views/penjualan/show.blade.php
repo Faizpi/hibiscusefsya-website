@@ -115,8 +115,8 @@
                             <tr>
                                 <td style="width: 30%;"><strong>Status</strong></td>
                                 <td>:
-                                    @if($penjualan->status == 'Approved') <span class="badge badge-info">Belum Bayar</span>
-                                    @elseif($penjualan->status == 'Lunas') <span class="badge badge-success">Lunas</span>
+                                    @if($penjualan->status_display == 'Lunas') <span class="badge badge-success">Lunas</span>
+                                    @elseif($penjualan->status == 'Approved') <span class="badge badge-info">Belum Bayar</span>
                                     @elseif($penjualan->status == 'Pending') <span
                                         class="badge badge-warning">Pending</span>
                                     @elseif($penjualan->status == 'Canceled') <span

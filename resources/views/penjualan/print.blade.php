@@ -210,7 +210,7 @@
         <tr>
             <td class="label">Status</td>
             <td class="colon">:</td>
-            <td class="value">{{ $penjualan->status }}</td>
+            <td class="value">{{ $penjualan->status_display }}</td>
         </tr>
     </table>
 

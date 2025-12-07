@@ -116,14 +116,6 @@
                                     <input type="hidden" name="gudang_id" value="{{ $penjualan->gudang_id }}">
                                 @endif
                             </div>
-
-                            <div class="form-group">
-                                <label>Approver (Admin) *</label>
-                                <select class="form-control" name="approver_id" required>
-                                    @foreach($approvers as $a) <option value="{{ $a->id }}" {{ old('approver_id', $penjualan->approver_id) == $a->id ? 'selected' : '' }}>{{ $a->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
                         </div>
                     </div>
 

@@ -191,7 +191,7 @@
         <tr>
             <td class="label">Status</td>
             <td class="colon">:</td>
-            <td class="value">{{ $pembelian->status }}</td>
+            <td class="value">{{ $pembelian->status_display }}</td>
         </tr>
     </table>
 

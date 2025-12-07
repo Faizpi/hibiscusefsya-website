@@ -24,10 +24,19 @@ class PembelianController extends Controller
 
         if ($user->role == 'super_admin') {
         } elseif ($user->role == 'admin') {
-            $query->where(function ($q) use ($user) {
-                $q->where('approver_id', $user->id)
-                    ->orWhere('user_id', $user->id);
-            });
+            // Admin hanya lihat transaksi di gudang yang dia pegang
+            if ($user->gudang_id) {
+                $query->where('gudang_id', $user->gudang_id);
+            } else {
+                // Jika admin tidak punya gudang, tidak bisa lihat apapun
+                return view('pembelian.index', [
+                    'pembelians' => collect(),
+                    'fakturPending' => 0,
+                    'fakturBelumDibayar' => 0,
+                    'fakturCanceled' => 0,
+                    'fakturTelatBayar' => 0,
+                ]);
+            }
         } else {
             $query->where('user_id', $user->id);
         }
@@ -90,9 +99,8 @@ class PembelianController extends Controller
         }
 
         $gudangs = Gudang::all();
-        $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
 
-        return view('pembelian.create', compact('produks', 'gudangs', 'approvers', 'gudangProduks'));
+        return view('pembelian.create', compact('produks', 'gudangs', 'gudangProduks'));
     }
 
     public function store(Request $request)
@@ -102,7 +110,6 @@ class PembelianController extends Controller
         }
 
         $request->validate([
-            'approver_id' => 'required|exists:users,id',
             'tgl_transaksi' => 'required|date',
             'syarat_pembayaran' => 'required|string',
             'urgensi' => 'required|string',
@@ -140,14 +147,15 @@ class PembelianController extends Controller
         $term = $request->syarat_pembayaran;
         $isCash = ($term == 'Cash');
 
+        // Semua transaksi memerlukan approval terlebih dahulu
+        $statusAwal = 'Pending';
+
         if ($isCash) {
-            // Cash = langsung lunas, tidak perlu jatuh tempo
+            // Cash = tidak perlu jatuh tempo, tapi tetap pending approval
             $tglJatuhTempo = null;
-            $statusAwal = 'Lunas';
         } else {
-            // Kredit = perlu approval, hitung jatuh tempo
+            // Kredit = hitung jatuh tempo
             $tglJatuhTempo = Carbon::parse($request->tgl_transaksi);
-            $statusAwal = 'Pending';
 
             if ($term == 'Net 7')
                 $tglJatuhTempo->addDays(7);
@@ -185,12 +193,10 @@ class PembelianController extends Controller
             $pembelianInduk = Pembelian::create([
                 'user_id' => Auth::id(),
                 'status' => $statusAwal,
-                'approver_id' => $request->approver_id,
+                'approver_id' => null, // Will be set when approved
                 'no_urut_harian' => $noUrut,
                 'nomor' => $nomor,
                 'gudang_id' => $request->gudang_id,
-                'staf_penyetuju' => $namaStaf,
-                'email_penyetuju' => $emailStaf,
                 'tgl_transaksi' => $request->tgl_transaksi,
                 'tgl_jatuh_tempo' => $tglJatuhTempo,
                 'syarat_pembayaran' => $request->syarat_pembayaran,
@@ -259,7 +265,6 @@ class PembelianController extends Controller
         }
 
         $gudangs = Gudang::all();
-        $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
         $kontaks = Kontak::all();
         $pembelian->load('items');
 
@@ -267,7 +272,7 @@ class PembelianController extends Controller
         $noUrutPadded = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $pembelian->custom_number = "PR-{$dateCode}-{$pembelian->user_id}-{$noUrutPadded}";
 
-        return view('pembelian.edit', compact('pembelian', 'produks', 'gudangs', 'approvers', 'kontaks'));
+        return view('pembelian.edit', compact('pembelian', 'produks', 'gudangs', 'kontaks'));
     }
 
     public function update(Request $request, Pembelian $pembelian)
@@ -284,7 +289,6 @@ class PembelianController extends Controller
             return redirect()->route('pembelian.index')->with('error', 'Akses ditolak.');
 
         $request->validate([
-            'approver_id' => 'required|exists:users,id',
             'tgl_transaksi' => 'required|date',
             'syarat_pembayaran' => 'required|string',
             'urgensi' => 'required|string',
@@ -297,10 +301,6 @@ class PembelianController extends Controller
             'kuantitas.*' => 'required|numeric|min:1',
             'harga_satuan.*' => 'required|numeric|min:0',
         ]);
-
-        $adminUser = User::findOrFail($request->approver_id);
-        $namaStaf = $adminUser->name;
-        $emailStaf = $adminUser->email;
 
         $path = $pembelian->lampiran_path;
         $publicFolder = public_path('storage/lampiran_pembelian');
@@ -358,10 +358,7 @@ class PembelianController extends Controller
         try {
             $pembelian->update([
                 'status' => $statusBaru,
-                'approver_id' => $request->approver_id,
                 'gudang_id' => $request->gudang_id,
-                'staf_penyetuju' => $namaStaf,
-                'email_penyetuju' => $emailStaf,
                 'tgl_transaksi' => $request->tgl_transaksi,
                 'tgl_jatuh_tempo' => $tglJatuhTempo,
                 'syarat_pembayaran' => $request->syarat_pembayaran,
@@ -412,8 +409,13 @@ class PembelianController extends Controller
         $user = Auth::user();
         if ($user->role == 'user')
             return back()->with('error', 'Akses ditolak.');
-        if ($user->role == 'admin' && $pembelian->approver_id != $user->id)
-            return back()->with('error', 'Bukan wewenang Anda.');
+
+        // Admin hanya bisa approve di gudang yang dia pegang
+        if ($user->role == 'admin') {
+            if (!$user->gudang_id || $user->gudang_id != $pembelian->gudang_id) {
+                return back()->with('error', 'Anda hanya bisa approve di gudang yang Anda pegang.');
+            }
+        }
 
         DB::beginTransaction();
         try {
@@ -434,7 +436,16 @@ class PembelianController extends Controller
                     ]);
                 }
             }
-            $pembelian->status = 'Approved';
+            
+            // Set approver_id ke user yang sedang approve
+            $pembelian->approver_id = $user->id;
+
+            // Jika cash, langsung set status Lunas, jika tidak cash set ke Approved
+            if ($pembelian->syarat_pembayaran == 'Cash') {
+                $pembelian->status = 'Lunas';
+            } else {
+                $pembelian->status = 'Approved';
+            }
             $pembelian->save();
             DB::commit();
             return back()->with('success', 'Disetujui. Stok ditambahkan.');

@@ -27,53 +27,67 @@ class DashboardController extends Controller
         $userId = Auth::id();
         $user = Auth::user();
 
-        // Inisialisasi query berdasarkan role
+        // Inisialisasi query berdasarkan role (EXCLUDE Canceled status)
         if ($role == 'super_admin') {
-            $penjualanQuery = Penjualan::query();
-            $pembelianQuery = Pembelian::query();
-            $biayaQuery = Biaya::query();
+            $penjualanQuery = Penjualan::where('status', '!=', 'Canceled');
+            $pembelianQuery = Pembelian::where('status', '!=', 'Canceled');
+            $biayaQuery = Biaya::where('status', '!=', 'Canceled');
 
             $data['card_4_title'] = 'Jumlah User Terdaftar';
             $data['card_4_value'] = User::count();
             $data['card_4_icon'] = 'fa-users';
 
-            // Statistik tambahan
+            // Statistik tambahan (exclude Canceled)
             $data['totalProduk'] = Produk::count();
-            $data['totalTransaksi'] = Penjualan::count() + Pembelian::count() + Biaya::count();
+            $data['totalTransaksi'] = Penjualan::where('status', '!=', 'Canceled')->count() 
+                + Pembelian::where('status', '!=', 'Canceled')->count() 
+                + Biaya::where('status', '!=', 'Canceled')->count();
 
-            // Ambil semua transaksi untuk tabel
-            $penjualans = Penjualan::with('user')->get();
-            $pembelians = Pembelian::with('user')->get();
-            $biayas = Biaya::with('user')->get();
+            // Ambil semua transaksi untuk tabel (exclude Canceled)
+            $penjualans = Penjualan::with('user')->where('status', '!=', 'Canceled')->get();
+            $pembelians = Pembelian::with('user')->where('status', '!=', 'Canceled')->get();
+            $biayas = Biaya::with('user')->where('status', '!=', 'Canceled')->get();
 
         } elseif ($role == 'admin') {
-            $penjualanQuery = Penjualan::where('approver_id', $userId);
-            $pembelianQuery = Pembelian::where('approver_id', $userId);
-            $biayaQuery = Biaya::where('approver_id', $userId);
+            // Admin lihat data sesuai gudang yang dia pegang
+            $user = Auth::user();
+            if ($user->gudang_id) {
+                $penjualanQuery = Penjualan::where('gudang_id', $user->gudang_id)->where('status', '!=', 'Canceled');
+                $pembelianQuery = Pembelian::where('gudang_id', $user->gudang_id)->where('status', '!=', 'Canceled');
+                $biayaQuery = Biaya::where('status', '!=', 'Canceled'); // Biaya tidak punya gudang
 
-            $pendingCount = Penjualan::where('approver_id', $userId)->where('status', 'Pending')->count()
-                + Pembelian::where('approver_id', $userId)->where('status', 'Pending')->count()
-                + Biaya::where('approver_id', $userId)->where('status', 'Pending')->count();
+                $pendingCount = Penjualan::where('gudang_id', $user->gudang_id)->where('status', 'Pending')->count()
+                    + Pembelian::where('gudang_id', $user->gudang_id)->where('status', 'Pending')->count()
+                    + Biaya::where('status', 'Pending')->count();
 
-            $data['card_4_title'] = 'Menunggu Approval Anda';
-            $data['card_4_value'] = $pendingCount;
-            $data['card_4_icon'] = 'fa-clock';
+                $data['card_4_title'] = 'Menunggu Approval Anda';
+                $data['card_4_value'] = $pendingCount;
+                $data['card_4_icon'] = 'fa-clock';
 
-            // Statistik tambahan untuk admin
-            $data['totalProduk'] = Produk::count();
-            $data['totalTransaksi'] = Penjualan::where('approver_id', $userId)->count()
-                + Pembelian::where('approver_id', $userId)->count()
-                + Biaya::where('approver_id', $userId)->count();
+                // Statistik tambahan untuk admin (exclude Canceled)
+                $data['totalProduk'] = Produk::count();
+                $data['totalTransaksi'] = Penjualan::where('gudang_id', $user->gudang_id)->where('status', '!=', 'Canceled')->count()
+                    + Pembelian::where('gudang_id', $user->gudang_id)->where('status', '!=', 'Canceled')->count()
+                    + Biaya::where('status', '!=', 'Canceled')->count();
 
-            // Ambil transaksi yang dia sebagai approver
-            $penjualans = Penjualan::with('user')->where('approver_id', $userId)->get();
-            $pembelians = Pembelian::with('user')->where('approver_id', $userId)->get();
-            $biayas = Biaya::with('user')->where('approver_id', $userId)->get();
-
+                // Ambil transaksi di gudang (exclude Canceled)
+                $penjualans = Penjualan::with('user')->where('gudang_id', $user->gudang_id)->where('status', '!=', 'Canceled')->get();
+                $pembelians = Pembelian::with('user')->where('gudang_id', $user->gudang_id)->where('status', '!=', 'Canceled')->get();
+                $biayas = Biaya::with('user')->where('status', '!=', 'Canceled')->get();
+            } else {
+                // Admin tanpa gudang tidak bisa melihat apapun
+                return view('dashboard', [
+                    'card_4_title' => 'Belum Ditugaskan ke Gudang',
+                    'card_4_value' => 0,
+                    'card_4_icon' => 'fa-exclamation',
+                    'totalProduk' => 0,
+                    'totalTransaksi' => 0,
+                ]);
+            }
         } else {
-            $penjualanQuery = Penjualan::where('user_id', $userId);
-            $pembelianQuery = Pembelian::where('user_id', $userId);
-            $biayaQuery = Biaya::where('user_id', $userId);
+            $penjualanQuery = Penjualan::where('user_id', $userId)->where('status', '!=', 'Canceled');
+            $pembelianQuery = Pembelian::where('user_id', $userId)->where('status', '!=', 'Canceled');
+            $biayaQuery = Biaya::where('user_id', $userId)->where('status', '!=', 'Canceled');
 
             $pendingCount = (clone $penjualanQuery)->where('status', 'Pending')->count()
                 + (clone $pembelianQuery)->where('status', 'Pending')->count()

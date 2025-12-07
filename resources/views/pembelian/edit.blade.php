@@ -29,34 +29,7 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div class="row">
-                            {{-- 1. APPROVER (ADMIN) --}}
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="approver_id">Staf Penyetuju (Admin) *</label>
-                                    <select class="form-control @error('approver_id') is-invalid @enderror" id="approver_id" name="approver_id" required>
-                                        <option value="">Pilih Atasan...</option>
-                                        @foreach($approvers as $admin)
-                                            <option value="{{ $admin->id }}" 
-                                                    data-email="{{ $admin->email }}"
-                                                    {{ old('approver_id', $pembelian->approver_id) == $admin->id ? 'selected' : '' }}>
-                                                {{ $admin->name }} ({{ ucfirst($admin->role) }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('approver_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
-                            
-                            {{-- 2. EMAIL (AUTOFILL) --}}
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="email_penyetuju">Email Penyetuju</label>
-                                    <input type="email" class="form-control @error('email_penyetuju') is-invalid @enderror" id="email_penyetuju" name="email_penyetuju" value="{{ old('email_penyetuju', $pembelian->email_penyetuju) }}" readonly>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="tgl_transaksi">Tgl. Transaksi *</label>
                                     <input type="date" class="form-control @error('tgl_transaksi') is-invalid @enderror" id="tgl_transaksi" name="tgl_transaksi" value="{{ old('tgl_transaksi', $pembelian->tgl_transaksi->format('Y-m-d')) }}" required>
@@ -284,21 +257,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Product Options HTML for mobile cards
     const productOptionsHtml = `@foreach($produks as $produk)<option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-deskripsi="{{ $produk->deskripsi }}">{{ $produk->nama_produk }}</option>@endforeach`;
-
-    // 1. AUTOFILL APPROVER
-    const approverSelect = document.getElementById('approver_id');
-    const emailInput = document.getElementById('email_penyetuju');
-    
-    if(approverSelect){
-        approverSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            emailInput.value = selectedOption.dataset.email || '';
-        });
-        if(approverSelect.value) {
-            const selectedOption = approverSelect.options[approverSelect.selectedIndex];
-            emailInput.value = selectedOption.dataset.email || '';
-        }
-    }
 
     // --- JATUH TEMPO AUTO ---
     function updateDueDate() {

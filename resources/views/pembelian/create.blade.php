@@ -49,30 +49,6 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div class="row">
-                            {{-- 1. APPROVER (ADMIN) --}}
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="approver_id">Staf Penyetuju (Admin) *</label>
-                                    <select class="form-control @error('approver_id') is-invalid @enderror" id="approver_id" name="approver_id" required>
-                                        <option value="">Pilih Atasan...</option>
-                                        @foreach($approvers as $admin)
-                                            <option value="{{ $admin->id }}" 
-                                                    data-email="{{ $admin->email }}"
-                                                    {{ old('approver_id') == $admin->id ? 'selected' : '' }}>
-                                                {{ $admin->name }} ({{ ucfirst($admin->role) }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('approver_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
-                            
-                            {{-- 2. EMAIL (AUTOFILL) --}}
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="email_penyetuju">Email Penyetuju</label>
-                                    <input type="email" class="form-control @error('email_penyetuju') is-invalid @enderror" id="email_penyetuju" name="email_penyetuju" value="{{ old('email_penyetuju') }}" readonly>
-                                </div>
                             </div>
                         </div>
                         
@@ -328,22 +304,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // 1. AUTOFILL APPROVER
-    const approverSelect = document.getElementById('approver_id');
-    const emailInput = document.getElementById('email_penyetuju');
-    
-    if(approverSelect){
-        approverSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            emailInput.value = selectedOption.dataset.email || '';
-        });
-        if(approverSelect.value) {
-            const selectedOption = approverSelect.options[approverSelect.selectedIndex];
-            emailInput.value = selectedOption.dataset.email || '';
-        }
-    }
-
-    // 2. JATUH TEMPO
+    // JATUH TEMPO
     function updateDueDate() {
         let tgl = document.getElementById('tgl_transaksi').value;
         let term = document.getElementById('syarat_pembayaran').value;

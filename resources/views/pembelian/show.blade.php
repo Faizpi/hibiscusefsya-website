@@ -103,7 +103,8 @@
                             <tr>
                                 <td><strong>Status</strong></td>
                                 <td>:
-                                    @if($pembelian->status == 'Approved') <span class="badge badge-success">Approved</span>
+                                    @if($pembelian->status_display == 'Lunas') <span class="badge badge-success">Lunas</span>
+                                    @elseif($pembelian->status == 'Approved') <span class="badge badge-info">Approved</span>
                                     @elseif($pembelian->status == 'Pending') <span
                                         class="badge badge-warning">Pending</span>
                                     @elseif($pembelian->status == 'Canceled') <span
