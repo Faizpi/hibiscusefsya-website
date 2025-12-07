@@ -100,42 +100,4 @@ class StokExport implements FromView, WithTitle, ShouldAutoSize, WithStyles
         return [];
     }
 }
-    {
-        // Auto width columns
-        $sheet->getColumnDimension('A')->setWidth(6);
-        $sheet->getColumnDimension('B')->setWidth(30);
-        $sheet->getColumnDimension('C')->setWidth(15);
-        $sheet->getColumnDimension('D')->setWidth(15);
-
-        // Merge title and date rows for cleaner look
-        $sheet->mergeCells('A1:D1');
-        $sheet->mergeCells('A2:D2');
-
-        // Freeze header so scroll keeps titles visible
-        $sheet->freezePane('A5');
-
-        // Style header title (row 1)
-        $sheet->getStyle('A1:D1')->applyFromArray([
-            'font' => ['bold' => true, 'size' => 13, 'color' => ['rgb' => 'FFFFFF']],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
-        ]);
-        $sheet->getRowDimension(1)->setRowHeight(24);
-
-        // Style date row (row 2)
-        $sheet->getStyle('A2:D2')->applyFromArray([
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E7E6E6']],
-            'font' => ['bold' => true],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
-        ]);
-        $sheet->getRowDimension(2)->setRowHeight(18);
-
-        // Total row styling
-        $sheet->getStyle('A' . $lastRow . ':D' . $lastRow)->applyFromArray([
-            'font' => ['bold' => true],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F4B084']],
-        ]);
-
-        return [];
-    }
-}
+    
