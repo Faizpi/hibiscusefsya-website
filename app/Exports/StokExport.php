@@ -86,7 +86,7 @@ class StokExport implements FromArray, WithStyles
         ]);
 
         // Align kolom angka + zebra striping untuk keterbacaan
-         if ($lastDataRow >= $firstDataRow) {
+        if ($lastDataRow >= $firstDataRow) {
             $sheet->getStyle('A' . $firstDataRow . ':A' . $lastDataRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('D' . $firstDataRow . ':D' . $lastDataRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
