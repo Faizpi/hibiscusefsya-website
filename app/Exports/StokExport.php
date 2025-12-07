@@ -93,19 +93,15 @@ class StokExport implements FromArray, WithStyles
             // Number format ribuan
             $sheet->getStyle('D' . $firstDataRow . ':D' . $lastDataRow)->getNumberFormat()->setFormatCode('#,##0');
 
-            // Zebra striping - alternate row colors
+            // Zebra striping - alternate row colors (mulai dari putih)
             for ($r = $firstDataRow; $r <= $lastDataRow; $r++) {
-                if (($r - $firstDataRow) % 2 == 0) {
-                    // Baris genap (1st, 3rd, 5th data row) - putih
+                if (($r - $firstDataRow) % 2 == 1) {
+                    // Baris ganjil (2nd, 4th, 6th data row) - light gray
                     $sheet->getStyle('A' . $r . ':D' . $r)->applyFromArray([
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFFFFF']],
-                    ]);
-                } else {
-                    // Baris ganjil (2nd, 4th, 6th data row) - light blue
-                    $sheet->getStyle('A' . $r . ':D' . $r)->applyFromArray([
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F0F5FF']],
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F2F2F2']],
                     ]);
                 }
+                // Baris genap tetap putih (default, tidak perlu di-set)
             }
         }
         // Total row align
