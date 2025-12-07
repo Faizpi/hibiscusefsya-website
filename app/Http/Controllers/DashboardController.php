@@ -248,6 +248,16 @@ class DashboardController extends Controller
             $data['gudangPenjualan'] = $gudangPenjualan;
             $data['gudangPembelian'] = $gudangPembelian;
             $data['gudangs'] = $gudangs; // Untuk dropdown export
+        } elseif ($role == 'admin') {
+            // Admin hanya bisa export data dari gudang yang dia akses (current_gudang_id)
+            $currentGudang = $user->getCurrentGudang();
+            if ($currentGudang) {
+                $data['gudangs'] = collect([$currentGudang]); // Hanya gudang yang sedang aktif
+            } else {
+                $data['gudangs'] = collect([]); // Tidak ada gudang
+            }
+        } else {
+            $data['gudangs'] = collect([]); // User biasa tidak perlu filter gudang
         }
         // ==================== END CHART DATA ====================
 

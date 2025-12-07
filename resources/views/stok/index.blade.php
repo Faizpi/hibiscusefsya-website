@@ -61,8 +61,11 @@
             {{-- Kolom daftar stok: full width untuk Admin, 8 kolom untuk Super Admin --}}
             <div class="{{ auth()->user()->role == 'super_admin' ? 'col-lg-8' : 'col-lg-12' }}">
                 <div class="card shadow mb-4">
-                    <div class="card-header py-3">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">Daftar Stok per Gudang</h6>
+                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#exportStokModal">
+                            <i class="fas fa-download mr-1"></i> Export Excel
+                        </button>
                     </div>
                     <div class="card-body">
                         {{-- Wrapper untuk accordion --}}
@@ -126,6 +129,46 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Export Stok -->
+    <div class="modal fade" id="exportStokModal" tabindex="-1" role="dialog" aria-labelledby="exportStokModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportStokModalLabel">
+                        <i class="fas fa-file-excel text-success mr-2"></i>Export Stok Barang
+                    </h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form action="{{ route('stok.export') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="export_gudang_id"><strong>Pilih Gudang</strong></label>
+                            <select class="form-control" name="gudang_id" id="export_gudang_id" required>
+                                <option value="">-- Pilih Gudang --</option>
+                                @foreach($gudangs as $gudang)
+                                    <option value="{{ $gudang->id }}">{{ $gudang->nama_gudang }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="alert alert-info small">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Excel file akan berisi daftar lengkap stok barang untuk gudang yang dipilih.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-download mr-1"></i> Export ke Excel
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

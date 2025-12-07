@@ -7,6 +7,7 @@ use App\Produk;
 use App\GudangProduk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StokController extends Controller
 {
@@ -42,5 +43,57 @@ class StokController extends Controller
         );
 
         return redirect()->route('stok.index')->with('success', 'Stok berhasil diperbarui.');
+    }
+
+    public function exportStok(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Validasi request
+        $request->validate([
+            'gudang_id' => 'required|exists:gudangs,id',
+        ]);
+
+        $gudang = Gudang::findOrFail($request->gudang_id);
+
+        // Cek authorization
+        if ($user->role == 'admin' && !$user->canAccessGudang($gudang->id)) {
+            return redirect()->route('stok.index')->with('error', 'Anda tidak memiliki akses ke gudang ini.');
+        }
+
+        // Ambil data stok
+        $stokData = GudangProduk::where('gudang_id', $gudang->id)
+            ->with('produk')
+            ->get();
+
+        // Siapkan data untuk export
+        $exportData = [];
+        $exportData[] = ['LAPORAN STOK BARANG - ' . strtoupper($gudang->nama_gudang), '', '', ''];
+        $exportData[] = ['Tanggal Export:', date('d-m-Y H:i:s'), '', ''];
+        $exportData[] = [];
+        $exportData[] = ['No', 'Produk', 'Item Code', 'Jumlah Stok'];
+
+        $no = 1;
+        $totalStok = 0;
+        foreach ($stokData as $item) {
+            if ($item->produk) {
+                $exportData[] = [
+                    $no++,
+                    $item->produk->nama_produk,
+                    $item->produk->item_code,
+                    $item->stok
+                ];
+                $totalStok += $item->stok;
+            }
+        }
+
+        $exportData[] = [];
+        $exportData[] = ['TOTAL', '', '', $totalStok];
+
+        // Generate file name
+        $fileName = 'Stok_' . str_replace(' ', '_', $gudang->nama_gudang) . '_' . date('Y-m-d_His') . '.xlsx';
+
+        // Export menggunakan library Excel
+        return Excel::download(new \App\Exports\StokExport($exportData), $fileName);
     }
 }
