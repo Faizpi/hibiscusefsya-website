@@ -106,7 +106,10 @@ class PembelianController extends Controller
 
     public function store(Request $request)
     {
+        \Log::info('PembelianController@store - START', ['user_id' => Auth::id(), 'request_data' => $request->all()]);
+        
         if (Auth::user()->role == 'user' && !Auth::user()->gudang_id) {
+            \Log::warning('PembelianController@store - User tanpa gudang', ['user_id' => Auth::id()]);
             return back()->with('error', 'Gagal: Akun Anda belum terhubung ke Gudang manapun. Hubungi Super Admin.')->withInput();
         }
 
@@ -261,6 +264,7 @@ class PembelianController extends Controller
             return redirect()->back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage())->withInput();
         }
 
+        \Log::info('PembelianController@store - SUCCESS', ['pembelian_id' => $pembelianInduk->id]);
         return redirect()->route('pembelian.index')->with('success', 'Permintaan pembelian berhasil diajukan.');
     }
 
