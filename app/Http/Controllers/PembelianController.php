@@ -129,10 +129,6 @@ class PembelianController extends Controller
             'harga_satuan.*' => 'required|numeric|min:0',
         ]);
 
-        $adminUser = User::findOrFail($request->approver_id);
-        $namaStaf = $adminUser->name;
-        $emailStaf = $adminUser->email;
-
         $path = null;
         $publicFolder = public_path('storage/lampiran_pembelian');
         if (!File::exists($publicFolder)) {
@@ -261,6 +257,7 @@ class PembelianController extends Controller
             if ($path && File::exists(public_path('storage/' . $path))) {
                 File::delete(public_path('storage/' . $path));
             }
+            \Log::error('PembelianController@store - ERROR', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return redirect()->back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage())->withInput();
         }
 
