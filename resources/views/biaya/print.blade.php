@@ -181,7 +181,7 @@
         <tr>
             <td class="label">Disetujui</td>
             <td class="colon">:</td>
-            <td class="value">{{ $biaya->approver->name ?? '-' }}</td>
+            <td class="value">{{ $biaya->status == 'Pending' ? '-' : ($biaya->approver->name ?? '-') }}</td>
         </tr>
         <tr>
             <td class="label">Status</td>

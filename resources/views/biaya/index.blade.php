@@ -114,7 +114,7 @@
                                     </a>
                                 </td>
                                 <td>{{ $item->user->name }}</td>
-                                <td>{{ $item->approver->name ?? '-' }}</td>
+                                <td>{{ $item->status == 'Pending' ? '-' : ($item->approver->name ?? '-') }}</td>
                                 <td>{{ $item->penerima ?? '-' }}</td>
                                 <td class="text-right font-weight-bold">Rp {{ number_format($item->grand_total, 0, ',', '.') }}
                                 </td>
@@ -139,7 +139,15 @@
                                             </a>
 
                                             {{-- APPROVE --}}
-                                            @if(($role == 'super_admin' || ($role == 'admin' && $item->approver_id == auth()->id())) && $item->status == 'Pending')
+                                            @php
+                                                $canApprove = false;
+                                                if ($role == 'super_admin') {
+                                                    $canApprove = true;
+                                                } elseif ($role == 'admin' && auth()->user()->canAccessGudang($item->gudang_id)) {
+                                                    $canApprove = true;
+                                                }
+                                            @endphp
+                                            @if($canApprove && $item->status == 'Pending')
                                                 <form action="{{ route('biaya.approve', $item->id) }}" method="POST"
                                                     class="d-inline">
                                                     @csrf

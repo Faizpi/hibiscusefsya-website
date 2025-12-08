@@ -56,7 +56,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Approver</strong></td>
-                                <td>: {{ $biaya->approver->name ?? '-' }}</td>
+                                <td>: {{ $biaya->status == 'Pending' ? '-' : ($biaya->approver->name ?? '-') }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Penerima</strong></td>

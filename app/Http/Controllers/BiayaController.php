@@ -217,7 +217,7 @@ class BiayaController extends Controller
 
         if ($user->role == 'user')
             return back()->with('error', 'Akses ditolak.');
-        if ($user->role == 'admin' && $biaya->approver_id != $user->id)
+        if ($user->role == 'admin' && !$user->canAccessGudang($biaya->gudang_id))
             return back()->with('error', 'Bukan wewenang Anda.');
 
         $biaya->status = 'Approved';
