@@ -125,7 +125,7 @@
                                     </a>
                                 </td>
                                 <td>{{ $item->user->name }}</td>
-                                <td>{{ $item->approver->name ?? '-' }}</td>
+                                <td>{{ $item->status == 'Pending' ? '-' : ($item->approver->name ?? '-') }}</td>
                                 <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                                 <td class="text-right font-weight-bold">Rp {{ number_format($item->grand_total, 0, ',', '.') }}
                                 </td>
