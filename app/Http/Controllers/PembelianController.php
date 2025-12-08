@@ -261,7 +261,7 @@ class PembelianController extends Controller
             return redirect()->back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage())->withInput();
         }
 
-        return redirect()->route('pembelian.index')->with('success', 'Permintaan pembelian berhasil diajukan.');
+        return redirect('/pembelian')->with('success', 'Permintaan pembelian berhasil diajukan.');
     }
 
     public function edit(Pembelian $pembelian)
