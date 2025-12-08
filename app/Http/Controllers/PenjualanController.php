@@ -92,8 +92,18 @@ class PenjualanController extends Controller
                 $query->where('gudang_id', $user->gudang_id);
             })->get();
             $gudangProduks = null; // User tidak perlu data ini
+            $gudangs = Gudang::where('id', $user->gudang_id)->get();
+        } elseif ($user->role == 'admin' && $user->current_gudang_id) {
+            // Admin hanya lihat gudang yang ditugaskan
+            $gudangs = Gudang::where('id', $user->current_gudang_id)->get();
+            // Produk sesuai gudang admin
+            $produks = Produk::whereHas('stokDiGudang', function ($query) use ($user) {
+                $query->where('gudang_id', $user->current_gudang_id);
+            })->get();
+            $gudangProduks = null;
         } else {
-            // Admin & Super Admin bisa lihat semua produk
+            // Super Admin bisa lihat semua produk dan gudang
+            $gudangs = Gudang::all();
             $produks = Produk::all();
 
             // Siapkan data stok per gudang untuk filter dinamis
@@ -106,7 +116,6 @@ class PenjualanController extends Controller
                 });
         }
 
-        $gudangs = Gudang::all();
         $kontaks = Kontak::all();
 
         return view('penjualan.create', compact('produks', 'gudangs', 'kontaks', 'gudangProduks'));
