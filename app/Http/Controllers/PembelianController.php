@@ -191,6 +191,7 @@ class PembelianController extends Controller
         // Tentukan approver berdasarkan gudang (sama seperti penjualan)
         $user = Auth::user();
         $approverId = null;
+        $stafPenyetuju = null;
         
         if ($user->role == 'user') {
             // Sales: cari admin yang handle gudang yang dipilih
@@ -200,15 +201,22 @@ class PembelianController extends Controller
             
             if ($adminGudang) {
                 $approverId = $adminGudang->id;
+                $stafPenyetuju = $adminGudang->name;
             } else {
                 // Jika tidak ada admin gudang, ke super admin
                 $superAdmin = User::where('role', 'super_admin')->first();
-                $approverId = $superAdmin ? $superAdmin->id : null;
+                if ($superAdmin) {
+                    $approverId = $superAdmin->id;
+                    $stafPenyetuju = $superAdmin->name;
+                }
             }
         } elseif ($user->role == 'admin') {
             // Admin: ke super admin
             $superAdmin = User::where('role', 'super_admin')->first();
-            $approverId = $superAdmin ? $superAdmin->id : null;
+            if ($superAdmin) {
+                $approverId = $superAdmin->id;
+                $stafPenyetuju = $superAdmin->name;
+            }
         }
 
         DB::beginTransaction();
@@ -228,6 +236,7 @@ class PembelianController extends Controller
                 'tag' => $request->tag,
                 'koordinat' => $request->koordinat,
                 'memo' => $request->memo,
+                'staf_penyetuju' => $stafPenyetuju,
                 'lampiran_path' => $path,
                 'diskon_akhir' => $diskonAkhir,
                 'tax_percentage' => $pajakPersen,
