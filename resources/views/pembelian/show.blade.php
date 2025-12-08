@@ -55,11 +55,11 @@
                             </tr>
                             <tr>
                                 <td><strong>Staf Penyetuju</strong></td>
-                                <td>: {{ $pembelian->approver->name ?? '-' }}</td>
+                                <td>: {{ $pembelian->status == 'Pending' ? '-' : ($pembelian->approver->name ?? '-') }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Email Penyetuju</strong></td>
-                                <td>: {{ $pembelian->approver->email ?? '-' }}</td>
+                                <td>: {{ $pembelian->status == 'Pending' ? '-' : ($pembelian->approver->email ?? '-') }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Gudang</strong></td>

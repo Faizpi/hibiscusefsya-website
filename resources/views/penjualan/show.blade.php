@@ -98,7 +98,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Approver</strong></td>
-                                <td>: {{ $penjualan->approver->name ?? '-' }}</td>
+                                <td>: {{ $penjualan->status == 'Pending' ? '-' : ($penjualan->approver->name ?? '-') }}</td>
                             </tr>
                         </table>
                     </div>
