@@ -201,7 +201,7 @@
         <tr>
             <td class="label">Disetujui</td>
             <td class="colon">:</td>
-            <td class="value">{{ $penjualan->approver->name ?? '-' }}</td>
+            <td class="value">{{ $penjualan->status == 'Pending' ? '-' : ($penjualan->approver->name ?? '-') }}</td>
         </tr>
         <tr>
             <td class="label">Gudang</td>

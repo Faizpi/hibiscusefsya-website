@@ -181,7 +181,7 @@
         <tr>
             <td class="label">Disetujui</td>
             <td class="colon">:</td>
-            <td class="value">{{ $pembelian->approver->name ?? '-' }}</td>
+            <td class="value">{{ $pembelian->status == 'Pending' ? '-' : ($pembelian->approver->name ?? '-') }}</td>
         </tr>
         <tr>
             <td class="label">Gudang</td>
