@@ -26,6 +26,27 @@ class DashboardController extends Controller
         $perPage = 20;
         $userId = Auth::id();
         $user = Auth::user();
+        $selectedGudangId = $request->get('gudang_filter');
+        $availableGudangs = collect();
+        $currentGudang = null;
+
+        // Gudang yang dapat dipilih untuk filter chart
+        if ($role === 'super_admin') {
+            $availableGudangs = Gudang::all();
+
+            if ($selectedGudangId && !$availableGudangs->pluck('id')->contains((int) $selectedGudangId)) {
+                $selectedGudangId = null;
+            }
+        } elseif ($role === 'admin') {
+            $availableGudangs = $user->gudangs()->get();
+            $currentGudang = $user->getCurrentGudang();
+
+            if (!$selectedGudangId || !$user->canAccessGudang($selectedGudangId)) {
+                $selectedGudangId = $currentGudang ? $currentGudang->id : null;
+            }
+        } else {
+            $selectedGudangId = null;
+        }
 
         // Inisialisasi query berdasarkan role (EXCLUDE Canceled status)
         if ($role == 'super_admin') {
@@ -50,7 +71,6 @@ class DashboardController extends Controller
 
         } elseif ($role == 'admin') {
             // Admin lihat data sesuai gudang yang sedang aktif (current_gudang_id)
-            $currentGudang = $user->getCurrentGudang();
             if ($currentGudang) {
                 $penjualanQuery = Penjualan::where('gudang_id', $currentGudang->id)->where('status', '!=', 'Canceled');
                 $pembelianQuery = Pembelian::where('gudang_id', $currentGudang->id)->where('status', '!=', 'Canceled');
@@ -153,11 +173,17 @@ class DashboardController extends Controller
                 if ($role == 'super_admin') {
                     $chartPenjualan[] = Penjualan::whereYear('tgl_transaksi', $month->year)
                         ->whereMonth('tgl_transaksi', $month->month)
+                        ->when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                            return $q->where('gudang_id', $selectedGudangId);
+                        })
                         ->whereIn('status', ['Approved', 'Lunas'])
                         ->sum('grand_total');
 
                     $chartPembelian[] = Pembelian::whereYear('tgl_transaksi', $month->year)
                         ->whereMonth('tgl_transaksi', $month->month)
+                        ->when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                            return $q->where('gudang_id', $selectedGudangId);
+                        })
                         ->where('status', 'Approved')
                         ->sum('grand_total');
 
@@ -166,21 +192,25 @@ class DashboardController extends Controller
                         ->where('status', 'Approved')
                         ->sum('grand_total');
                 } else {
-                    // Admin: hanya yang dia sebagai approver
-                    $chartPenjualan[] = Penjualan::where('approver_id', $userId)
-                        ->whereYear('tgl_transaksi', $month->year)
-                        ->whereMonth('tgl_transaksi', $month->month)
-                        ->whereIn('status', ['Approved', 'Lunas'])
-                        ->sum('grand_total');
+                    // Admin: filter berdasarkan gudang yang diakses
+                    if ($selectedGudangId) {
+                        $chartPenjualan[] = Penjualan::whereYear('tgl_transaksi', $month->year)
+                            ->whereMonth('tgl_transaksi', $month->month)
+                            ->where('gudang_id', $selectedGudangId)
+                            ->whereIn('status', ['Approved', 'Lunas'])
+                            ->sum('grand_total');
 
-                    $chartPembelian[] = Pembelian::where('approver_id', $userId)
-                        ->whereYear('tgl_transaksi', $month->year)
-                        ->whereMonth('tgl_transaksi', $month->month)
-                        ->where('status', 'Approved')
-                        ->sum('grand_total');
+                        $chartPembelian[] = Pembelian::whereYear('tgl_transaksi', $month->year)
+                            ->whereMonth('tgl_transaksi', $month->month)
+                            ->where('gudang_id', $selectedGudangId)
+                            ->where('status', 'Approved')
+                            ->sum('grand_total');
+                    } else {
+                        $chartPenjualan[] = 0;
+                        $chartPembelian[] = 0;
+                    }
 
-                    $chartBiaya[] = Biaya::where('approver_id', $userId)
-                        ->whereYear('tgl_transaksi', $month->year)
+                    $chartBiaya[] = Biaya::whereYear('tgl_transaksi', $month->year)
                         ->whereMonth('tgl_transaksi', $month->month)
                         ->where('status', 'Approved')
                         ->sum('grand_total');
@@ -194,11 +224,17 @@ class DashboardController extends Controller
 
             // DOUGHNUT CHART: Status transaksi
             if ($role == 'super_admin') {
-                $allForStatus = Penjualan::all()->concat(Pembelian::all())->concat(Biaya::all());
+                $allForStatus = Penjualan::when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                    return $q->where('gudang_id', $selectedGudangId);
+                })->get()
+                    ->concat(Pembelian::when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                        return $q->where('gudang_id', $selectedGudangId);
+                    })->get())
+                    ->concat(Biaya::all());
             } else {
-                $allForStatus = Penjualan::where('approver_id', $userId)->get()
-                    ->concat(Pembelian::where('approver_id', $userId)->get())
-                    ->concat(Biaya::where('approver_id', $userId)->get());
+                $allForStatus = Penjualan::where('gudang_id', $selectedGudangId)->get()
+                    ->concat(Pembelian::where('gudang_id', $selectedGudangId)->get())
+                    ->concat(Biaya::all());
             }
 
             $data['statusPending'] = $allForStatus->where('status', 'Pending')->count();
@@ -206,7 +242,7 @@ class DashboardController extends Controller
             $data['statusCanceled'] = $allForStatus->where('status', 'Canceled')->count();
 
             // BAR CHART: Transaksi per Gudang (bulan ini)
-            $gudangs = Gudang::all();
+            $gudangs = $availableGudangs;
             $gudangLabels = [];
             $gudangPenjualan = [];
             $gudangPembelian = [];
@@ -227,16 +263,14 @@ class DashboardController extends Controller
                         ->where('status', 'Approved')
                         ->sum('grand_total');
                 } else {
-                    // Admin: hanya yang dia sebagai approver
+                    // Admin: gunakan akses gudang, bukan approver_id
                     $gudangPenjualan[] = Penjualan::where('gudang_id', $gudang->id)
-                        ->where('approver_id', $userId)
                         ->whereYear('tgl_transaksi', $now->year)
                         ->whereMonth('tgl_transaksi', $now->month)
                         ->whereIn('status', ['Approved', 'Lunas'])
                         ->sum('grand_total');
 
                     $gudangPembelian[] = Pembelian::where('gudang_id', $gudang->id)
-                        ->where('approver_id', $userId)
                         ->whereYear('tgl_transaksi', $now->year)
                         ->whereMonth('tgl_transaksi', $now->month)
                         ->where('status', 'Approved')
@@ -247,15 +281,7 @@ class DashboardController extends Controller
             $data['gudangLabels'] = $gudangLabels;
             $data['gudangPenjualan'] = $gudangPenjualan;
             $data['gudangPembelian'] = $gudangPembelian;
-            $data['gudangs'] = $gudangs; // Untuk dropdown export
-        } elseif ($role == 'admin') {
-            // Admin hanya bisa export data dari gudang yang dia akses (current_gudang_id)
-            $currentGudang = $user->getCurrentGudang();
-            if ($currentGudang) {
-                $data['gudangs'] = collect([$currentGudang]); // Hanya gudang yang sedang aktif
-            } else {
-                $data['gudangs'] = collect([]); // Tidak ada gudang
-            }
+            $data['gudangs'] = $gudangs; // Untuk dropdown export & filter chart
         } else {
             $data['gudangs'] = collect([]); // User biasa tidak perlu filter gudang
         }
@@ -310,6 +336,8 @@ class DashboardController extends Controller
             ->whereYear('tgl_transaksi', $now->year)
             ->whereMonth('tgl_transaksi', $now->month)
             ->sum('grand_total');
+
+        $data['selectedGudangId'] = $selectedGudangId;
 
         return view('dashboard', $data);
     }

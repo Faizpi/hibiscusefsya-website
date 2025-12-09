@@ -217,6 +217,24 @@
 
     {{-- CHARTS SECTION (untuk Super Admin & Admin) --}}
     @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
+        <div class="row">
+            <div class="col-12 mb-3">
+                <form class="form-inline" method="GET" action="{{ route('dashboard') }}">
+                    <label class="mr-2 mb-2" for="gudang_filter"><strong>Filter Gudang</strong></label>
+                    <select name="gudang_filter" id="gudang_filter" class="form-control mb-2 mr-2">
+                        @if(auth()->user()->role == 'super_admin')
+                            <option value="">Semua Gudang</option>
+                        @endif
+                        @foreach($gudangs as $gudang)
+                            <option value="{{ $gudang->id }}" {{ ($selectedGudangId ?? '') == $gudang->id ? 'selected' : '' }}>
+                                {{ $gudang->nama_gudang }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="btn btn-primary mb-2">Terapkan</button>
+                </form>
+            </div>
+        </div>
         <div class="row chart-row">
             {{-- Line Chart: Tren 6 Bulan --}}
             <div class="col-xl-8 col-lg-7 mb-4">
