@@ -80,6 +80,10 @@ class StokController extends Controller
         $fileName = 'Stok_' . str_replace(' ', '_', $gudang->nama_gudang) . '_' . date('Y-m-d_His') . '.xlsx';
 
         // Export menggunakan library Excel dengan FromView
-        return Excel::download(new \App\Exports\StokExport($gudang, $stokData), $fileName);
+        return Excel::download(
+            new \App\Exports\StokExport($gudang, $stokData),
+            $fileName,
+            \Maatwebsite\Excel\Excel::XLSX
+        );
     }
 }

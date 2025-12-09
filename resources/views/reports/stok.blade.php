@@ -27,14 +27,14 @@
                     <td style="text-align: center;">{{ $no++ }}</td>
                     <td>{{ $item->produk->nama_produk }}</td>
                     <td>{{ $item->produk->item_code }}</td>
-                    <td style="text-align: right;">{{ number_format($item->stok, 0, ',', ',') }}</td>
+                    <td style="text-align: right;">{{ number_format($item->stok, 0, ',', '.') }}</td>
                 </tr>
                 @php $totalStok += $item->stok; @endphp
             @endif
         @endforeach
         <tr style="background-color: #F4B084; font-weight: bold;">
             <td colspan="3" style="text-align: left;">TOTAL</td>
-            <td style="text-align: right;">{{ number_format($totalStok, 0, ',', ',') }}</td>
+            <td style="text-align: right;">{{ number_format($totalStok, 0, ',', '.') }}</td>
         </tr>
     </tbody>
 </table>
