@@ -197,31 +197,32 @@
 
     <div class="divider"></div>
 
-    @php $subtotal = 0; @endphp
+    @php $subtotal = $pembelian->items->sum('jumlah_baris'); @endphp
     @foreach($pembelian->items as $item)
-        @php 
-                        $totalRow = ($item->kuantitas * $item->harga_satuan) * (1 - ($item->diskon / 100));
-            $subtotal += $totalRow;
-        @endphp
         <div class="item-container">
             <div class="item-name">
                 {{ $item->produk->nama_produk }} ({{ $item->produk->item_code ?? '-' }})
+            </div>
 
-                        </div>
-
-
-
-                        <table class="details-table">
+            <table class="details-table">
                 <tr>
-                    <td class="lbl">Qty</td><
-                    td class="val">{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }}</td></tr>
-                <tr><td class="lbl">Harga</td><td class="val">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td></tr>
+                    <td class="lbl">Qty</td>
+                    <td class="val">{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }}</td>
+                </tr>
+                <tr>
+                    <td class="lbl">Harga</td>
+                    <td class="val">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                </tr>
                 @if($item->diskon > 0)
-
-
-                    <tr><td class="lbl">Disc</td><td class="val">{{ $item->diskon }}%</td></tr>
+                    <tr>
+                        <td class="lbl">Disc</td>
+                        <td class="val">{{ $item->diskon }}%</td>
+                    </tr>
                 @endif
-                <tr><td class="lbl" style="font-weight: bold;">Total</td><td class="val" style="font-weight: bold;">Rp {{ number_format($totalRow, 0, ',', '.') }}</td></tr>
+                <tr>
+                    <td class="lbl" style="font-weight: bold;">Jumlah</td>
+                    <td class="val" style="font-weight: bold;">Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
+                </tr>
             </table>
         </div>
     @endforeach
@@ -256,10 +257,8 @@
     </table>
 
     <div class="footer">
-
-                   <p>marketing@hibiscusefsya.com</p>
-       
- <p>-- Dokumen Internal --</p>
+        <p>marketing@hibiscusefsya.com</p>
+        <p>-- Dokumen Internal --</p>
         <button type="button" class="no-print" onclick="window.print()" style="margin-top:10px; padding:5px 10px;">Print Ulang</button>
     </div>
 </body>
