@@ -30,6 +30,7 @@ Route::middleware(['auth'])->group(function () {
 
     // 1. Modul Penjualan
     Route::get('penjualan/{penjualan}/print', 'PenjualanController@print')->name('penjualan.print');
+    Route::get('penjualan/{penjualan}/print-json', 'PenjualanController@printJson')->name('penjualan.printJson');
     Route::post('penjualan/{penjualan}/approve', 'PenjualanController@approve')->name('penjualan.approve');
     Route::post('penjualan/{penjualan}/cancel', 'PenjualanController@cancel')->name('penjualan.cancel');
     Route::post('penjualan/{penjualan}/mark-paid', 'PenjualanController@markAsPaid')->name('penjualan.markAsPaid');
@@ -44,6 +45,7 @@ Route::middleware(['auth'])->group(function () {
 
     // 3. Modul Biaya
     Route::get('biaya/{biaya}/print', 'BiayaController@print')->name('biaya.print');
+    Route::get('biaya/{biaya}/print-json', 'BiayaController@printJson')->name('biaya.printJson');
     Route::post('biaya/{biaya}/approve', 'BiayaController@approve')->name('biaya.approve');
     Route::post('biaya/{biaya}/cancel', 'BiayaController@cancel')->name('biaya.cancel');
     Route::resource('biaya', 'BiayaController');

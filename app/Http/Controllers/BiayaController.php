@@ -259,6 +259,129 @@ class BiayaController extends Controller
         return redirect()->route('biaya.index')->with('success', 'Data biaya berhasil dihapus.');
     }
 
+    /**
+     * Return JSON formatted for Bluetooth Print app (thermal printers)
+     */
+    public function printJson(Biaya $biaya)
+    {
+        $a = [];
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = 'HIBISCUS EFSYA';
+        $obj->bold = 1;
+        $obj->align = 1;
+        $obj->format = 3;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = 'BUKTI PENGELUARAN';
+        $obj->bold = 1;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $dateCode = $biaya->created_at->format('Ymd');
+        $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);
+        $nomorInvoice = "EXP-{$biaya->user_id}-{$dateCode}-{$noUrut}";
+
+        $meta = [
+            'Nomor: ' . $nomorInvoice,
+            'Tanggal: ' . $biaya->tgl_transaksi->format('d/m/Y') . ' ' . $biaya->created_at->format('H:i'),
+            'Penerima: ' . ($biaya->penerima ?? '-'),
+            'Sales: ' . ($biaya->user->name ?? '-'),
+        ];
+
+        foreach ($meta as $line) {
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = $line;
+            $obj->bold = 0;
+            $obj->align = 0;
+            $obj->format = 0;
+            array_push($a, $obj);
+        }
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '------------------------------';
+        $obj->bold = 0;
+        $obj->align = 0;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        foreach ($biaya->items as $item) {
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = $item->kategori;
+            $obj->bold = 0;
+            $obj->align = 0;
+            $obj->format = 0;
+            array_push($a, $obj);
+
+            if ($item->deskripsi) {
+                $obj = new \stdClass();
+                $obj->type = 0;
+                $obj->content = $item->deskripsi;
+                $obj->bold = 0;
+                $obj->align = 0;
+                $obj->format = 0;
+                array_push($a, $obj);
+            }
+
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = str_pad('Jumlah', 20) . 'Rp ' . number_format($item->jumlah, 0, ',', '.');
+            $obj->bold = 0;
+            $obj->align = 2;
+            $obj->format = 0;
+            array_push($a, $obj);
+        }
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '------------------------------';
+        $obj->bold = 0;
+        $obj->align = 0;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $subtotal = $biaya->items->sum('jumlah');
+        if ($biaya->tax_percentage > 0) {
+            $pajakNominal = $subtotal * ($biaya->tax_percentage / 100);
+        } else {
+            $pajakNominal = 0;
+        }
+
+        $lines = [];
+        $lines[] = ['label' => 'Subtotal', 'value' => 'Rp ' . number_format($subtotal, 0, ',', '.')];
+        if ($pajakNominal > 0) {
+            $lines[] = ['label' => "Pajak ({$biaya->tax_percentage}%)", 'value' => 'Rp ' . number_format($pajakNominal, 0, ',', '.')];
+        }
+        $lines[] = ['label' => 'GRAND TOTAL', 'value' => 'Rp ' . number_format($biaya->grand_total, 0, ',', '.')];
+
+        foreach ($lines as $ln) {
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = str_pad($ln['label'], 20) . $ln['value'];
+            $obj->bold = ($ln['label'] == 'GRAND TOTAL') ? 1 : 0;
+            $obj->align = 2;
+            $obj->format = 0;
+            array_push($a, $obj);
+        }
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '--- Terima Kasih ---';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        return response()->json($a);
+    }
+
     public function edit(Biaya $biaya)
     {
         $user = Auth::user();

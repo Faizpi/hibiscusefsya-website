@@ -598,6 +598,120 @@ class PenjualanController extends Controller
                 ->with('error', 'Error: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Return JSON formatted for Bluetooth Print app (thermal printers)
+     */
+    public function printJson(Penjualan $penjualan)
+    {
+        $a = [];
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = 'HIBISCUS EFSYA';
+        $obj->bold = 1;
+        $obj->align = 1;
+        $obj->format = 3;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = 'INVOICE PENJUALAN';
+        $obj->bold = 1;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $dateCode = $penjualan->created_at->format('Ymd');
+        $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
+        $nomorInvoice = "INV-{$penjualan->user_id}-{$dateCode}-{$noUrut}";
+
+        $meta = [
+            'Nomor: ' . $nomorInvoice,
+            'Tanggal: ' . $penjualan->tgl_transaksi->format('d/m/Y') . ' ' . $penjualan->created_at->format('H:i'),
+            'Pelanggan: ' . ($penjualan->pelanggan ?? '-'),
+            'Sales: ' . ($penjualan->user->name ?? '-'),
+        ];
+
+        foreach ($meta as $line) {
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = $line;
+            $obj->bold = 0;
+            $obj->align = 0;
+            $obj->format = 0;
+            array_push($a, $obj);
+        }
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '------------------------------';
+        $obj->bold = 0;
+        $obj->align = 0;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        foreach ($penjualan->items as $item) {
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = $item->produk->nama_produk . ' (' . ($item->produk->item_code ?? '-') . ')';
+            $obj->bold = 0;
+            $obj->align = 0;
+            $obj->format = 0;
+            array_push($a, $obj);
+
+            $left = $item->kuantitas . ' x Rp ' . number_format($item->harga_satuan, 0, ',', '.');
+            $right = 'Rp ' . number_format($item->jumlah_baris, 0, ',', '.');
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = str_pad($left, 20) . $right;
+            $obj->bold = 0;
+            $obj->align = 0;
+            $obj->format = 0;
+            array_push($a, $obj);
+        }
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '------------------------------';
+        $obj->bold = 0;
+        $obj->align = 0;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $subtotal = $penjualan->items->sum('jumlah_baris');
+        $lines = [];
+        $lines[] = ['label' => 'Subtotal', 'value' => 'Rp ' . number_format($subtotal, 0, ',', '.')];
+        if ($penjualan->diskon_akhir > 0) {
+            $lines[] = ['label' => 'Diskon Akhir', 'value' => '- Rp ' . number_format($penjualan->diskon_akhir, 0, ',', '.')];
+        }
+        if ($penjualan->tax_percentage > 0) {
+            $kenaPajak = max(0, $subtotal - $penjualan->diskon_akhir);
+            $pajakNominal = $kenaPajak * ($penjualan->tax_percentage / 100);
+            $lines[] = ['label' => "Pajak ({$penjualan->tax_percentage}%)", 'value' => 'Rp ' . number_format($pajakNominal, 0, ',', '.')];
+        }
+        $lines[] = ['label' => 'GRAND TOTAL', 'value' => 'Rp ' . number_format($penjualan->grand_total, 0, ',', '.')];
+
+        foreach ($lines as $ln) {
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = str_pad($ln['label'], 20) . $ln['value'];
+            $obj->bold = ($ln['label'] == 'GRAND TOTAL') ? 1 : 0;
+            $obj->align = 2;
+            $obj->format = 0;
+            array_push($a, $obj);
+        }
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '--- Terima Kasih ---';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        return response()->json($a);
+    }
     public function cancel(Penjualan $penjualan)
     {
         $user = Auth::user();
