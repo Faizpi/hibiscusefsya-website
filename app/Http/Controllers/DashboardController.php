@@ -50,23 +50,45 @@ class DashboardController extends Controller
 
         // Inisialisasi query berdasarkan role (EXCLUDE Canceled status)
         if ($role == 'super_admin') {
-            $penjualanQuery = Penjualan::where('status', '!=', 'Canceled');
-            $pembelianQuery = Pembelian::where('status', '!=', 'Canceled');
+            // Apply gudang filter to queries if selected
+            $penjualanQuery = Penjualan::where('status', '!=', 'Canceled')
+                ->when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                    return $q->where('gudang_id', $selectedGudangId);
+                });
+            $pembelianQuery = Pembelian::where('status', '!=', 'Canceled')
+                ->when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                    return $q->where('gudang_id', $selectedGudangId);
+                });
             $biayaQuery = Biaya::where('status', '!=', 'Canceled');
 
             $data['card_4_title'] = 'Jumlah User Terdaftar';
             $data['card_4_value'] = User::count();
             $data['card_4_icon'] = 'fa-users';
 
-            // Statistik tambahan (exclude Canceled)
-            $data['totalProduk'] = Produk::count();
-            $data['totalTransaksi'] = Penjualan::where('status', '!=', 'Canceled')->count()
-                + Pembelian::where('status', '!=', 'Canceled')->count()
-                + Biaya::where('status', '!=', 'Canceled')->count();
+            // Statistik tambahan (exclude Canceled) - filtered by gudang if selected
+            if ($selectedGudangId) {
+                $data['totalProduk'] = GudangProduk::where('gudang_id', $selectedGudangId)->count();
+                $data['totalTransaksi'] = Penjualan::where('status', '!=', 'Canceled')
+                        ->where('gudang_id', $selectedGudangId)->count()
+                    + Pembelian::where('status', '!=', 'Canceled')
+                        ->where('gudang_id', $selectedGudangId)->count()
+                    + Biaya::where('status', '!=', 'Canceled')->count();
+            } else {
+                $data['totalProduk'] = Produk::count();
+                $data['totalTransaksi'] = Penjualan::where('status', '!=', 'Canceled')->count()
+                    + Pembelian::where('status', '!=', 'Canceled')->count()
+                    + Biaya::where('status', '!=', 'Canceled')->count();
+            }
 
-            // Ambil semua transaksi untuk tabel (exclude Canceled)
-            $penjualans = Penjualan::with('user')->where('status', '!=', 'Canceled')->get();
-            $pembelians = Pembelian::with('user')->where('status', '!=', 'Canceled')->get();
+            // Ambil semua transaksi untuk tabel (exclude Canceled) - filtered by gudang
+            $penjualans = Penjualan::with('user')->where('status', '!=', 'Canceled')
+                ->when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                    return $q->where('gudang_id', $selectedGudangId);
+                })->get();
+            $pembelians = Pembelian::with('user')->where('status', '!=', 'Canceled')
+                ->when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                    return $q->where('gudang_id', $selectedGudangId);
+                })->get();
             $biayas = Biaya::with('user')->where('status', '!=', 'Canceled')->get();
 
         } elseif ($role == 'admin') {
