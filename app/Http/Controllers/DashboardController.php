@@ -92,29 +92,29 @@ class DashboardController extends Controller
             $biayas = Biaya::with('user')->where('status', '!=', 'Canceled')->get();
 
         } elseif ($role == 'admin') {
-            // Admin lihat data sesuai gudang yang sedang aktif (current_gudang_id)
-            if ($currentGudang) {
-                $penjualanQuery = Penjualan::where('gudang_id', $currentGudang->id)->where('status', '!=', 'Canceled');
-                $pembelianQuery = Pembelian::where('gudang_id', $currentGudang->id)->where('status', '!=', 'Canceled');
+            // Admin lihat data sesuai gudang yang dipilih dari filter (sudah divalidasi aksesnya di atas)
+            if ($selectedGudangId) {
+                $penjualanQuery = Penjualan::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled');
+                $pembelianQuery = Pembelian::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled');
                 $biayaQuery = Biaya::where('status', '!=', 'Canceled'); // Biaya tidak punya gudang
 
-                $pendingCount = Penjualan::where('gudang_id', $currentGudang->id)->where('status', 'Pending')->count()
-                    + Pembelian::where('gudang_id', $currentGudang->id)->where('status', 'Pending')->count()
+                $pendingCount = Penjualan::where('gudang_id', $selectedGudangId)->where('status', 'Pending')->count()
+                    + Pembelian::where('gudang_id', $selectedGudangId)->where('status', 'Pending')->count()
                     + Biaya::where('status', 'Pending')->count();
 
                 $data['card_4_title'] = 'Menunggu Approval Anda';
                 $data['card_4_value'] = $pendingCount;
                 $data['card_4_icon'] = 'fa-clock';
 
-                // Statistik tambahan untuk admin (exclude Canceled)
-                $data['totalProduk'] = Produk::count();
-                $data['totalTransaksi'] = Penjualan::where('gudang_id', $currentGudang->id)->where('status', '!=', 'Canceled')->count()
-                    + Pembelian::where('gudang_id', $currentGudang->id)->where('status', '!=', 'Canceled')->count()
+                // Statistik tambahan untuk admin (exclude Canceled) - dari gudang terpilih
+                $data['totalProduk'] = GudangProduk::where('gudang_id', $selectedGudangId)->count();
+                $data['totalTransaksi'] = Penjualan::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->count()
+                    + Pembelian::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->count()
                     + Biaya::where('status', '!=', 'Canceled')->count();
 
-                // Ambil transaksi di gudang (exclude Canceled)
-                $penjualans = Penjualan::with('user')->where('gudang_id', $currentGudang->id)->where('status', '!=', 'Canceled')->get();
-                $pembelians = Pembelian::with('user')->where('gudang_id', $currentGudang->id)->where('status', '!=', 'Canceled')->get();
+                // Ambil transaksi di gudang terpilih (exclude Canceled)
+                $penjualans = Penjualan::with('user')->where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->get();
+                $pembelians = Pembelian::with('user')->where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->get();
                 $biayas = Biaya::with('user')->where('status', '!=', 'Canceled')->get();
             } else {
                 // Admin tanpa gudang tidak bisa melihat apapun
