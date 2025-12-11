@@ -37,6 +37,7 @@ Route::middleware(['auth'])->group(function () {
 
     // 2. Modul Pembelian
     Route::get('pembelian/{pembelian}/print', 'PembelianController@print')->name('pembelian.print');
+    Route::get('pembelian/{pembelian}/print-json', 'PembelianController@printJson')->name('pembelian.printJson');
     Route::post('pembelian/{pembelian}/approve', 'PembelianController@approve')->name('pembelian.approve');
     Route::post('pembelian/{pembelian}/cancel', 'PembelianController@cancel')->name('pembelian.cancel');
     Route::resource('pembelian', 'PembelianController');

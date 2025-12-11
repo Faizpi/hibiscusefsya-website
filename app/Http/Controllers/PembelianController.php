@@ -469,6 +469,131 @@ class PembelianController extends Controller
         return redirect()->route('pembelian.index')->with('success', 'Data pembelian berhasil diperbarui.');
     }
 
+    /**
+     * Return JSON formatted for Bluetooth Print app (thermal printers)
+     * URL: /pembelian/{pembelian}/print-json
+     */
+    public function printJson(Pembelian $pembelian)
+    {
+        // Build a simple JSON payload following the Bluetooth Print app format
+        $a = [];
+
+        // Header / Company
+        $obj = new \stdClass();
+        $obj->type = 0; // text
+        $obj->content = 'HIBISCUS EFSYA';
+        $obj->bold = 1;
+        $obj->align = 1; // center
+        $obj->format = 3; // double width
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = 'PERMINTAAN PEMBELIAN';
+        $obj->bold = 1;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        // Invoice meta
+        $dateCode = $pembelian->created_at->format('Ymd');
+        $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
+        $nomorInvoice = "PR-{$pembelian->user_id}-{$dateCode}-{$noUrut}";
+
+        $meta = [
+            'Nomor: ' . $nomorInvoice,
+            'Tanggal: ' . $pembelian->tgl_transaksi->format('d/m/Y') . ' ' . $pembelian->created_at->format('H:i'),
+            'Gudang: ' . ($pembelian->gudang->nama_gudang ?? '-'),
+            'Sales: ' . ($pembelian->user->name ?? '-'),
+        ];
+
+        foreach ($meta as $line) {
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = $line;
+            $obj->bold = 0;
+            $obj->align = 0;
+            $obj->format = 0;
+            array_push($a, $obj);
+        }
+
+        // divider
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '------------------------------';
+        $obj->bold = 0;
+        $obj->align = 0;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        // Items
+        foreach ($pembelian->items as $item) {
+            // item name
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = $item->produk->nama_produk . ' (' . ($item->produk->item_code ?? '-') . ')';
+            $obj->bold = 0;
+            $obj->align = 0;
+            $obj->format = 0;
+            array_push($a, $obj);
+
+            // qty x price and amount
+            $left = $item->kuantitas . ' x Rp ' . number_format($item->harga_satuan, 0, ',', '.');
+            $right = 'Rp ' . number_format($item->jumlah_baris, 0, ',', '.');
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = str_pad($left, 20) . $right;
+            $obj->bold = 0;
+            $obj->align = 0;
+            $obj->format = 0;
+            array_push($a, $obj);
+        }
+
+        // totals
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '------------------------------';
+        $obj->bold = 0;
+        $obj->align = 0;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $subtotal = $pembelian->items->sum('jumlah_baris');
+        $lines = [];
+        $lines[] = ['label' => 'Subtotal', 'value' => 'Rp ' . number_format($subtotal, 0, ',', '.')];
+        if ($pembelian->diskon_akhir > 0) {
+            $lines[] = ['label' => 'Diskon Akhir', 'value' => '- Rp ' . number_format($pembelian->diskon_akhir, 0, ',', '.')];
+        }
+        if ($pembelian->tax_percentage > 0) {
+            $kenaPajak = max(0, $subtotal - $pembelian->diskon_akhir);
+            $pajakNominal = $kenaPajak * ($pembelian->tax_percentage / 100);
+            $lines[] = ['label' => "Pajak ({$pembelian->tax_percentage}%)", 'value' => 'Rp ' . number_format($pajakNominal, 0, ',', '.')];
+        }
+        $lines[] = ['label' => 'GRAND TOTAL', 'value' => 'Rp ' . number_format($pembelian->grand_total, 0, ',', '.')];
+
+        foreach ($lines as $ln) {
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = str_pad($ln['label'], 20) . $ln['value'];
+            $obj->bold = ($ln['label'] == 'GRAND TOTAL') ? 1 : 0;
+            $obj->align = 2; // right
+            $obj->format = 0;
+            array_push($a, $obj);
+        }
+
+        // footer
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '--- Terima Kasih ---';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        // Return JSON array
+        return response()->json($a);
+    }
+
     public function approve(Pembelian $pembelian)
     {
         $user = Auth::user();
