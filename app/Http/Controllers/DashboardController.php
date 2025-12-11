@@ -69,7 +69,7 @@ class DashboardController extends Controller
             if ($selectedGudangId) {
                 $data['totalProduk'] = GudangProduk::where('gudang_id', $selectedGudangId)->count();
                 $data['totalTransaksi'] = Penjualan::where('status', '!=', 'Canceled')
-                        ->where('gudang_id', $selectedGudangId)->count()
+                    ->where('gudang_id', $selectedGudangId)->count()
                     + Pembelian::where('status', '!=', 'Canceled')
                         ->where('gudang_id', $selectedGudangId)->count()
                     + Biaya::where('status', '!=', 'Canceled')->count();

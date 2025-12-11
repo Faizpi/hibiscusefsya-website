@@ -28,7 +28,13 @@
             font-size: 11pt;
             color: #000;
             margin: 0 auto;
-            padding: 4mm 2mm;
+            padding: 4mm 3mm;
+            box-sizing: border-box;
+        }
+
+        * {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         /* Header Logo */
@@ -283,7 +289,7 @@
     <div class="footer">
         <p>marketing@hibiscusefsya.com</p>
         <p>-- Terima Kasih --</p>
-        <div style="margin-top:10px;">
+        <div style="margin-top:10px; text-align:center;">
             <button type="button" class="no-print" onclick="window.print()" style="padding:5px 10px;">Print
                 Ulang</button>
             <a class="no-print btn btn-success"
