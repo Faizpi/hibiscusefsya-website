@@ -5,9 +5,9 @@
  * Jalankan: php fix_approver_penjualan.php
  */
 
-require __DIR__.'/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
-$app = require_once __DIR__.'/bootstrap/app.php';
+$app = require_once __DIR__ . '/bootstrap/app.php';
 $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 
 use App\Penjualan;
@@ -36,16 +36,16 @@ foreach ($penjualans as $penjualan) {
     echo "Processing Penjualan #{$penjualan->id} - {$penjualan->nomor}\n";
     echo "  Pembuat: {$penjualan->user->name} ({$penjualan->user->role})\n";
     echo "  Gudang: {$penjualan->gudang->nama_gudang}\n";
-    
+
     $approverId = null;
-    
+
     // Tentukan approver berdasarkan role pembuat dan gudang
     if ($penjualan->user->role == 'user') {
         // Sales: cari admin yang handle gudang ini
         $adminGudang = User::where('role', 'admin')
             ->where('current_gudang_id', $penjualan->gudang_id)
             ->first();
-        
+
         if ($adminGudang) {
             $approverId = $adminGudang->id;
             echo "  → Approver: {$adminGudang->name} (Admin Gudang)\n";
@@ -65,7 +65,7 @@ foreach ($penjualans as $penjualan) {
             echo "  → Approver: {$superAdmin->name} (Super Admin)\n";
         }
     }
-    
+
     if ($approverId) {
         $penjualan->approver_id = $approverId;
         $penjualan->save();
@@ -75,7 +75,7 @@ foreach ($penjualans as $penjualan) {
         echo "  ✗ Failed: Tidak bisa menentukan approver\n";
         $failed++;
     }
-    
+
     echo "\n";
 }
 

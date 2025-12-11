@@ -155,7 +155,8 @@
         <tr>
             <td class="label">Tanggal</td>
             <td class="colon">:</td>
-            <td class="value">{{ $pembelian->tgl_transaksi->format('d/m/Y') }} | {{ $pembelian->created_at->format('H:i') }}</td>
+            <td class="value">{{ $pembelian->tgl_transaksi->format('d/m/Y') }} |
+                {{ $pembelian->created_at->format('H:i') }}</td>
         </tr>
         <tr>
             <td class="label">Jatuh Tempo</td>
@@ -240,16 +241,16 @@
                 <td class="val">- Rp {{ number_format($pembelian->diskon_akhir, 0, ',', '.') }}</td>
             </tr>
         @endif
-    @if($pembelian->tax_percentage > 0)
-        @php
-            $kenaPajak = max(0, $subtotal - $pembelian->diskon_akhir);
-            $pajakNominal = $kenaPajak * ($pembelian->tax_percentage / 100);
-        @endphp
-        <tr>
-            <td class="lbl">Pajak ({{ $pembelian->tax_percentage }}%)</td>
-            <td class="val">Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
-        </tr>
-    @endif
+        @if($pembelian->tax_percentage > 0)
+            @php
+                $kenaPajak = max(0, $subtotal - $pembelian->diskon_akhir);
+                $pajakNominal = $kenaPajak * ($pembelian->tax_percentage / 100);
+            @endphp
+            <tr>
+                <td class="lbl">Pajak ({{ $pembelian->tax_percentage }}%)</td>
+                <td class="val">Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+            </tr>
+        @endif
         <tr>
             <td class="lbl grand-total">GRAND TOTAL</td>
             <td class="val grand-total">Rp {{ number_format($pembelian->grand_total, 0, ',', '.') }}</td>
@@ -260,9 +261,14 @@
         <p>marketing@hibiscusefsya.com</p>
         <p>-- Dokumen Internal --</p>
         <div style="margin-top:10px;">
-            <button type="button" class="no-print" onclick="window.print()" style="padding:5px 10px;">Print Ulang</button>
-            <a class="no-print btn btn-success" style="padding:5px 10px; margin-left:8px; color:#fff; text-decoration:none;" href="{{ 'bprint://' . url('pembelian/' . $pembelian->id . '/print-json') }}">Print via Bluetooth App</a>
+            <button type="button" class="no-print" onclick="window.print()" style="padding:5px 10px;">Print
+                Ulang</button>
+            <a class="no-print btn btn-success"
+                style="padding:5px 10px; margin-left:8px; color:#fff; text-decoration:none;"
+                href="{{ 'bprint://' . url('pembelian/' . $pembelian->id . '/print-json') }}">Print via Bluetooth
+                App</a>
         </div>
     </div>
 </body>
+
 </html>

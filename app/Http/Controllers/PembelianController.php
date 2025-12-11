@@ -115,7 +115,7 @@ class PembelianController extends Controller
     public function store(Request $request)
     {
         \Log::info('PembelianController@store - START', ['user_id' => Auth::id(), 'request_data' => $request->all()]);
-        
+
         if (Auth::user()->role == 'user' && !Auth::user()->gudang_id) {
             \Log::warning('PembelianController@store - User tanpa gudang', ['user_id' => Auth::id()]);
             return back()->with('error', 'Gagal: Akun Anda belum terhubung ke Gudang manapun. Hubungi Super Admin.')->withInput();
@@ -200,13 +200,13 @@ class PembelianController extends Controller
         $user = Auth::user();
         $approverId = null;
         $stafPenyetuju = null;
-        
+
         if ($user->role == 'user') {
             // Sales: cari admin yang handle gudang yang dipilih
             $adminGudang = User::where('role', 'admin')
                 ->where('current_gudang_id', $request->gudang_id)
                 ->first();
-            
+
             if ($adminGudang) {
                 $approverId = $adminGudang->id;
                 $stafPenyetuju = $adminGudang->name;
@@ -398,14 +398,14 @@ class PembelianController extends Controller
 
         // Tentukan approver jika status pending
         $approverId = $pembelian->approver_id; // Keep existing
-        
+
         if ($statusBaru == 'Pending') {
             // Re-calculate approver berdasarkan gudang
             if ($user->role == 'user') {
                 $adminGudang = User::where('role', 'admin')
                     ->where('current_gudang_id', $request->gudang_id)
                     ->first();
-                
+
                 if ($adminGudang) {
                     $approverId = $adminGudang->id;
                 } else {

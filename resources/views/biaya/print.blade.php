@@ -240,8 +240,11 @@
         <p>marketing@hibiscusefsya.com</p>
         <p>-- Terima Kasih --</p>
         <div style="margin-top:10px;">
-            <button type="button" class="no-print" onclick="window.print()" style="padding:5px 10px;">Print Ulang</button>
-            <a class="no-print btn btn-success" style="padding:5px 10px; margin-left:8px; color:#fff; text-decoration:none;" href="{{ 'bprint://' . url('biaya/' . $biaya->id . '/print-json') }}">Print via Bluetooth App</a>
+            <button type="button" class="no-print" onclick="window.print()" style="padding:5px 10px;">Print
+                Ulang</button>
+            <a class="no-print btn btn-success"
+                style="padding:5px 10px; margin-left:8px; color:#fff; text-decoration:none;"
+                href="{{ 'bprint://' . url('biaya/' . $biaya->id . '/print-json') }}">Print via Bluetooth App</a>
         </div>
     </div>
 

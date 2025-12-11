@@ -397,13 +397,18 @@ class DashboardController extends Controller
             $query = Penjualan::with('user', 'gudang', 'approver')
                 ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo]);
 
-            // Role-based filtering: Admin hanya bisa export yang dia sebagai approver
+            // Role-based filtering: Admin hanya bisa export dari gudang yang dia akses
             if ($user->role == 'admin') {
-                $query->where('approver_id', $user->id);
+                $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
+                $query->whereIn('gudang_id', $accessibleGudangIds);
             }
 
             // Gudang filter
             if ($gudangId) {
+                // Validasi admin hanya bisa pilih gudang yang dia akses
+                if ($user->role == 'admin' && !$user->canAccessGudang($gudangId)) {
+                    abort(403, 'Tidak memiliki akses ke gudang ini');
+                }
                 $query->where('gudang_id', $gudangId);
             }
 
@@ -425,11 +430,16 @@ class DashboardController extends Controller
                 ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo]);
 
             if ($user->role == 'admin') {
-                $query->where('approver_id', $user->id);
+                $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
+                $query->whereIn('gudang_id', $accessibleGudangIds);
             }
 
             // Gudang filter
             if ($gudangId) {
+                // Validasi admin hanya bisa pilih gudang yang dia akses
+                if ($user->role == 'admin' && !$user->canAccessGudang($gudangId)) {
+                    abort(403, 'Tidak memiliki akses ke gudang ini');
+                }
                 $query->where('gudang_id', $gudangId);
             }
 
@@ -449,6 +459,7 @@ class DashboardController extends Controller
             $query = Biaya::with('user', 'approver')
                 ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo]);
 
+            // Note: Biaya tidak memiliki gudang_id, tetap gunakan approver_id untuk admin
             if ($user->role == 'admin') {
                 $query->where('approver_id', $user->id);
             }

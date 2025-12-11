@@ -161,7 +161,7 @@
                                                             $canApprove = auth()->user()->canAccessGudang($item->gudang_id);
                                                         }
                                                     @endphp
-                                                    
+
                                                     @if($canApprove)
                                                         <form action="{{ route('penjualan.approve', $item->id) }}" method="POST"
                                                             class="d-inline">

@@ -231,13 +231,13 @@ class PenjualanController extends Controller
         // Tentukan approver berdasarkan gudang
         $user = Auth::user();
         $approverId = null;
-        
+
         if ($user->role == 'user') {
             // Sales: cari admin yang handle gudang yang dipilih
             $adminGudang = User::where('role', 'admin')
                 ->where('current_gudang_id', $request->gudang_id)
                 ->first();
-            
+
             if ($adminGudang) {
                 $approverId = $adminGudang->id;
             } else {
@@ -463,14 +463,14 @@ class PenjualanController extends Controller
 
         // Tentukan approver jika status pending (sama seperti store)
         $approverId = $penjualan->approver_id; // Keep existing approver
-        
+
         if ($statusBaru == 'Pending') {
             // Re-calculate approver berdasarkan gudang yang dipilih
             if ($user->role == 'user') {
                 $adminGudang = User::where('role', 'admin')
                     ->where('current_gudang_id', $request->gudang_id)
                     ->first();
-                
+
                 if ($adminGudang) {
                     $approverId = $adminGudang->id;
                 } else {

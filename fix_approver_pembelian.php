@@ -5,9 +5,9 @@
  * Jalankan: php fix_approver_pembelian.php
  */
 
-require __DIR__.'/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
-$app = require_once __DIR__.'/bootstrap/app.php';
+$app = require_once __DIR__ . '/bootstrap/app.php';
 $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 
 use App\Pembelian;
@@ -36,16 +36,16 @@ foreach ($pembelians as $pembelian) {
     echo "Processing Pembelian #{$pembelian->id} - {$pembelian->nomor}\n";
     echo "  Pembuat: {$pembelian->user->name} ({$pembelian->user->role})\n";
     echo "  Gudang: {$pembelian->gudang->nama_gudang}\n";
-    
+
     $approverId = null;
-    
+
     // Tentukan approver berdasarkan role pembuat dan gudang
     if ($pembelian->user->role == 'user') {
         // Sales: cari admin yang handle gudang ini
         $adminGudang = User::where('role', 'admin')
             ->where('current_gudang_id', $pembelian->gudang_id)
             ->first();
-        
+
         if ($adminGudang) {
             $approverId = $adminGudang->id;
             echo "  → Approver: {$adminGudang->name} (Admin Gudang)\n";
@@ -65,7 +65,7 @@ foreach ($pembelians as $pembelian) {
             echo "  → Approver: {$superAdmin->name} (Super Admin)\n";
         }
     }
-    
+
     if ($approverId) {
         $pembelian->approver_id = $approverId;
         $pembelian->save();
@@ -75,7 +75,7 @@ foreach ($pembelians as $pembelian) {
         echo "  ✗ Failed: Tidak bisa menentukan approver\n";
         $failed++;
     }
-    
+
     echo "\n";
 }
 
