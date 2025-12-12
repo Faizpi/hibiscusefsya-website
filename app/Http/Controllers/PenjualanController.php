@@ -799,20 +799,7 @@ class PenjualanController extends Controller
 
         return response()->json($a);
     }
-            $obj->format = 0;
-            array_push($a, $obj);
-        }
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '--- Terima Kasih ---';
-        $obj->bold = 0;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        return response()->json($a);
-    }
+    
     public function cancel(Penjualan $penjualan)
     {
         $user = Auth::user();

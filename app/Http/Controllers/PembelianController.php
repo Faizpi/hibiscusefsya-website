@@ -670,31 +670,6 @@ class PembelianController extends Controller
 
         return response()->json($a);
     }
-        }
-        $lines[] = ['label' => 'GRAND TOTAL', 'value' => 'Rp ' . number_format($pembelian->grand_total, 0, ',', '.')];
-
-        foreach ($lines as $ln) {
-            $obj = new \stdClass();
-            $obj->type = 0;
-            $obj->content = str_pad($ln['label'], 20) . $ln['value'];
-            $obj->bold = ($ln['label'] == 'GRAND TOTAL') ? 1 : 0;
-            $obj->align = 2; // right
-            $obj->format = 0;
-            array_push($a, $obj);
-        }
-
-        // footer
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '--- Terima Kasih ---';
-        $obj->bold = 0;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        // Return JSON array
-        return response()->json($a);
-    }
 
     public function approve(Pembelian $pembelian)
     {
