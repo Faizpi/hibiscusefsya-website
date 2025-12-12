@@ -23,7 +23,7 @@
         }
 
         body {
-            width: 56mm;
+            width: 58mm;
             font-family: 'Consolas', 'Courier New', monospace;
             font-size: 10pt;
             color: #000;

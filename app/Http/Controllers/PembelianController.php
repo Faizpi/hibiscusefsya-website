@@ -477,7 +477,6 @@ class PembelianController extends Controller
     {
         $a = [];
 
-        // ASCII Logo Art
         $obj = new \stdClass();
         $obj->type = 0;
         $obj->content = '================================';
@@ -491,7 +490,7 @@ class PembelianController extends Controller
         $obj->content = 'HIBISCUS EFSYA';
         $obj->bold = 1;
         $obj->align = 1;
-        $obj->format = 3;
+        $obj->format = 0;
         array_push($a, $obj);
 
         $obj = new \stdClass();

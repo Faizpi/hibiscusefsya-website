@@ -606,7 +606,6 @@ class PenjualanController extends Controller
     {
         $a = [];
 
-        // ASCII Logo Art
         $obj = new \stdClass();
         $obj->type = 0;
         $obj->content = '================================';
@@ -620,7 +619,7 @@ class PenjualanController extends Controller
         $obj->content = 'HIBISCUS EFSYA';
         $obj->bold = 1;
         $obj->align = 1;
-        $obj->format = 3;
+        $obj->format = 0;
         array_push($a, $obj);
 
         $obj = new \stdClass();
@@ -660,7 +659,6 @@ class PenjualanController extends Controller
             'Status: ' . $penjualan->status,
         ];
 
-        // Tambah approver jika sudah diapprove
         if ($penjualan->approver_id && $penjualan->approver) {
             $meta[] = 'Disetujui: ' . $penjualan->approver->name;
         }
@@ -692,7 +690,6 @@ class PenjualanController extends Controller
             $obj->format = 0;
             array_push($a, $obj);
 
-            // Item code
             if ($item->produk->item_code) {
                 $obj = new \stdClass();
                 $obj->type = 0;
@@ -703,7 +700,6 @@ class PenjualanController extends Controller
                 array_push($a, $obj);
             }
 
-            // Qty dan harga satuan
             $obj = new \stdClass();
             $obj->type = 0;
             $obj->content = 'Qty: ' . $item->kuantitas . ' x Rp ' . number_format($item->harga_satuan, 0, ',', '.');
@@ -712,7 +708,6 @@ class PenjualanController extends Controller
             $obj->format = 0;
             array_push($a, $obj);
 
-            // Diskon per item jika ada
             if ($item->diskon_per_item > 0) {
                 $obj = new \stdClass();
                 $obj->type = 0;
@@ -723,7 +718,6 @@ class PenjualanController extends Controller
                 array_push($a, $obj);
             }
 
-            // Jumlah baris
             $obj = new \stdClass();
             $obj->type = 0;
             $obj->content = str_pad('Jumlah:', 15, ' ', STR_PAD_LEFT) . str_pad('Rp ' . number_format($item->jumlah_baris, 0, ',', '.'), 17, ' ', STR_PAD_LEFT);
@@ -732,7 +726,6 @@ class PenjualanController extends Controller
             $obj->format = 0;
             array_push($a, $obj);
 
-            // Spacer
             $obj = new \stdClass();
             $obj->type = 0;
             $obj->content = '';
