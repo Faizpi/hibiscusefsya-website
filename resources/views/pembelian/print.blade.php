@@ -24,12 +24,12 @@
         }
 
         body {
-            width: 54mm;
+            width: 56mm;
             font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 13pt;
+            font-size: 10pt;
             color: #000;
             margin: 0 auto;
-            padding: 4mm 3mm;
+            padding: 3mm 1mm;
             box-sizing: border-box;
         }
 
@@ -50,7 +50,7 @@
         }
 
         .title {
-            font-size: 15pt;
+            font-size: 12pt;
             margin: 0;
             font-weight: bold;
         }
@@ -62,7 +62,7 @@
 
         .info-table {
             width: 100%;
-            font-size: 12pt;
+            font-size: 9pt;
         }
 
         .info-table td {
@@ -89,13 +89,13 @@
 
         .item-name {
             font-weight: bold;
-            font-size: 14pt;
+            font-size: 11pt;
             margin-bottom: 2px;
         }
 
         .details-table {
             width: 100%;
-            font-size: 12pt;
+            font-size: 9pt;
         }
 
         .details-table .lbl {
@@ -110,7 +110,7 @@
 
         .total-table {
             width: 100%;
-            font-size: 13pt;
+            font-size: 10pt;
             margin-top: 5px;
         }
 
@@ -120,7 +120,7 @@
 
         .grand-total {
             font-weight: bold;
-            font-size: 16pt;
+            font-size: 12pt;
             padding-top: 5px;
             border-top: 1px dashed #000;
         }
@@ -128,7 +128,7 @@
         .footer {
             text-align: center;
             margin-top: 15px;
-            font-size: 12pt;
+            font-size: 9pt;
         }
 
         @media print {
