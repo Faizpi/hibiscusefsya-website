@@ -475,16 +475,39 @@ class PembelianController extends Controller
      */
     public function printJson(Pembelian $pembelian)
     {
-        // Build a simple JSON payload following the Bluetooth Print app format
         $a = [];
 
-        // Header / Company
+        // ASCII Logo Art
         $obj = new \stdClass();
-        $obj->type = 0; // text
+        $obj->type = 0;
+        $obj->content = '================================';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
         $obj->content = 'HIBISCUS EFSYA';
         $obj->bold = 1;
-        $obj->align = 1; // center
-        $obj->format = 3; // double width
+        $obj->align = 1;
+        $obj->format = 3;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = 'marketing@hibiscusefsya.com';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '================================';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
         array_push($a, $obj);
 
         $obj = new \stdClass();
@@ -495,7 +518,6 @@ class PembelianController extends Controller
         $obj->format = 0;
         array_push($a, $obj);
 
-        // Invoice meta
         $dateCode = $pembelian->created_at->format('Ymd');
         $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "PR-{$pembelian->user_id}-{$dateCode}-{$noUrut}";
@@ -503,9 +525,16 @@ class PembelianController extends Controller
         $meta = [
             'Nomor: ' . $nomorInvoice,
             'Tanggal: ' . $pembelian->tgl_transaksi->format('d/m/Y') . ' ' . $pembelian->created_at->format('H:i'),
+            'Supplier: ' . ($pembelian->supplier ?? '-'),
             'Gudang: ' . ($pembelian->gudang->nama_gudang ?? '-'),
             'Sales: ' . ($pembelian->user->name ?? '-'),
+            'Status: ' . $pembelian->status,
         ];
+
+        // Tambah approver jika sudah diapprove
+        if ($pembelian->approver_id && $pembelian->approver) {
+            $meta[] = 'Disetujui: ' . $pembelian->approver->name;
+        }
 
         foreach ($meta as $line) {
             $obj = new \stdClass();
@@ -517,42 +546,76 @@ class PembelianController extends Controller
             array_push($a, $obj);
         }
 
-        // divider
         $obj = new \stdClass();
         $obj->type = 0;
-        $obj->content = '------------------------------';
+        $obj->content = '================================';
         $obj->bold = 0;
         $obj->align = 0;
         $obj->format = 0;
         array_push($a, $obj);
 
-        // Items
         foreach ($pembelian->items as $item) {
-            // item name
             $obj = new \stdClass();
             $obj->type = 0;
-            $obj->content = $item->produk->nama_produk . ' (' . ($item->produk->item_code ?? '-') . ')';
+            $obj->content = $item->produk->nama_produk;
+            $obj->bold = 1;
+            $obj->align = 0;
+            $obj->format = 0;
+            array_push($a, $obj);
+
+            // Item code
+            if ($item->produk->item_code) {
+                $obj = new \stdClass();
+                $obj->type = 0;
+                $obj->content = 'Kode: ' . $item->produk->item_code;
+                $obj->bold = 0;
+                $obj->align = 0;
+                $obj->format = 0;
+                array_push($a, $obj);
+            }
+
+            // Qty dan harga satuan
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = 'Qty: ' . $item->kuantitas . ' x Rp ' . number_format($item->harga_satuan, 0, ',', '.');
             $obj->bold = 0;
             $obj->align = 0;
             $obj->format = 0;
             array_push($a, $obj);
 
-            // qty x price and amount
-            $left = $item->kuantitas . ' x Rp ' . number_format($item->harga_satuan, 0, ',', '.');
-            $right = 'Rp ' . number_format($item->jumlah_baris, 0, ',', '.');
+            // Diskon per item jika ada
+            if ($item->diskon_per_item > 0) {
+                $obj = new \stdClass();
+                $obj->type = 0;
+                $obj->content = 'Diskon: - Rp ' . number_format($item->diskon_per_item, 0, ',', '.');
+                $obj->bold = 0;
+                $obj->align = 0;
+                $obj->format = 0;
+                array_push($a, $obj);
+            }
+
+            // Jumlah baris
             $obj = new \stdClass();
             $obj->type = 0;
-            $obj->content = str_pad($left, 20) . $right;
+            $obj->content = str_pad('Jumlah:', 15, ' ', STR_PAD_LEFT) . str_pad('Rp ' . number_format($item->jumlah_baris, 0, ',', '.'), 17, ' ', STR_PAD_LEFT);
+            $obj->bold = 0;
+            $obj->align = 2;
+            $obj->format = 0;
+            array_push($a, $obj);
+
+            // Spacer
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = '';
             $obj->bold = 0;
             $obj->align = 0;
             $obj->format = 0;
             array_push($a, $obj);
         }
 
-        // totals
         $obj = new \stdClass();
         $obj->type = 0;
-        $obj->content = '------------------------------';
+        $obj->content = '================================';
         $obj->bold = 0;
         $obj->align = 0;
         $obj->format = 0;
@@ -560,14 +623,53 @@ class PembelianController extends Controller
 
         $subtotal = $pembelian->items->sum('jumlah_baris');
         $lines = [];
-        $lines[] = ['label' => 'Subtotal', 'value' => 'Rp ' . number_format($subtotal, 0, ',', '.')];
+        $lines[] = ['label' => 'Subtotal', 'value' => 'Rp ' . number_format($subtotal, 0, ',', '.'), 'bold' => 0];
         if ($pembelian->diskon_akhir > 0) {
-            $lines[] = ['label' => 'Diskon Akhir', 'value' => '- Rp ' . number_format($pembelian->diskon_akhir, 0, ',', '.')];
+            $lines[] = ['label' => 'Diskon Akhir', 'value' => '- Rp ' . number_format($pembelian->diskon_akhir, 0, ',', '.'), 'bold' => 0];
         }
         if ($pembelian->tax_percentage > 0) {
             $kenaPajak = max(0, $subtotal - $pembelian->diskon_akhir);
             $pajakNominal = $kenaPajak * ($pembelian->tax_percentage / 100);
-            $lines[] = ['label' => "Pajak ({$pembelian->tax_percentage}%)", 'value' => 'Rp ' . number_format($pajakNominal, 0, ',', '.')];
+            $lines[] = ['label' => "Pajak ({$pembelian->tax_percentage}%)", 'value' => 'Rp ' . number_format($pajakNominal, 0, ',', '.'), 'bold' => 0];
+        }
+        $lines[] = ['label' => 'GRAND TOTAL', 'value' => 'Rp ' . number_format($pembelian->grand_total, 0, ',', '.'), 'bold' => 1];
+
+        foreach ($lines as $ln) {
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = str_pad($ln['label'], 15, ' ', STR_PAD_LEFT) . str_pad($ln['value'], 17, ' ', STR_PAD_LEFT);
+            $obj->bold = $ln['bold'];
+            $obj->align = 2;
+            $obj->format = 0;
+            array_push($a, $obj);
+        }
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '================================';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = 'marketing@hibiscusefsya.com';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '--- Dokumen Internal ---';
+        $obj->bold = 1;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        return response()->json($a);
+    }
         }
         $lines[] = ['label' => 'GRAND TOTAL', 'value' => 'Rp ' . number_format($pembelian->grand_total, 0, ',', '.')];
 

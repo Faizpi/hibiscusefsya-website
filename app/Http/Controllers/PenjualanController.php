@@ -606,12 +606,37 @@ class PenjualanController extends Controller
     {
         $a = [];
 
+        // ASCII Logo Art
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '================================';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
         $obj = new \stdClass();
         $obj->type = 0;
         $obj->content = 'HIBISCUS EFSYA';
         $obj->bold = 1;
         $obj->align = 1;
         $obj->format = 3;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = 'marketing@hibiscusefsya.com';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '================================';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
         array_push($a, $obj);
 
         $obj = new \stdClass();
@@ -630,8 +655,15 @@ class PenjualanController extends Controller
             'Nomor: ' . $nomorInvoice,
             'Tanggal: ' . $penjualan->tgl_transaksi->format('d/m/Y') . ' ' . $penjualan->created_at->format('H:i'),
             'Pelanggan: ' . ($penjualan->pelanggan ?? '-'),
+            'Gudang: ' . ($penjualan->gudang->nama_gudang ?? '-'),
             'Sales: ' . ($penjualan->user->name ?? '-'),
+            'Status: ' . $penjualan->status,
         ];
+
+        // Tambah approver jika sudah diapprove
+        if ($penjualan->approver_id && $penjualan->approver) {
+            $meta[] = 'Disetujui: ' . $penjualan->approver->name;
+        }
 
         foreach ($meta as $line) {
             $obj = new \stdClass();
@@ -645,7 +677,7 @@ class PenjualanController extends Controller
 
         $obj = new \stdClass();
         $obj->type = 0;
-        $obj->content = '------------------------------';
+        $obj->content = '================================';
         $obj->bold = 0;
         $obj->align = 0;
         $obj->format = 0;
@@ -654,17 +686,56 @@ class PenjualanController extends Controller
         foreach ($penjualan->items as $item) {
             $obj = new \stdClass();
             $obj->type = 0;
-            $obj->content = $item->produk->nama_produk . ' (' . ($item->produk->item_code ?? '-') . ')';
+            $obj->content = $item->produk->nama_produk;
+            $obj->bold = 1;
+            $obj->align = 0;
+            $obj->format = 0;
+            array_push($a, $obj);
+
+            // Item code
+            if ($item->produk->item_code) {
+                $obj = new \stdClass();
+                $obj->type = 0;
+                $obj->content = 'Kode: ' . $item->produk->item_code;
+                $obj->bold = 0;
+                $obj->align = 0;
+                $obj->format = 0;
+                array_push($a, $obj);
+            }
+
+            // Qty dan harga satuan
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = 'Qty: ' . $item->kuantitas . ' x Rp ' . number_format($item->harga_satuan, 0, ',', '.');
             $obj->bold = 0;
             $obj->align = 0;
             $obj->format = 0;
             array_push($a, $obj);
 
-            $left = $item->kuantitas . ' x Rp ' . number_format($item->harga_satuan, 0, ',', '.');
-            $right = 'Rp ' . number_format($item->jumlah_baris, 0, ',', '.');
+            // Diskon per item jika ada
+            if ($item->diskon_per_item > 0) {
+                $obj = new \stdClass();
+                $obj->type = 0;
+                $obj->content = 'Diskon: - Rp ' . number_format($item->diskon_per_item, 0, ',', '.');
+                $obj->bold = 0;
+                $obj->align = 0;
+                $obj->format = 0;
+                array_push($a, $obj);
+            }
+
+            // Jumlah baris
             $obj = new \stdClass();
             $obj->type = 0;
-            $obj->content = str_pad($left, 20) . $right;
+            $obj->content = str_pad('Jumlah:', 15, ' ', STR_PAD_LEFT) . str_pad('Rp ' . number_format($item->jumlah_baris, 0, ',', '.'), 17, ' ', STR_PAD_LEFT);
+            $obj->bold = 0;
+            $obj->align = 2;
+            $obj->format = 0;
+            array_push($a, $obj);
+
+            // Spacer
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = '';
             $obj->bold = 0;
             $obj->align = 0;
             $obj->format = 0;
@@ -673,7 +744,7 @@ class PenjualanController extends Controller
 
         $obj = new \stdClass();
         $obj->type = 0;
-        $obj->content = '------------------------------';
+        $obj->content = '================================';
         $obj->bold = 0;
         $obj->align = 0;
         $obj->format = 0;
@@ -681,23 +752,53 @@ class PenjualanController extends Controller
 
         $subtotal = $penjualan->items->sum('jumlah_baris');
         $lines = [];
-        $lines[] = ['label' => 'Subtotal', 'value' => 'Rp ' . number_format($subtotal, 0, ',', '.')];
+        $lines[] = ['label' => 'Subtotal', 'value' => 'Rp ' . number_format($subtotal, 0, ',', '.'), 'bold' => 0];
         if ($penjualan->diskon_akhir > 0) {
-            $lines[] = ['label' => 'Diskon Akhir', 'value' => '- Rp ' . number_format($penjualan->diskon_akhir, 0, ',', '.')];
+            $lines[] = ['label' => 'Diskon Akhir', 'value' => '- Rp ' . number_format($penjualan->diskon_akhir, 0, ',', '.'), 'bold' => 0];
         }
         if ($penjualan->tax_percentage > 0) {
             $kenaPajak = max(0, $subtotal - $penjualan->diskon_akhir);
             $pajakNominal = $kenaPajak * ($penjualan->tax_percentage / 100);
-            $lines[] = ['label' => "Pajak ({$penjualan->tax_percentage}%)", 'value' => 'Rp ' . number_format($pajakNominal, 0, ',', '.')];
+            $lines[] = ['label' => "Pajak ({$penjualan->tax_percentage}%)", 'value' => 'Rp ' . number_format($pajakNominal, 0, ',', '.'), 'bold' => 0];
         }
-        $lines[] = ['label' => 'GRAND TOTAL', 'value' => 'Rp ' . number_format($penjualan->grand_total, 0, ',', '.')];
+        $lines[] = ['label' => 'GRAND TOTAL', 'value' => 'Rp ' . number_format($penjualan->grand_total, 0, ',', '.'), 'bold' => 1];
 
         foreach ($lines as $ln) {
             $obj = new \stdClass();
             $obj->type = 0;
-            $obj->content = str_pad($ln['label'], 20) . $ln['value'];
-            $obj->bold = ($ln['label'] == 'GRAND TOTAL') ? 1 : 0;
+            $obj->content = str_pad($ln['label'], 15, ' ', STR_PAD_LEFT) . str_pad($ln['value'], 17, ' ', STR_PAD_LEFT);
+            $obj->bold = $ln['bold'];
             $obj->align = 2;
+            $obj->format = 0;
+            array_push($a, $obj);
+        }
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '================================';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = 'marketing@hibiscusefsya.com';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '--- Terima Kasih ---';
+        $obj->bold = 1;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        return response()->json($a);
+    }
             $obj->format = 0;
             array_push($a, $obj);
         }

@@ -26,7 +26,7 @@
         body {
             width: 54mm;
             font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 11pt;
+            font-size: 13pt;
             color: #000;
             margin: 0 auto;
             padding: 4mm 3mm;
@@ -50,7 +50,7 @@
         }
 
         .title {
-            font-size: 12pt;
+            font-size: 15pt;
             margin: 0;
             font-weight: bold;
         }
@@ -62,7 +62,7 @@
 
         .info-table {
             width: 100%;
-            font-size: 10pt;
+            font-size: 12pt;
         }
 
         .info-table td {
@@ -89,13 +89,13 @@
 
         .item-name {
             font-weight: bold;
-            font-size: 11pt;
+            font-size: 14pt;
             margin-bottom: 2px;
         }
 
         .details-table {
             width: 100%;
-            font-size: 10pt;
+            font-size: 12pt;
         }
 
         .details-table .lbl {
@@ -110,7 +110,7 @@
 
         .total-table {
             width: 100%;
-            font-size: 11pt;
+            font-size: 13pt;
             margin-top: 5px;
         }
 
@@ -120,7 +120,7 @@
 
         .grand-total {
             font-weight: bold;
-            font-size: 13pt;
+            font-size: 16pt;
             padding-top: 5px;
             border-top: 1px dashed #000;
         }
@@ -128,7 +128,7 @@
         .footer {
             text-align: center;
             margin-top: 15px;
-            font-size: 10pt;
+            font-size: 12pt;
         }
 
         @media print {
@@ -162,7 +162,8 @@
             <td class="label">Tanggal</td>
             <td class="colon">:</td>
             <td class="value">{{ $pembelian->tgl_transaksi->format('d/m/Y') }} |
-                {{ $pembelian->created_at->format('H:i') }}</td>
+                {{ $pembelian->created_at->format('H:i') }}
+            </td>
         </tr>
         <tr>
             <td class="label">Jatuh Tempo</td>

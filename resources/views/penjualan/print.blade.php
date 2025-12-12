@@ -25,7 +25,7 @@
         body {
             width: 54mm;
             font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 11pt;
+            font-size: 13pt;
             color: #000;
             margin: 0 auto;
             padding: 4mm 3mm;
@@ -50,7 +50,7 @@
         }
 
         .title {
-            font-size: 12pt;
+            font-size: 15pt;
             margin: 0;
             font-weight: bold;
         }
@@ -64,7 +64,7 @@
         /* Info Table */
         .info-table {
             width: 100%;
-            font-size: 10pt;
+            font-size: 12pt;
         }
 
         .info-table td {
@@ -92,14 +92,14 @@
 
         .item-name {
             font-weight: bold;
-            font-size: 11pt;
+            font-size: 14pt;
             margin-bottom: 2px;
         }
 
         /* Details (Qty, Harga, dll) */
         .details-table {
             width: 100%;
-            font-size: 10pt;
+            font-size: 12pt;
         }
 
         .details-table td {
@@ -119,7 +119,7 @@
         /* Total */
         .total-table {
             width: 100%;
-            font-size: 11pt;
+            font-size: 13pt;
             margin-top: 5px;
         }
 
@@ -137,7 +137,7 @@
 
         .grand-total {
             font-weight: bold;
-            font-size: 13pt;
+            font-size: 16pt;
             padding-top: 5px;
             border-top: 1px dashed #000;
         }
@@ -145,7 +145,7 @@
         .footer {
             text-align: center;
             margin-top: 15px;
-            font-size: 10pt;
+            font-size: 12pt;
         }
 
         @media print {

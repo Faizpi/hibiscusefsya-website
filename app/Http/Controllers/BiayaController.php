@@ -266,12 +266,37 @@ class BiayaController extends Controller
     {
         $a = [];
 
+        // ASCII Logo Art
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '================================';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
         $obj = new \stdClass();
         $obj->type = 0;
         $obj->content = 'HIBISCUS EFSYA';
         $obj->bold = 1;
         $obj->align = 1;
         $obj->format = 3;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = 'marketing@hibiscusefsya.com';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '================================';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
         array_push($a, $obj);
 
         $obj = new \stdClass();
@@ -291,7 +316,13 @@ class BiayaController extends Controller
             'Tanggal: ' . $biaya->tgl_transaksi->format('d/m/Y') . ' ' . $biaya->created_at->format('H:i'),
             'Penerima: ' . ($biaya->penerima ?? '-'),
             'Sales: ' . ($biaya->user->name ?? '-'),
+            'Status: ' . $biaya->status,
         ];
+
+        // Tambah approver jika sudah diapprove
+        if ($biaya->approver_id && $biaya->approver) {
+            $meta[] = 'Disetujui: ' . $biaya->approver->name;
+        }
 
         foreach ($meta as $line) {
             $obj = new \stdClass();
@@ -305,7 +336,7 @@ class BiayaController extends Controller
 
         $obj = new \stdClass();
         $obj->type = 0;
-        $obj->content = '------------------------------';
+        $obj->content = '================================';
         $obj->bold = 0;
         $obj->align = 0;
         $obj->format = 0;
@@ -315,7 +346,7 @@ class BiayaController extends Controller
             $obj = new \stdClass();
             $obj->type = 0;
             $obj->content = $item->kategori;
-            $obj->bold = 0;
+            $obj->bold = 1;
             $obj->align = 0;
             $obj->format = 0;
             array_push($a, $obj);
@@ -332,16 +363,25 @@ class BiayaController extends Controller
 
             $obj = new \stdClass();
             $obj->type = 0;
-            $obj->content = str_pad('Jumlah', 20) . 'Rp ' . number_format($item->jumlah, 0, ',', '.');
+            $obj->content = str_pad('Jumlah:', 15, ' ', STR_PAD_LEFT) . str_pad('Rp ' . number_format($item->jumlah, 0, ',', '.'), 17, ' ', STR_PAD_LEFT);
             $obj->bold = 0;
             $obj->align = 2;
+            $obj->format = 0;
+            array_push($a, $obj);
+
+            // Spacer
+            $obj = new \stdClass();
+            $obj->type = 0;
+            $obj->content = '';
+            $obj->bold = 0;
+            $obj->align = 0;
             $obj->format = 0;
             array_push($a, $obj);
         }
 
         $obj = new \stdClass();
         $obj->type = 0;
-        $obj->content = '------------------------------';
+        $obj->content = '================================';
         $obj->bold = 0;
         $obj->align = 0;
         $obj->format = 0;
@@ -355,17 +395,17 @@ class BiayaController extends Controller
         }
 
         $lines = [];
-        $lines[] = ['label' => 'Subtotal', 'value' => 'Rp ' . number_format($subtotal, 0, ',', '.')];
+        $lines[] = ['label' => 'Subtotal', 'value' => 'Rp ' . number_format($subtotal, 0, ',', '.'), 'bold' => 0];
         if ($pajakNominal > 0) {
-            $lines[] = ['label' => "Pajak ({$biaya->tax_percentage}%)", 'value' => 'Rp ' . number_format($pajakNominal, 0, ',', '.')];
+            $lines[] = ['label' => "Pajak ({$biaya->tax_percentage}%)", 'value' => 'Rp ' . number_format($pajakNominal, 0, ',', '.'), 'bold' => 0];
         }
-        $lines[] = ['label' => 'GRAND TOTAL', 'value' => 'Rp ' . number_format($biaya->grand_total, 0, ',', '.')];
+        $lines[] = ['label' => 'GRAND TOTAL', 'value' => 'Rp ' . number_format($biaya->grand_total, 0, ',', '.'), 'bold' => 1];
 
         foreach ($lines as $ln) {
             $obj = new \stdClass();
             $obj->type = 0;
-            $obj->content = str_pad($ln['label'], 20) . $ln['value'];
-            $obj->bold = ($ln['label'] == 'GRAND TOTAL') ? 1 : 0;
+            $obj->content = str_pad($ln['label'], 15, ' ', STR_PAD_LEFT) . str_pad($ln['value'], 17, ' ', STR_PAD_LEFT);
+            $obj->bold = $ln['bold'];
             $obj->align = 2;
             $obj->format = 0;
             array_push($a, $obj);
@@ -373,8 +413,24 @@ class BiayaController extends Controller
 
         $obj = new \stdClass();
         $obj->type = 0;
-        $obj->content = '--- Terima Kasih ---';
+        $obj->content = '================================';
         $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = 'marketing@hibiscusefsya.com';
+        $obj->bold = 0;
+        $obj->align = 1;
+        $obj->format = 0;
+        array_push($a, $obj);
+
+        $obj = new \stdClass();
+        $obj->type = 0;
+        $obj->content = '--- Terima Kasih ---';
+        $obj->bold = 1;
         $obj->align = 1;
         $obj->format = 0;
         array_push($a, $obj);
