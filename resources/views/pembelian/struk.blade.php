@@ -11,8 +11,8 @@
            PAGE & BASE SETUP (WAJIB)
         ==========================*/
         @page {
-            size: 58mm auto;
-            margin: 0;
+            size: A4;
+            margin: 20mm;
         }
 
         html,
@@ -27,13 +27,13 @@
 
         body {
             font-family: 'Courier New', monospace;
-            font-size: 8pt;
+            font-size: 12pt;
             color: #000;
-            padding: 2mm;
+            padding: 5mm;
             box-sizing: border-box;
             background: #fff;
             text-align: center;
-            line-height: 1.2;
+            line-height: 1.5;
         }
 
         /* CEGAH PAGE BREAK ANDROID */
@@ -50,20 +50,20 @@
         ==========================*/
         .header {
             text-align: center;
-            margin: 0 auto 6px;
+            margin: 0 auto 15px;
             width: 100%;
         }
 
         .logo {
-            max-width: 30mm;
+            max-width: 80mm;
             height: auto;
-            margin-bottom: 2px;
+            margin-bottom: 10px;
         }
 
         .title {
-            font-size: 10pt;
+            font-size: 16pt;
             font-weight: bold;
-            margin: 0 0 3px;
+            margin: 0 0 8px;
         }
 
         /* =========================
@@ -71,7 +71,7 @@
         ==========================*/
         .divider {
             border-top: 1px dashed #000;
-            margin: 3px 0;
+            margin: 10px 0;
         }
 
         /* =========================
@@ -79,7 +79,7 @@
         ==========================*/
         .info-table {
             width: 100%;
-            font-size: 7pt;
+            font-size: 11pt;
             text-align: left;
             margin: 0 auto;
         }
@@ -106,18 +106,18 @@
            ITEM
         ==========================*/
         .item-container {
-            margin-bottom: 3px;
+            margin-bottom: 8px;
         }
 
         .item-name {
             font-weight: bold;
-            font-size: 8pt;
-            margin-bottom: 1px;
+            font-size: 12pt;
+            margin-bottom: 4px;
         }
 
         .details-table {
             width: 100%;
-            font-size: 7pt;
+            font-size: 11pt;
         }
 
         .details-table td {
@@ -138,18 +138,18 @@
         ==========================*/
         .total-table {
             width: 100%;
-            font-size: 7pt;
+            font-size: 11pt;
         }
 
         .total-table td {
-            padding: 1px 0;
+            padding: 2px 0;
         }
 
         .grand-total {
             font-weight: bold;
-            font-size: 9pt;
+            font-size: 14pt;
             border-top: 1px dashed #000;
-            padding-top: 2px;
+            padding-top: 6px;
         }
 
         /* =========================
@@ -157,8 +157,8 @@
         ==========================*/
         .footer {
             text-align: center;
-            font-size: 7pt;
-            margin-top: 5px;
+            font-size: 11pt;
+            margin-top: 15px;
         }
 
         /* =========================
