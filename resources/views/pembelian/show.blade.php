@@ -30,6 +30,9 @@
                     class="btn btn-info btn-sm shadow-sm">
                     <i class="fas fa-print fa-sm"></i> Cetak Struk
                 </a>
+                <button type="button" class="btn btn-success btn-sm shadow-sm" data-toggle="modal" data-target="#qrModal">
+                    <i class="fas fa-qrcode fa-sm"></i> QR Code
+                </button>
                 <a href="{{ route('pembelian.index') }}" class="btn btn-secondary btn-sm shadow-sm">
                     <i class="fas fa-arrow-left fa-sm"></i> Kembali
                 </a>
@@ -305,4 +308,50 @@
             </div>
         </div>
     </div>
+
+    <!-- QR Code Modal -->
+    <div class="modal fade" id="qrModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-qrcode mr-2"></i>QR Code Print Struk</h5>
+                    <button class="close text-white" type="button" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="mb-3">Scan QR Code di bawah dengan aplikasi <strong>iWare</strong> untuk print:</p>
+                    @php
+                        $printUrl = route('pembelian.printRich', $pembelian->id);
+                        $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($printUrl);
+                    @endphp
+                    <img src="{{ $qrUrl }}" alt="QR Code Print" class="img-fluid mb-3" style="max-width: 300px;">
+                    <div class="alert alert-info">
+                        <small><i class="fas fa-info-circle"></i> Buka iWare > Rich Text > Scan QR Code ini</small>
+                    </div>
+                    <div class="input-group mt-3">
+                        <input type="text" class="form-control" id="printUrlInput" value="{{ $printUrl }}" readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyPrintUrl()">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function copyPrintUrl() {
+        const input = document.getElementById('printUrlInput');
+        input.select();
+        document.execCommand('copy');
+        
+        const btn = event.target.closest('button');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(() => {
+            btn.innerHTML = originalHtml;
+        }, 2000);
+    }
+    </script>
 @endsection
