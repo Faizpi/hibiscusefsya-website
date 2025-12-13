@@ -265,7 +265,8 @@ class BiayaController extends Controller
      */
     public function printJson(Biaya $biaya)
     {
-        return view('biaya.struk', compact('biaya'));
+        // Redirect ke image generator untuk thermal printer
+        return app(PrintImageController::class)->biaya($biaya->id);
     }
 
     public function edit(Biaya $biaya)

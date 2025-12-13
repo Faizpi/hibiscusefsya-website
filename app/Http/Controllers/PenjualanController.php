@@ -605,7 +605,8 @@ class PenjualanController extends Controller
      */
     public function printJson(Penjualan $penjualan)
     {
-        return view('penjualan.struk', compact('penjualan'));
+        // Redirect ke image generator untuk thermal printer
+        return app(PrintImageController::class)->penjualan($penjualan->id);
     }
 
     public function cancel(Penjualan $penjualan)
