@@ -11,8 +11,8 @@
            PAGE & BASE SETUP (WAJIB)
         ==========================*/
         @page {
-            size: A4;
-            margin: 20mm;
+            size: 58mm auto;
+            margin: 0;
         }
 
         html,
@@ -27,13 +27,13 @@
 
         body {
             font-family: 'Courier New', monospace;
-            font-size: 12pt;
+            font-size: 9pt;
             color: #000;
-            padding: 5mm;
+            padding: 3mm;
             box-sizing: border-box;
             background: #fff;
             text-align: center;
-            line-height: 1.5;
+            line-height: 1.3;
         }
 
         /* CEGAH PAGE BREAK ANDROID */
@@ -50,20 +50,26 @@
         ==========================*/
         .header {
             text-align: center;
-            margin: 0 auto 15px;
+            margin: 0 auto 5px;
             width: 100%;
         }
 
-        .logo {
-            max-width: 80mm;
-            height: auto;
-            margin-bottom: 10px;
+        .store-name {
+            font-size: 11pt;
+            font-weight: bold;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        .store-address {
+            font-size: 8pt;
+            margin: 2px 0;
         }
 
         .title {
-            font-size: 16pt;
+            font-size: 10pt;
             font-weight: bold;
-            margin: 0 0 8px;
+            margin: 5px 0 3px;
         }
 
         /* =========================
@@ -71,7 +77,7 @@
         ==========================*/
         .divider {
             border-top: 1px dashed #000;
-            margin: 10px 0;
+            margin: 4px 0;
         }
 
         /* =========================
@@ -79,7 +85,7 @@
         ==========================*/
         .info-table {
             width: 100%;
-            font-size: 11pt;
+            font-size: 8pt;
             text-align: left;
             margin: 0 auto;
         }
@@ -106,18 +112,18 @@
            ITEM
         ==========================*/
         .item-container {
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
 
         .item-name {
             font-weight: bold;
-            font-size: 12pt;
-            margin-bottom: 4px;
+            font-size: 9pt;
+            margin-bottom: 2px;
         }
 
         .details-table {
             width: 100%;
-            font-size: 11pt;
+            font-size: 8pt;
         }
 
         .details-table td {
@@ -138,18 +144,18 @@
         ==========================*/
         .total-table {
             width: 100%;
-            font-size: 11pt;
+            font-size: 8pt;
         }
 
         .total-table td {
-            padding: 2px 0;
+            padding: 1px 0;
         }
 
         .grand-total {
             font-weight: bold;
-            font-size: 14pt;
+            font-size: 10pt;
             border-top: 1px dashed #000;
-            padding-top: 6px;
+            padding-top: 3px;
         }
 
         /* =========================
@@ -157,8 +163,8 @@
         ==========================*/
         .footer {
             text-align: center;
-            font-size: 11pt;
-            margin-top: 15px;
+            font-size: 8pt;
+            margin-top: 6px;
         }
 
         /* =========================
@@ -182,9 +188,8 @@
 
     <!-- HEADER -->
     <div class="header">
-        @if(file_exists(public_path('assets/img/logoHE1.png')))
-        <img src="{{ asset('assets/img/logoHE1.png') }}" class="logo">
-        @endif
+        <div class="store-name">HIBISCUS EFSYA</div>
+        <div class="store-address">marketing@hibiscusefsya.com</div>
         <div class="title">INVOICE PENJUALAN</div>
     </div>
 
