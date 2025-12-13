@@ -1,188 +1,172 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
     <title>Struk Biaya</title>
     <style>
         @page {
             size: 58mm auto;
             margin: 0;
         }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            page-break-before: avoid !important;
-            page-break-after: avoid !important;
-            page-break-inside: avoid !important;
-        }
         html, body {
             width: 58mm;
             height: auto !important;
-            min-height: 0 !important;
-            overflow: hidden !important;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            line-height: 1.4;
-            background: #fff;
-            color: #000;
-            padding: 10px;
             margin: 0;
+            padding: 0;
+            overflow: hidden;
         }
-        .center {
-            text-align: center;
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 10pt;
+            color: #000;
+            padding: 3mm 2mm;
+            box-sizing: border-box;
+            background: #fff;
         }
-        .bold {
-            font-weight: bold;
-        }
-        .separator {
-            border-top: 1px dashed #000;
-            margin: 8px 0;
+        * {
+            page-break-before: avoid !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         .header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
         .logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 8px;
-        }
-        .company-name {
-            font-size: 16px;
-            font-weight: bold;
+            max-width: 45mm;
+            height: auto;
             margin-bottom: 4px;
         }
-        .contact {
-            font-size: 11px;
-            margin-bottom: 8px;
-        }
         .title {
-            font-size: 14px;
+            font-size: 12pt;
             font-weight: bold;
-            margin: 10px 0;
+            margin: 0;
         }
-        .info-row {
-            margin: 3px 0;
-            font-size: 11px;
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 6px 0;
         }
-        .info-label {
-            display: inline-block;
-            width: 90px;
+        .info-table {
+            width: 100%;
+            font-size: 9pt;
         }
-        .item {
-            margin: 8px 0;
+        .info-table td {
+            vertical-align: top;
+            padding: 1px 0;
+        }
+        .label {
+            width: 35%;
+        }
+        .colon {
+            width: 5%;
+            text-align: center;
+        }
+        .value {
+            width: 60%;
+        }
+        .item-container {
+            margin-bottom: 6px;
         }
         .item-name {
             font-weight: bold;
-            font-size: 12px;
+            font-size: 10pt;
+            margin-bottom: 2px;
         }
-        .item-detail {
-            font-size: 11px;
-            margin: 2px 0;
+        .item-desc {
+            font-size: 9pt;
+            margin-bottom: 2px;
         }
-        .item-price {
+        .details-table {
+            width: 100%;
+            font-size: 9pt;
+        }
+        .details-table td {
+            padding: 1px 0;
+        }
+        .lbl {
+            width: 35%;
+        }
+        .val {
+            width: 65%;
             text-align: right;
-            font-size: 11px;
         }
-        .total-section {
-            margin-top: 10px;
+        .total-table {
+            width: 100%;
+            font-size: 9pt;
         }
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            margin: 3px 0;
+        .total-table td {
+            padding: 1px 0;
         }
         .grand-total {
             font-weight: bold;
-            font-size: 13px;
-            margin-top: 5px;
+            font-size: 11pt;
+            border-top: 1px dashed #000;
+            padding-top: 4px;
         }
         .footer {
             text-align: center;
-            margin-top: 15px;
-            font-size: 11px;
+            font-size: 9pt;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
+    @php
+        $dateCode = $biaya->created_at->format('Ymd');
+        $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);
+        $nomorInvoice = "EXP-{$biaya->user_id}-{$dateCode}-{$noUrut}";
+    @endphp
+
     <div class="header">
         @if(file_exists(public_path('assets/images/logo.png')))
         <img src="{{ asset('assets/images/logo.png') }}" class="logo" alt="Logo">
         @endif
-        <div class="company-name">HIBISCUS EFSYA</div>
-        <div class="contact">marketing@hibiscusefsya.com</div>
+        <div class="title">BUKTI PENGELUARAN</div>
     </div>
 
-    <div class="separator"></div>
+    <table class="info-table">
+        <tr><td class="label">Nomor</td><td class="colon">:</td><td class="value">{{ $nomorInvoice }}</td></tr>
+        <tr><td class="label">Tanggal</td><td class="colon">:</td><td class="value">{{ $biaya->tgl_transaksi->format('d/m/Y') }} | {{ $biaya->created_at->format('H:i') }}</td></tr>
+        <tr><td class="label">Penerima</td><td class="colon">:</td><td class="value">{{ $biaya->penerima ?? '-' }}</td></tr>
+        <tr><td class="label">Sales</td><td class="colon">:</td><td class="value">{{ $biaya->user->name ?? '-' }}</td></tr>
+        <tr><td class="label">Status</td><td class="colon">:</td><td class="value">{{ $biaya->status }}</td></tr>
+        @if($biaya->approver_id && $biaya->approver)
+        <tr><td class="label">Disetujui</td><td class="colon">:</td><td class="value">{{ $biaya->approver->name }}</td></tr>
+        @endif
+    </table>
 
-    <div class="center title">BUKTI PENGELUARAN</div>
-
-    <div class="info-row">
-        <span class="info-label">Nomor</span>: EXP-{{ $biaya->user_id }}-{{ $biaya->created_at->format('Ymd') }}-{{ str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT) }}
-    </div>
-    <div class="info-row">
-        <span class="info-label">Tanggal</span>: {{ $biaya->tgl_transaksi->format('d/m/Y') }} {{ $biaya->created_at->format('H:i') }}
-    </div>
-    <div class="info-row">
-        <span class="info-label">Penerima</span>: {{ $biaya->penerima ?? '-' }}
-    </div>
-    <div class="info-row">
-        <span class="info-label">Sales</span>: {{ $biaya->user->name ?? '-' }}
-    </div>
-    <div class="info-row">
-        <span class="info-label">Status</span>: {{ $biaya->status }}
-    </div>
-    @if($biaya->approver_id && $biaya->approver)
-    <div class="info-row">
-        <span class="info-label">Disetujui</span>: {{ $biaya->approver->name }}
-    </div>
-    @endif
-
-    <div class="separator"></div>
+    <div class="divider"></div>
 
     @foreach($biaya->items as $item)
-    <div class="item">
+    <div class="item-container">
         <div class="item-name">{{ $item->kategori }}</div>
         @if($item->deskripsi)
-        <div class="item-detail">{{ $item->deskripsi }}</div>
+        <div class="item-desc">{{ $item->deskripsi }}</div>
         @endif
-        <div class="item-price">
-            <strong>Jumlah Rp {{ number_format($item->jumlah, 0, ',', '.') }}</strong>
-        </div>
+        <table class="details-table">
+            <tr><td class="lbl" style="font-weight:bold">Jumlah</td><td class="val" style="font-weight:bold">Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td></tr>
+        </table>
     </div>
     @endforeach
 
-    <div class="separator"></div>
+    <div class="divider"></div>
 
-    <div class="total-section">
-        <div class="total-row">
-            <span>Subtotal</span>
-            <span>Rp {{ number_format($biaya->items->sum('jumlah'), 0, ',', '.') }}</span>
-        </div>
+    <table class="total-table">
+        <tr><td class="lbl">Subtotal</td><td class="val">Rp {{ number_format($biaya->items->sum('jumlah'), 0, ',', '.') }}</td></tr>
         @if($biaya->tax_percentage > 0)
         @php
             $pajakNominal = $biaya->items->sum('jumlah') * ($biaya->tax_percentage / 100);
         @endphp
-        <div class="total-row">
-            <span>Pajak ({{ $biaya->tax_percentage }}%)</span>
-            <span>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
-        </div>
+        <tr><td class="lbl">Pajak ({{ $biaya->tax_percentage }}%)</td><td class="val">Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td></tr>
         @endif
-        <div class="separator"></div>
-        <div class="total-row grand-total">
-            <span>GRAND TOTAL</span>
-            <span>Rp {{ number_format($biaya->grand_total, 0, ',', '.') }}</span>
-        </div>
-    </div>
-
-    <div class="separator"></div>
+        <tr><td class="lbl grand-total">GRAND TOTAL</td><td class="val grand-total">Rp {{ number_format($biaya->grand_total, 0, ',', '.') }}</td></tr>
+    </table>
 
     <div class="footer">
         <div>marketing@hibiscusefsya.com</div>
-        <div class="bold">-- Terima Kasih --</div>
+        <div>-- Terima Kasih --</div>
     </div>
 </body>
 </html>
