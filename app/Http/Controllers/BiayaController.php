@@ -260,181 +260,88 @@ class BiayaController extends Controller
     }
 
     /**
-     * Return JSON formatted for Bluetooth Print app (thermal printers)
+     * Return ESC/POS formatted data for thermal printers
      */
     public function printJson(Biaya $biaya)
     {
-        $a = [];
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '================================';
-        $obj->bold = 0;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = 'HIBISCUS EFSYA';
-        $obj->bold = 1;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = 'marketing@hibiscusefsya.com';
-        $obj->bold = 0;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '================================';
-        $obj->bold = 0;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = 'BUKTI PENGELUARAN';
-        $obj->bold = 1;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
+        $printer = new \App\Helpers\EscPosHelper();
+        
+        // Header
+        $printer->align(\App\Helpers\EscPosHelper::ALIGN_CENTER)
+            ->separator('=', 32)
+            ->bold(true)
+            ->line('HIBISCUS EFSYA')
+            ->bold(false)
+            ->line('marketing@hibiscusefsya.com')
+            ->separator('=', 32)
+            ->bold(true)
+            ->line('BUKTI PENGELUARAN')
+            ->bold(false);
+        
+        // Invoice details
         $dateCode = $biaya->created_at->format('Ymd');
         $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "EXP-{$biaya->user_id}-{$dateCode}-{$noUrut}";
-
-        $meta = [
-            'Nomor: ' . $nomorInvoice,
-            'Tanggal: ' . $biaya->tgl_transaksi->format('d/m/Y') . ' ' . $biaya->created_at->format('H:i'),
-            'Penerima: ' . ($biaya->penerima ?? '-'),
-            'Sales: ' . ($biaya->user->name ?? '-'),
-            'Status: ' . $biaya->status,
-        ];
-
+        
+        $printer->align(\App\Helpers\EscPosHelper::ALIGN_LEFT)
+            ->line('Nomor: ' . $nomorInvoice)
+            ->line('Tanggal: ' . $biaya->tgl_transaksi->format('d/m/Y') . ' ' . $biaya->created_at->format('H:i'))
+            ->line('Penerima: ' . ($biaya->penerima ?? '-'))
+            ->line('Sales: ' . ($biaya->user->name ?? '-'))
+            ->line('Status: ' . $biaya->status);
+        
         // Tambah approver jika sudah diapprove
         if ($biaya->approver_id && $biaya->approver) {
-            $meta[] = 'Disetujui: ' . $biaya->approver->name;
+            $printer->line('Disetujui: ' . $biaya->approver->name);
         }
-
-        foreach ($meta as $line) {
-            $obj = new \stdClass();
-            $obj->type = 0;
-            $obj->content = $line;
-            $obj->bold = 0;
-            $obj->align = 0;
-            $obj->format = 0;
-            array_push($a, $obj);
-        }
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '================================';
-        $obj->bold = 0;
-        $obj->align = 0;
-        $obj->format = 0;
-        array_push($a, $obj);
-
+        
+        $printer->separator('=', 32);
+        
+        // Items
         foreach ($biaya->items as $item) {
-            $obj = new \stdClass();
-            $obj->type = 0;
-            $obj->content = $item->kategori;
-            $obj->bold = 1;
-            $obj->align = 0;
-            $obj->format = 0;
-            array_push($a, $obj);
-
+            $printer->bold(true)
+                ->line($item->kategori)
+                ->bold(false);
+            
             if ($item->deskripsi) {
-                $obj = new \stdClass();
-                $obj->type = 0;
-                $obj->content = $item->deskripsi;
-                $obj->bold = 0;
-                $obj->align = 0;
-                $obj->format = 0;
-                array_push($a, $obj);
+                $printer->line($item->deskripsi);
             }
-
-            $obj = new \stdClass();
-            $obj->type = 0;
-            $obj->content = str_pad('Jumlah:', 15, ' ', STR_PAD_LEFT) . str_pad('Rp ' . number_format($item->jumlah, 0, ',', '.'), 17, ' ', STR_PAD_LEFT);
-            $obj->bold = 0;
-            $obj->align = 2;
-            $obj->format = 0;
-            array_push($a, $obj);
-
-            // Spacer
-            $obj = new \stdClass();
-            $obj->type = 0;
-            $obj->content = '';
-            $obj->bold = 0;
-            $obj->align = 0;
-            $obj->format = 0;
-            array_push($a, $obj);
+            
+            $printer->align(\App\Helpers\EscPosHelper::ALIGN_RIGHT)
+                ->line('Jumlah: Rp ' . number_format($item->jumlah, 0, ',', '.'))
+                ->align(\App\Helpers\EscPosHelper::ALIGN_LEFT)
+                ->feed(1);
         }
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '================================';
-        $obj->bold = 0;
-        $obj->align = 0;
-        $obj->format = 0;
-        array_push($a, $obj);
-
+        
+        // Totals
+        $printer->separator('=', 32)
+            ->align(\App\Helpers\EscPosHelper::ALIGN_RIGHT);
+        
         $subtotal = $biaya->items->sum('jumlah');
+        $printer->line('Subtotal: Rp ' . number_format($subtotal, 0, ',', '.'));
+        
         if ($biaya->tax_percentage > 0) {
             $pajakNominal = $subtotal * ($biaya->tax_percentage / 100);
-        } else {
-            $pajakNominal = 0;
+            $printer->line("Pajak ({$biaya->tax_percentage}%): Rp " . number_format($pajakNominal, 0, ',', '.'));
         }
-
-        $lines = [];
-        $lines[] = ['label' => 'Subtotal', 'value' => 'Rp ' . number_format($subtotal, 0, ',', '.'), 'bold' => 0];
-        if ($pajakNominal > 0) {
-            $lines[] = ['label' => "Pajak ({$biaya->tax_percentage}%)", 'value' => 'Rp ' . number_format($pajakNominal, 0, ',', '.'), 'bold' => 0];
-        }
-        $lines[] = ['label' => 'GRAND TOTAL', 'value' => 'Rp ' . number_format($biaya->grand_total, 0, ',', '.'), 'bold' => 1];
-
-        foreach ($lines as $ln) {
-            $obj = new \stdClass();
-            $obj->type = 0;
-            $obj->content = str_pad($ln['label'], 15, ' ', STR_PAD_LEFT) . str_pad($ln['value'], 17, ' ', STR_PAD_LEFT);
-            $obj->bold = $ln['bold'];
-            $obj->align = 2;
-            $obj->format = 0;
-            array_push($a, $obj);
-        }
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '================================';
-        $obj->bold = 0;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = 'marketing@hibiscusefsya.com';
-        $obj->bold = 0;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '--- Terima Kasih ---';
-        $obj->bold = 1;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        return response()->json($a);
+        
+        $printer->bold(true)
+            ->line('GRAND TOTAL: Rp ' . number_format($biaya->grand_total, 0, ',', '.'))
+            ->bold(false);
+        
+        // Footer
+        $printer->align(\App\Helpers\EscPosHelper::ALIGN_CENTER)
+            ->separator('=', 32)
+            ->line('marketing@hibiscusefsya.com')
+            ->bold(true)
+            ->line('--- Terima Kasih ---')
+            ->bold(false)
+            ->feed(3)
+            ->cut();
+        
+        // Return raw ESC/POS data base64 encoded
+        return response($printer->output())
+            ->header('Content-Type', 'text/plain');
     }
 
     public function edit(Biaya $biaya)

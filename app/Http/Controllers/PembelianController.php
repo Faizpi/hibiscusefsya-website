@@ -470,204 +470,105 @@ class PembelianController extends Controller
     }
 
     /**
-     * Return JSON formatted for Bluetooth Print app (thermal printers)
+     * Return ESC/POS formatted data for thermal printers
      * URL: /pembelian/{pembelian}/print-json
      */
     public function printJson(Pembelian $pembelian)
     {
-        $a = [];
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '================================';
-        $obj->bold = 0;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = 'HIBISCUS EFSYA';
-        $obj->bold = 1;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = 'marketing@hibiscusefsya.com';
-        $obj->bold = 0;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '================================';
-        $obj->bold = 0;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = 'PERMINTAAN PEMBELIAN';
-        $obj->bold = 1;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
+        $printer = new \App\Helpers\EscPosHelper();
+        
+        // Header
+        $printer->align(\App\Helpers\EscPosHelper::ALIGN_CENTER)
+            ->separator('=', 32)
+            ->bold(true)
+            ->line('HIBISCUS EFSYA')
+            ->bold(false)
+            ->line('marketing@hibiscusefsya.com')
+            ->separator('=', 32)
+            ->bold(true)
+            ->line('PERMINTAAN PEMBELIAN')
+            ->bold(false);
+        
+        // Invoice details
         $dateCode = $pembelian->created_at->format('Ymd');
         $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "PR-{$pembelian->user_id}-{$dateCode}-{$noUrut}";
-
-        $meta = [
-            'Nomor: ' . $nomorInvoice,
-            'Tanggal: ' . $pembelian->tgl_transaksi->format('d/m/Y') . ' ' . $pembelian->created_at->format('H:i'),
-            'Supplier: ' . ($pembelian->supplier ?? '-'),
-            'Gudang: ' . ($pembelian->gudang->nama_gudang ?? '-'),
-            'Sales: ' . ($pembelian->user->name ?? '-'),
-            'Status: ' . $pembelian->status,
-        ];
-
+        
+        $printer->align(\App\Helpers\EscPosHelper::ALIGN_LEFT)
+            ->line('Nomor: ' . $nomorInvoice)
+            ->line('Tanggal: ' . $pembelian->tgl_transaksi->format('d/m/Y') . ' ' . $pembelian->created_at->format('H:i'))
+            ->line('Supplier: ' . ($pembelian->supplier ?? '-'))
+            ->line('Gudang: ' . ($pembelian->gudang->nama_gudang ?? '-'))
+            ->line('Sales: ' . ($pembelian->user->name ?? '-'))
+            ->line('Status: ' . $pembelian->status);
+        
         // Tambah approver jika sudah diapprove
         if ($pembelian->approver_id && $pembelian->approver) {
-            $meta[] = 'Disetujui: ' . $pembelian->approver->name;
+            $printer->line('Disetujui: ' . $pembelian->approver->name);
         }
-
-        foreach ($meta as $line) {
-            $obj = new \stdClass();
-            $obj->type = 0;
-            $obj->content = $line;
-            $obj->bold = 0;
-            $obj->align = 0;
-            $obj->format = 0;
-            array_push($a, $obj);
-        }
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '================================';
-        $obj->bold = 0;
-        $obj->align = 0;
-        $obj->format = 0;
-        array_push($a, $obj);
-
+        
+        $printer->separator('=', 32);
+        
+        // Items
         foreach ($pembelian->items as $item) {
-            $obj = new \stdClass();
-            $obj->type = 0;
-            $obj->content = $item->produk->nama_produk;
-            $obj->bold = 1;
-            $obj->align = 0;
-            $obj->format = 0;
-            array_push($a, $obj);
-
+            $printer->bold(true)
+                ->line($item->produk->nama_produk)
+                ->bold(false);
+            
             // Item code
             if ($item->produk->item_code) {
-                $obj = new \stdClass();
-                $obj->type = 0;
-                $obj->content = 'Kode: ' . $item->produk->item_code;
-                $obj->bold = 0;
-                $obj->align = 0;
-                $obj->format = 0;
-                array_push($a, $obj);
+                $printer->line('Kode: ' . $item->produk->item_code);
             }
-
+            
             // Qty dan harga satuan
-            $obj = new \stdClass();
-            $obj->type = 0;
-            $obj->content = 'Qty: ' . $item->kuantitas . ' x Rp ' . number_format($item->harga_satuan, 0, ',', '.');
-            $obj->bold = 0;
-            $obj->align = 0;
-            $obj->format = 0;
-            array_push($a, $obj);
-
+            $printer->line('Qty: ' . $item->kuantitas . ' x Rp ' . number_format($item->harga_satuan, 0, ',', '.'));
+            
             // Diskon per item jika ada
             if ($item->diskon_per_item > 0) {
-                $obj = new \stdClass();
-                $obj->type = 0;
-                $obj->content = 'Diskon: - Rp ' . number_format($item->diskon_per_item, 0, ',', '.');
-                $obj->bold = 0;
-                $obj->align = 0;
-                $obj->format = 0;
-                array_push($a, $obj);
+                $printer->line('Diskon: - Rp ' . number_format($item->diskon_per_item, 0, ',', '.'));
             }
-
+            
             // Jumlah baris
-            $obj = new \stdClass();
-            $obj->type = 0;
-            $obj->content = str_pad('Jumlah:', 15, ' ', STR_PAD_LEFT) . str_pad('Rp ' . number_format($item->jumlah_baris, 0, ',', '.'), 17, ' ', STR_PAD_LEFT);
-            $obj->bold = 0;
-            $obj->align = 2;
-            $obj->format = 0;
-            array_push($a, $obj);
-
-            // Spacer
-            $obj = new \stdClass();
-            $obj->type = 0;
-            $obj->content = '';
-            $obj->bold = 0;
-            $obj->align = 0;
-            $obj->format = 0;
-            array_push($a, $obj);
+            $printer->align(\App\Helpers\EscPosHelper::ALIGN_RIGHT)
+                ->line('Jumlah: Rp ' . number_format($item->jumlah_baris, 0, ',', '.'))
+                ->align(\App\Helpers\EscPosHelper::ALIGN_LEFT)
+                ->feed(1);
         }
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '================================';
-        $obj->bold = 0;
-        $obj->align = 0;
-        $obj->format = 0;
-        array_push($a, $obj);
-
+        
+        // Totals
+        $printer->separator('=', 32)
+            ->align(\App\Helpers\EscPosHelper::ALIGN_RIGHT);
+        
         $subtotal = $pembelian->items->sum('jumlah_baris');
-        $lines = [];
-        $lines[] = ['label' => 'Subtotal', 'value' => 'Rp ' . number_format($subtotal, 0, ',', '.'), 'bold' => 0];
+        $printer->line('Subtotal: Rp ' . number_format($subtotal, 0, ',', '.'));
+        
         if ($pembelian->diskon_akhir > 0) {
-            $lines[] = ['label' => 'Diskon Akhir', 'value' => '- Rp ' . number_format($pembelian->diskon_akhir, 0, ',', '.'), 'bold' => 0];
+            $printer->line('Diskon Akhir: - Rp ' . number_format($pembelian->diskon_akhir, 0, ',', '.'));
         }
+        
         if ($pembelian->tax_percentage > 0) {
             $kenaPajak = max(0, $subtotal - $pembelian->diskon_akhir);
             $pajakNominal = $kenaPajak * ($pembelian->tax_percentage / 100);
-            $lines[] = ['label' => "Pajak ({$pembelian->tax_percentage}%)", 'value' => 'Rp ' . number_format($pajakNominal, 0, ',', '.'), 'bold' => 0];
+            $printer->line("Pajak ({$pembelian->tax_percentage}%): Rp " . number_format($pajakNominal, 0, ',', '.'));
         }
-        $lines[] = ['label' => 'GRAND TOTAL', 'value' => 'Rp ' . number_format($pembelian->grand_total, 0, ',', '.'), 'bold' => 1];
-
-        foreach ($lines as $ln) {
-            $obj = new \stdClass();
-            $obj->type = 0;
-            $obj->content = str_pad($ln['label'], 15, ' ', STR_PAD_LEFT) . str_pad($ln['value'], 17, ' ', STR_PAD_LEFT);
-            $obj->bold = $ln['bold'];
-            $obj->align = 2;
-            $obj->format = 0;
-            array_push($a, $obj);
-        }
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '================================';
-        $obj->bold = 0;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = 'marketing@hibiscusefsya.com';
-        $obj->bold = 0;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        $obj = new \stdClass();
-        $obj->type = 0;
-        $obj->content = '--- Dokumen Internal ---';
-        $obj->bold = 1;
-        $obj->align = 1;
-        $obj->format = 0;
-        array_push($a, $obj);
-
-        return response()->json($a);
+        
+        $printer->bold(true)
+            ->line('GRAND TOTAL: Rp ' . number_format($pembelian->grand_total, 0, ',', '.'))
+            ->bold(false);
+        
+        // Footer
+        $printer->align(\App\Helpers\EscPosHelper::ALIGN_CENTER)
+            ->separator('=', 32)
+            ->line('marketing@hibiscusefsya.com')
+            ->bold(true)
+            ->line('--- Dokumen Internal ---')
+            ->bold(false)
+            ->feed(3)
+            ->cut();
+        
+        // Return raw ESC/POS data base64 encoded
+        return response($printer->output())
+            ->header('Content-Type', 'text/plain');
     }
 
     public function approve(Pembelian $pembelian)
