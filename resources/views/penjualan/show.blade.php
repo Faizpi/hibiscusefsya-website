@@ -403,15 +403,16 @@
             const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
             const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
 
-            // Encode and send data
+            // Encode and send data (encode full text, then chunk by bytes)
             const encoder = new TextEncoder();
-            
-            // Send data in chunks (Bluetooth has size limits)
-            const chunkSize = 512;
-            for (let i = 0; i < printData.length; i += chunkSize) {
-                const chunk = printData.slice(i, i + chunkSize);
-                await characteristic.writeValue(encoder.encode(chunk));
-                await new Promise(resolve => setTimeout(resolve, 50)); // Small delay between chunks
+            const data = encoder.encode(printData);
+
+            // Send data in byte-chunks (Bluetooth has size limits)
+            const chunkSize = 256; // smaller chunk to avoid buffer issues
+            for (let i = 0; i < data.byteLength; i += chunkSize) {
+                const chunk = data.slice(i, i + chunkSize);
+                await characteristic.writeValue(chunk);
+                await new Promise(resolve => setTimeout(resolve, 100)); // Slightly larger delay between chunks
             }
 
             // Success feedback

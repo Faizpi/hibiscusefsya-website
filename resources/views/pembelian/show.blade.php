@@ -394,11 +394,12 @@
             const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
 
             const encoder = new TextEncoder();
-            const chunkSize = 512;
-            for (let i = 0; i < printData.length; i += chunkSize) {
-                const chunk = printData.slice(i, i + chunkSize);
-                await characteristic.writeValue(encoder.encode(chunk));
-                await new Promise(resolve => setTimeout(resolve, 50));
+            const data = encoder.encode(printData);
+            const chunkSize = 256;
+            for (let i = 0; i < data.byteLength; i += chunkSize) {
+                const chunk = data.slice(i, i + chunkSize);
+                await characteristic.writeValue(chunk);
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
 
             btn.innerHTML = '<i class="fas fa-check"></i> Berhasil!';
