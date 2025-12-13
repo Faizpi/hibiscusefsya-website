@@ -17,11 +17,12 @@
 
         html,
         body {
-            width: 58mm;
+            width: 100%;
+            max-width: 100vw;
             height: auto !important;
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         body {
