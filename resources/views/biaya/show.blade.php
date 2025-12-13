@@ -27,7 +27,7 @@
                     </button>
                 @endif
 
-                <a href="{{ route('biaya.printJson', $biaya->id) }}" target="_blank" class="btn btn-info btn-sm shadow-sm">
+                <a href="{{ route('biaya.printRich', $biaya->id) }}" target="_blank" class="btn btn-info btn-sm shadow-sm">
                     <i class="fas fa-print fa-sm"></i> Cetak Struk
                 </a>
                 <a href="{{ route('biaya.index') }}" class="btn btn-secondary btn-sm shadow-sm">

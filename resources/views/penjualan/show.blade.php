@@ -38,7 +38,7 @@
                 @endif
 
                 {{-- Tombol Print & Kembali --}}
-                <a href="{{ route('penjualan.printJson', $penjualan->id) }}" target="_blank"
+                <a href="{{ route('penjualan.printRich', $penjualan->id) }}" target="_blank"
                     class="btn btn-info btn-sm shadow-sm">
                     <i class="fas fa-print fa-sm"></i> Cetak Struk
                 </a>

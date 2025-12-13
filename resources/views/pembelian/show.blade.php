@@ -26,7 +26,7 @@
                 @endif
 
                 {{-- Tombol Print & Kembali --}}
-                <a href="{{ route('pembelian.printJson', $pembelian->id) }}" target="_blank"
+                <a href="{{ route('pembelian.printRich', $pembelian->id) }}" target="_blank"
                     class="btn btn-info btn-sm shadow-sm">
                     <i class="fas fa-print fa-sm"></i> Cetak Struk
                 </a>
