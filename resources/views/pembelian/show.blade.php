@@ -26,6 +26,10 @@
                 @endif
 
                 {{-- Tombol Print & Kembali --}}
+                <button type="button" id="printBluetooth" class="btn btn-primary btn-sm shadow-sm" 
+                    data-url="{{ route('pembelian.printRich', $pembelian->id) }}">
+                    <i class="fas fa-bluetooth fa-sm"></i> Print Bluetooth
+                </button>
                 <a href="{{ route('pembelian.printRich', $pembelian->id) }}" target="_blank"
                     class="btn btn-info btn-sm shadow-sm">
                     <i class="fas fa-print fa-sm"></i> Cetak Struk
@@ -353,5 +357,76 @@
             btn.innerHTML = originalHtml;
         }, 2000);
     }
+
+    // Bluetooth Print Function
+    document.getElementById('printBluetooth')?.addEventListener('click', async function() {
+        const printUrl = this.dataset.url;
+        const btn = this;
+        const originalHtml = btn.innerHTML;
+        
+        try {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
+            btn.disabled = true;
+
+            if (!navigator.bluetooth) {
+                throw new Error('Bluetooth tidak didukung di browser ini. Gunakan Chrome/Edge di Android.');
+            }
+
+            const device = await navigator.bluetooth.requestDevice({
+                filters: [
+                    { services: ['000018f0-0000-1000-8000-00805f9b34fb'] },
+                    { namePrefix: 'POS' },
+                    { namePrefix: 'Thermal' },
+                    { namePrefix: 'Printer' }
+                ],
+                optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+            });
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching data...';
+
+            const response = await fetch(printUrl);
+            const printData = await response.text();
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Printing...';
+
+            const server = await device.gatt.connect();
+            const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+            const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
+            const encoder = new TextEncoder();
+            const chunkSize = 512;
+            for (let i = 0; i < printData.length; i += chunkSize) {
+                const chunk = printData.slice(i, i + chunkSize);
+                await characteristic.writeValue(encoder.encode(chunk));
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+
+            btn.innerHTML = '<i class="fas fa-check"></i> Berhasil!';
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-success');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-primary');
+                btn.disabled = false;
+            }, 2000);
+
+        } catch (error) {
+            console.error('Bluetooth print error:', error);
+            btn.innerHTML = '<i class="fas fa-times"></i> Gagal';
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-danger');
+            
+            alert('Gagal print via Bluetooth: ' + error.message);
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-primary');
+                btn.disabled = false;
+            }, 2000);
+        }
+    });
     </script>
 @endsection
