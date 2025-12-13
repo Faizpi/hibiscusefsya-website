@@ -476,8 +476,8 @@ class PembelianController extends Controller
      */
     public function printJson(Pembelian $pembelian)
     {
-        // Redirect ke image generator untuk thermal printer
-        return app(PrintImageController::class)->pembelian($pembelian->id);
+        // HTML akan di-render jadi image oleh html2canvas di client side
+        return view('pembelian.struk', compact('pembelian'));
     }
 
     public function approve(Pembelian $pembelian)

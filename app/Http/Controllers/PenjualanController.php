@@ -605,8 +605,8 @@ class PenjualanController extends Controller
      */
     public function printJson(Penjualan $penjualan)
     {
-        // Redirect ke image generator untuk thermal printer
-        return app(PrintImageController::class)->penjualan($penjualan->id);
+        // HTML akan di-render jadi image oleh html2canvas di client side
+        return view('penjualan.struk', compact('penjualan'));
     }
 
     public function cancel(Penjualan $penjualan)

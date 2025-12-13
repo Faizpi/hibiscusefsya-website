@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Struk Penjualan</title>
 
     <style>
@@ -167,6 +168,8 @@
 
 <body>
 
+<div id="receipt">
+
     @php
         $dateCode = $penjualan->created_at->format('Ymd');
         $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
@@ -247,7 +250,42 @@
     <div class="footer">
         <div>marketing@hibiscusefsya.com</div>
         <div>-- Terima Kasih --</div>
-    </div>
+  div>
+
+<!-- html2canvas for client-side image rendering -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+async function renderImage() {
+    const receipt = document.getElementById('receipt');
+    
+    const canvas = await html2canvas(receipt, {
+        scale: 2,
+        backgroundColor: '#fff',
+        useCORS: true,
+        width: 384,
+        windowWidth: 384
+    });
+    
+    const img = canvas.toDataURL('image/png');
+    
+    // Replace body dengan image untuk iWare Image Mode
+    document.body.innerHTML = `
+        <div style="text-align:center;background:#fff;padding:10px;">
+            <img src="${img}" style="width:100%;max-width:384px;display:block;margin:0 auto;">
+            <p style="margin-top:10px;font-size:12px;color:#666;">
+                Tap & hold gambar → Share → Pilih iWare → Print
+            </p>
+        </div>
+    `;
+}
+
+// Auto-render setelah halaman load
+window.addEventListener('load', () => {
+    setTimeout(renderImage, 500);
+});
+</script>
+
+</  </div>
 
 </body>
 </html>
