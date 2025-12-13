@@ -31,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
     // 1. Modul Penjualan
     Route::get('penjualan/{penjualan}/print', 'PenjualanController@print')->name('penjualan.print');
     Route::get('penjualan/{penjualan}/print-json', 'PenjualanController@printJson')->name('penjualan.printJson');
+    Route::get('penjualan/{penjualan}/struk-image', 'PrintImageController@penjualan')->name('penjualan.strukImage');
     Route::post('penjualan/{penjualan}/approve', 'PenjualanController@approve')->name('penjualan.approve');
     Route::post('penjualan/{penjualan}/cancel', 'PenjualanController@cancel')->name('penjualan.cancel');
     Route::post('penjualan/{penjualan}/mark-paid', 'PenjualanController@markAsPaid')->name('penjualan.markAsPaid');
@@ -39,6 +40,7 @@ Route::middleware(['auth'])->group(function () {
     // 2. Modul Pembelian
     Route::get('pembelian/{pembelian}/print', 'PembelianController@print')->name('pembelian.print');
     Route::get('pembelian/{pembelian}/print-json', 'PembelianController@printJson')->name('pembelian.printJson');
+    Route::get('pembelian/{pembelian}/struk-image', 'PrintImageController@pembelian')->name('pembelian.strukImage');
     Route::post('pembelian/{pembelian}/approve', 'PembelianController@approve')->name('pembelian.approve');
     Route::post('pembelian/{pembelian}/cancel', 'PembelianController@cancel')->name('pembelian.cancel');
     Route::resource('pembelian', 'PembelianController');
@@ -46,6 +48,7 @@ Route::middleware(['auth'])->group(function () {
     // 3. Modul Biaya
     Route::get('biaya/{biaya}/print', 'BiayaController@print')->name('biaya.print');
     Route::get('biaya/{biaya}/print-json', 'BiayaController@printJson')->name('biaya.printJson');
+    Route::get('biaya/{biaya}/struk-image', 'PrintImageController@biaya')->name('biaya.strukImage');
     Route::post('biaya/{biaya}/approve', 'BiayaController@approve')->name('biaya.approve');
     Route::post('biaya/{biaya}/cancel', 'BiayaController@cancel')->name('biaya.cancel');
     Route::resource('biaya', 'BiayaController');
