@@ -28,35 +28,39 @@ class PrintController extends Controller
         $out = "";
         
         // Header
-        $out .= "   HIBISCUS EFSYA\n";
-        $out .= " INVOICE PENJUALAN\n";
-        $out .= "--------------------------\n";
+        $out .= "     HIBISCUS EFSYA\n";
+        $out .= "  INVOICE PENJUALAN\n";
+        $out .= "----------------------------\n";
 
         // Info
-        $out .= "No : " . $nomorInvoice . "\n";
-        $out .= "Tgl: " . $penjualan->tgl_transaksi->format('d/m/Y') . " " . $penjualan->created_at->format('H:i') . "\n";
-        $out .= "Cst: " . ($penjualan->pelanggan ?? '-') . "\n";
-        $out .= "Sls: " . ($penjualan->user->name ?? '-') . "\n";
-        $out .= "--------------------------\n";
+        $out .= "Nomor   : " . $nomorInvoice . "\n";
+        $out .= "Tanggal : " . $penjualan->tgl_transaksi->format('d/m/Y') . "\n";
+        $out .= "Jam     : " . $penjualan->created_at->format('H:i') . "\n";
+        $out .= "Customer: " . ($penjualan->pelanggan ?? '-') . "\n";
+        $out .= "Sales   : " . ($penjualan->user->name ?? '-') . "\n";
+        $out .= "Gudang  : " . ($penjualan->gudang->nama_gudang ?? '-') . "\n";
+        $out .= "Status  : " . $penjualan->status . "\n";
+        $out .= "----------------------------\n";
+        $out .= "PRODUK:\n";
+        $out .= "----------------------------\n";
 
         // Items
         foreach ($penjualan->items as $item) {
             $out .= $item->produk->nama_produk . "\n";
-            $out .= $item->kuantitas . " " . ($item->unit ?? 'Pcs');
-            $out .= " x " . number_format($item->harga_satuan, 0, ',', '.') . "\n";
+            $out .= "Qty  : " . $item->kuantitas . " " . ($item->unit ?? 'Pcs') . "\n";
+            $out .= "Harga: Rp " . number_format($item->harga_satuan, 0, ',', '.') . "\n";
             
             if ($item->diskon > 0) {
-                $out .= " Disc " . $item->diskon . "%\n";
+                $out .= "Diskon: " . $item->diskon . "%\n";
             }
             
-            $out .= " = Rp " . number_format($item->jumlah_baris, 0, ',', '.') . "\n";
-            $out .= "\n";
+            $out .= "Total: Rp " . number_format($item->jumlah_baris, 0, ',', '.') . "\n";
+            $out .= "----------------------------\n";
         }
-
-        $out .= "--------------------------\n";
 
         // Total
         $subtotal = $penjualan->items->sum('jumlah_baris');
+        $out .= "\n";
         $out .= "Subtotal: Rp " . number_format($subtotal, 0, ',', '.') . "\n";
 
         if ($penjualan->diskon_akhir > 0) {
@@ -69,13 +73,14 @@ class PrintController extends Controller
             $out .= "Pajak " . $penjualan->tax_percentage . "%: Rp " . number_format($pajakNominal, 0, ',', '.') . "\n";
         }
 
-        $out .= "==========================\n";
-        $out .= "TOTAL: Rp " . number_format($penjualan->grand_total, 0, ',', '.') . "\n";
-        $out .= "==========================\n";
+        $out .= "============================\n";
+        $out .= "GRAND TOTAL: Rp " . number_format($penjualan->grand_total, 0, ',', '.') . "\n";
+        $out .= "============================\n";
 
         // Footer
         $out .= "\n";
-        $out .= "  -- Terima Kasih --\n";
+        $out .= "   -- Terima Kasih --\n";
+        $out .= " marketing@hibiscusefsya.com\n";
 
         return response($out)
             ->header('Content-Type', 'text/plain; charset=utf-8');
@@ -100,36 +105,40 @@ class PrintController extends Controller
         $out = "";
         
         // Header
-        $out .= "   HIBISCUS EFSYA\n";
-        $out .= "PERMINTAAN PEMBELIAN\n";
-        $out .= "--------------------------\n";
+        $out .= "     HIBISCUS EFSYA\n";
+        $out .= " PERMINTAAN PEMBELIAN\n";
+        $out .= "----------------------------\n";
 
         // Info
-        $out .= "No : " . $nomorInvoice . "\n";
-        $out .= "Tgl: " . $pembelian->tgl_transaksi->format('d/m/Y') . " " . $pembelian->created_at->format('H:i') . "\n";
-        $out .= "Vnd: " . ($pembelian->staf_penyetuju ?? '-') . "\n";
-        $out .= "Req: " . ($pembelian->user->name ?? '-') . "\n";
-        $out .= "--------------------------\n";
+        $out .= "Nomor  : " . $nomorInvoice . "\n";
+        $out .= "Tanggal: " . $pembelian->tgl_transaksi->format('d/m/Y') . "\n";
+        $out .= "Jam    : " . $pembelian->created_at->format('H:i') . "\n";
+        $out .= "Vendor : " . ($pembelian->staf_penyetuju ?? '-') . "\n";
+        $out .= "Request: " . ($pembelian->user->name ?? '-') . "\n";
+        $out .= "Gudang : " . ($pembelian->gudang->nama_gudang ?? '-') . "\n";
+        $out .= "Status : " . $pembelian->status . "\n";
+        $out .= "----------------------------\n";
+        $out .= "PRODUK:\n";
+        $out .= "----------------------------\n";
 
         $subtotal = $pembelian->items->sum('jumlah_baris');
         
         // Items
         foreach ($pembelian->items as $item) {
             $out .= $item->produk->nama_produk . "\n";
-            $out .= $item->kuantitas . " " . ($item->unit ?? 'Pcs');
-            $out .= " x " . number_format($item->harga_satuan, 0, ',', '.') . "\n";
+            $out .= "Qty  : " . $item->kuantitas . " " . ($item->unit ?? 'Pcs') . "\n";
+            $out .= "Harga: Rp " . number_format($item->harga_satuan, 0, ',', '.') . "\n";
             
             if ($item->diskon > 0) {
-                $out .= " Disc " . $item->diskon . "%\n";
+                $out .= "Diskon: " . $item->diskon . "%\n";
             }
             
-            $out .= " = Rp " . number_format($item->jumlah_baris, 0, ',', '.') . "\n";
-            $out .= "\n";
+            $out .= "Total: Rp " . number_format($item->jumlah_baris, 0, ',', '.') . "\n";
+            $out .= "----------------------------\n";
         }
 
-        $out .= "--------------------------\n";
-
         // Total
+        $out .= "\n";
         $out .= "Subtotal: Rp " . number_format($subtotal, 0, ',', '.') . "\n";
 
         if ($pembelian->diskon_akhir > 0) {
@@ -142,13 +151,14 @@ class PrintController extends Controller
             $out .= "Pajak " . $pembelian->tax_percentage . "%: Rp " . number_format($pajakNominal, 0, ',', '.') . "\n";
         }
 
-        $out .= "==========================\n";
-        $out .= "TOTAL: Rp " . number_format($pembelian->grand_total, 0, ',', '.') . "\n";
-        $out .= "==========================\n";
+        $out .= "============================\n";
+        $out .= "GRAND TOTAL: Rp " . number_format($pembelian->grand_total, 0, ',', '.') . "\n";
+        $out .= "============================\n";
 
         // Footer
         $out .= "\n";
-        $out .= " -- Dokumen Internal --\n";
+        $out .= "  -- Dokumen Internal --\n";
+        $out .= " marketing@hibiscusefsya.com\n";
 
         return response($out)
             ->header('Content-Type', 'text/plain; charset=utf-8');
@@ -172,31 +182,34 @@ class PrintController extends Controller
         $out = "";
         
         // Header
-        $out .= "   HIBISCUS EFSYA\n";
-        $out .= " BUKTI PENGELUARAN\n";
-        $out .= "--------------------------\n";
+        $out .= "     HIBISCUS EFSYA\n";
+        $out .= "  BUKTI PENGELUARAN\n";
+        $out .= "----------------------------\n";
 
         // Info
-        $out .= "No : " . $nomorInvoice . "\n";
-        $out .= "Tgl: " . $biaya->tgl_transaksi->format('d/m/Y') . " " . $biaya->created_at->format('H:i') . "\n";
-        $out .= "Usr: " . ($biaya->user->name ?? '-') . "\n";
-        $out .= "--------------------------\n";
+        $out .= "Nomor  : " . $nomorInvoice . "\n";
+        $out .= "Tanggal: " . $biaya->tgl_transaksi->format('d/m/Y') . "\n";
+        $out .= "Jam    : " . $biaya->created_at->format('H:i') . "\n";
+        $out .= "User   : " . ($biaya->user->name ?? '-') . "\n";
+        $out .= "Status : " . $biaya->status . "\n";
+        $out .= "----------------------------\n";
+        $out .= "ITEM:\n";
+        $out .= "----------------------------\n";
 
         // Items
         foreach ($biaya->items as $item) {
             $out .= $item->kategori ?? 'Kategori' . "\n";
             
             if ($item->deskripsi) {
-                $out .= $item->deskripsi . "\n";
+                $out .= "Ket: " . $item->deskripsi . "\n";
             }
             
-            $out .= " = Rp " . number_format($item->jumlah, 0, ',', '.') . "\n";
-            $out .= "\n";
+            $out .= "Jumlah: Rp " . number_format($item->jumlah, 0, ',', '.') . "\n";
+            $out .= "----------------------------\n";
         }
 
-        $out .= "--------------------------\n";
-
         // Total
+        $out .= "\n";
         $out .= "Subtotal: Rp " . number_format($biaya->items->sum('jumlah'), 0, ',', '.') . "\n";
 
         if ($biaya->tax_percentage > 0) {
@@ -205,13 +218,14 @@ class PrintController extends Controller
             $out .= "Pajak " . $biaya->tax_percentage . "%: Rp " . number_format($pajakNominal, 0, ',', '.') . "\n";
         }
 
-        $out .= "==========================\n";
-        $out .= "TOTAL: Rp " . number_format($biaya->grand_total, 0, ',', '.') . "\n";
-        $out .= "==========================\n";
+        $out .= "============================\n";
+        $out .= "GRAND TOTAL: Rp " . number_format($biaya->grand_total, 0, ',', '.') . "\n";
+        $out .= "============================\n";
 
         // Footer
         $out .= "\n";
-        $out .= "  -- Terima Kasih --\n";
+        $out .= "   -- Terima Kasih --\n";
+        $out .= " marketing@hibiscusefsya.com\n";
 
         return response($out)
             ->header('Content-Type', 'text/plain; charset=utf-8');
