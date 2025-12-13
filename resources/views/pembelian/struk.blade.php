@@ -27,12 +27,13 @@
 
         body {
             font-family: 'Courier New', monospace;
-            font-size: 10pt;
+            font-size: 8pt;
             color: #000;
             padding: 2mm;
             box-sizing: border-box;
             background: #fff;
             text-align: center;
+            line-height: 1.2;
         }
 
         /* CEGAH PAGE BREAK ANDROID */
@@ -54,15 +55,15 @@
         }
 
         .logo {
-            max-width: 45mm;
+            max-width: 30mm;
             height: auto;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .title {
-            font-size: 12pt;
+            font-size: 10pt;
             font-weight: bold;
-            margin: 0;
+            margin: 0 0 3px;
         }
 
         /* =========================
@@ -70,7 +71,7 @@
         ==========================*/
         .divider {
             border-top: 1px dashed #000;
-            margin: 6px 0;
+            margin: 3px 0;
         }
 
         /* =========================
@@ -78,7 +79,7 @@
         ==========================*/
         .info-table {
             width: 100%;
-            font-size: 9pt;
+            font-size: 7pt;
             text-align: left;
             margin: 0 auto;
         }
@@ -105,18 +106,18 @@
            ITEM
         ==========================*/
         .item-container {
-            margin-bottom: 6px;
+            margin-bottom: 3px;
         }
 
         .item-name {
             font-weight: bold;
-            font-size: 10pt;
-            margin-bottom: 2px;
+            font-size: 8pt;
+            margin-bottom: 1px;
         }
 
         .details-table {
             width: 100%;
-            font-size: 9pt;
+            font-size: 7pt;
         }
 
         .details-table td {
@@ -137,7 +138,7 @@
         ==========================*/
         .total-table {
             width: 100%;
-            font-size: 9pt;
+            font-size: 7pt;
         }
 
         .total-table td {
@@ -146,9 +147,9 @@
 
         .grand-total {
             font-weight: bold;
-            font-size: 11pt;
+            font-size: 9pt;
             border-top: 1px dashed #000;
-            padding-top: 4px;
+            padding-top: 2px;
         }
 
         /* =========================
@@ -156,8 +157,8 @@
         ==========================*/
         .footer {
             text-align: center;
-            font-size: 9pt;
-            margin-top: 10px;
+            font-size: 7pt;
+            margin-top: 5px;
         }
 
         /* =========================
