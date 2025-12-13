@@ -25,7 +25,7 @@ class PrintController extends Controller
         $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "INV-{$penjualan->user_id}-{$dateCode}-{$noUrut}";
 
-        $w = 32; // lebar karakter untuk thermal 58mm
+        $w = 28; // lebar karakter untuk thermal 58mm
 
         // Helper function untuk alignment kiri-kanan
         $line = function($left, $right = '') use ($w) {
@@ -117,7 +117,7 @@ class PrintController extends Controller
         $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "PR-{$pembelian->user_id}-{$dateCode}-{$noUrut}";
 
-        $w = 32;
+        $w = 28;
 
         $line = function($left, $right = '') use ($w) {
             $spaces = max(1, $w - mb_strlen($left) - mb_strlen($right));
@@ -200,7 +200,7 @@ class PrintController extends Controller
         $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "EXP-{$biaya->user_id}-{$dateCode}-{$noUrut}";
 
-        $w = 32;
+        $w = 28;
 
         $line = function($left, $right = '') use ($w) {
             $spaces = max(1, $w - mb_strlen($left) - mb_strlen($right));
