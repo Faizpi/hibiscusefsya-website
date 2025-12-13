@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class PrintController extends Controller
 {
     /**
-     * Print Penjualan as Rich Text for iWare
+     * Print Penjualan as Rich Text for Thermer Bluetooth
      */
     public function penjualanRichText($id)
     {
@@ -39,24 +39,20 @@ class PrintController extends Controller
         $out .= str_pad("HIBISCUS EFSYA", $w, " ", STR_PAD_BOTH) . "\n";
         $out .= str_pad("marketing@hibiscusefsya.com", $w, " ", STR_PAD_BOTH) . "\n";
         $out .= str_pad("INVOICE PENJUALAN", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_repeat('=', $w) . "\n";
+        $out .= str_repeat('-', $w) . "\n";
 
         // Info
-        $out .= $line("Nomor", ": " . $nomorInvoice);
-        $out .= $line("Tanggal", ": " . $penjualan->tgl_transaksi->format('d/m/Y') . " " . $penjualan->created_at->format('H:i'));
-        
-        if ($penjualan->tgl_jatuh_tempo) {
-            $out .= $line("Jatuh Tempo", ": " . $penjualan->tgl_jatuh_tempo->format('d/m/Y'));
-        }
-        
-        $out .= $line("Pembayaran", ": " . ($penjualan->metode_pembayaran ?? 'Net 7'));
-        $out .= $line("Pelanggan", ": " . ($penjualan->pelanggan ?? '-'));
-        $out .= $line("Sales", ": " . ($penjualan->user->name ?? '-'));
-        $out .= $line("Gudang", ": " . ($penjualan->gudang->nama_gudang ?? '-'));
-        $out .= $line("Status", ": " . $penjualan->status);
+        $out .= $line("Nomor", $nomorInvoice);
+        $out .= $line("Tanggal", $penjualan->tgl_transaksi->format('d/m/Y') . " | " . $penjualan->created_at->format('H:i'));
+        $out .= $line("Jatuh Tempo", $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-');
+        $out .= $line("Pembayaran", $penjualan->metode_pembayaran ?? 'Net 7');
+        $out .= $line("Pelanggan", $penjualan->pelanggan ?? '-');
+        $out .= $line("Sales", $penjualan->user->name ?? '-');
+        $out .= $line("Gudang", $penjualan->gudang->nama_gudang ?? '-');
+        $out .= $line("Status", $penjualan->status);
         
         if ($penjualan->approver_id && $penjualan->approver) {
-            $out .= $line("Disetujui", ": " . $penjualan->approver->name);
+            $out .= $line("Disetujui", $penjualan->approver->name);
         }
         
         $out .= str_repeat('-', $w) . "\n";
@@ -69,14 +65,14 @@ class PrintController extends Controller
             // Nama produk (bisa multi line jika panjang)
             $out .= wordwrap($produkName . " (" . $itemCode . ")", $w, "\n", false) . "\n";
             
-            $out .= $line("  Qty", $item->kuantitas . " Pcs");
-            $out .= $line("  Harga", "Rp " . number_format($item->harga_satuan, 0, ',', '.'));
+            $out .= $line("Qty", $item->kuantitas . " Pcs");
+            $out .= $line("Harga", "Rp " . number_format($item->harga_satuan, 0, ',', '.'));
             
             if ($item->diskon_per_item > 0) {
-                $out .= $line("  Diskon", "- Rp " . number_format($item->diskon_per_item, 0, ',', '.'));
+                $out .= $line("Diskon", "- Rp " . number_format($item->diskon_per_item, 0, ',', '.'));
             }
             
-            $out .= $line("  Jumlah", "Rp " . number_format($item->jumlah_baris, 0, ',', '.'));
+            $out .= $line("Jumlah", "Rp " . number_format($item->jumlah_baris, 0, ',', '.'));
             $out .= "\n";
         }
 
@@ -101,15 +97,15 @@ class PrintController extends Controller
 
         // Footer
         $out .= "\n";
-        $out .= str_pad("-- Terima Kasih --", $w, " ", STR_PAD_BOTH) . "\n";
         $out .= str_pad("marketing@hibiscusefsya.com", $w, " ", STR_PAD_BOTH) . "\n";
+        $out .= str_pad("-- Terima Kasih --", $w, " ", STR_PAD_BOTH) . "\n";
 
         return response($out)
             ->header('Content-Type', 'text/plain; charset=utf-8');
     }
 
     /**
-     * Print Pembelian as Rich Text for iWare
+     * Print Pembelian as Rich Text for Thermer Bluetooth
      */
     public function pembelianRichText($id)
     {
@@ -136,23 +132,19 @@ class PrintController extends Controller
         $out .= str_pad("HIBISCUS EFSYA", $w, " ", STR_PAD_BOTH) . "\n";
         $out .= str_pad("marketing@hibiscusefsya.com", $w, " ", STR_PAD_BOTH) . "\n";
         $out .= str_pad("PERMINTAAN PEMBELIAN", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_repeat('=', $w) . "\n";
+        $out .= str_repeat('-', $w) . "\n";
 
-        $out .= $line("Nomor", ": " . $nomorPembelian);
-        $out .= $line("Tanggal", ": " . $pembelian->tgl_transaksi->format('d/m/Y') . " " . $pembelian->created_at->format('H:i'));
-        
-        if ($pembelian->tgl_jatuh_tempo) {
-            $out .= $line("Jatuh Tempo", ": " . $pembelian->tgl_jatuh_tempo->format('d/m/Y'));
-        }
-        
-        $out .= $line("Pembayaran", ": " . ($pembelian->metode_pembayaran ?? 'Net 7'));
-        $out .= $line("Supplier", ": " . ($pembelian->supplier ?? '-'));
-        $out .= $line("Requester", ": " . ($pembelian->user->name ?? '-'));
-        $out .= $line("Gudang", ": " . ($pembelian->gudang->nama_gudang ?? '-'));
-        $out .= $line("Status", ": " . $pembelian->status);
+        $out .= $line("Nomor", $nomorPembelian);
+        $out .= $line("Tanggal", $pembelian->tgl_transaksi->format('d/m/Y') . " | " . $pembelian->created_at->format('H:i'));
+        $out .= $line("Jatuh Tempo", $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d/m/Y') : '-');
+        $out .= $line("Pembayaran", $pembelian->metode_pembayaran ?? 'Net 30');
+        $out .= $line("Pemasok", $pembelian->supplier ?? '-');
+        $out .= $line("Diminta", $pembelian->user->name ?? '-');
+        $out .= $line("Gudang", $pembelian->gudang->nama_gudang ?? '-');
+        $out .= $line("Status", $pembelian->status);
         
         if ($pembelian->approver_id && $pembelian->approver) {
-            $out .= $line("Disetujui", ": " . $pembelian->approver->name);
+            $out .= $line("Disetujui", $pembelian->approver->name);
         }
         
         $out .= str_repeat('-', $w) . "\n";
@@ -162,14 +154,9 @@ class PrintController extends Controller
             $itemCode = $item->produk->item_code ?? '-';
             
             $out .= wordwrap($produkName . " (" . $itemCode . ")", $w, "\n", false) . "\n";
-            $out .= $line("  Qty", $item->kuantitas . " Pcs");
-            $out .= $line("  Harga", "Rp " . number_format($item->harga_satuan, 0, ',', '.'));
-            
-            if ($item->diskon_per_item > 0) {
-                $out .= $line("  Diskon", "- Rp " . number_format($item->diskon_per_item, 0, ',', '.'));
-            }
-            
-            $out .= $line("  Jumlah", "Rp " . number_format($item->jumlah_baris, 0, ',', '.'));
+            $out .= $line("Qty", $item->kuantitas . " Pcs");
+            $out .= $line("Harga", "Rp " . number_format($item->harga_satuan, 0, ',', '.'));
+            $out .= $line("Jumlah", "Rp " . number_format($item->jumlah_baris, 0, ',', '.'));
             $out .= "\n";
         }
 
@@ -191,22 +178,21 @@ class PrintController extends Controller
         $out .= str_repeat('=', $w) . "\n";
 
         $out .= "\n";
-        $out .= str_pad("-- Terima Kasih --", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_pad("marketing@hibiscusefsya.com", $w, " ", STR_PAD_BOTH) . "\n";
+        $out .= str_pad("procurement@hibiscusefsya.com", $w, " ", STR_PAD_BOTH) . "\n";
+        $out .= str_pad("-- Dokumen Internal --", $w, " ", STR_PAD_BOTH) . "\n";
 
         return response($out)
             ->header('Content-Type', 'text/plain; charset=utf-8');
     }
 
     /**
-     * Print Biaya as Rich Text for iWare
+     * Print Biaya as Rich Text for Thermer Bluetooth
      */
     public function biayaRichText($id)
     {
         $biaya = Biaya::with([
-            'items.produk',
+            'items',
             'user',
-            'gudang',
             'approver'
         ])->findOrFail($id);
 
@@ -226,48 +212,39 @@ class PrintController extends Controller
         $out .= str_pad("HIBISCUS EFSYA", $w, " ", STR_PAD_BOTH) . "\n";
         $out .= str_pad("marketing@hibiscusefsya.com", $w, " ", STR_PAD_BOTH) . "\n";
         $out .= str_pad("BUKTI PENGELUARAN", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_repeat('=', $w) . "\n";
+        $out .= str_repeat('-', $w) . "\n";
 
-        $out .= $line("Nomor", ": " . $nomorBiaya);
-        $out .= $line("Tanggal", ": " . $biaya->tgl_transaksi->format('d/m/Y') . " " . $biaya->created_at->format('H:i'));
-        $out .= $line("Kategori", ": " . ($biaya->kategori ?? '-'));
-        $out .= $line("Keterangan", ": " . ($biaya->keterangan ?? '-'));
-        $out .= $line("Dibuat oleh", ": " . ($biaya->user->name ?? '-'));
-        $out .= $line("Gudang", ": " . ($biaya->gudang->nama_gudang ?? '-'));
-        $out .= $line("Status", ": " . $biaya->status);
+        $out .= $line("Nomor", $nomorBiaya);
+        $out .= $line("Tanggal", $biaya->tgl_transaksi->format('d/m/Y') . " | " . $biaya->created_at->format('H:i'));
+        $out .= $line("Jatuh Tempo", $biaya->tgl_jatuh_tempo ? $biaya->tgl_jatuh_tempo->format('d/m/Y') : '-');
+        $out .= $line("Pembayaran", $biaya->metode_pembayaran ?? 'Cash');
+        $out .= $line("Kontak", $biaya->nama_pemasok ?? '-');
+        $out .= $line("Diinput", $biaya->user->name ?? '-');
+        $out .= $line("Status", $biaya->status);
         
         if ($biaya->approver_id && $biaya->approver) {
-            $out .= $line("Disetujui", ": " . $biaya->approver->name);
+            $out .= $line("Disetujui", $biaya->approver->name);
         }
         
         $out .= str_repeat('-', $w) . "\n";
 
         foreach ($biaya->items as $item) {
-            $itemName = $item->nama_item ?? 'Item';
+            $kategori = $item->kategori ?? 'Kategori';
             
-            $out .= wordwrap($itemName, $w, "\n", false) . "\n";
-            $out .= $line("  Qty", $item->kuantitas . " " . ($item->satuan ?? 'Unit'));
-            $out .= $line("  Harga", "Rp " . number_format($item->harga_satuan, 0, ',', '.'));
-            $out .= $line("  Jumlah", "Rp " . number_format($item->jumlah_baris, 0, ',', '.'));
+            $out .= wordwrap($kategori, $w, "\n", false) . "\n";
+            $out .= $line("Deskripsi", $item->deskripsi ?? '-');
+            $out .= $line("Jumlah", "Rp " . number_format($item->jumlah, 0, ',', '.'));
             $out .= "\n";
         }
 
         $out .= str_repeat('-', $w) . "\n";
-        $out .= $line("Subtotal", "Rp " . number_format($biaya->items->sum('jumlah_baris'), 0, ',', '.'));
-
-        if ($biaya->tax_percentage > 0) {
-            $kenaPajak = $biaya->items->sum('jumlah_baris');
-            $pajakNominal = $kenaPajak * ($biaya->tax_percentage / 100);
-            $out .= $line("Pajak ({$biaya->tax_percentage}%)", "Rp " . number_format($pajakNominal, 0, ',', '.'));
-        }
-
         $out .= str_repeat('=', $w) . "\n";
-        $out .= $line("GRAND TOTAL", "Rp " . number_format($biaya->grand_total, 0, ',', '.'));
+        $out .= $line("TOTAL BIAYA", "Rp " . number_format($biaya->items->sum('jumlah'), 0, ',', '.'));
         $out .= str_repeat('=', $w) . "\n";
 
         $out .= "\n";
-        $out .= str_pad("-- Terima Kasih --", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_pad("marketing@hibiscusefsya.com", $w, " ", STR_PAD_BOTH) . "\n";
+        $out .= str_pad("accounting@hibiscusefsya.com", $w, " ", STR_PAD_BOTH) . "\n";
+        $out .= str_pad("-- Dokumen Internal --", $w, " ", STR_PAD_BOTH) . "\n";
 
         return response($out)
             ->header('Content-Type', 'text/plain; charset=utf-8');
