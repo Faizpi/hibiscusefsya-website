@@ -5,17 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Struk Pembelian</title>
     <style>
+        @page {
+            size: 58mm auto;
+            margin: 0;
+        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-        @page {
-            size: auto;
-            margin: 0;
+            page-break-before: avoid !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
         }
         html, body {
-            width: 384px;
+            width: 58mm;
+            height: auto !important;
+            min-height: 0 !important;
+            overflow: hidden !important;
             font-family: 'Courier New', monospace;
             font-size: 12px;
             line-height: 1.4;
@@ -23,14 +29,6 @@
             color: #000;
             padding: 10px;
             margin: 0;
-            overflow-x: hidden;
-        }
-        body {
-            page-break-inside: avoid;
-            page-break-after: auto;
-        }
-        * {
-            page-break-inside: avoid;
         }
         .center {
             text-align: center;
