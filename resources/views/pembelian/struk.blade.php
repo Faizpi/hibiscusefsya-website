@@ -28,9 +28,10 @@
             font-family: 'Courier New', monospace;
             font-size: 10pt;
             color: #000;
-            padding: 3mm 1mm;
+            padding: 2mm;
             box-sizing: border-box;
             background: #fff;
+            text-align: center;
         }
 
         /* CEGAH PAGE BREAK ANDROID */
@@ -47,7 +48,8 @@
         ==========================*/
         .header {
             text-align: center;
-            margin-bottom: 6px;
+            margin: 0 auto 6px;
+            width: 100%;
         }
 
         .logo {
@@ -76,6 +78,8 @@
         .info-table {
             width: 100%;
             font-size: 9pt;
+            text-align: left;
+            margin: 0 auto;
         }
 
         .info-table td {
