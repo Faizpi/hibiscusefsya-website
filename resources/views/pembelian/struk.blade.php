@@ -10,7 +10,11 @@
             padding: 0;
             box-sizing: border-box;
         }
-        body {
+        @page {
+            size: auto;
+            margin: 0;
+        }
+        html, body {
             width: 384px;
             font-family: 'Courier New', monospace;
             font-size: 12px;
@@ -18,6 +22,15 @@
             background: #fff;
             color: #000;
             padding: 10px;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        body {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        * {
+            page-break-inside: avoid;
         }
         .center {
             text-align: center;
