@@ -470,105 +470,13 @@ class PembelianController extends Controller
     }
 
     /**
-     * Return ESC/POS formatted data for thermal printers
+     * Return HTML struk untuk di-screenshot/print sebagai image
+     * Untuk iWare: Screenshot → Image Mode → Print
      * URL: /pembelian/{pembelian}/print-json
      */
     public function printJson(Pembelian $pembelian)
     {
-        $printer = new \App\Helpers\EscPosHelper();
-        
-        // Header
-        $printer->align(\App\Helpers\EscPosHelper::ALIGN_CENTER)
-            ->separator('=', 32)
-            ->bold(true)
-            ->line('HIBISCUS EFSYA')
-            ->bold(false)
-            ->line('marketing@hibiscusefsya.com')
-            ->separator('=', 32)
-            ->bold(true)
-            ->line('PERMINTAAN PEMBELIAN')
-            ->bold(false);
-        
-        // Invoice details
-        $dateCode = $pembelian->created_at->format('Ymd');
-        $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
-        $nomorInvoice = "PR-{$pembelian->user_id}-{$dateCode}-{$noUrut}";
-        
-        $printer->align(\App\Helpers\EscPosHelper::ALIGN_LEFT)
-            ->line('Nomor: ' . $nomorInvoice)
-            ->line('Tanggal: ' . $pembelian->tgl_transaksi->format('d/m/Y') . ' ' . $pembelian->created_at->format('H:i'))
-            ->line('Supplier: ' . ($pembelian->supplier ?? '-'))
-            ->line('Gudang: ' . ($pembelian->gudang->nama_gudang ?? '-'))
-            ->line('Sales: ' . ($pembelian->user->name ?? '-'))
-            ->line('Status: ' . $pembelian->status);
-        
-        // Tambah approver jika sudah diapprove
-        if ($pembelian->approver_id && $pembelian->approver) {
-            $printer->line('Disetujui: ' . $pembelian->approver->name);
-        }
-        
-        $printer->separator('=', 32);
-        
-        // Items
-        foreach ($pembelian->items as $item) {
-            $printer->bold(true)
-                ->line($item->produk->nama_produk)
-                ->bold(false);
-            
-            // Item code
-            if ($item->produk->item_code) {
-                $printer->line('Kode: ' . $item->produk->item_code);
-            }
-            
-            // Qty dan harga satuan
-            $printer->line('Qty: ' . $item->kuantitas . ' x Rp ' . number_format($item->harga_satuan, 0, ',', '.'));
-            
-            // Diskon per item jika ada
-            if ($item->diskon_per_item > 0) {
-                $printer->line('Diskon: - Rp ' . number_format($item->diskon_per_item, 0, ',', '.'));
-            }
-            
-            // Jumlah baris
-            $printer->align(\App\Helpers\EscPosHelper::ALIGN_RIGHT)
-                ->line('Jumlah: Rp ' . number_format($item->jumlah_baris, 0, ',', '.'))
-                ->align(\App\Helpers\EscPosHelper::ALIGN_LEFT)
-                ->feed(1);
-        }
-        
-        // Totals
-        $printer->separator('=', 32)
-            ->align(\App\Helpers\EscPosHelper::ALIGN_RIGHT);
-        
-        $subtotal = $pembelian->items->sum('jumlah_baris');
-        $printer->line('Subtotal: Rp ' . number_format($subtotal, 0, ',', '.'));
-        
-        if ($pembelian->diskon_akhir > 0) {
-            $printer->line('Diskon Akhir: - Rp ' . number_format($pembelian->diskon_akhir, 0, ',', '.'));
-        }
-        
-        if ($pembelian->tax_percentage > 0) {
-            $kenaPajak = max(0, $subtotal - $pembelian->diskon_akhir);
-            $pajakNominal = $kenaPajak * ($pembelian->tax_percentage / 100);
-            $printer->line("Pajak ({$pembelian->tax_percentage}%): Rp " . number_format($pajakNominal, 0, ',', '.'));
-        }
-        
-        $printer->bold(true)
-            ->line('GRAND TOTAL: Rp ' . number_format($pembelian->grand_total, 0, ',', '.'))
-            ->bold(false);
-        
-        // Footer
-        $printer->align(\App\Helpers\EscPosHelper::ALIGN_CENTER)
-            ->separator('=', 32)
-            ->line('marketing@hibiscusefsya.com')
-            ->bold(true)
-            ->line('--- Dokumen Internal ---')
-            ->bold(false)
-            ->feed(3)
-            ->cut();
-        
-        // Return raw ESC/POS data base64 encoded
-        return response($printer->output())
-            ->header('Content-Type', 'text/plain');
+        return view('pembelian.struk', compact('pembelian'));
     }
 
     public function approve(Pembelian $pembelian)

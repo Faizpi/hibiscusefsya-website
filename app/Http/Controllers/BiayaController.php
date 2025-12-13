@@ -260,88 +260,12 @@ class BiayaController extends Controller
     }
 
     /**
-     * Return ESC/POS formatted data for thermal printers
+     * Return HTML struk untuk di-screenshot/print sebagai image
+     * Untuk iWare: Screenshot → Image Mode → Print
      */
     public function printJson(Biaya $biaya)
     {
-        $printer = new \App\Helpers\EscPosHelper();
-        
-        // Header
-        $printer->align(\App\Helpers\EscPosHelper::ALIGN_CENTER)
-            ->separator('=', 32)
-            ->bold(true)
-            ->line('HIBISCUS EFSYA')
-            ->bold(false)
-            ->line('marketing@hibiscusefsya.com')
-            ->separator('=', 32)
-            ->bold(true)
-            ->line('BUKTI PENGELUARAN')
-            ->bold(false);
-        
-        // Invoice details
-        $dateCode = $biaya->created_at->format('Ymd');
-        $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);
-        $nomorInvoice = "EXP-{$biaya->user_id}-{$dateCode}-{$noUrut}";
-        
-        $printer->align(\App\Helpers\EscPosHelper::ALIGN_LEFT)
-            ->line('Nomor: ' . $nomorInvoice)
-            ->line('Tanggal: ' . $biaya->tgl_transaksi->format('d/m/Y') . ' ' . $biaya->created_at->format('H:i'))
-            ->line('Penerima: ' . ($biaya->penerima ?? '-'))
-            ->line('Sales: ' . ($biaya->user->name ?? '-'))
-            ->line('Status: ' . $biaya->status);
-        
-        // Tambah approver jika sudah diapprove
-        if ($biaya->approver_id && $biaya->approver) {
-            $printer->line('Disetujui: ' . $biaya->approver->name);
-        }
-        
-        $printer->separator('=', 32);
-        
-        // Items
-        foreach ($biaya->items as $item) {
-            $printer->bold(true)
-                ->line($item->kategori)
-                ->bold(false);
-            
-            if ($item->deskripsi) {
-                $printer->line($item->deskripsi);
-            }
-            
-            $printer->align(\App\Helpers\EscPosHelper::ALIGN_RIGHT)
-                ->line('Jumlah: Rp ' . number_format($item->jumlah, 0, ',', '.'))
-                ->align(\App\Helpers\EscPosHelper::ALIGN_LEFT)
-                ->feed(1);
-        }
-        
-        // Totals
-        $printer->separator('=', 32)
-            ->align(\App\Helpers\EscPosHelper::ALIGN_RIGHT);
-        
-        $subtotal = $biaya->items->sum('jumlah');
-        $printer->line('Subtotal: Rp ' . number_format($subtotal, 0, ',', '.'));
-        
-        if ($biaya->tax_percentage > 0) {
-            $pajakNominal = $subtotal * ($biaya->tax_percentage / 100);
-            $printer->line("Pajak ({$biaya->tax_percentage}%): Rp " . number_format($pajakNominal, 0, ',', '.'));
-        }
-        
-        $printer->bold(true)
-            ->line('GRAND TOTAL: Rp ' . number_format($biaya->grand_total, 0, ',', '.'))
-            ->bold(false);
-        
-        // Footer
-        $printer->align(\App\Helpers\EscPosHelper::ALIGN_CENTER)
-            ->separator('=', 32)
-            ->line('marketing@hibiscusefsya.com')
-            ->bold(true)
-            ->line('--- Terima Kasih ---')
-            ->bold(false)
-            ->feed(3)
-            ->cut();
-        
-        // Return raw ESC/POS data base64 encoded
-        return response($printer->output())
-            ->header('Content-Type', 'text/plain');
+        return view('biaya.struk', compact('biaya'));
     }
 
     public function edit(Biaya $biaya)
