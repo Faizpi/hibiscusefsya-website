@@ -168,8 +168,6 @@
 
 <body>
 
-<div id="receipt">
-
     @php
         $dateCode = $pembelian->created_at->format('Ymd');
         $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
@@ -178,8 +176,8 @@
 
     <!-- HEADER -->
     <div class="header">
-        @if(file_exists(public_path('assets/images/logo.png')))
-        <img src="{{ asset('assets/images/logo.png') }}" class="logo">
+        @if(file_exists(public_path('assets/img/logoHE1.png')))
+        <img src="{{ asset('assets/img/logoHE1.png') }}" class="logo">
         @endif
         <div class="title">PERMINTAAN PEMBELIAN</div>
     </div>
@@ -247,42 +245,16 @@
     <div class="footer">
         <div>procurement@hibiscusefsya.com</div>
         <div>-- Dokumen Internal --</div>
-  div>
+    </div>
 
-<!-- html2canvas for client-side image rendering -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
-async function renderImage() {
-    const receipt = document.getElementById('receipt');
-    
-    const canvas = await html2canvas(receipt, {
-        scale: 2,
-        backgroundColor: '#fff',
-        useCORS: true,
-        width: 384,
-        windowWidth: 384
-    });
-    
-    const img = canvas.toDataURL('image/png');
-    
-    // Replace body dengan image untuk iWare Image Mode
-    document.body.innerHTML = `
-        <div style="text-align:center;background:#fff;padding:10px;">
-            <img src="${img}" style="width:100%;max-width:384px;display:block;margin:0 auto;">
-            <p style="margin-top:10px;font-size:12px;color:#666;">
-                Tap & hold gambar → Share → Pilih iWare → Print
-            </p>
-        </div>
-    `;
-}
-
-// Auto-render setelah halaman load
+// Auto-print setelah halaman load
 window.addEventListener('load', () => {
-    setTimeout(renderImage, 500);
+    setTimeout(() => {
+        window.print();
+    }, 300);
 });
 </script>
-
-</  </div>
 
 </body>
 </html>
