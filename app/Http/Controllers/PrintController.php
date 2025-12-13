@@ -25,77 +25,69 @@ class PrintController extends Controller
         $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "INV-{$penjualan->user_id}-{$dateCode}-{$noUrut}";
 
-        $w = 28; // lebar karakter untuk thermal 58mm
-
-        // Helper function untuk alignment kiri-kanan
-        $line = function($left, $right = '') use ($w) {
-            $spaces = max(1, $w - mb_strlen($left) - mb_strlen($right));
-            return $left . str_repeat(' ', $spaces) . $right . "\n";
-        };
-
         $out = "";
         
         // Header
-        $out .= str_pad("HIBISCUS EFSYA", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_pad("INVOICE PENJUALAN", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_repeat('-', $w) . "\n";
+        $out .= "     HIBISCUS EFSYA\n";
+        $out .= "  INVOICE PENJUALAN\n";
+        $out .= "----------------------------\n";
 
         // Info
-        $out .= $line("Nomor", $nomorInvoice);
-        $out .= $line("Tanggal", $penjualan->tgl_transaksi->format('d/m/Y') . " | " . $penjualan->created_at->format('H:i'));
-        $out .= $line("Jatuh Tempo", $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-');
-        $out .= $line("Pembayaran", $penjualan->syarat_pembayaran ?? '-');
-        $out .= $line("Pelanggan", $penjualan->pelanggan ?? '-');
-        $out .= $line("Sales", $penjualan->user->name ?? '-');
-        $out .= $line("Disetujui", $penjualan->status == 'Pending' ? '-' : ($penjualan->approver->name ?? '-'));
-        $out .= $line("Gudang", $penjualan->gudang->nama_gudang ?? '-');
-        $out .= $line("Status", $penjualan->status_display ?? $penjualan->status);
-        
-        $out .= str_repeat('-', $w) . "\n";
+        $out .= "Nomor  : " . $nomorInvoice . "\n";
+        $out .= "Tgl    : " . $penjualan->tgl_transaksi->format('d/m/Y') . "\n";
+        $out .= "Jam    : " . $penjualan->created_at->format('H:i') . "\n";
+        $out .= "Tempo  : " . ($penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-') . "\n";
+        $out .= "Bayar  : " . ($penjualan->syarat_pembayaran ?? '-') . "\n";
+        $out .= "Cust   : " . ($penjualan->pelanggan ?? '-') . "\n";
+        $out .= "Sales  : " . ($penjualan->user->name ?? '-') . "\n";
+        $out .= "Approve: " . ($penjualan->status == 'Pending' ? '-' : ($penjualan->approver->name ?? '-')) . "\n";
+        $out .= "Gudang : " . ($penjualan->gudang->nama_gudang ?? '-') . "\n";
+        $out .= "Status : " . ($penjualan->status_display ?? $penjualan->status) . "\n";
+        $out .= "----------------------------\n";
 
         // Items
         foreach ($penjualan->items as $item) {
-            $produkName = $item->produk->nama_produk;
-            $itemCode = $item->produk->item_code ?? '-';
-            
-            // Nama produk (bisa multi line jika panjang)
-            $out .= wordwrap($produkName . " (" . $itemCode . ")", $w, "\n", false) . "\n";
-            
-            $out .= $line("Qty", $item->kuantitas . " " . ($item->unit ?? 'Pcs'));
-            $out .= $line("Harga", "Rp " . number_format($item->harga_satuan, 0, ',', '.'));
+            $out .= $item->produk->nama_produk . "\n";
+            $out .= "(" . ($item->produk->item_code ?? '-') . ")\n";
+            $out .= "  Qty  : " . $item->kuantitas . " " . ($item->unit ?? 'Pcs') . "\n";
+            $out .= "  @Rp  : " . number_format($item->harga_satuan, 0, ',', '.') . "\n";
             
             if ($item->diskon > 0) {
-                $out .= $line("Disc", $item->diskon . "%");
+                $out .= "  Disc : " . $item->diskon . "%\n";
             }
             
-            $out .= $line("Jumlah", "Rp " . number_format($item->jumlah_baris, 0, ',', '.'));
+            $out .= "  Jml  : Rp " . number_format($item->jumlah_baris, 0, ',', '.') . "\n";
             $out .= "\n";
         }
 
-        $out .= str_repeat('-', $w) . "\n";
+        $out .= "----------------------------\n";
 
         // Total
-        $out .= $line("Subtotal", "Rp " . number_format($penjualan->items->sum('jumlah_baris'), 0, ',', '.'));
+        $out .= "Subtotal\n";
+        $out .= "         Rp " . number_format($penjualan->items->sum('jumlah_baris'), 0, ',', '.') . "\n";
 
         if ($penjualan->diskon_akhir > 0) {
-            $out .= $line("Diskon Akhir", "- Rp " . number_format($penjualan->diskon_akhir, 0, ',', '.'));
+            $out .= "Diskon Akhir\n";
+            $out .= "      -Rp " . number_format($penjualan->diskon_akhir, 0, ',', '.') . "\n";
         }
 
         if ($penjualan->tax_percentage > 0) {
             $subtotal = $penjualan->items->sum('jumlah_baris');
             $kenaPajak = max(0, $subtotal - $penjualan->diskon_akhir);
             $pajakNominal = $kenaPajak * ($penjualan->tax_percentage / 100);
-            $out .= $line("Pajak ({$penjualan->tax_percentage}%)", "Rp " . number_format($pajakNominal, 0, ',', '.'));
+            $out .= "Pajak " . $penjualan->tax_percentage . "%\n";
+            $out .= "         Rp " . number_format($pajakNominal, 0, ',', '.') . "\n";
         }
 
-        $out .= str_repeat('=', $w) . "\n";
-        $out .= $line("GRAND TOTAL", "Rp " . number_format($penjualan->grand_total, 0, ',', '.'));
-        $out .= str_repeat('=', $w) . "\n";
+        $out .= "============================\n";
+        $out .= "GRAND TOTAL\n";
+        $out .= "         Rp " . number_format($penjualan->grand_total, 0, ',', '.') . "\n";
+        $out .= "============================\n";
 
         // Footer
         $out .= "\n";
-        $out .= str_pad("marketing@hibiscusefsya.com", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_pad("-- Terima Kasih --", $w, " ", STR_PAD_BOTH) . "\n";
+        $out .= "marketing@hibiscusefsya.com\n";
+        $out .= "    -- Terima Kasih --\n";
 
         return response($out)
             ->header('Content-Type', 'text/plain; charset=utf-8');
@@ -117,69 +109,70 @@ class PrintController extends Controller
         $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "PR-{$pembelian->user_id}-{$dateCode}-{$noUrut}";
 
-        $w = 28;
-
-        $line = function($left, $right = '') use ($w) {
-            $spaces = max(1, $w - mb_strlen($left) - mb_strlen($right));
-            return $left . str_repeat(' ', $spaces) . $right . "\n";
-        };
-
         $out = "";
         
-        $out .= str_pad("HIBISCUS EFSYA", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_pad("PERMINTAAN PEMBELIAN", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_repeat('-', $w) . "\n";
+        // Header
+        $out .= "     HIBISCUS EFSYA\n";
+        $out .= " PERMINTAAN PEMBELIAN\n";
+        $out .= "----------------------------\n";
 
-        $out .= $line("Nomor", $nomorInvoice);
-        $out .= $line("Tanggal", $pembelian->tgl_transaksi->format('d/m/Y') . " | " . $pembelian->created_at->format('H:i'));
-        $out .= $line("Jatuh Tempo", $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d/m/Y') : '-');
-        $out .= $line("Pembayaran", $pembelian->syarat_pembayaran ?? '-');
-        $out .= $line("Vendor", $pembelian->staf_penyetuju ?? '-');
-        $out .= $line("Sales", $pembelian->user->name ?? '-');
-        $out .= $line("Disetujui", $pembelian->status == 'Pending' ? '-' : ($pembelian->approver->name ?? '-'));
-        $out .= $line("Gudang", $pembelian->gudang->nama_gudang ?? '-');
-        $out .= $line("Status", $pembelian->status_display ?? $pembelian->status);
-        
-        $out .= str_repeat('-', $w) . "\n";
+        // Info
+        $out .= "Nomor  : " . $nomorInvoice . "\n";
+        $out .= "Tgl    : " . $pembelian->tgl_transaksi->format('d/m/Y') . "\n";
+        $out .= "Jam    : " . $pembelian->created_at->format('H:i') . "\n";
+        $out .= "Tempo  : " . ($pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d/m/Y') : '-') . "\n";
+        $out .= "Bayar  : " . ($pembelian->syarat_pembayaran ?? '-') . "\n";
+        $out .= "Vendor : " . ($pembelian->staf_penyetuju ?? '-') . "\n";
+        $out .= "Sales  : " . ($pembelian->user->name ?? '-') . "\n";
+        $out .= "Approve: " . ($pembelian->status == 'Pending' ? '-' : ($pembelian->approver->name ?? '-')) . "\n";
+        $out .= "Gudang : " . ($pembelian->gudang->nama_gudang ?? '-') . "\n";
+        $out .= "Status : " . ($pembelian->status_display ?? $pembelian->status) . "\n";
+        $out .= "----------------------------\n";
 
         $subtotal = $pembelian->items->sum('jumlah_baris');
         
+        // Items
         foreach ($pembelian->items as $item) {
-            $produkName = $item->produk->nama_produk;
-            $itemCode = $item->produk->item_code ?? '-';
-            
-            $out .= wordwrap($produkName . " (" . $itemCode . ")", $w, "\n", false) . "\n";
-            $out .= $line("Qty", $item->kuantitas . " " . ($item->unit ?? 'Pcs'));
-            $out .= $line("Harga", "Rp " . number_format($item->harga_satuan, 0, ',', '.'));
+            $out .= $item->produk->nama_produk . "\n";
+            $out .= "(" . ($item->produk->item_code ?? '-') . ")\n";
+            $out .= "  Qty  : " . $item->kuantitas . " " . ($item->unit ?? 'Pcs') . "\n";
+            $out .= "  @Rp  : " . number_format($item->harga_satuan, 0, ',', '.') . "\n";
             
             if ($item->diskon > 0) {
-                $out .= $line("Disc", $item->diskon . "%");
+                $out .= "  Disc : " . $item->diskon . "%\n";
             }
             
-            $out .= $line("Jumlah", "Rp " . number_format($item->jumlah_baris, 0, ',', '.'));
+            $out .= "  Jml  : Rp " . number_format($item->jumlah_baris, 0, ',', '.') . "\n";
             $out .= "\n";
         }
 
-        $out .= str_repeat('-', $w) . "\n";
-        $out .= $line("Subtotal", "Rp " . number_format($subtotal, 0, ',', '.'));
+        $out .= "----------------------------\n";
+
+        // Total
+        $out .= "Subtotal\n";
+        $out .= "         Rp " . number_format($subtotal, 0, ',', '.') . "\n";
 
         if ($pembelian->diskon_akhir > 0) {
-            $out .= $line("Diskon Akhir", "- Rp " . number_format($pembelian->diskon_akhir, 0, ',', '.'));
+            $out .= "Diskon Akhir\n";
+            $out .= "      -Rp " . number_format($pembelian->diskon_akhir, 0, ',', '.') . "\n";
         }
 
         if ($pembelian->tax_percentage > 0) {
             $kenaPajak = max(0, $subtotal - $pembelian->diskon_akhir);
             $pajakNominal = $kenaPajak * ($pembelian->tax_percentage / 100);
-            $out .= $line("Pajak ({$pembelian->tax_percentage}%)", "Rp " . number_format($pajakNominal, 0, ',', '.'));
+            $out .= "Pajak " . $pembelian->tax_percentage . "%\n";
+            $out .= "         Rp " . number_format($pajakNominal, 0, ',', '.') . "\n";
         }
 
-        $out .= str_repeat('=', $w) . "\n";
-        $out .= $line("GRAND TOTAL", "Rp " . number_format($pembelian->grand_total, 0, ',', '.'));
-        $out .= str_repeat('=', $w) . "\n";
+        $out .= "============================\n";
+        $out .= "GRAND TOTAL\n";
+        $out .= "         Rp " . number_format($pembelian->grand_total, 0, ',', '.') . "\n";
+        $out .= "============================\n";
 
+        // Footer
         $out .= "\n";
-        $out .= str_pad("marketing@hibiscusefsya.com", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_pad("-- Dokumen Internal --", $w, " ", STR_PAD_BOTH) . "\n";
+        $out .= "marketing@hibiscusefsya.com\n";
+        $out .= "  -- Dokumen Internal --\n";
 
         return response($out)
             ->header('Content-Type', 'text/plain; charset=utf-8');
@@ -200,60 +193,59 @@ class PrintController extends Controller
         $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "EXP-{$biaya->user_id}-{$dateCode}-{$noUrut}";
 
-        $w = 28;
-
-        $line = function($left, $right = '') use ($w) {
-            $spaces = max(1, $w - mb_strlen($left) - mb_strlen($right));
-            return $left . str_repeat(' ', $spaces) . $right . "\n";
-        };
-
         $out = "";
         
-        $out .= str_pad("HIBISCUS EFSYA", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_pad("BUKTI PENGELUARAN", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_repeat('-', $w) . "\n";
+        // Header
+        $out .= "     HIBISCUS EFSYA\n";
+        $out .= "   BUKTI PENGELUARAN\n";
+        $out .= "----------------------------\n";
 
-        $out .= $line("Nomor", $nomorInvoice);
-        $out .= $line("Tanggal", $biaya->tgl_transaksi->format('d/m/Y') . " | " . $biaya->created_at->format('H:i'));
-        $out .= $line("Pembayaran", $biaya->cara_pembayaran ?? '-');
-        $out .= $line("Bayar Dari", $biaya->bayar_dari ?? '-');
-        $out .= $line("Penerima", $biaya->penerima ?? '-');
-        $out .= $line("Sales", $biaya->user->name ?? '-');
-        $out .= $line("Disetujui", $biaya->status == 'Pending' ? '-' : ($biaya->approver->name ?? '-'));
-        $out .= $line("Status", $biaya->status);
-        
-        $out .= str_repeat('-', $w) . "\n";
+        // Info
+        $out .= "Nomor  : " . $nomorInvoice . "\n";
+        $out .= "Tgl    : " . $biaya->tgl_transaksi->format('d/m/Y') . "\n";
+        $out .= "Jam    : " . $biaya->created_at->format('H:i') . "\n";
+        $out .= "Bayar  : " . ($biaya->cara_pembayaran ?? '-') . "\n";
+        $out .= "Dari   : " . ($biaya->bayar_dari ?? '-') . "\n";
+        $out .= "Kepada : " . ($biaya->penerima ?? '-') . "\n";
+        $out .= "Sales  : " . ($biaya->user->name ?? '-') . "\n";
+        $out .= "Approve: " . ($biaya->status == 'Pending' ? '-' : ($biaya->approver->name ?? '-')) . "\n";
+        $out .= "Status : " . $biaya->status . "\n";
+        $out .= "----------------------------\n";
 
+        // Items
         foreach ($biaya->items as $item) {
-            $kategori = $item->kategori ?? 'Kategori';
-            
-            $out .= wordwrap($kategori, $w, "\n", false) . "\n";
+            $out .= $item->kategori ?? 'Kategori' . "\n";
             
             if ($item->deskripsi) {
-                $out .= $line("Ket", $item->deskripsi);
+                $out .= "  Ket  : " . $item->deskripsi . "\n";
             }
             
-            $out .= $line("Jumlah", "Rp " . number_format($item->jumlah, 0, ',', '.'));
+            $out .= "  Jml  : Rp " . number_format($item->jumlah, 0, ',', '.') . "\n";
             $out .= "\n";
         }
 
-        $out .= str_repeat('-', $w) . "\n";
-        
-        $out .= $line("Subtotal", "Rp " . number_format($biaya->items->sum('jumlah'), 0, ',', '.'));
+        $out .= "----------------------------\n";
+
+        // Total
+        $out .= "Subtotal\n";
+        $out .= "         Rp " . number_format($biaya->items->sum('jumlah'), 0, ',', '.') . "\n";
 
         if ($biaya->tax_percentage > 0) {
             $subtotal = $biaya->items->sum('jumlah');
             $pajakNominal = $subtotal * ($biaya->tax_percentage / 100);
-            $out .= $line("Pajak ({$biaya->tax_percentage}%)", "Rp " . number_format($pajakNominal, 0, ',', '.'));
+            $out .= "Pajak " . $biaya->tax_percentage . "%\n";
+            $out .= "         Rp " . number_format($pajakNominal, 0, ',', '.') . "\n";
         }
 
-        $out .= str_repeat('=', $w) . "\n";
-        $out .= $line("GRAND TOTAL", "Rp " . number_format($biaya->grand_total, 0, ',', '.'));
-        $out .= str_repeat('=', $w) . "\n";
+        $out .= "============================\n";
+        $out .= "GRAND TOTAL\n";
+        $out .= "         Rp " . number_format($biaya->grand_total, 0, ',', '.') . "\n";
+        $out .= "============================\n";
 
+        // Footer
         $out .= "\n";
-        $out .= str_pad("marketing@hibiscusefsya.com", $w, " ", STR_PAD_BOTH) . "\n";
-        $out .= str_pad("-- Terima Kasih --", $w, " ", STR_PAD_BOTH) . "\n";
+        $out .= "marketing@hibiscusefsya.com\n";
+        $out .= "    -- Terima Kasih --\n";
 
         return response($out)
             ->header('Content-Type', 'text/plain; charset=utf-8');
