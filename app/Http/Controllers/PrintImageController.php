@@ -21,23 +21,38 @@ class PrintImageController extends Controller
         $path = storage_path("app/public/{$filename}");
 
         try {
-            Browsershot::html(
+            $browsershot = Browsershot::html(
                 view('print.penjualan-image', compact('penjualan'))->render()
             )
             ->windowSize(384, 2000)
             ->deviceScaleFactor(2)  // Better quality
-            ->fullPage()
-            ->save($path);
+            ->fullPage();
+
+            // Try common Chrome paths
+            $chromePaths = [
+                '/usr/bin/chromium-browser',
+                '/usr/bin/google-chrome',
+                '/usr/bin/chromium',
+                '/snap/bin/chromium',
+            ];
+
+            foreach ($chromePaths as $chromePath) {
+                if (file_exists($chromePath)) {
+                    $browsershot->setChromePath($chromePath);
+                    break;
+                }
+            }
+
+            $browsershot->save($path);
 
             return response()->file($path, [
                 'Content-Type' => 'image/png',
                 'Content-Disposition' => 'inline; filename="' . $filename . '"'
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Gagal generate image',
-                'message' => $e->getMessage()
-            ], 500);
+            // Fallback: return HTML view instead
+            \Log::error('Browsershot error: ' . $e->getMessage());
+            return view('penjualan.struk', compact('penjualan'));
         }
     }
 
@@ -52,23 +67,37 @@ class PrintImageController extends Controller
         $path = storage_path("app/public/{$filename}");
 
         try {
-            Browsershot::html(
+            $browsershot = Browsershot::html(
                 view('print.pembelian-image', compact('pembelian'))->render()
             )
             ->windowSize(384, 2000)
             ->deviceScaleFactor(2)
-            ->fullPage()
-            ->save($path);
+            ->fullPage();
+
+            // Try common Chrome paths
+            $chromePaths = [
+                '/usr/bin/chromium-browser',
+                '/usr/bin/google-chrome',
+                '/usr/bin/chromium',
+                '/snap/bin/chromium',
+            ];
+
+            foreach ($chromePaths as $chromePath) {
+                if (file_exists($chromePath)) {
+                    $browsershot->setChromePath($chromePath);
+                    break;
+                }
+            }
+
+            $browsershot->save($path);
 
             return response()->file($path, [
                 'Content-Type' => 'image/png',
                 'Content-Disposition' => 'inline; filename="' . $filename . '"'
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Gagal generate image',
-                'message' => $e->getMessage()
-            ], 500);
+            \Log::error('Browsershot error: ' . $e->getMessage());
+            return view('pembelian.struk', compact('pembelian'));
         }
     }
 
@@ -83,23 +112,37 @@ class PrintImageController extends Controller
         $path = storage_path("app/public/{$filename}");
 
         try {
-            Browsershot::html(
+            $browsershot = Browsershot::html(
                 view('print.biaya-image', compact('biaya'))->render()
             )
             ->windowSize(384, 2000)
             ->deviceScaleFactor(2)
-            ->fullPage()
-            ->save($path);
+            ->fullPage();
+
+            // Try common Chrome paths
+            $chromePaths = [
+                '/usr/bin/chromium-browser',
+                '/usr/bin/google-chrome',
+                '/usr/bin/chromium',
+                '/snap/bin/chromium',
+            ];
+
+            foreach ($chromePaths as $chromePath) {
+                if (file_exists($chromePath)) {
+                    $browsershot->setChromePath($chromePath);
+                    break;
+                }
+            }
+
+            $browsershot->save($path);
 
             return response()->file($path, [
                 'Content-Type' => 'image/png',
                 'Content-Disposition' => 'inline; filename="' . $filename . '"'
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Gagal generate image',
-                'message' => $e->getMessage()
-            ], 500);
+            \Log::error('Browsershot error: ' . $e->getMessage());
+            return view('biaya.struk', compact('biaya'));
         }
     }
 }
