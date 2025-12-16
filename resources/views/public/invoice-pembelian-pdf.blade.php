@@ -174,7 +174,7 @@
             <tr>
                 <td class="label-col">Status</td>
                 <td class="colon-col">:</td>
-                <td class="value-col">{{ $pembelian->status }}</td>
+                <td class="value-col">{{ $pembelian->status_display }}</td>
             </tr>
         </table>
 

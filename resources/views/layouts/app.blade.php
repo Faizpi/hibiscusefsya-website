@@ -1575,7 +1575,6 @@
                 </a>
 
                 <hr class="sidebar-divider my-0">
-                <div class="sidebar-heading">Menu Utama</div>
 
                 <li class="nav-item {{ Route::is('dashboard') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('dashboard') }}" title="Dashboard">

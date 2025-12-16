@@ -294,7 +294,9 @@ class BluetoothThermalPrinter {
     async buildPenjualanReceipt(data, options = {}) {
         const printLogo = options.printLogo !== false;
         const printQR = options.printQR !== false;
-        const logoUrl = options.logoUrl || '/assets/img/logoHE1.png';
+        // Use absolute URL for logo to ensure it loads correctly
+        const baseUrl = window.location.origin;
+        const logoUrl = options.logoUrl || (baseUrl + '/assets/img/logoHE1.png');
         const qrData = options.qrUrl || data.invoice_url || '';
         
         let parts = []; // Array of {type: 'text'|'image', data: ...}
@@ -395,7 +397,9 @@ class BluetoothThermalPrinter {
     async buildPembelianReceipt(data, options = {}) {
         const printLogo = options.printLogo !== false;
         const printQR = options.printQR !== false;
-        const logoUrl = options.logoUrl || '/assets/img/logoHE1.png';
+        // Use absolute URL for logo to ensure it loads correctly
+        const baseUrl = window.location.origin;
+        const logoUrl = options.logoUrl || (baseUrl + '/assets/img/logoHE1.png');
         const qrData = options.qrUrl || data.invoice_url || '';
         
         let parts = [];
@@ -488,7 +492,9 @@ class BluetoothThermalPrinter {
     async buildBiayaReceipt(data, options = {}) {
         const printLogo = options.printLogo !== false;
         const printQR = options.printQR !== false;
-        const logoUrl = options.logoUrl || '/assets/img/logoHE1.png';
+        // Use absolute URL for logo to ensure it loads correctly
+        const baseUrl = window.location.origin;
+        const logoUrl = options.logoUrl || (baseUrl + '/assets/img/logoHE1.png');
         const qrData = options.qrUrl || data.invoice_url || '';
         
         let parts = [];
@@ -728,11 +734,12 @@ window.BluetoothPrinter = new BluetoothThermalPrinter();
 async function printViaBluetooth(button, type, jsonUrl, options = {}) {
     const originalHtml = button.innerHTML;
     
-    // Default options
+    // Default options - use absolute URL for logo
+    const baseUrl = window.location.origin;
     options = {
         printLogo: true,
         printQR: true,
-        logoUrl: '/storage/logo.png',
+        logoUrl: baseUrl + '/assets/img/logoHE1.png',
         ...options
     };
     
