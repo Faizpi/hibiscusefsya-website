@@ -29,7 +29,7 @@
                 <button type="button" id="printBluetooth" class="btn btn-primary btn-sm shadow-sm" 
                     data-type="pembelian"
                     data-url="{{ route('bluetooth.pembelian', $pembelian->id) }}">
-                    <i class="fas fa-bluetooth fa-sm text-white"></i> Print Bluetooth
+                    <i class="fab fa-bluetooth-b fa-sm text-white"></i> Print Bluetooth
                 </button>
                 <a href="{{ route('pembelian.print', $pembelian->id) }}" target="_blank"
                     class="btn btn-info btn-sm shadow-sm">

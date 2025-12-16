@@ -29,7 +29,7 @@
 
                 <button type="button" id="printBluetooth" class="btn btn-primary btn-sm shadow-sm" data-type="biaya"
                     data-url="{{ route('bluetooth.biaya', $biaya->id) }}">
-                    <i class="fas fa-bluetooth fa-sm text-white"></i> Print Bluetooth
+                    <i class="fab fa-bluetooth-b fa-sm text-white"></i> Print Bluetooth
                 </button>
                 <a href="{{ route('biaya.print', $biaya->id) }}" target="_blank" class="btn btn-info btn-sm shadow-sm">
                     <i class="fas fa-print fa-sm"></i> Cetak Struk

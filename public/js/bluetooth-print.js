@@ -7,15 +7,15 @@
  * 
  * Key Optimizations:
  * - Menggunakan ESC * (bit-image) bukan GS v 0 untuk gambar
- * - QR/Barcode dikonversi ke gambar, bukan native command
+ * - QR Code di-generate OFFLINE via canvas (no external API)
  * - Chunk size kecil (128 bytes) untuk BLE stability
  * - Delay antar chunk 150ms untuk mencegah buffer overflow
+ * - ALIGN_CENTER command sebelum setiap image
  * 
  * Features:
  * - Text printing with ESC/POS commands
  * - Logo printing (ESC * bitmap - 90% compatible)
- * - QR Code printing (as image)
- * - Barcode printing (as image)
+ * - QR Code printing (offline canvas generation)
  */
 
 class BluetoothThermalPrinter {
@@ -211,44 +211,139 @@ class BluetoothThermalPrinter {
     }
 
     /**
-     * Generate QR Code as IMAGE using external API
-     * This is the ONLY reliable way for cheap BLE printers
-     * Native QR commands (GS ( k) are NOT supported by most BLE printers
+     * Generate QR Code OFFLINE using canvas
+     * NO external API dependency - works offline!
+     * Uses simple QR encoding algorithm
      * 
      * @param {string} data - Data to encode in QR code
      * @param {number} size - Size in pixels (default 150)
      * @returns {Promise<Uint8Array>} - ESC * bitmap command data
      */
     async generateQRCode(data, size = 150) {
-        // Use QR Server API to generate QR code as image
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&margin=2&format=png`;
-        return await this.loadImageAsBitmap(qrUrl, size);
+        // Try to use QRCode library if available (loaded from CDN)
+        if (typeof QRCode !== 'undefined') {
+            return await this.generateQRCodeWithLib(data, size);
+        }
+        
+        // Fallback: Load QRCode.js dynamically
+        try {
+            await this.loadQRCodeLibrary();
+            return await this.generateQRCodeWithLib(data, size);
+        } catch (e) {
+            console.warn('QRCode library failed, trying API fallback:', e);
+            // Last resort: use external API
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&margin=2&format=png`;
+            return await this.loadImageAsBitmap(qrUrl, size);
+        }
     }
 
     /**
-     * Generate Barcode as IMAGE using external API
-     * Native barcode commands (GS k) often fail on BLE printers
-     * Converting to image is the safest approach
-     * 
-     * @param {string} data - Data to encode
-     * @param {string} type - Barcode type (code128, code39, ean13, etc)
-     * @param {number} height - Height in pixels
-     * @returns {Promise<Uint8Array>} - ESC * bitmap command data
+     * Load QRCode.js library dynamically
      */
-    async generateBarcodeImage(data, type = 'code128', height = 50) {
-        // Use barcodeapi.org to generate barcode as image
-        // Clean data for URL
-        const cleanData = encodeURIComponent(data);
-        const barcodeUrl = `https://barcodeapi.org/api/${type}/${cleanData}`;
+    async loadQRCodeLibrary() {
+        if (typeof QRCode !== 'undefined') return;
         
-        try {
-            return await this.loadImageAsBitmap(barcodeUrl, 300);
-        } catch (e) {
-            console.warn('Barcode API failed, trying backup:', e);
-            // Backup: use quickchart.io
-            const backupUrl = `https://quickchart.io/chart?cht=qr&chs=150x150&chl=${cleanData}`;
-            return await this.loadImageAsBitmap(backupUrl, 150);
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    /**
+     * Generate QR using QRCode.js library (offline capable once loaded)
+     */
+    async generateQRCodeWithLib(data, size = 150) {
+        return new Promise((resolve, reject) => {
+            try {
+                // Create temp container
+                const container = document.createElement('div');
+                container.style.display = 'none';
+                document.body.appendChild(container);
+                
+                // Generate QR Code
+                const qr = new QRCode(container, {
+                    text: data,
+                    width: size,
+                    height: size,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+                
+                // Wait for QR to render
+                setTimeout(() => {
+                    try {
+                        const canvas = container.querySelector('canvas');
+                        if (!canvas) {
+                            document.body.removeChild(container);
+                            reject(new Error('QR canvas not found'));
+                            return;
+                        }
+                        
+                        // Convert canvas to ESC * bitmap
+                        const result = this.canvasToBitmap(canvas);
+                        document.body.removeChild(container);
+                        resolve(result);
+                    } catch (e) {
+                        document.body.removeChild(container);
+                        reject(e);
+                    }
+                }, 100);
+            } catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    /**
+     * Convert canvas element to ESC * bitmap
+     * @param {HTMLCanvasElement} canvas
+     * @returns {Uint8Array}
+     */
+    canvasToBitmap(canvas) {
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width;
+        let height = canvas.height;
+        
+        // Width must be multiple of 8
+        width = Math.floor(width / 8) * 8;
+        
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const pixels = imageData.data;
+        
+        const bytesPerLine = width / 8;
+        const commands = [];
+        
+        // ESC * line by line for BLE compatibility
+        for (let y = 0; y < height; y++) {
+            commands.push(0x1B, 0x2A, 0x00); // ESC * mode 0
+            commands.push(bytesPerLine & 0xFF);
+            commands.push((bytesPerLine >> 8) & 0xFF);
+            
+            for (let byteX = 0; byteX < bytesPerLine; byteX++) {
+                let byte = 0;
+                for (let bit = 0; bit < 8; bit++) {
+                    const x = byteX * 8 + bit;
+                    const pixelIndex = (y * width + x) * 4;
+                    
+                    const r = pixels[pixelIndex];
+                    const g = pixels[pixelIndex + 1];
+                    const b = pixels[pixelIndex + 2];
+                    const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                    
+                    if (gray < 128) {
+                        byte |= (0x80 >> bit);
+                    }
+                }
+                commands.push(byte);
+            }
+            commands.push(0x0A); // LF
         }
+        
+        return new Uint8Array(commands);
     }
 
     /**
@@ -308,24 +403,24 @@ class BluetoothThermalPrinter {
         
         let parts = []; // Array of {type: 'text'|'image', data: ...}
         
-        // Reset and center align
-        let header = this.COMMANDS.RESET + this.COMMANDS.ALIGN_CENTER;
+        // Reset printer
+        parts.push({ type: 'text', data: this.COMMANDS.RESET });
         
-        // Logo (if enabled)
+        // Logo (if enabled) - ALIGN_CENTER langsung sebelum image!
         if (printLogo) {
             try {
-                parts.push({ type: 'text', data: header });
+                // PENTING: ALIGN_CENTER harus langsung sebelum image
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
                 const logoData = await this.loadImageAsBitmap(logoUrl, 200);
                 parts.push({ type: 'image', data: logoData });
                 parts.push({ type: 'text', data: '\n' });
-                header = this.COMMANDS.ALIGN_CENTER; // Continue centered
             } catch (e) {
                 console.warn('Could not load logo:', e);
-                // Continue without logo
             }
         }
         
         // Header text
+        let header = this.COMMANDS.ALIGN_CENTER;
         header += this.COMMANDS.BOLD_ON + 'HIBISCUS EFSYA\n' + this.COMMANDS.BOLD_OFF;
         header += 'INVOICE PENJUALAN\n';
         header += this.COMMANDS.ALIGN_LEFT + '\n';
@@ -377,12 +472,15 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // Print QR Code as IMAGE - most reliable for BLE printers
+        // Print QR Code as IMAGE - ALIGN_CENTER langsung sebelum image!
         if (printQR && qrData) {
             try {
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk lihat invoice:\n' });
+                parts.push({ type: 'text', data: '\nScan untuk lihat invoice:\n' });
                 
-                // Generate QR as image (not native command)
+                // PENTING: ALIGN_CENTER langsung sebelum QR image
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
+                
+                // Generate QR as image (offline, no API dependency)
                 const qrImage = await this.generateQRCode(qrData, 150);
                 parts.push({ type: 'image', data: qrImage });
                 
@@ -418,21 +516,22 @@ class BluetoothThermalPrinter {
         
         let parts = [];
         
-        let header = this.COMMANDS.RESET + this.COMMANDS.ALIGN_CENTER;
+        // Reset printer
+        parts.push({ type: 'text', data: this.COMMANDS.RESET });
         
-        // Logo
+        // Logo - ALIGN_CENTER langsung sebelum image!
         if (printLogo) {
             try {
-                parts.push({ type: 'text', data: header });
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
                 const logoData = await this.loadImageAsBitmap(logoUrl, 200);
                 parts.push({ type: 'image', data: logoData });
                 parts.push({ type: 'text', data: '\n' });
-                header = this.COMMANDS.ALIGN_CENTER;
             } catch (e) {
                 console.warn('Could not load logo:', e);
             }
         }
         
+        let header = this.COMMANDS.ALIGN_CENTER;
         header += this.COMMANDS.BOLD_ON + 'HIBISCUS EFSYA\n' + this.COMMANDS.BOLD_OFF;
         header += 'PERMINTAAN PEMBELIAN\n';
         header += this.COMMANDS.ALIGN_LEFT + '\n';
@@ -480,21 +579,21 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // Print QR Code as IMAGE - most reliable for BLE printers
+        // Print QR Code as IMAGE - ALIGN_CENTER langsung sebelum image!
         if (printQR && qrData) {
             try {
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk lihat dokumen:\n' });
+                parts.push({ type: 'text', data: '\nScan untuk lihat dokumen:\n' });
                 
-                // Generate QR as image (not native command)
+                // PENTING: ALIGN_CENTER langsung sebelum QR image
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
+                
                 const qrImage = await this.generateQRCode(qrData, 150);
                 parts.push({ type: 'image', data: qrImage });
                 
-                // Print short ID below QR
                 const shortCode = this.extractShortCode(qrData);
                 parts.push({ type: 'text', data: '\nID: ' + shortCode + '\n' });
             } catch (e) {
                 console.warn('QR image failed:', e);
-                // Fallback: just print URL as text
                 parts.push({ type: 'text', data: '\n' + qrData + '\n' });
             }
         }
@@ -520,21 +619,22 @@ class BluetoothThermalPrinter {
         
         let parts = [];
         
-        let header = this.COMMANDS.RESET + this.COMMANDS.ALIGN_CENTER;
+        // Reset printer
+        parts.push({ type: 'text', data: this.COMMANDS.RESET });
         
-        // Logo
+        // Logo - ALIGN_CENTER langsung sebelum image!
         if (printLogo) {
             try {
-                parts.push({ type: 'text', data: header });
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
                 const logoData = await this.loadImageAsBitmap(logoUrl, 200);
                 parts.push({ type: 'image', data: logoData });
                 parts.push({ type: 'text', data: '\n' });
-                header = this.COMMANDS.ALIGN_CENTER;
             } catch (e) {
                 console.warn('Could not load logo:', e);
             }
         }
         
+        let header = this.COMMANDS.ALIGN_CENTER;
         header += this.COMMANDS.BOLD_ON + 'HIBISCUS EFSYA\n' + this.COMMANDS.BOLD_OFF;
         header += 'BUKTI PENGELUARAN\n';
         header += this.COMMANDS.ALIGN_LEFT + '\n';
@@ -575,21 +675,21 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // Print QR Code as IMAGE - most reliable for BLE printers
+        // Print QR Code as IMAGE - ALIGN_CENTER langsung sebelum image!
         if (printQR && qrData) {
             try {
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk lihat bukti:\n' });
+                parts.push({ type: 'text', data: '\nScan untuk lihat bukti:\n' });
                 
-                // Generate QR as image (not native command)
+                // PENTING: ALIGN_CENTER langsung sebelum QR image
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
+                
                 const qrImage = await this.generateQRCode(qrData, 150);
                 parts.push({ type: 'image', data: qrImage });
                 
-                // Print short ID below QR
                 const shortCode = this.extractShortCode(qrData);
                 parts.push({ type: 'text', data: '\nID: ' + shortCode + '\n' });
             } catch (e) {
                 console.warn('QR image failed:', e);
-                // Fallback: just print URL as text
                 parts.push({ type: 'text', data: '\n' + qrData + '\n' });
             }
         }
