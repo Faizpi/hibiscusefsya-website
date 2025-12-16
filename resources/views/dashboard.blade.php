@@ -603,7 +603,7 @@
 
 @push('scripts')
     {{-- Bluetooth Print Library --}}
-    <script src="{{ asset('js/bluetooth-print.js') }}"></script>
+    <script src="{{ asset('js/bluetooth-print.js') }}?v={{ time() }}"></script>
 
     {{-- Chart.js CDN --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
