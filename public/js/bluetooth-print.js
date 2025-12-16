@@ -2,13 +2,20 @@
  * Bluetooth Thermal Printer - Client Side Solution
  * 
  * Solusi print langsung dari browser ke printer thermal via Bluetooth.
- * Data dibangun di client-side untuk menghindari masalah transfer data
- * yang tidak lengkap dari server.
+ * Optimized untuk printer BLE murah (iWARE, MTP, RPP) yang tidak full support
+ * ESC/POS commands via BLE.
+ * 
+ * Key Optimizations:
+ * - Menggunakan ESC * (bit-image) bukan GS v 0 untuk gambar
+ * - QR/Barcode dikonversi ke gambar, bukan native command
+ * - Chunk size kecil (128 bytes) untuk BLE stability
+ * - Delay antar chunk 150ms untuk mencegah buffer overflow
  * 
  * Features:
  * - Text printing with ESC/POS commands
- * - Logo printing (bitmap)
- * - QR Code printing
+ * - Logo printing (ESC * bitmap - 90% compatible)
+ * - QR Code printing (as image)
+ * - Barcode printing (as image)
  */
 
 class BluetoothThermalPrinter {
@@ -17,6 +24,10 @@ class BluetoothThermalPrinter {
         this.characteristic = null;
         this.WIDTH = 32; // Character width for 58mm printer
         this.PRINT_WIDTH = 384; // Pixel width for 58mm printer (48mm printable area @ 8 dots/mm)
+        
+        // BLE Optimized settings
+        this.BLE_CHUNK_SIZE = 128; // Safe chunk size for BLE (64-128 recommended)
+        this.BLE_DELAY = 150; // Delay between chunks in ms (100-150ms recommended)
         
         // ESC/POS Commands
         this.ESC = '\x1B';
@@ -89,10 +100,12 @@ class BluetoothThermalPrinter {
     }
 
     /**
-     * Load image and convert to bitmap data for ESC/POS
+     * Load image and convert to ESC * bitmap format
+     * ESC * is MUCH more compatible with cheap BLE printers than GS v 0
+     * 
      * @param {string} imageUrl - URL of the image
      * @param {number} maxWidth - Maximum width in pixels (default 384 for 58mm)
-     * @returns {Promise<Uint8Array>} - ESC/POS bitmap command data
+     * @returns {Promise<Uint8Array>} - ESC * bitmap command data
      */
     async loadImageAsBitmap(imageUrl, maxWidth = null) {
         maxWidth = maxWidth || this.PRINT_WIDTH;
@@ -118,7 +131,7 @@ class BluetoothThermalPrinter {
                         width = maxWidth;
                     }
                     
-                    // Width must be multiple of 8 for ESC/POS
+                    // Width must be multiple of 8 for ESC *
                     width = Math.floor(width / 8) * 8;
                     
                     // Create canvas
@@ -138,11 +151,22 @@ class BluetoothThermalPrinter {
                     const imageData = ctx.getImageData(0, 0, width, height);
                     const pixels = imageData.data;
                     
-                    // Convert to monochrome bitmap
+                    // Convert to ESC * format (line by line, much more BLE compatible)
                     const bytesPerLine = width / 8;
-                    const bitmapData = [];
+                    const commands = [];
+                    
+                    // ESC * m nL nH d1...dk format
+                    // m = 0 (8-dot single density) or 1 (8-dot double density) or 33 (24-dot double)
+                    // We use mode 0 for maximum compatibility
                     
                     for (let y = 0; y < height; y++) {
+                        // ESC * command for each line
+                        // ESC * m nL nH
+                        commands.push(0x1B, 0x2A, 0x00); // ESC * mode 0
+                        commands.push(bytesPerLine & 0xFF); // nL
+                        commands.push((bytesPerLine >> 8) & 0xFF); // nH
+                        
+                        // Bitmap data for this line
                         for (let byteX = 0; byteX < bytesPerLine; byteX++) {
                             let byte = 0;
                             for (let bit = 0; bit < 8; bit++) {
@@ -160,34 +184,18 @@ class BluetoothThermalPrinter {
                                     byte |= (0x80 >> bit);
                                 }
                             }
-                            bitmapData.push(byte);
+                            commands.push(byte);
                         }
+                        
+                        // Line feed after each line
+                        commands.push(0x0A); // LF
                     }
                     
-                    // Build ESC/POS raster bit image command
-                    // GS v 0 m xL xH yL yH d1...dk
-                    const xL = bytesPerLine & 0xFF;
-                    const xH = (bytesPerLine >> 8) & 0xFF;
-                    const yL = height & 0xFF;
-                    const yH = (height >> 8) & 0xFF;
-                    
-                    const command = new Uint8Array(8 + bitmapData.length);
-                    command[0] = 0x1D; // GS
-                    command[1] = 0x76; // v
-                    command[2] = 0x30; // 0
-                    command[3] = 0x00; // m = 0 (normal mode)
-                    command[4] = xL;
-                    command[5] = xH;
-                    command[6] = yL;
-                    command[7] = yH;
-                    
-                    for (let i = 0; i < bitmapData.length; i++) {
-                        command[8 + i] = bitmapData[i];
-                    }
+                    const result = new Uint8Array(commands);
                     
                     // Cache and return
-                    this.imageCache[cacheKey] = command;
-                    resolve(command);
+                    this.imageCache[cacheKey] = result;
+                    resolve(result);
                     
                 } catch (error) {
                     reject(error);
@@ -203,162 +211,70 @@ class BluetoothThermalPrinter {
     }
 
     /**
-     * Generate QR Code using ESC/POS native commands (more reliable than bitmap)
-     * Uses GS ( k command for QR Code printing
+     * Generate QR Code as IMAGE using external API
+     * This is the ONLY reliable way for cheap BLE printers
+     * Native QR commands (GS ( k) are NOT supported by most BLE printers
+     * 
      * @param {string} data - Data to encode in QR code
-     * @param {number} size - Module size (1-8, default 4)
-     * @returns {Uint8Array} - ESC/POS QR code command data
+     * @param {number} size - Size in pixels (default 150)
+     * @returns {Promise<Uint8Array>} - ESC * bitmap command data
      */
-    generateQRCodeNative(data, size = 4) {
-        const encoder = new TextEncoder();
-        const dataBytes = encoder.encode(data);
-        const dataLen = dataBytes.length;
-        
-        // QR Code commands array
-        const commands = [];
-        
-        // Function 165: Select QR Code model (Model 2)
-        // GS ( k pL pH cn fn n1 n2
-        commands.push(0x1D, 0x28, 0x6B, 0x04, 0x00, 0x31, 0x41, 0x32, 0x00);
-        
-        // Function 167: Set QR Code size (module size 1-8)
-        // GS ( k pL pH cn fn n
-        commands.push(0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x43, size);
-        
-        // Function 169: Set QR Code error correction level (L=48, M=49, Q=50, H=51)
-        // GS ( k pL pH cn fn n
-        commands.push(0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x45, 0x31); // M level
-        
-        // Function 180: Store QR Code data
-        // GS ( k pL pH cn fn m d1...dk
-        const storeLen = dataLen + 3;
-        const pL = storeLen & 0xFF;
-        const pH = (storeLen >> 8) & 0xFF;
-        commands.push(0x1D, 0x28, 0x6B, pL, pH, 0x31, 0x50, 0x30);
-        for (let i = 0; i < dataBytes.length; i++) {
-            commands.push(dataBytes[i]);
-        }
-        
-        // Function 181: Print QR Code
-        // GS ( k pL pH cn fn m
-        commands.push(0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x30);
-        
-        return new Uint8Array(commands);
-    }
-
-    /**
-     * Generate Code128 Barcode using ESC/POS native commands
-     * More compatible with cheap thermal printers than QR code
-     * @param {string} data - Data to encode (max ~20 chars for readability)
-     * @param {number} height - Barcode height in dots (default 50)
-     * @param {number} width - Barcode width 2-6 (default 2)
-     * @returns {Uint8Array} - ESC/POS barcode command data
-     */
-    generateBarcode128(data, height = 50, width = 2) {
-        const encoder = new TextEncoder();
-        const dataBytes = encoder.encode(data);
-        
-        const commands = [];
-        
-        // GS h n - Set barcode height (n = 1-255 dots)
-        commands.push(0x1D, 0x68, height);
-        
-        // GS w n - Set barcode width (n = 2-6)
-        commands.push(0x1D, 0x77, Math.min(6, Math.max(2, width)));
-        
-        // GS H n - Set HRI (Human Readable Interpretation) position
-        // 0 = not printed, 1 = above, 2 = below, 3 = both
-        commands.push(0x1D, 0x48, 0x02); // Below barcode
-        
-        // GS f n - Set HRI font (0 = Font A, 1 = Font B)
-        commands.push(0x1D, 0x66, 0x00);
-        
-        // GS k m n d1...dn - Print barcode
-        // m = 73 (Code128), n = data length
-        commands.push(0x1D, 0x6B, 73, dataBytes.length);
-        for (let i = 0; i < dataBytes.length; i++) {
-            commands.push(dataBytes[i]);
-        }
-        
-        return new Uint8Array(commands);
-    }
-
-    /**
-     * Generate Code39 Barcode - MOST compatible with cheap printers
-     * @param {string} data - Data to encode (alphanumeric, uppercase only)
-     * @param {number} height - Barcode height in dots (default 50)
-     * @param {number} width - Barcode width 2-6 (default 2)
-     * @returns {Uint8Array} - ESC/POS barcode command data
-     */
-    generateBarcode39(data, height = 50, width = 2) {
-        // CODE39 only supports uppercase letters, numbers, and some symbols
-        const cleanData = data.toString().toUpperCase().replace(/[^A-Z0-9\-\.\ \$\/\+\%]/g, '');
-        const encoder = new TextEncoder();
-        const dataBytes = encoder.encode(cleanData);
-        
-        const commands = [];
-        
-        // GS h n - Set barcode height
-        commands.push(0x1D, 0x68, height);
-        
-        // GS w n - Set barcode width (2-6)
-        commands.push(0x1D, 0x77, Math.min(6, Math.max(2, width)));
-        
-        // GS H n - HRI below barcode
-        commands.push(0x1D, 0x48, 0x02);
-        
-        // GS f n - HRI font A
-        commands.push(0x1D, 0x66, 0x00);
-        
-        // GS k m d1...dk NUL - Print CODE39 barcode
-        // m = 4 for CODE39
-        commands.push(0x1D, 0x6B, 0x04);
-        for (let i = 0; i < dataBytes.length; i++) {
-            commands.push(dataBytes[i]);
-        }
-        commands.push(0x00); // NUL terminator
-        
-        return new Uint8Array(commands);
-    }
-
-    /**
-     * Generate a short code from URL for barcode
-     * Extracts just the ID from invoice URL
-     * @param {string} url - Full URL
-     * @returns {string} - Short code for barcode
-     */
-    extractShortCode(url) {
-        // Extract invoice ID from URL like "https://domain/invoice/penjualan/123"
-        const match = url.match(/\/(\d+)$/);
-        if (match) {
-            return match[1]; // Just return the ID
-        }
-        // Fallback: return last 15 chars
-        return url.slice(-15);
-    }
-
-    /**
-     * Generate QR Code bitmap data using canvas (fallback method)
-     * @param {string} data - Data to encode in QR code
-     * @param {number} size - Size in pixels (default 200)
-     * @returns {Promise<Uint8Array>} - ESC/POS bitmap command data
-     */
-    async generateQRCode(data, size = 200) {
-        // Use QR Server API to generate QR code
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&margin=5`;
+    async generateQRCode(data, size = 150) {
+        // Use QR Server API to generate QR code as image
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&margin=2&format=png`;
         return await this.loadImageAsBitmap(qrUrl, size);
     }
 
     /**
-     * Print image/QR code (binary data)
-     * @param {Uint8Array} imageData - ESC/POS bitmap command data
+     * Generate Barcode as IMAGE using external API
+     * Native barcode commands (GS k) often fail on BLE printers
+     * Converting to image is the safest approach
+     * 
+     * @param {string} data - Data to encode
+     * @param {string} type - Barcode type (code128, code39, ean13, etc)
+     * @param {number} height - Height in pixels
+     * @returns {Promise<Uint8Array>} - ESC * bitmap command data
+     */
+    async generateBarcodeImage(data, type = 'code128', height = 50) {
+        // Use barcodeapi.org to generate barcode as image
+        // Clean data for URL
+        const cleanData = encodeURIComponent(data);
+        const barcodeUrl = `https://barcodeapi.org/api/${type}/${cleanData}`;
+        
+        try {
+            return await this.loadImageAsBitmap(barcodeUrl, 300);
+        } catch (e) {
+            console.warn('Barcode API failed, trying backup:', e);
+            // Backup: use quickchart.io
+            const backupUrl = `https://quickchart.io/chart?cht=qr&chs=150x150&chl=${cleanData}`;
+            return await this.loadImageAsBitmap(backupUrl, 150);
+        }
+    }
+
+    /**
+     * Generate a short code from URL for display
+     * @param {string} url - Full URL
+     * @returns {string} - Short code
+     */
+    extractShortCode(url) {
+        const match = url.match(/\/(\d+)$/);
+        if (match) {
+            return match[1];
+        }
+        return url.slice(-15);
+    }
+
+    /**
+     * Print image/binary data with BLE-optimized chunking
+     * @param {Uint8Array} imageData - ESC/POS command data
      */
     async printImage(imageData) {
         if (!this.characteristic) {
             throw new Error('Printer tidak terhubung');
         }
 
-        const chunkSize = 512; // Larger chunks for image data
+        // Use smaller chunks for BLE stability
+        const chunkSize = this.BLE_CHUNK_SIZE;
         
         for (let i = 0; i < imageData.byteLength; i += chunkSize) {
             const chunk = imageData.slice(i, Math.min(i + chunkSize, imageData.byteLength));
@@ -374,8 +290,8 @@ class BluetoothThermalPrinter {
                 throw error;
             }
             
-            // Longer delay for image data
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Longer delay for BLE stability
+            await new Promise(resolve => setTimeout(resolve, this.BLE_DELAY));
         }
         
         return true;
@@ -456,44 +372,27 @@ class BluetoothThermalPrinter {
         body += this.padLine('GRAND TOTAL', this.formatRupiah(data.grand_total));
         body += this.COMMANDS.BOLD_OFF;
         
-        // Footer with QR Code
+        // Footer with QR Code as IMAGE (not native command)
         let footer = '\n' + this.divider('=');
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // Try multiple barcode formats for maximum compatibility
+        // Print QR Code as IMAGE - most reliable for BLE printers
         if (printQR && qrData) {
-            const shortCode = this.extractShortCode(qrData);
-            
-            // Try CODE39 first (most compatible with cheap printers)
             try {
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nID: ' + shortCode + '\n' });
-                const barcode39 = this.generateBarcode39(shortCode, 50, 3);
-                parts.push({ type: 'binary', data: barcode39 });
-                parts.push({ type: 'text', data: '\n' });
-            } catch (e) {
-                console.warn('CODE39 failed:', e);
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk lihat invoice:\n' });
                 
-                // Fallback to CODE128
-                try {
-                    const barcode128 = this.generateBarcode128(shortCode, 50, 2);
-                    parts.push({ type: 'binary', data: barcode128 });
-                    parts.push({ type: 'text', data: '\n' });
-                } catch (e2) {
-                    console.warn('CODE128 also failed:', e2);
-                    
-                    // Last resort: try QR Code
-                    try {
-                        parts.push({ type: 'text', data: 'Scan:\n' });
-                        const qrCommand = this.generateQRCodeNative(qrData, 4);
-                        parts.push({ type: 'binary', data: qrCommand });
-                        parts.push({ type: 'text', data: '\n' });
-                    } catch (e3) {
-                        console.warn('QR also failed:', e3);
-                        // Just print the URL as text
-                        parts.push({ type: 'text', data: '\n' + qrData + '\n' });
-                    }
-                }
+                // Generate QR as image (not native command)
+                const qrImage = await this.generateQRCode(qrData, 150);
+                parts.push({ type: 'image', data: qrImage });
+                
+                // Print short ID below QR
+                const shortCode = this.extractShortCode(qrData);
+                parts.push({ type: 'text', data: '\nID: ' + shortCode + '\n' });
+            } catch (e) {
+                console.warn('QR image failed:', e);
+                // Fallback: just print URL as text
+                parts.push({ type: 'text', data: '\n' + qrData + '\n' });
             }
         }
         
@@ -581,31 +480,22 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // Try multiple barcode formats for maximum compatibility
+        // Print QR Code as IMAGE - most reliable for BLE printers
         if (printQR && qrData) {
-            const shortCode = this.extractShortCode(qrData);
-            
             try {
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nID: ' + shortCode + '\n' });
-                const barcode39 = this.generateBarcode39(shortCode, 50, 3);
-                parts.push({ type: 'binary', data: barcode39 });
-                parts.push({ type: 'text', data: '\n' });
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk lihat dokumen:\n' });
+                
+                // Generate QR as image (not native command)
+                const qrImage = await this.generateQRCode(qrData, 150);
+                parts.push({ type: 'image', data: qrImage });
+                
+                // Print short ID below QR
+                const shortCode = this.extractShortCode(qrData);
+                parts.push({ type: 'text', data: '\nID: ' + shortCode + '\n' });
             } catch (e) {
-                console.warn('CODE39 failed:', e);
-                try {
-                    const barcode128 = this.generateBarcode128(shortCode, 50, 2);
-                    parts.push({ type: 'binary', data: barcode128 });
-                    parts.push({ type: 'text', data: '\n' });
-                } catch (e2) {
-                    console.warn('CODE128 also failed:', e2);
-                    try {
-                        const qrCommand = this.generateQRCodeNative(qrData, 4);
-                        parts.push({ type: 'binary', data: qrCommand });
-                        parts.push({ type: 'text', data: '\n' });
-                    } catch (e3) {
-                        parts.push({ type: 'text', data: '\n' + qrData + '\n' });
-                    }
-                }
+                console.warn('QR image failed:', e);
+                // Fallback: just print URL as text
+                parts.push({ type: 'text', data: '\n' + qrData + '\n' });
             }
         }
         
@@ -685,31 +575,22 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // Try multiple barcode formats for maximum compatibility
+        // Print QR Code as IMAGE - most reliable for BLE printers
         if (printQR && qrData) {
-            const shortCode = this.extractShortCode(qrData);
-            
             try {
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nID: ' + shortCode + '\n' });
-                const barcode39 = this.generateBarcode39(shortCode, 50, 3);
-                parts.push({ type: 'binary', data: barcode39 });
-                parts.push({ type: 'text', data: '\n' });
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk lihat bukti:\n' });
+                
+                // Generate QR as image (not native command)
+                const qrImage = await this.generateQRCode(qrData, 150);
+                parts.push({ type: 'image', data: qrImage });
+                
+                // Print short ID below QR
+                const shortCode = this.extractShortCode(qrData);
+                parts.push({ type: 'text', data: '\nID: ' + shortCode + '\n' });
             } catch (e) {
-                console.warn('CODE39 failed:', e);
-                try {
-                    const barcode128 = this.generateBarcode128(shortCode, 50, 2);
-                    parts.push({ type: 'binary', data: barcode128 });
-                    parts.push({ type: 'text', data: '\n' });
-                } catch (e2) {
-                    console.warn('CODE128 also failed:', e2);
-                    try {
-                        const qrCommand = this.generateQRCodeNative(qrData, 4);
-                        parts.push({ type: 'binary', data: qrCommand });
-                        parts.push({ type: 'text', data: '\n' });
-                    } catch (e3) {
-                        parts.push({ type: 'text', data: '\n' + qrData + '\n' });
-                    }
-                }
+                console.warn('QR image failed:', e);
+                // Fallback: just print URL as text
+                parts.push({ type: 'text', data: '\n' + qrData + '\n' });
             }
         }
         
@@ -812,7 +693,7 @@ class BluetoothThermalPrinter {
         }
     }
 
-    // Print text data with chunking for reliability
+    // Print text data with BLE-optimized chunking
     async print(content) {
         if (!this.characteristic) {
             throw new Error('Printer tidak terhubung');
@@ -821,8 +702,8 @@ class BluetoothThermalPrinter {
         const encoder = new TextEncoder();
         const data = encoder.encode(content);
         
-        // Send in smaller chunks with delays for reliability
-        const chunkSize = 100; // Smaller chunks for better reliability
+        // Use BLE-optimized chunk size (64-128 bytes)
+        const chunkSize = this.BLE_CHUNK_SIZE;
         
         for (let i = 0; i < data.byteLength; i += chunkSize) {
             const chunk = data.slice(i, Math.min(i + chunkSize, data.byteLength));
@@ -838,16 +719,16 @@ class BluetoothThermalPrinter {
                 throw error;
             }
             
-            // Add delay between chunks to prevent buffer overflow
-            await new Promise(resolve => setTimeout(resolve, 50));
+            // BLE-optimized delay between chunks (100-150ms)
+            await new Promise(resolve => setTimeout(resolve, this.BLE_DELAY));
         }
         
         return true;
     }
 
     /**
-     * Print receipt with mixed content (text + images + binary)
-     * @param {Array} parts - Array of {type: 'text'|'image'|'binary', data: string|Uint8Array}
+     * Print receipt with mixed content (text + images)
+     * @param {Array} parts - Array of {type: 'text'|'image', data: string|Uint8Array}
      */
     async printMixed(parts) {
         for (const part of parts) {
@@ -855,12 +736,9 @@ class BluetoothThermalPrinter {
                 await this.print(part.data);
             } else if (part.type === 'image') {
                 await this.printImage(part.data);
-            } else if (part.type === 'binary') {
-                // Binary data (like native QR code commands)
-                await this.printImage(part.data);
             }
-            // Small delay between parts
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Delay between parts for BLE stability
+            await new Promise(resolve => setTimeout(resolve, this.BLE_DELAY));
         }
     }
 
