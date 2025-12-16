@@ -25,6 +25,11 @@
             padding-bottom: 20px;
         }
 
+        .header-logo {
+            max-width: 120px;
+            margin-bottom: 10px;
+        }
+
         .header h1 {
             color: #667eea;
             font-size: 24px;
@@ -130,9 +135,27 @@
             font-weight: bold;
         }
 
+        .qr-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #ddd;
+        }
+
+        .qr-section img {
+            width: 100px;
+            height: 100px;
+        }
+
+        .qr-section p {
+            font-size: 10px;
+            color: #888;
+            margin-top: 5px;
+        }
+
         .footer {
             text-align: center;
-            margin-top: 40px;
+            margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #ddd;
             color: #666;
@@ -189,9 +212,12 @@
         } elseif ($penjualan->status == 'Canceled') {
             $statusClass = 'canceled';
         }
+
+        $invoiceUrl = url('invoice/penjualan/' . $penjualan->id);
     @endphp
 
     <div class="header">
+        <img src="{{ public_path('assets/img/logoHE1.png') }}" class="header-logo" alt="Logo">
         <h1>HIBISCUS EFSYA</h1>
         <p>INVOICE PENJUALAN</p>
         <div class="invoice-number">{{ $nomorInvoice }}</div>
@@ -264,9 +290,15 @@
                 {{ number_format($penjualan->grand_total, 0, ',', '.') }}</span></div>
     </div>
 
+    <div class="qr-section">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}" alt="QR Code">
+        <p>Scan untuk melihat invoice online</p>
+    </div>
+
     <div class="footer">
         <p><strong>HIBISCUS EFSYA</strong></p>
         <p>marketing@hibiscusefsya.com</p>
+        <p style="margin-top: 10px; font-size: 10px;">Dicetak: {{ now()->format('d/m/Y H:i') }}</p>
     </div>
 </body>
 

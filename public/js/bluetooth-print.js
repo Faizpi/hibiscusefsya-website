@@ -203,7 +203,51 @@ class BluetoothThermalPrinter {
     }
 
     /**
-     * Generate QR Code bitmap data using canvas
+     * Generate QR Code using ESC/POS native commands (more reliable than bitmap)
+     * Uses GS ( k command for QR Code printing
+     * @param {string} data - Data to encode in QR code
+     * @param {number} size - Module size (1-8, default 4)
+     * @returns {Uint8Array} - ESC/POS QR code command data
+     */
+    generateQRCodeNative(data, size = 4) {
+        const encoder = new TextEncoder();
+        const dataBytes = encoder.encode(data);
+        const dataLen = dataBytes.length;
+        
+        // QR Code commands array
+        const commands = [];
+        
+        // Function 165: Select QR Code model (Model 2)
+        // GS ( k pL pH cn fn n1 n2
+        commands.push(0x1D, 0x28, 0x6B, 0x04, 0x00, 0x31, 0x41, 0x32, 0x00);
+        
+        // Function 167: Set QR Code size (module size 1-8)
+        // GS ( k pL pH cn fn n
+        commands.push(0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x43, size);
+        
+        // Function 169: Set QR Code error correction level (L=48, M=49, Q=50, H=51)
+        // GS ( k pL pH cn fn n
+        commands.push(0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x45, 0x31); // M level
+        
+        // Function 180: Store QR Code data
+        // GS ( k pL pH cn fn m d1...dk
+        const storeLen = dataLen + 3;
+        const pL = storeLen & 0xFF;
+        const pH = (storeLen >> 8) & 0xFF;
+        commands.push(0x1D, 0x28, 0x6B, pL, pH, 0x31, 0x50, 0x30);
+        for (let i = 0; i < dataBytes.length; i++) {
+            commands.push(dataBytes[i]);
+        }
+        
+        // Function 181: Print QR Code
+        // GS ( k pL pH cn fn m
+        commands.push(0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x30);
+        
+        return new Uint8Array(commands);
+    }
+
+    /**
+     * Generate QR Code bitmap data using canvas (fallback method)
      * @param {string} data - Data to encode in QR code
      * @param {number} size - Size in pixels (default 200)
      * @returns {Promise<Uint8Array>} - ESC/POS bitmap command data
@@ -324,12 +368,13 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // QR Code (if enabled and URL provided)
+        // QR Code (if enabled and URL provided) - use native ESC/POS QR command
         if (printQR && qrData) {
             try {
                 parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk invoice:\n' });
-                const qrImage = await this.generateQRCode(qrData, 150);
-                parts.push({ type: 'image', data: qrImage });
+                const qrCommand = this.generateQRCodeNative(qrData, 5);
+                parts.push({ type: 'binary', data: qrCommand });
+                parts.push({ type: 'text', data: '\n' });
             } catch (e) {
                 console.warn('Could not generate QR code:', e);
             }
@@ -417,12 +462,13 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // QR Code
+        // QR Code - use native ESC/POS QR command
         if (printQR && qrData) {
             try {
                 parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk invoice:\n' });
-                const qrImage = await this.generateQRCode(qrData, 150);
-                parts.push({ type: 'image', data: qrImage });
+                const qrCommand = this.generateQRCodeNative(qrData, 5);
+                parts.push({ type: 'binary', data: qrCommand });
+                parts.push({ type: 'text', data: '\n' });
             } catch (e) {
                 console.warn('Could not generate QR code:', e);
             }
@@ -502,12 +548,13 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // QR Code
+        // QR Code - use native ESC/POS QR command
         if (printQR && qrData) {
             try {
                 parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk invoice:\n' });
-                const qrImage = await this.generateQRCode(qrData, 150);
-                parts.push({ type: 'image', data: qrImage });
+                const qrCommand = this.generateQRCodeNative(qrData, 5);
+                parts.push({ type: 'binary', data: qrCommand });
+                parts.push({ type: 'text', data: '\n' });
             } catch (e) {
                 console.warn('Could not generate QR code:', e);
             }
@@ -646,14 +693,17 @@ class BluetoothThermalPrinter {
     }
 
     /**
-     * Print receipt with mixed content (text + images)
-     * @param {Array} parts - Array of {type: 'text'|'image', data: string|Uint8Array}
+     * Print receipt with mixed content (text + images + binary)
+     * @param {Array} parts - Array of {type: 'text'|'image'|'binary', data: string|Uint8Array}
      */
     async printMixed(parts) {
         for (const part of parts) {
             if (part.type === 'text') {
                 await this.print(part.data);
             } else if (part.type === 'image') {
+                await this.printImage(part.data);
+            } else if (part.type === 'binary') {
+                // Binary data (like native QR code commands)
                 await this.printImage(part.data);
             }
             // Small delay between parts

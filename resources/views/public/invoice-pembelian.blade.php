@@ -3,196 +3,317 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pembelian - {{ $pembelian->staf_penyetuju }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            min-height: 100vh;
-            padding: 20px 0;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .invoice-container {
-            max-width: 800px;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .receipt-container {
+            max-width: 400px;
             margin: 0 auto;
             background: #fff;
-            border-radius: 15px;
+            border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             overflow: hidden;
         }
 
-        .invoice-header {
+        /* Header */
+        .receipt-header {
             background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
             color: #fff;
-            padding: 30px;
+            padding: 20px 15px;
             text-align: center;
         }
 
-        .invoice-header img {
-            max-width: 150px;
-            margin-bottom: 15px;
+        .receipt-header img {
+            max-width: 100px;
+            margin-bottom: 10px;
         }
 
-        .invoice-header h1 {
-            font-size: 24px;
-            margin: 0;
+        .receipt-header h1 {
+            font-size: 16px;
             font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
         }
 
-        .invoice-body {
-            padding: 30px;
+        .invoice-number {
+            font-size: 13px;
+            opacity: 0.9;
+            font-family: 'Courier New', monospace;
         }
 
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
+        /* Status Badge */
+        .status-section {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px dashed #e0e0e0;
         }
 
-        @media (max-width: 576px) {
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .info-box {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-        }
-
-        .info-box h5 {
-            color: #11998e;
-            font-size: 14px;
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
-            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .status-lunas { background: #d4edda; color: #155724; }
+        .status-approved { background: #cce5ff; color: #004085; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-canceled { background: #f8d7da; color: #721c24; }
+
+        /* Info Section */
+        .info-section {
+            padding: 15px;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+
+        .info-title {
+            font-size: 11px;
+            color: #11998e;
             font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
         }
 
         .info-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dashed #dee2e6;
-        }
-
-        .info-row:last-child {
-            border-bottom: none;
+            padding: 6px 0;
+            font-size: 13px;
         }
 
         .info-row .label {
-            color: #6c757d;
-            font-size: 14px;
+            color: #666;
         }
 
         .info-row .value {
             font-weight: 500;
+            color: #333;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+
+        /* Items Section */
+        .items-section {
+            padding: 15px;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+
+        .items-title {
+            font-size: 11px;
+            color: #11998e;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .item-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .item-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .item-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .item-code {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .item-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .item-qty {
+            background: #11998e;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .item-price {
             text-align: right;
         }
 
-        .items-table {
-            margin-bottom: 30px;
+        .item-price .unit-price {
+            font-size: 11px;
+            color: #888;
         }
 
-        .items-table th {
-            background: #11998e;
-            color: #fff;
-            font-weight: 500;
-            font-size: 14px;
-            border: none !important;
+        .item-price .total-price {
+            font-weight: 600;
+            color: #333;
         }
 
-        .items-table td {
-            vertical-align: middle;
+        .item-discount {
+            font-size: 11px;
+            color: #e74c3c;
+            text-align: right;
+            margin-top: 4px;
         }
 
-        .totals-box {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
+        /* Totals Section */
+        .totals-section {
+            padding: 15px;
+            border-bottom: 1px dashed #e0e0e0;
         }
 
         .total-row {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            font-size: 16px;
+            padding: 6px 0;
+            font-size: 13px;
         }
 
-        .total-row.grand {
+        .total-row .label {
+            color: #666;
+        }
+
+        .total-row .value {
+            font-weight: 500;
+        }
+
+        .total-row.discount .value {
+            color: #e74c3c;
+        }
+
+        .grand-total {
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             color: #fff;
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin: 15px -20px -20px -20px;
-            font-size: 20px;
+            padding: 15px;
+            margin: 15px -15px -15px -15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grand-total .label {
+            font-size: 14px;
             font-weight: 600;
         }
 
-        .status-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
+        .grand-total .value {
+            font-size: 18px;
+            font-weight: 700;
         }
 
-        .status-lunas {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-approved {
-            background: #cce5ff;
-            color: #004085;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-canceled {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .download-section {
+        /* QR Section */
+        .qr-section {
+            padding: 20px 15px;
             text-align: center;
-            padding: 20px;
-            background: #f8f9fa;
-            border-top: 1px solid #dee2e6;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+
+        .qr-section img {
+            width: 120px;
+            height: 120px;
+            padding: 8px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .qr-text {
+            font-size: 11px;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        /* Download Button */
+        .download-section {
+            padding: 15px;
+            text-align: center;
         }
 
         .btn-download {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            border: none;
-            color: #fff;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: 500;
-            text-decoration: none;
             display: inline-block;
+            width: 100%;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .btn-download:hover {
-            color: #fff;
             transform: translateY(-2px);
             box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
-            text-decoration: none;
         }
 
-        .footer-text {
+        .btn-download:active {
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        .receipt-footer {
+            padding: 15px;
             text-align: center;
-            padding: 20px;
-            color: #6c757d;
-            font-size: 14px;
+            background: #f8f9fa;
+        }
+
+        .receipt-footer .company {
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .receipt-footer .email {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .receipt-footer .timestamp {
+            font-size: 11px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 420px) {
+            body {
+                padding: 10px;
+            }
+            
+            .receipt-container {
+                border-radius: 8px;
+            }
         }
     </style>
 </head>
@@ -216,132 +337,132 @@
         } elseif ($pembelian->status == 'Canceled') {
             $statusClass = 'canceled';
         }
+
+        $currentUrl = url()->current();
     @endphp
 
-    <div class="invoice-container">
-        <div class="invoice-header">
-            <img src="{{ asset('assets/img/logoHE1.png') }}" alt="Hibiscus Efsya" onerror="this.style.display='none'">
+    <div class="receipt-container">
+        <!-- Header -->
+        <div class="receipt-header">
+            <img src="{{ asset('assets/img/logoHE1.png') }}" alt="HE" onerror="this.style.display='none'">
             <h1>PERMINTAAN PEMBELIAN</h1>
-            <p class="mb-0 mt-2" style="font-size: 18px;">{{ $nomorInvoice }}</p>
+            <div class="invoice-number">{{ $nomorInvoice }}</div>
         </div>
 
-        <div class="invoice-body">
-            <div class="info-grid">
-                <div class="info-box">
-                    <h5><i class="fas fa-info-circle mr-2"></i>Informasi Dokumen</h5>
-                    <div class="info-row">
-                        <span class="label">Tanggal</span>
-                        <span class="value">{{ $pembelian->tgl_transaksi->format('d F Y') }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Waktu</span>
-                        <span class="value">{{ $pembelian->created_at->format('H:i') }} WIB</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Jatuh Tempo</span>
-                        <span
-                            class="value">{{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d F Y') : '-' }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Pembayaran</span>
-                        <span class="value">{{ $pembelian->syarat_pembayaran ?? '-' }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Status</span>
-                        <span class="value">
-                            <span class="status-badge status-{{ $statusClass }}">{{ $statusText }}</span>
-                        </span>
-                    </div>
-                </div>
+        <!-- Status -->
+        <div class="status-section">
+            <span class="status-badge status-{{ $statusClass }}">{{ $statusText }}</span>
+        </div>
 
-                <div class="info-box">
-                    <h5><i class="fas fa-building mr-2"></i>Informasi Vendor</h5>
-                    <div class="info-row">
-                        <span class="label">Vendor</span>
-                        <span class="value">{{ $pembelian->staf_penyetuju ?? '-' }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Pembuat</span>
-                        <span class="value">{{ $pembelian->user->name }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Disetujui</span>
-                        <span
-                            class="value">{{ $pembelian->status != 'Pending' && $pembelian->approver ? $pembelian->approver->name : '-' }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Gudang</span>
-                        <span class="value">{{ $pembelian->gudang->nama_gudang ?? '-' }}</span>
-                    </div>
-                </div>
+        <!-- Informasi Dokumen -->
+        <div class="info-section">
+            <div class="info-title">📋 Informasi Dokumen</div>
+            <div class="info-row">
+                <span class="label">Tanggal</span>
+                <span class="value">{{ $pembelian->tgl_transaksi->format('d M Y') }}</span>
             </div>
-
-            <div class="items-table">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Produk</th>
-                            <th class="text-center">Qty</th>
-                            <th class="text-right">Harga</th>
-                            <th class="text-center">Disc</th>
-                            <th class="text-right">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($pembelian->items as $item)
-                            <tr>
-                                <td>
-                                    <strong>{{ $item->produk->nama_produk }}</strong>
-                                    @if($item->produk->item_code)
-                                        <br><small class="text-muted">{{ $item->produk->item_code }}</small>
-                                    @endif
-                                </td>
-                                <td class="text-center">{{ $item->kuantitas }} {{ $item->unit }}</td>
-                                <td class="text-right">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
-                                <td class="text-center">{{ $item->diskon }}%</td>
-                                <td class="text-right">Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="info-row">
+                <span class="label">Waktu</span>
+                <span class="value">{{ $pembelian->created_at->format('H:i') }} WIB</span>
             </div>
+            <div class="info-row">
+                <span class="label">Jatuh Tempo</span>
+                <span class="value">{{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d M Y') : '-' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Pembayaran</span>
+                <span class="value">{{ $pembelian->syarat_pembayaran ?? '-' }}</span>
+            </div>
+        </div>
 
-            <div class="totals-box">
+        <!-- Informasi Vendor -->
+        <div class="info-section">
+            <div class="info-title">🏢 Informasi Vendor</div>
+            <div class="info-row">
+                <span class="label">Vendor</span>
+                <span class="value">{{ $pembelian->staf_penyetuju ?? '-' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Pembuat</span>
+                <span class="value">{{ $pembelian->user->name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Disetujui</span>
+                <span class="value">{{ $pembelian->status != 'Pending' && $pembelian->approver ? $pembelian->approver->name : '-' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Gudang</span>
+                <span class="value">{{ $pembelian->gudang->nama_gudang ?? '-' }}</span>
+            </div>
+        </div>
+
+        <!-- Items -->
+        <div class="items-section">
+            <div class="items-title">📦 Item Pembelian</div>
+            @foreach($pembelian->items as $item)
+                <div class="item-card">
+                    <div class="item-name">{{ $item->produk->nama_produk }}</div>
+                    @if($item->produk->item_code)
+                        <div class="item-code">{{ $item->produk->item_code }}</div>
+                    @endif
+                    <div class="item-details">
+                        <span class="item-qty">{{ $item->kuantitas }} {{ $item->unit }}</span>
+                        <div class="item-price">
+                            <div class="unit-price">@ Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</div>
+                            <div class="total-price">Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</div>
+                        </div>
+                    </div>
+                    @if($item->diskon > 0)
+                        <div class="item-discount">Disc: {{ $item->diskon }}%</div>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+
+        <!-- Totals -->
+        <div class="totals-section">
+            <div class="total-row">
+                <span class="label">Subtotal</span>
+                <span class="value">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+            </div>
+            @if(($pembelian->diskon_akhir ?? 0) > 0)
+                <div class="total-row discount">
+                    <span class="label">Diskon</span>
+                    <span class="value">- Rp {{ number_format($pembelian->diskon_akhir, 0, ',', '.') }}</span>
+                </div>
+            @endif
+            @if(($pembelian->tax_percentage ?? 0) > 0)
                 <div class="total-row">
-                    <span>Subtotal</span>
-                    <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                    <span class="label">Pajak ({{ $pembelian->tax_percentage }}%)</span>
+                    <span class="value">Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
                 </div>
-                @if(($pembelian->diskon_akhir ?? 0) > 0)
-                    <div class="total-row text-danger">
-                        <span>Diskon</span>
-                        <span>- Rp {{ number_format($pembelian->diskon_akhir, 0, ',', '.') }}</span>
-                    </div>
-                @endif
-                @if(($pembelian->tax_percentage ?? 0) > 0)
-                    <div class="total-row">
-                        <span>Pajak ({{ $pembelian->tax_percentage }}%)</span>
-                        <span>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
-                    </div>
-                @endif
-                <div class="total-row grand">
-                    <span>GRAND TOTAL</span>
-                    <span>Rp {{ number_format($pembelian->grand_total, 0, ',', '.') }}</span>
-                </div>
+            @endif
+            <div class="grand-total">
+                <span class="label">GRAND TOTAL</span>
+                <span class="value">Rp {{ number_format($pembelian->grand_total, 0, ',', '.') }}</span>
             </div>
         </div>
 
+        <!-- QR Code -->
+        <div class="qr-section">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($currentUrl) }}" alt="QR Code">
+            <div class="qr-text">Scan untuk melihat invoice ini</div>
+        </div>
+
+        <!-- Download Button -->
         <div class="download-section">
             <a href="{{ route('public.invoice.pembelian.download', $pembelian->id) }}" class="btn-download">
-                <i class="fas fa-download mr-2"></i>Download PDF
+                📥 Download PDF
             </a>
         </div>
 
-        <div class="footer-text">
-            <p class="mb-1"><strong>HIBISCUS EFSYA</strong></p>
-            <p class="mb-0">marketing@hibiscusefsya.com</p>
+        <!-- Footer -->
+        <div class="receipt-footer">
+            <div class="company">HIBISCUS EFSYA</div>
+            <div class="email">marketing@hibiscusefsya.com</div>
+            <div class="timestamp">Dicetak: {{ now()->format('d/m/Y H:i') }}</div>
         </div>
     </div>
-
 </body>
 
 </html>
