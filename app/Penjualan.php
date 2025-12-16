@@ -56,17 +56,18 @@ class Penjualan extends Model
 
     /**
      * Accessor untuk status display di invoice
+     * - Jika pembayaran Cash → selalu tampil "Lunas" (langsung bayar)
      * - Jika status Lunas → tampil "Lunas"
-     * - Jika Cash dan Approved → tampil "Lunas"
      * - Jika bukan Cash dan Approved → tampil "Belum Lunas"
-     * - Selain itu tampil status asli
+     * - Selain itu tampil status asli (Pending/Canceled)
      */
     public function getStatusDisplayAttribute()
     {
-        if ($this->status === 'Lunas') {
+        // Cash selalu Lunas karena langsung dibayar
+        if ($this->syarat_pembayaran === 'Cash') {
             return 'Lunas';
         }
-        if ($this->syarat_pembayaran === 'Cash' && $this->status === 'Approved') {
+        if ($this->status === 'Lunas') {
             return 'Lunas';
         }
         if ($this->status === 'Approved') {

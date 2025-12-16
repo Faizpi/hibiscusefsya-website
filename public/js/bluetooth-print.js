@@ -247,6 +247,59 @@ class BluetoothThermalPrinter {
     }
 
     /**
+     * Generate Code128 Barcode using ESC/POS native commands
+     * More compatible with cheap thermal printers than QR code
+     * @param {string} data - Data to encode (max ~20 chars for readability)
+     * @param {number} height - Barcode height in dots (default 50)
+     * @param {number} width - Barcode width 2-6 (default 2)
+     * @returns {Uint8Array} - ESC/POS barcode command data
+     */
+    generateBarcode128(data, height = 50, width = 2) {
+        const encoder = new TextEncoder();
+        const dataBytes = encoder.encode(data);
+        
+        const commands = [];
+        
+        // GS h n - Set barcode height (n = 1-255 dots)
+        commands.push(0x1D, 0x68, height);
+        
+        // GS w n - Set barcode width (n = 2-6)
+        commands.push(0x1D, 0x77, Math.min(6, Math.max(2, width)));
+        
+        // GS H n - Set HRI (Human Readable Interpretation) position
+        // 0 = not printed, 1 = above, 2 = below, 3 = both
+        commands.push(0x1D, 0x48, 0x02); // Below barcode
+        
+        // GS f n - Set HRI font (0 = Font A, 1 = Font B)
+        commands.push(0x1D, 0x66, 0x00);
+        
+        // GS k m n d1...dn - Print barcode
+        // m = 73 (Code128), n = data length
+        commands.push(0x1D, 0x6B, 73, dataBytes.length);
+        for (let i = 0; i < dataBytes.length; i++) {
+            commands.push(dataBytes[i]);
+        }
+        
+        return new Uint8Array(commands);
+    }
+
+    /**
+     * Generate a short code from URL for barcode
+     * Extracts just the ID from invoice URL
+     * @param {string} url - Full URL
+     * @returns {string} - Short code for barcode
+     */
+    extractShortCode(url) {
+        // Extract invoice ID from URL like "https://domain/invoice/penjualan/123"
+        const match = url.match(/\/(\d+)$/);
+        if (match) {
+            return match[1]; // Just return the ID
+        }
+        // Fallback: return last 15 chars
+        return url.slice(-15);
+    }
+
+    /**
      * Generate QR Code bitmap data using canvas (fallback method)
      * @param {string} data - Data to encode in QR code
      * @param {number} size - Size in pixels (default 200)
@@ -370,15 +423,28 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // QR Code (if enabled and URL provided) - use native ESC/POS QR command
+        // QR Code or Barcode (if enabled and URL provided)
+        // Try QR first, fallback to barcode if QR fails
         if (printQR && qrData) {
             try {
+                // First try QR Code (better for smartphones)
                 parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk invoice:\n' });
                 const qrCommand = this.generateQRCodeNative(qrData, 5);
                 parts.push({ type: 'binary', data: qrCommand });
                 parts.push({ type: 'text', data: '\n' });
             } catch (e) {
-                console.warn('Could not generate QR code:', e);
+                console.warn('QR failed, trying barcode:', e);
+            }
+            
+            // Also print barcode as fallback (more compatible with cheap printers)
+            try {
+                const shortCode = this.extractShortCode(qrData);
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
+                const barcodeCommand = this.generateBarcode128(shortCode, 40, 2);
+                parts.push({ type: 'binary', data: barcodeCommand });
+                parts.push({ type: 'text', data: '\n' });
+            } catch (e) {
+                console.warn('Barcode also failed:', e);
             }
         }
         
@@ -466,7 +532,7 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // QR Code - use native ESC/POS QR command
+        // QR Code or Barcode (if enabled and URL provided)
         if (printQR && qrData) {
             try {
                 parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk invoice:\n' });
@@ -474,7 +540,18 @@ class BluetoothThermalPrinter {
                 parts.push({ type: 'binary', data: qrCommand });
                 parts.push({ type: 'text', data: '\n' });
             } catch (e) {
-                console.warn('Could not generate QR code:', e);
+                console.warn('QR failed, trying barcode:', e);
+            }
+            
+            // Barcode fallback
+            try {
+                const shortCode = this.extractShortCode(qrData);
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
+                const barcodeCommand = this.generateBarcode128(shortCode, 40, 2);
+                parts.push({ type: 'binary', data: barcodeCommand });
+                parts.push({ type: 'text', data: '\n' });
+            } catch (e) {
+                console.warn('Barcode also failed:', e);
             }
         }
         
@@ -554,15 +631,26 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // QR Code - use native ESC/POS QR command
+        // QR Code or Barcode (if enabled and URL provided)
         if (printQR && qrData) {
             try {
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk invoice:\n' });
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk bukti:\n' });
                 const qrCommand = this.generateQRCodeNative(qrData, 5);
                 parts.push({ type: 'binary', data: qrCommand });
                 parts.push({ type: 'text', data: '\n' });
             } catch (e) {
-                console.warn('Could not generate QR code:', e);
+                console.warn('QR failed, trying barcode:', e);
+            }
+            
+            // Barcode fallback
+            try {
+                const shortCode = this.extractShortCode(qrData);
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
+                const barcodeCommand = this.generateBarcode128(shortCode, 40, 2);
+                parts.push({ type: 'binary', data: barcodeCommand });
+                parts.push({ type: 'text', data: '\n' });
+            } catch (e) {
+                console.warn('Barcode also failed:', e);
             }
         }
         

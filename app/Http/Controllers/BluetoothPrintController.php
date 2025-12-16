@@ -26,9 +26,11 @@ class BluetoothPrintController extends Controller
         $dateCode = $data->created_at->format('Ymd');
         $noUrut = str_pad($data->no_urut_harian, 3, '0', STR_PAD_LEFT);
 
-        // Calculate status display
+        // Calculate status display - Cash selalu Lunas (langsung bayar)
         $status = $data->status;
-        if ($data->syarat_pembayaran == 'Cash' && $data->status == 'Approved') {
+        if ($data->syarat_pembayaran == 'Cash') {
+            $status = 'Lunas';
+        } elseif ($data->status == 'Lunas') {
             $status = 'Lunas';
         } elseif ($data->status == 'Approved') {
             $status = 'Belum Lunas';
