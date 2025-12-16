@@ -48,19 +48,14 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-2 mb-sm-0 text-gray-800">Dashboard</h1>
 
-        <div class="d-flex gap-2">
-            {{-- Tombol Test Bluetooth Printer --}}
-            <button type="button" class="btn btn-sm btn-info shadow-sm mr-2" onclick="testBluetoothImageSupport()">
-                <i class="fab fa-bluetooth-b fa-sm text-white"></i> Test Printer BLE
-            </button>
-
-            {{-- Tombol Export hanya untuk Admin/Super Admin --}}
-            @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
+        {{-- Tombol Export hanya untuk Admin/Super Admin --}}
+        @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
+            <div>
                 <button type="button" class="btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#exportModal">
                     <i class="fas fa-download fa-sm text-white-50"></i> Generate Report
                 </button>
-            @endif
-        </div>
+            </div>
+        @endif
     </div>
 
     {{-- ROW 1: Cards Utama --}}
@@ -602,9 +597,6 @@
 @endsection
 
 @push('scripts')
-    {{-- Bluetooth Print Library --}}
-    <script src="{{ asset('js/bluetooth-print.js') }}?v={{ time() }}"></script>
-
     {{-- Chart.js CDN --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
@@ -862,60 +854,5 @@
             }
         });
 
-        /**
-         * 🧪 Test Bluetooth Printer Image Support
-         * Test sederhana untuk validasi apakah printer BLE support ESC * bitmap
-         */
-        async function testBluetoothImageSupport() {
-            // Check if BluetoothPrinter exists
-            if (!window.BluetoothPrinter) {
-                alert('Error: BluetoothPrinter tidak ditemukan. Refresh halaman dan coba lagi.');
-                return;
-            }
-
-            // Confirm test
-            const confirmed = confirm(
-                '🧪 TEST PRINTER BLE\n\n' +
-                'Test ini akan mencetak:\n' +
-                '• 1 baris titik hitam (■)\n' +
-                '• Tulisan "TEST"\n\n' +
-                'HASIL YANG MUNGKIN:\n' +
-                '✅ Ada titik hitam di atas TEST → Printer support image\n' +
-                '❌ Hanya ada tulisan TEST → Printer text-only\n\n' +
-                'Lanjutkan?'
-            );
-
-            if (!confirmed) return;
-
-            try {
-                // Connect if not connected
-                if (!window.BluetoothPrinter.characteristic) {
-                    await window.BluetoothPrinter.connect();
-                }
-
-                // Run test
-                await window.BluetoothPrinter.testImageSupport();
-
-                // Show result instruction
-                alert(
-                    '✅ TEST SELESAI!\n\n' +
-                    '👀 LIHAT KERTAS PRINTER:\n\n' +
-                    '✅ Jika ada TITIK HITAM (■) di atas "TEST":\n' +
-                    '   → Printer SUPPORT ESC * image\n' +
-                    '   → Logo/QR bisa di-print\n\n' +
-                    '❌ Jika HANYA ada tulisan "TEST":\n' +
-                    '   → Printer BLE TEXT-ONLY\n' +
-                    '   → Logo/QR/Barcode MUSTAHIL via Web Bluetooth\n' +
-                    '   → Gunakan window.print() atau USB/BT Classic'
-                );
-
-            } catch (error) {
-                console.error('Test error:', error);
-                alert('❌ ERROR: ' + error.message);
-            } finally {
-                // Disconnect after test
-                window.BluetoothPrinter.disconnect();
-            }
-        }
     </script>
 @endpush

@@ -793,55 +793,6 @@ class BluetoothThermalPrinter {
         }
     }
 
-    /**
-     * 🧪 TEST SEDERHANA: Apakah printer support ESC * (image)?
-     * 
-     * Jalankan di console setelah connect:
-     * await window.BluetoothPrinter.testImageSupport();
-     * 
-     * HASIL YANG DIHARAPKAN:
-     * ✅ Jika printer SUPPORT image: kertas print dengan TITIK HITAM (■) di atas tulisan "TEST"
-     * ❌ Jika printer TEXT-ONLY: kertas print tulisan "TEST" TANPA titik hitam
-     * 
-     * KESIMPULAN:
-     * - Jika TIDAK ADA titik hitam → printer BLE text-only → logo/QR MUSTAHIL via browser
-     * - Jika ADA titik hitam → printer support image → lanjut debug implementasi
-     */
-    async testImageSupport() {
-        if (!this.characteristic) {
-            throw new Error('⚠️ Printer belum terhubung! Jalankan: await window.BluetoothPrinter.connect()');
-        }
-
-        console.log('🧪 Menjalankan test ESC * bitmap support...');
-        console.log('📄 Mengirim perintah: ALIGN_CENTER + ESC * (1 byte bitmap) + TEST');
-        
-        const testCommand = 
-            '\x1B\x61\x01' +        // ALIGN CENTER
-            '\x1B\x2A\x00\x01\x00' + // ESC * bitmap mode (1 byte width)
-            '\xFF' +                 // 8 titik hitam vertikal
-            '\n' +                   // line feed
-            'TEST\n' +               // text indicator
-            '\n\n\n';                // paper feed
-
-        await this.print(testCommand);
-        
-        console.log('✅ Test command terkirim!');
-        console.log('');
-        console.log('👀 LIHAT KERTAS PRINTER:');
-        console.log('');
-        console.log('✅ Jika ada TITIK HITAM (■) di atas "TEST":');
-        console.log('   → Printer SUPPORT ESC * image');
-        console.log('   → Logo/QR bisa di-print (masalah di implementasi)');
-        console.log('');
-        console.log('❌ Jika HANYA ada tulisan "TEST" (tanpa titik):');
-        console.log('   → Printer BLE TEXT-ONLY');
-        console.log('   → Logo/QR/Barcode MUSTAHIL via Web Bluetooth');
-        console.log('   → Solusi: window.print() atau USB/BT Classic');
-        console.log('');
-        
-        return '✅ Test selesai! Cek kertas printer untuk hasil.';
-    }
-
     // Print text data with BLE-optimized chunking
     async print(content) {
         if (!this.characteristic) {
