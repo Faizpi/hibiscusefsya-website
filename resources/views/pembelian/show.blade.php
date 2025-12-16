@@ -27,10 +27,11 @@
 
                 {{-- Tombol Print & Kembali --}}
                 <button type="button" id="printBluetooth" class="btn btn-primary btn-sm shadow-sm" 
-                    data-url="{{ route('pembelian.printRich', $pembelian->id) }}">
+                    data-type="pembelian"
+                    data-url="{{ route('bluetooth.pembelian', $pembelian->id) }}">
                     <i class="fas fa-bluetooth fa-sm"></i> Print Bluetooth
                 </button>
-                <a href="{{ route('pembelian.printRich', $pembelian->id) }}" target="_blank"
+                <a href="{{ route('pembelian.print', $pembelian->id) }}" target="_blank"
                     class="btn btn-info btn-sm shadow-sm">
                     <i class="fas fa-print fa-sm"></i> Cetak Struk
                 </a>
@@ -318,23 +319,23 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title"><i class="fas fa-qrcode mr-2"></i>QR Code Print Struk</h5>
+                    <h5 class="modal-title"><i class="fas fa-qrcode mr-2"></i>QR Code Dokumen</h5>
                     <button class="close text-white" type="button" data-dismiss="modal"><span>×</span></button>
                 </div>
                 <div class="modal-body text-center">
-                    <p class="mb-3">Scan QR Code di bawah dengan aplikasi <strong>iWare</strong> untuk print:</p>
+                    <p class="mb-3">Scan QR Code di bawah untuk melihat dokumen:</p>
                     @php
-                        $printUrl = route('pembelian.printRich', $pembelian->id);
-                        $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($printUrl);
+                        $publicUrl = route('public.invoice.pembelian', $pembelian->id);
+                        $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($publicUrl);
                     @endphp
-                    <img src="{{ $qrUrl }}" alt="QR Code Print" class="img-fluid mb-3" style="max-width: 300px;">
+                    <img src="{{ $qrUrl }}" alt="QR Code Dokumen" class="img-fluid mb-3" style="max-width: 300px;">
                     <div class="alert alert-info">
-                        <small><i class="fas fa-info-circle"></i> Buka iWare > Rich Text > Scan QR Code ini</small>
+                        <small><i class="fas fa-info-circle"></i> QR Code ini bisa di-scan untuk melihat dokumen tanpa login</small>
                     </div>
                     <div class="input-group mt-3">
-                        <input type="text" class="form-control" id="printUrlInput" value="{{ $printUrl }}" readonly>
+                        <input type="text" class="form-control" id="publicUrlInput" value="{{ $publicUrl }}" readonly>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" onclick="copyPrintUrl()">
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyPublicUrl()">
                                 <i class="fas fa-copy"></i> Copy
                             </button>
                         </div>
@@ -344,9 +345,11 @@
         </div>
     </div>
 
+    <!-- Include Bluetooth Print JS -->
+    <script src="{{ asset('js/bluetooth-print.js') }}"></script>
     <script>
-    function copyPrintUrl() {
-        const input = document.getElementById('printUrlInput');
+    function copyPublicUrl() {
+        const input = document.getElementById('publicUrlInput');
         input.select();
         document.execCommand('copy');
         
@@ -358,76 +361,11 @@
         }, 2000);
     }
 
-    // Bluetooth Print Function
-    document.getElementById('printBluetooth')?.addEventListener('click', async function() {
-        const printUrl = this.dataset.url;
-        const btn = this;
-        const originalHtml = btn.innerHTML;
-        
-        try {
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
-            btn.disabled = true;
-
-            if (!navigator.bluetooth) {
-                throw new Error('Bluetooth tidak didukung di browser ini. Gunakan Chrome/Edge di Android.');
-            }
-
-            const device = await navigator.bluetooth.requestDevice({
-                filters: [
-                    { services: ['000018f0-0000-1000-8000-00805f9b34fb'] },
-                    { namePrefix: 'POS' },
-                    { namePrefix: 'Thermal' },
-                    { namePrefix: 'Printer' }
-                ],
-                optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
-            });
-
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching data...';
-
-            const response = await fetch(printUrl);
-            const printData = await response.text();
-
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Printing...';
-
-            const server = await device.gatt.connect();
-            const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-            const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
-
-            const encoder = new TextEncoder();
-            const data = encoder.encode(printData);
-            const chunkSize = 256;
-            for (let i = 0; i < data.byteLength; i += chunkSize) {
-                const chunk = data.slice(i, i + chunkSize);
-                await characteristic.writeValue(chunk);
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
-
-            btn.innerHTML = '<i class="fas fa-check"></i> Berhasil!';
-            btn.classList.remove('btn-primary');
-            btn.classList.add('btn-success');
-            
-            setTimeout(() => {
-                btn.innerHTML = originalHtml;
-                btn.classList.remove('btn-success');
-                btn.classList.add('btn-primary');
-                btn.disabled = false;
-            }, 2000);
-
-        } catch (error) {
-            console.error('Bluetooth print error:', error);
-            btn.innerHTML = '<i class="fas fa-times"></i> Gagal';
-            btn.classList.remove('btn-primary');
-            btn.classList.add('btn-danger');
-            
-            alert('Gagal print via Bluetooth: ' + error.message);
-            
-            setTimeout(() => {
-                btn.innerHTML = originalHtml;
-                btn.classList.remove('btn-danger');
-                btn.classList.add('btn-primary');
-                btn.disabled = false;
-            }, 2000);
-        }
+    // Bluetooth Print Function (using new client-side solution)
+    document.getElementById('printBluetooth')?.addEventListener('click', function() {
+        const type = this.dataset.type;
+        const jsonUrl = this.dataset.url;
+        printViaBluetooth(this, type, jsonUrl);
     });
     </script>
 @endsection

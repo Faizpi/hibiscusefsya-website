@@ -4,54 +4,62 @@
 <head>
     <meta charset="UTF-8">
     <title>Struk Biaya</title>
+
     <style>
-        /* ... CSS SAMA SEPERTI DI ATAS ... */
         @page {
-            size: 58mm;
+            size: 58mm auto;
             margin: 0;
         }
 
-        @media screen {
-            html {
-                background-color: #E0E0E0;
-            }
-
-            body {
-                margin: 2rem auto !important;
-                box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
-                background: #fff;
-            }
+        html, body {
+            width: 100%;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
         }
 
         body {
-            width: 58mm;
             font-family: 'Consolas', 'Courier New', monospace;
             font-size: 10pt;
             color: #000;
-            margin: 0 auto;
-            padding: 3mm 1mm;
-            box-sizing: border-box;
         }
 
         * {
             word-wrap: break-word;
             overflow-wrap: break-word;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        .receipt {
+            width: 58mm;
+            margin: 0 auto;
+            padding: 3mm 1mm;
+            box-sizing: border-box;
+        }
+
+        @media screen {
+            html { background: #e0e0e0; }
+            .receipt {
+                background: #fff;
+                box-shadow: 0 0 6px rgba(0,0,0,.3);
+                margin: 2rem auto;
+            }
         }
 
         .header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .logo {
             max-width: 45mm;
-            height: auto;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .title {
             font-size: 12pt;
-            margin: 0;
             font-weight: bold;
         }
 
@@ -60,200 +68,140 @@
             margin: 6px 0;
         }
 
-        .info-table {
+        table {
             width: 100%;
             font-size: 9pt;
         }
 
-        .info-table td {
-            vertical-align: top;
+        td {
             padding-bottom: 2px;
+            vertical-align: top;
         }
 
-        .info-table .label {
-            width: 35%;
-        }
-
-        .info-table .colon {
-            width: 5%;
-            text-align: center;
-        }
-
-        .info-table .value {
-            width: 60%;
-        }
-
-        .item-container {
-            margin-bottom: 8px;
-        }
+        .label { width: 35%; }
+        .colon { width: 5%; text-align: center; }
+        .value { width: 60%; }
 
         .item-name {
-            font-weight: bold;
             font-size: 11pt;
+            font-weight: bold;
             margin-bottom: 2px;
         }
 
-        .details-table {
-            width: 100%;
+        .item-desc {
             font-size: 9pt;
+            color: #333;
+            margin-bottom: 2px;
         }
 
-        .details-table .lbl {
-            width: 35%;
-            text-align: left;
-        }
-
-        .details-table .val {
-            width: 65%;
-            text-align: right;
-        }
-
-        .total-table {
-            width: 100%;
-            font-size: 10pt;
-            margin-top: 5px;
-        }
-
-        .total-table .val {
-            text-align: right;
-        }
+        .val { text-align: right; }
 
         .grand-total {
             font-weight: bold;
             font-size: 12pt;
-            padding-top: 5px;
             border-top: 1px dashed #000;
+            padding-top: 4px;
+        }
+
+        .qr-section {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .qr-section p {
+            font-size: 8pt;
+            margin-top: 4px;
         }
 
         .footer {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 8px;
             font-size: 9pt;
         }
 
         @media print {
-            .no-print {
-                display: none;
-            }
+            .no-print { display: none; }
         }
     </style>
 </head>
 
 <body onload="window.print()">
 
+<div class="receipt">
+
+@php
+    $dateCode = $biaya->created_at->format('Ymd');
+    $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);
+    $nomorInvoice = "EXP-{$biaya->user_id}-{$dateCode}-{$noUrut}";
+    $invoiceUrl = url('invoice/biaya/' . $biaya->id);
+@endphp
+
+<div class="header">
+    <img src="{{ asset('assets/img/logoHE1.png') }}" class="logo">
+    <div class="title">BUKTI PENGELUARAN</div>
+</div>
+
+<table>
+    <tr><td class="label">Nomor</td><td class="colon">:</td><td class="value">{{ $nomorInvoice }}</td></tr>
+    <tr><td class="label">Tanggal</td><td class="colon">:</td>
+        <td class="value">{{ $biaya->tgl_transaksi->format('d/m/Y') }} | {{ $biaya->created_at->format('H:i') }}</td></tr>
+    <tr><td class="label">Pembayaran</td><td class="colon">:</td>
+        <td class="value">{{ $biaya->cara_pembayaran ?? '-' }}</td></tr>
+    <tr><td class="label">Bayar Dari</td><td class="colon">:</td>
+        <td class="value">{{ $biaya->bayar_dari ?? '-' }}</td></tr>
+    <tr><td class="label">Penerima</td><td class="colon">:</td><td class="value">{{ $biaya->penerima ?? '-' }}</td></tr>
+    <tr><td class="label">Sales</td><td class="colon">:</td><td class="value">{{ $biaya->user->name }}</td></tr>
+    <tr><td class="label">Disetujui</td><td class="colon">:</td>
+        <td class="value">{{ $biaya->status == 'Pending' ? '-' : ($biaya->approver->name ?? '-') }}</td></tr>
+    <tr><td class="label">Status</td><td class="colon">:</td><td class="value">{{ $biaya->status }}</td></tr>
+</table>
+
+<div class="divider"></div>
+
+@php $subtotal = $biaya->items->sum('jumlah'); @endphp
+
+@foreach($biaya->items as $item)
+<div>
+    <div class="item-name">{{ $item->kategori }}</div>
+    @if($item->deskripsi)
+    <div class="item-desc">{{ $item->deskripsi }}</div>
+    @endif
+    <table>
+        <tr><td><b>Jumlah</b></td><td class="val"><b>Rp {{ number_format($item->jumlah,0,',','.') }}</b></td></tr>
+    </table>
+</div>
+@endforeach
+
+<div class="divider"></div>
+
+<table>
+    <tr><td>Subtotal</td><td class="val">Rp {{ number_format($subtotal,0,',','.') }}</td></tr>
+
+    @if(($biaya->tax_percentage ?? 0) > 0)
     @php
-        $dateCode = $biaya->created_at->format('Ymd');
-        $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);
-        $nomorInvoice = "EXP-{$biaya->user_id}-{$dateCode}-{$noUrut}";
+        $pajakNominal = $subtotal * ($biaya->tax_percentage / 100);
     @endphp
+    <tr><td>Pajak ({{ $biaya->tax_percentage }}%)</td>
+        <td class="val">Rp {{ number_format($pajakNominal,0,',','.') }}</td></tr>
+    @endif
 
-    <div class="header">
-        <img src="{{ asset('assets/img/logoHE1.png') }}" alt="HIBISCUS EFSYA" class="logo">
-        <div class="title">BUKTI PENGELUARAN</div>
-    </div>
+    <tr>
+        <td class="grand-total">GRAND TOTAL</td>
+        <td class="val grand-total">Rp {{ number_format($biaya->grand_total,0,',','.') }}</td>
+    </tr>
+</table>
 
-    <table class="info-table">
-        <tr>
-            <td class="label">Nomor</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $nomorInvoice }}</td>
-        </tr>
-        <tr>
-            <td class="label">Tanggal</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $biaya->tgl_transaksi->format('d/m/Y') }} | {{ $biaya->created_at->format('H:i') }}
-            </td>
-        </tr>
-        <tr>
-            <td class="label">Pembayaran</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $biaya->cara_pembayaran ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td class="label">Bayar Dari</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $biaya->bayar_dari ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td class="label">Penerima</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $biaya->penerima }}</td>
-        </tr>
-        <tr>
-            <td class="label">Sales</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $biaya->user->name }}</td>
-        </tr>
-        <tr>
-            <td class="label">Disetujui</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $biaya->status == 'Pending' ? '-' : ($biaya->approver->name ?? '-') }}</td>
-        </tr>
-        <tr>
-            <td class="label">Status</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $biaya->status }}</td>
-        </tr>
-    </table>
+<div class="qr-section">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
+         style="width:90px;height:90px;">
+    <p>Scan untuk melihat dokumen</p>
+</div>
 
-    <div class="divider"></div>
+<div class="footer">
+    <p>marketing@hibiscusefsya.com</p>
+    <p>-- Terima Kasih --</p>
+</div>
 
-    @foreach($biaya->items as $item)
-        <div class="item-container">
-            <div class="item-name">{{ $item->kategori }}</div>
-
-            <table class="details-table">
-                @if($item->deskripsi)
-                    <tr>
-                        <td class="lbl">Ket</td>
-                        <td class="val">{{ $item->deskripsi }}</td>
-                    </tr>
-                @endif
-                <tr>
-                    <td class="lbl" style="font-weight: bold;">Jumlah</td>
-                    <td class="val" style="font-weight: bold;">Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
-                </tr>
-            </table>
-        </div>
-    @endforeach
-
-    <div class="divider"></div>
-
-    <table class="total-table">
-        <tr>
-            <td class="lbl">Subtotal</td>
-            <td class="val">Rp {{ number_format($biaya->items->sum('jumlah'), 0, ',', '.') }}</td>
-        </tr>
-
-        @if($biaya->tax_percentage > 0)
-            @php
-                $subtotal = $biaya->items->sum('jumlah');
-                $pajakNominal = $subtotal * ($biaya->tax_percentage / 100);
-            @endphp
-            <tr>
-                <td class="lbl">Pajak ({{ $biaya->tax_percentage }}%)</td>
-                <td class="val">Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
-            </tr>
-        @endif
-
-        <tr>
-            <td class="lbl grand-total">GRAND TOTAL</td>
-            <td class="val grand-total">Rp {{ number_format($biaya->grand_total, 0, ',', '.') }}</td>
-        </tr>
-    </table>
-
-    <div class="footer">
-        <p>marketing@hibiscusefsya.com</p>
-        <p>-- Terima Kasih --</p>
-        <div style="margin-top:10px; text-align:center;">
-            <button type="button" class="no-print" onclick="window.print()" style="padding:5px 10px;">Print
-                Ulang</button>
-            <a class="no-print btn btn-success"
-                style="padding:5px 10px; margin-left:8px; color:#fff; text-decoration:none;"
-                href="{{ 'bprint://' . url('biaya/' . $biaya->id . '/print-json') }}">Print via Bluetooth App</a>
-        </div>
-    </div>
-
+</div>
 </body>
-
 </html>

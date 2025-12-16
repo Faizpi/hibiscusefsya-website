@@ -18,6 +18,23 @@ Route::get('/', function () {
 Auth::routes();
 
 // ========================================================================
+// PUBLIC ROUTES (Tanpa Login) - Untuk QR Code Invoice
+// ========================================================================
+Route::prefix('invoice')->name('public.invoice.')->group(function () {
+    // Penjualan
+    Route::get('penjualan/{id}', 'PublicInvoiceController@showPenjualan')->name('penjualan');
+    Route::get('penjualan/{id}/download', 'PublicInvoiceController@downloadPenjualan')->name('penjualan.download');
+    
+    // Pembelian
+    Route::get('pembelian/{id}', 'PublicInvoiceController@showPembelian')->name('pembelian');
+    Route::get('pembelian/{id}/download', 'PublicInvoiceController@downloadPembelian')->name('pembelian.download');
+    
+    // Biaya
+    Route::get('biaya/{id}', 'PublicInvoiceController@showBiaya')->name('biaya');
+    Route::get('biaya/{id}/download', 'PublicInvoiceController@downloadBiaya')->name('biaya.download');
+});
+
+// ========================================================================
 // GRUP 1: User yang Sudah Login (Semua Role)
 // ========================================================================
 Route::middleware(['auth'])->group(function () {
@@ -25,6 +42,11 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
     Route::get('/home', 'DashboardController@index')->name('home');
+
+    // --- BLUETOOTH PRINT JSON API ---
+    Route::get('bluetooth/penjualan/{id}', 'BluetoothPrintController@penjualanJson')->name('bluetooth.penjualan');
+    Route::get('bluetooth/pembelian/{id}', 'BluetoothPrintController@pembelianJson')->name('bluetooth.pembelian');
+    Route::get('bluetooth/biaya/{id}', 'BluetoothPrintController@biayaJson')->name('bluetooth.biaya');
 
     // --- TRANSAKSI (CRUD & PRINT) ---
 

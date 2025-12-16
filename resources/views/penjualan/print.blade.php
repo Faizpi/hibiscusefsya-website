@@ -4,301 +4,206 @@
 <head>
     <meta charset="UTF-8">
     <title>Struk Penjualan</title>
+
     <style>
         @page {
-            size: 58mm;
+            size: 58mm auto;
             margin: 0;
         }
 
-        @media screen {
-            html {
-                background-color: #E0E0E0;
-            }
-
-            body {
-                margin: 2rem auto !important;
-                box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
-                background: #fff;
-            }
+        html, body {
+            width: 100%;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
         }
 
         body {
-            width: 58mm;
             font-family: 'Consolas', 'Courier New', monospace;
             font-size: 10pt;
             color: #000;
-            margin: 0 auto;
-            padding: 3mm 1mm;
-            box-sizing: border-box;
         }
 
         * {
             word-wrap: break-word;
             overflow-wrap: break-word;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
         }
 
-        /* Header Logo */
+        .receipt {
+            width: 58mm;
+            margin: 0 auto;
+            padding: 3mm 1mm;
+            box-sizing: border-box;
+        }
+
+        @media screen {
+            html { background: #e0e0e0; }
+            .receipt {
+                background: #fff;
+                box-shadow: 0 0 6px rgba(0,0,0,.3);
+                margin: 2rem auto;
+            }
+        }
+
         .header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .logo {
             max-width: 45mm;
-            height: auto;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .title {
             font-size: 12pt;
-            margin: 0;
             font-weight: bold;
         }
 
-        /* Divider */
         .divider {
             border-top: 1px dashed #000;
             margin: 6px 0;
         }
 
-        /* Info Table */
-        .info-table {
+        table {
             width: 100%;
             font-size: 9pt;
         }
 
-        .info-table td {
-            vertical-align: top;
+        td {
             padding-bottom: 2px;
+            vertical-align: top;
         }
 
-        .info-table .label {
-            width: 35%;
-        }
-
-        .info-table .colon {
-            width: 5%;
-            text-align: center;
-        }
-
-        .info-table .value {
-            width: 60%;
-        }
-
-        /* Items */
-        .item-container {
-            margin-bottom: 8px;
-        }
+        .label { width: 35%; }
+        .colon { width: 5%; text-align: center; }
+        .value { width: 60%; }
 
         .item-name {
-            font-weight: bold;
             font-size: 11pt;
+            font-weight: bold;
             margin-bottom: 2px;
         }
 
-        /* Details (Qty, Harga, dll) */
-        .details-table {
-            width: 100%;
-            font-size: 9pt;
-        }
-
-        .details-table td {
-            padding: 1px 0;
-        }
-
-        .details-table .lbl {
-            width: 35%;
-            text-align: left;
-        }
-
-        .details-table .val {
-            width: 65%;
-            text-align: right;
-        }
-
-        /* Total */
-        .total-table {
-            width: 100%;
-            font-size: 10pt;
-            margin-top: 5px;
-        }
-
-        .total-table td {
-            padding: 1px 0;
-        }
-
-        .total-table .lbl {
-            font-weight: normal;
-        }
-
-        .total-table .val {
-            text-align: right;
-        }
+        .val { text-align: right; }
 
         .grand-total {
             font-weight: bold;
             font-size: 12pt;
-            padding-top: 5px;
             border-top: 1px dashed #000;
+            padding-top: 4px;
+        }
+
+        .qr-section {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .qr-section p {
+            font-size: 8pt;
+            margin-top: 4px;
         }
 
         .footer {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 8px;
             font-size: 9pt;
         }
 
         @media print {
-            .no-print {
-                display: none;
-            }
+            .no-print { display: none; }
         }
     </style>
 </head>
 
 <body onload="window.print()">
 
+<div class="receipt">
+
+@php
+    $dateCode = $penjualan->created_at->format('Ymd');
+    $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
+    $nomorInvoice = "INV-{$penjualan->user_id}-{$dateCode}-{$noUrut}";
+    $invoiceUrl = url('invoice/penjualan/' . $penjualan->id);
+@endphp
+
+<div class="header">
+    <img src="{{ asset('assets/img/logoHE1.png') }}" class="logo">
+    <div class="title">INVOICE PENJUALAN</div>
+</div>
+
+<table>
+    <tr><td class="label">Nomor</td><td class="colon">:</td><td class="value">{{ $nomorInvoice }}</td></tr>
+    <tr><td class="label">Tanggal</td><td class="colon">:</td>
+        <td class="value">{{ $penjualan->tgl_transaksi->format('d/m/Y') }} | {{ $penjualan->created_at->format('H:i') }}</td></tr>
+    <tr><td class="label">Jatuh Tempo</td><td class="colon">:</td>
+        <td class="value">{{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td></tr>
+    <tr><td class="label">Pembayaran</td><td class="colon">:</td>
+        <td class="value">{{ $penjualan->syarat_pembayaran ?? '-' }}</td></tr>
+    <tr><td class="label">Pelanggan</td><td class="colon">:</td><td class="value">{{ $penjualan->pelanggan }}</td></tr>
+    <tr><td class="label">Sales</td><td class="colon">:</td><td class="value">{{ $penjualan->user->name }}</td></tr>
+    <tr><td class="label">Disetujui</td><td class="colon">:</td>
+        <td class="value">{{ $penjualan->status == 'Pending' ? '-' : ($penjualan->approver->name ?? '-') }}</td></tr>
+    <tr><td class="label">Gudang</td><td class="colon">:</td>
+        <td class="value">{{ $penjualan->gudang->nama_gudang ?? '-' }}</td></tr>
+    <tr><td class="label">Status</td><td class="colon">:</td><td class="value">{{ $penjualan->status_display }}</td></tr>
+</table>
+
+<div class="divider"></div>
+
+@foreach($penjualan->items as $item)
+<div>
+    <div class="item-name">{{ $item->produk->nama_produk }}</div>
+    <table>
+        <tr><td>Qty</td><td class="val">{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }}</td></tr>
+        <tr><td>Harga</td><td class="val">Rp {{ number_format($item->harga_satuan,0,',','.') }}</td></tr>
+        @if($item->diskon > 0)
+        <tr><td>Disc</td><td class="val">{{ $item->diskon }}%</td></tr>
+        @endif
+        <tr><td><b>Jumlah</b></td><td class="val"><b>Rp {{ number_format($item->jumlah_baris,0,',','.') }}</b></td></tr>
+    </table>
+</div>
+@endforeach
+
+<div class="divider"></div>
+
+<table>
+    <tr><td>Subtotal</td><td class="val">Rp {{ number_format($penjualan->items->sum('jumlah_baris'),0,',','.') }}</td></tr>
+
+    @if($penjualan->diskon_akhir > 0)
+    <tr><td>Diskon</td><td class="val">- Rp {{ number_format($penjualan->diskon_akhir,0,',','.') }}</td></tr>
+    @endif
+
+    @if($penjualan->tax_percentage > 0)
     @php
-        // GENERATE NOMOR CUSTOM DI SINI (Agar pasti muncul)
-        $dateCode = $penjualan->created_at->format('Ymd');
-        $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
-        $nomorInvoice = "INV-{$penjualan->user_id}-{$dateCode}-{$noUrut}";
+        $subtotal = $penjualan->items->sum('jumlah_baris');
+        $kenaPajak = max(0, $subtotal - $penjualan->diskon_akhir);
+        $pajakNominal = $kenaPajak * ($penjualan->tax_percentage / 100);
     @endphp
+    <tr><td>Pajak ({{ $penjualan->tax_percentage }}%)</td>
+        <td class="val">Rp {{ number_format($pajakNominal,0,',','.') }}</td></tr>
+    @endif
 
-    <div class="header">
-        <img src="{{ asset('assets/img/logoHE1.png') }}" alt="HIBISCUS EFSYA" class="logo">
-        <div class="title">INVOICE PENJUALAN</div>
-    </div>
+    <tr>
+        <td class="grand-total">GRAND TOTAL</td>
+        <td class="val grand-total">Rp {{ number_format($penjualan->grand_total,0,',','.') }}</td>
+    </tr>
+</table>
 
-    <table class="info-table">
-        <tr>
-            <td class="label">Nomor</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $nomorInvoice }}</td>
-        </tr>
-        <tr>
-            <td class="label">Tanggal</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $penjualan->tgl_transaksi->format('d/m/Y') }} |
-                {{ $penjualan->created_at->format('H:i') }}
-            </td>
-        </tr>
-        <tr>
-            <td class="label">Jatuh Tempo</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}
-            </td>
-        </tr>
-        <tr>
-            <td class="label">Pembayaran</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $penjualan->syarat_pembayaran ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td class="label">Pelanggan</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $penjualan->pelanggan }}</td>
-        </tr>
-        <tr>
-            <td class="label">Sales</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $penjualan->user->name }}</td>
-        </tr>
-        <tr>
-            <td class="label">Disetujui</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $penjualan->status == 'Pending' ? '-' : ($penjualan->approver->name ?? '-') }}</td>
-        </tr>
-        <tr>
-            <td class="label">Gudang</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $penjualan->gudang->nama_gudang ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td class="label">Status</td>
-            <td class="colon">:</td>
-            <td class="value">{{ $penjualan->status_display }}</td>
-        </tr>
-    </table>
+<div class="qr-section">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
+         style="width:90px;height:90px;">
+    <p>Scan untuk melihat invoice</p>
+</div>
 
-    <div class="divider"></div>
+<div class="footer">
+    <p>marketing@hibiscusefsya.com</p>
+    <p>-- Terima Kasih --</p>
+</div>
 
-    @foreach($penjualan->items as $item)
-        <div class="item-container">
-            <div class="item-name">
-                {{ $item->produk->nama_produk }} ({{ $item->produk->item_code ?? '-' }})
-            </div>
-
-            <table class="details-table">
-                <tr>
-                    <td class="lbl">Qty</td>
-                    <td class="val">{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }}</td>
-                </tr>
-                <tr>
-                    <td class="lbl">Harga</td>
-                    <td class="val">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
-                </tr>
-                @if($item->diskon > 0)
-                    <tr>
-                        <td class="lbl">Disc</td>
-                        <td class="val">{{ $item->diskon }}%</td>
-                    </tr>
-                @endif
-                <tr>
-                    <td class="lbl" style="font-weight: bold;">Jumlah</td>
-                    <td class="val" style="font-weight: bold;">Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
-                </tr>
-            </table>
-        </div>
-    @endforeach
-
-    <div class="divider"></div>
-
-    <table class="total-table">
-        <tr>
-            <td class="lbl">Subtotal</td>
-            <td class="val">Rp {{ number_format($penjualan->items->sum('jumlah_baris'), 0, ',', '.') }}</td>
-        </tr>
-
-        @if($penjualan->diskon_akhir > 0)
-            <tr>
-                <td class="lbl">Diskon Akhir</td>
-                <td class="val">- Rp {{ number_format($penjualan->diskon_akhir, 0, ',', '.') }}</td>
-            </tr>
-        @endif
-
-        @if($penjualan->tax_percentage > 0)
-            @php
-                // Hitung ulang pajak untuk tampilan
-                $subtotal = $penjualan->items->sum('jumlah_baris');
-                $kenaPajak = max(0, $subtotal - $penjualan->diskon_akhir);
-                $pajakNominal = $kenaPajak * ($penjualan->tax_percentage / 100);
-            @endphp
-            <tr>
-                <td class="lbl">Pajak ({{ $penjualan->tax_percentage }}%)</td>
-                <td class="val">Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
-            </tr>
-        @endif
-
-        <tr>
-            <td class="lbl grand-total">GRAND TOTAL</td>
-            <td class="val grand-total">Rp {{ number_format($penjualan->grand_total, 0, ',', '.') }}</td>
-        </tr>
-    </table>
-
-    <div class="footer">
-        <p>marketing@hibiscusefsya.com</p>
-        <p>-- Terima Kasih --</p>
-        <div style="margin-top:10px; text-align:center;">
-            <button type="button" class="no-print" onclick="window.print()" style="padding:5px 10px;">Print
-                Ulang</button>
-            <a class="no-print btn btn-success"
-                style="padding:5px 10px; margin-left:8px; color:#fff; text-decoration:none;"
-                href="{{ 'bprint://' . url('penjualan/' . $penjualan->id . '/print-json') }}">Print via Bluetooth
-                App</a>
-        </div>
-    </div>
-
+</div>
 </body>
-
 </html>
