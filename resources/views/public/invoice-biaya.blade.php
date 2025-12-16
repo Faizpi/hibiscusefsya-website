@@ -71,9 +71,20 @@
             letter-spacing: 0.5px;
         }
 
-        .status-approved { background: #d4edda; color: #155724; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-canceled { background: #f8d7da; color: #721c24; }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-canceled {
+            background: #f8d7da;
+            color: #721c24;
+        }
 
         /* Info Section */
         .info-section {
@@ -276,7 +287,7 @@
             body {
                 padding: 10px;
             }
-            
+
             .receipt-container {
                 border-radius: 8px;
             }
@@ -350,7 +361,8 @@
             </div>
             <div class="info-row">
                 <span class="label">Disetujui</span>
-                <span class="value">{{ $biaya->status != 'Pending' && $biaya->approver ? $biaya->approver->name : '-' }}</span>
+                <span
+                    class="value">{{ $biaya->status != 'Pending' && $biaya->approver ? $biaya->approver->name : '-' }}</span>
             </div>
             <div class="info-row">
                 <span class="label">Tag</span>
@@ -392,7 +404,8 @@
 
         <!-- QR Code -->
         <div class="qr-section">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($currentUrl) }}" alt="QR Code">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($currentUrl) }}"
+                alt="QR Code">
             <div class="qr-text">Scan untuk melihat bukti ini</div>
         </div>
 

@@ -71,10 +71,25 @@
             letter-spacing: 0.5px;
         }
 
-        .status-lunas { background: #d4edda; color: #155724; }
-        .status-approved { background: #cce5ff; color: #004085; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-canceled { background: #f8d7da; color: #721c24; }
+        .status-lunas {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-approved {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-canceled {
+            background: #f8d7da;
+            color: #721c24;
+        }
 
         /* Info Section */
         .info-section {
@@ -310,7 +325,7 @@
             body {
                 padding: 10px;
             }
-            
+
             .receipt-container {
                 border-radius: 8px;
             }
@@ -367,7 +382,8 @@
             </div>
             <div class="info-row">
                 <span class="label">Jatuh Tempo</span>
-                <span class="value">{{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d M Y') : '-' }}</span>
+                <span
+                    class="value">{{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d M Y') : '-' }}</span>
             </div>
             <div class="info-row">
                 <span class="label">Pembayaran</span>
@@ -388,7 +404,8 @@
             </div>
             <div class="info-row">
                 <span class="label">Disetujui</span>
-                <span class="value">{{ $pembelian->status != 'Pending' && $pembelian->approver ? $pembelian->approver->name : '-' }}</span>
+                <span
+                    class="value">{{ $pembelian->status != 'Pending' && $pembelian->approver ? $pembelian->approver->name : '-' }}</span>
             </div>
             <div class="info-row">
                 <span class="label">Gudang</span>
@@ -445,7 +462,8 @@
 
         <!-- QR Code -->
         <div class="qr-section">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($currentUrl) }}" alt="QR Code">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($currentUrl) }}"
+                alt="QR Code">
             <div class="qr-text">Scan untuk melihat invoice ini</div>
         </div>
 

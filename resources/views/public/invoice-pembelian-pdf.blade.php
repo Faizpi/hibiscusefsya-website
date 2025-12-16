@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <title>Pembelian {{ $pembelian->staf_penyetuju }}</title>
     <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,180 +18,96 @@
 
         body {
             font-family: 'DejaVu Sans', sans-serif;
-            font-size: 12px;
-            color: #333;
-            padding: 20px;
+            font-size: 11px;
+            color: #000;
+            line-height: 1.4;
+        }
+
+        .receipt {
+            max-width: 80mm;
+            margin: 0 auto;
+            padding: 5mm;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #11998e;
-            padding-bottom: 20px;
-        }
-
-        .header-logo {
-            max-width: 120px;
             margin-bottom: 10px;
         }
 
-        .header h1 {
-            color: #11998e;
-            font-size: 24px;
+        .logo {
+            max-width: 50mm;
             margin-bottom: 5px;
         }
 
-        .header p {
-            color: #666;
-        }
-
-        .invoice-number {
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .info-section {
-            display: table;
-            width: 100%;
-            margin-bottom: 30px;
-        }
-
-        .info-box {
-            display: table-cell;
-            width: 50%;
-            vertical-align: top;
-        }
-
-        .info-box h3 {
-            background: #11998e;
-            color: #fff;
-            padding: 8px 12px;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-
-        .info-row {
-            padding: 5px 12px;
-        }
-
-        .info-row .label {
-            display: inline-block;
-            width: 100px;
-            color: #666;
-        }
-
-        .info-row .value {
-            font-weight: 500;
-        }
-
-        table.items {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        table.items th {
-            background: #11998e;
-            color: #fff;
-            padding: 10px 8px;
-            text-align: left;
-            font-size: 11px;
-        }
-
-        table.items td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        table.items .text-right {
-            text-align: right;
-        }
-
-        table.items .text-center {
-            text-align: center;
-        }
-
-        .totals {
-            width: 300px;
-            margin-left: auto;
-        }
-
-        .totals .row {
-            display: table;
-            width: 100%;
-            padding: 8px 0;
-        }
-
-        .totals .row .label {
-            display: table-cell;
-        }
-
-        .totals .row .value {
-            display: table-cell;
-            text-align: right;
-        }
-
-        .totals .grand {
-            background: #11998e;
-            color: #fff;
-            padding: 12px;
+        .title {
             font-size: 14px;
             font-weight: bold;
         }
 
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 8px 0;
+        }
+
+        table {
+            width: 100%;
+            font-size: 10px;
+        }
+
+        td {
+            padding-bottom: 3px;
+            vertical-align: top;
+        }
+
+        .label-col {
+            width: 35%;
+        }
+
+        .colon-col {
+            width: 5%;
+            text-align: center;
+        }
+
+        .value-col {
+            width: 60%;
+        }
+
+        .item-name {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .val {
+            text-align: right;
+        }
+
+        .grand-total {
+            font-weight: bold;
+            font-size: 12px;
+            border-top: 1px dashed #000;
+            padding-top: 5px;
+        }
+
         .qr-section {
             text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px dashed #ddd;
+            margin-top: 12px;
         }
 
         .qr-section img {
-            width: 100px;
-            height: 100px;
+            width: 25mm;
+            height: 25mm;
         }
 
         .qr-section p {
-            font-size: 10px;
-            color: #888;
-            margin-top: 5px;
+            font-size: 8px;
+            margin-top: 3px;
         }
 
         .footer {
             text-align: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            color: #666;
-        }
-
-        .status {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: bold;
-        }
-
-        .status-lunas {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-approved {
-            background: #cce5ff;
-            color: #004085;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-canceled {
-            background: #f8d7da;
-            color: #721c24;
+            margin-top: 10px;
+            font-size: 9px;
         }
     </style>
 </head>
@@ -196,108 +117,129 @@
         $dateCode = $pembelian->created_at->format('Ymd');
         $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "PR-{$pembelian->user_id}-{$dateCode}-{$noUrut}";
+        $invoiceUrl = url('invoice/pembelian/' . $pembelian->id);
 
         $subtotal = $pembelian->items->sum('jumlah_baris');
         $kenaPajak = max(0, $subtotal - ($pembelian->diskon_akhir ?? 0));
         $pajakNominal = $kenaPajak * (($pembelian->tax_percentage ?? 0) / 100);
-
-        $statusClass = 'pending';
-        $statusText = $pembelian->status;
-        if ($pembelian->status == 'Lunas') {
-            $statusClass = 'lunas';
-        } elseif ($pembelian->status == 'Approved') {
-            $statusClass = 'approved';
-        } elseif ($pembelian->status == 'Canceled') {
-            $statusClass = 'canceled';
-        }
-
-        $invoiceUrl = url('invoice/pembelian/' . $pembelian->id);
     @endphp
 
-    <div class="header">
-        <img src="{{ public_path('assets/img/logoHE1.png') }}" class="header-logo" alt="Logo">
-        <h1>HIBISCUS EFSYA</h1>
-        <p>PERMINTAAN PEMBELIAN</p>
-        <div class="invoice-number">{{ $nomorInvoice }}</div>
-    </div>
-
-    <div class="info-section">
-        <div class="info-box">
-            <h3>INFORMASI DOKUMEN</h3>
-            <div class="info-row"><span class="label">Tanggal</span><span
-                    class="value">{{ $pembelian->tgl_transaksi->format('d F Y') }}</span></div>
-            <div class="info-row"><span class="label">Waktu</span><span
-                    class="value">{{ $pembelian->created_at->format('H:i') }} WIB</span></div>
-            <div class="info-row"><span class="label">Jatuh Tempo</span><span
-                    class="value">{{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d F Y') : '-' }}</span>
-            </div>
-            <div class="info-row"><span class="label">Pembayaran</span><span
-                    class="value">{{ $pembelian->syarat_pembayaran ?? '-' }}</span></div>
-            <div class="info-row"><span class="label">Status</span><span class="value"><span
-                        class="status status-{{ $statusClass }}">{{ $statusText }}</span></span></div>
+    <div class="receipt">
+        <div class="header">
+            <img src="{{ public_path('assets/img/logoHE1.png') }}" class="logo" alt="Logo">
+            <div class="title">PERMINTAAN PEMBELIAN</div>
         </div>
-        <div class="info-box">
-            <h3>INFORMASI VENDOR</h3>
-            <div class="info-row"><span class="label">Vendor</span><span
-                    class="value">{{ $pembelian->staf_penyetuju ?? '-' }}</span></div>
-            <div class="info-row"><span class="label">Pembuat</span><span
-                    class="value">{{ $pembelian->user->name }}</span></div>
-            <div class="info-row"><span class="label">Disetujui</span><span
-                    class="value">{{ $pembelian->status != 'Pending' && $pembelian->approver ? $pembelian->approver->name : '-' }}</span>
-            </div>
-            <div class="info-row"><span class="label">Gudang</span><span
-                    class="value">{{ $pembelian->gudang->nama_gudang ?? '-' }}</span></div>
-        </div>
-    </div>
 
-    <table class="items">
-        <thead>
+        <table>
             <tr>
-                <th>Produk</th>
-                <th class="text-center">Qty</th>
-                <th class="text-right">Harga</th>
-                <th class="text-center">Disc</th>
-                <th class="text-right">Total</th>
+                <td class="label-col">Nomor</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $nomorInvoice }}</td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach($pembelian->items as $item)
+            <tr>
+                <td class="label-col">Tanggal</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $pembelian->tgl_transaksi->format('d/m/Y') }} | {{ $pembelian->created_at->format('H:i') }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Jatuh Tempo</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Pembayaran</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $pembelian->syarat_pembayaran ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Vendor</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $pembelian->staf_penyetuju ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Pembuat</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $pembelian->user->name }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Disetujui</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $pembelian->status == 'Pending' ? '-' : ($pembelian->approver->name ?? '-') }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Gudang</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $pembelian->gudang->nama_gudang ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Status</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $pembelian->status }}</td>
+            </tr>
+        </table>
+
+        <div class="divider"></div>
+
+        @foreach($pembelian->items as $item)
+            <div style="margin-bottom: 8px;">
+                <div class="item-name">{{ $item->produk->nama_produk }}</div>
+                <table>
+                    <tr>
+                        <td>Qty</td>
+                        <td class="val">{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Harga</td>
+                        <td class="val">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                    </tr>
+                    @if($item->diskon > 0)
+                        <tr>
+                            <td>Disc</td>
+                            <td class="val">{{ $item->diskon }}%</td>
+                        </tr>
+                    @endif
+                    <tr>
+                        <td><b>Jumlah</b></td>
+                        <td class="val"><b>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</b></td>
+                    </tr>
+                </table>
+            </div>
+        @endforeach
+
+        <div class="divider"></div>
+
+        <table>
+            <tr>
+                <td>Subtotal</td>
+                <td class="val">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+            </tr>
+            @if(($pembelian->diskon_akhir ?? 0) > 0)
                 <tr>
-                    <td>{{ $item->produk->nama_produk }} @if($item->produk->item_code)({{ $item->produk->item_code }})@endif
-                    </td>
-                    <td class="text-center">{{ $item->kuantitas }} {{ $item->unit }}</td>
-                    <td class="text-right">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
-                    <td class="text-center">{{ $item->diskon }}%</td>
-                    <td class="text-right">Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
+                    <td>Diskon</td>
+                    <td class="val">- Rp {{ number_format($pembelian->diskon_akhir, 0, ',', '.') }}</td>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            @endif
+            @if(($pembelian->tax_percentage ?? 0) > 0)
+                <tr>
+                    <td>Pajak ({{ $pembelian->tax_percentage }}%)</td>
+                    <td class="val">Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+                </tr>
+            @endif
+            <tr>
+                <td class="grand-total">GRAND TOTAL</td>
+                <td class="val grand-total">Rp {{ number_format($pembelian->grand_total, 0, ',', '.') }}</td>
+            </tr>
+        </table>
 
-    <div class="totals">
-        <div class="row"><span class="label">Subtotal</span><span class="value">Rp
-                {{ number_format($subtotal, 0, ',', '.') }}</span></div>
-        @if(($pembelian->diskon_akhir ?? 0) > 0)
-            <div class="row"><span class="label">Diskon</span><span class="value">- Rp
-                    {{ number_format($pembelian->diskon_akhir, 0, ',', '.') }}</span></div>
-        @endif
-        @if(($pembelian->tax_percentage ?? 0) > 0)
-            <div class="row"><span class="label">Pajak ({{ $pembelian->tax_percentage }}%)</span><span class="value">Rp
-                    {{ number_format($pajakNominal, 0, ',', '.') }}</span></div>
-        @endif
-        <div class="row grand"><span class="label">GRAND TOTAL</span><span class="value">Rp
-                {{ number_format($pembelian->grand_total, 0, ',', '.') }}</span></div>
-    </div>
+        <div class="qr-section">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}" alt="QR Code">
+            <p>Scan untuk melihat dokumen</p>
+        </div>
 
-    <div class="qr-section">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}" alt="QR Code">
-        <p>Scan untuk melihat dokumen online</p>
-    </div>
-
-    <div class="footer">
-        <p><strong>HIBISCUS EFSYA</strong></p>
-        <p>marketing@hibiscusefsya.com</p>
-        <p style="margin-top: 10px; font-size: 10px;">Dicetak: {{ now()->format('d/m/Y H:i') }}</p>
+        <div class="footer">
+            <p>marketing@hibiscusefsya.com</p>
+            <p>-- Dokumen Internal --</p>
+        </div>
     </div>
 </body>
 

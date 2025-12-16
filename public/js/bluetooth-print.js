@@ -294,7 +294,7 @@ class BluetoothThermalPrinter {
     async buildPenjualanReceipt(data, options = {}) {
         const printLogo = options.printLogo !== false;
         const printQR = options.printQR !== false;
-        const logoUrl = options.logoUrl || '/storage/logo.png';
+        const logoUrl = options.logoUrl || '/assets/img/logoHE1.png';
         const qrData = options.qrUrl || data.invoice_url || '';
         
         let parts = []; // Array of {type: 'text'|'image', data: ...}
@@ -395,7 +395,7 @@ class BluetoothThermalPrinter {
     async buildPembelianReceipt(data, options = {}) {
         const printLogo = options.printLogo !== false;
         const printQR = options.printQR !== false;
-        const logoUrl = options.logoUrl || '/storage/logo.png';
+        const logoUrl = options.logoUrl || '/assets/img/logoHE1.png';
         const qrData = options.qrUrl || data.invoice_url || '';
         
         let parts = [];
@@ -488,7 +488,7 @@ class BluetoothThermalPrinter {
     async buildBiayaReceipt(data, options = {}) {
         const printLogo = options.printLogo !== false;
         const printQR = options.printQR !== false;
-        const logoUrl = options.logoUrl || '/storage/logo.png';
+        const logoUrl = options.logoUrl || '/assets/img/logoHE1.png';
         const qrData = options.qrUrl || data.invoice_url || '';
         
         let parts = [];

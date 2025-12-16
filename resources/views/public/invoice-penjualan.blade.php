@@ -99,13 +99,11 @@
 
         .divider {
             height: 1px;
-            background: repeating-linear-gradient(
-                90deg,
-                #cbd5e0 0px,
-                #cbd5e0 5px,
-                transparent 5px,
-                transparent 10px
-            );
+            background: repeating-linear-gradient(90deg,
+                    #cbd5e0 0px,
+                    #cbd5e0 5px,
+                    transparent 5px,
+                    transparent 10px);
             margin: 15px 0;
         }
 
@@ -261,7 +259,7 @@
             body {
                 padding: 10px;
             }
-            
+
             .receipt-body {
                 padding: 15px;
             }
@@ -321,7 +319,8 @@
                 </div>
                 <div class="info-row">
                     <span class="label">Jatuh Tempo</span>
-                    <span class="value">{{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d M Y') : '-' }}</span>
+                    <span
+                        class="value">{{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d M Y') : '-' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Pembayaran</span>
@@ -363,7 +362,8 @@
                         @endif
                     </div>
                     <div class="item-details">
-                        <span>{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</span>
+                        <span>{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × Rp
+                            {{ number_format($item->harga_satuan, 0, ',', '.') }}</span>
                         @if($item->diskon > 0)
                             <span>Disc: {{ $item->diskon }}%</span>
                         @endif
@@ -399,7 +399,8 @@
             </div>
 
             <div class="qr-section">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}" alt="QR Code">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
+                    alt="QR Code">
                 <p>Scan QR untuk melihat invoice</p>
             </div>
         </div>
