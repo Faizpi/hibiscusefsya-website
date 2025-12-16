@@ -176,11 +176,6 @@
                 <td class="value">{{ $pembelian->syarat_pembayaran ?? '-' }}</td>
             </tr>
             <tr>
-                <td class="label">Vendor</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pembelian->staf_penyetuju ?? '-' }}</td>
-            </tr>
-            <tr>
                 <td class="label">Sales</td>
                 <td class="colon">:</td>
                 <td class="value">{{ $pembelian->user->name }}</td>
