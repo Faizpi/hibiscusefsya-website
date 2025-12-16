@@ -48,14 +48,19 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-2 mb-sm-0 text-gray-800">Dashboard</h1>
 
-        {{-- Tombol Export hanya untuk Admin/Super Admin --}}
-        @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
-            <div>
+        <div class="d-flex gap-2">
+            {{-- Tombol Test Bluetooth Printer --}}
+            <button type="button" class="btn btn-sm btn-info shadow-sm mr-2" onclick="testBluetoothImageSupport()">
+                <i class="fab fa-bluetooth-b fa-sm text-white"></i> Test Printer BLE
+            </button>
+
+            {{-- Tombol Export hanya untuk Admin/Super Admin --}}
+            @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
                 <button type="button" class="btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#exportModal">
                     <i class="fas fa-download fa-sm text-white-50"></i> Generate Report
                 </button>
-            </div>
-        @endif
+            @endif
+        </div>
     </div>
 
     {{-- ROW 1: Cards Utama --}}
@@ -597,6 +602,9 @@
 @endsection
 
 @push('scripts')
+    {{-- Bluetooth Print Library --}}
+    <script src="{{ asset('js/bluetooth-print.js') }}"></script>
+
     {{-- Chart.js CDN --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
@@ -853,5 +861,113 @@
                 transactionTypeSelect.addEventListener('change', toggleGudangFilter);
             }
         });
+
+        /**
+         * 🧪 Test Bluetooth Printer Image Support
+         * Test sederhana untuk validasi apakah printer BLE support ESC * bitmap
+         */
+        async function testBluetoothImageSupport() {
+            try {
+                // Initialize BluetoothPrinter if not exists
+                if (!window.BluetoothPrinter) {
+                    window.BluetoothPrinter = new BluetoothThermalPrinter();
+                }
+
+                // Check if already connected
+                if (!window.BluetoothPrinter.characteristic) {
+                    // Show connecting message
+                    Swal.fire({
+                        title: 'Menghubungkan...',
+                        text: 'Pilih printer Bluetooth dari daftar',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Connect to printer
+                    await window.BluetoothPrinter.connect();
+                    
+                    Swal.close();
+                }
+
+                // Show test info
+                const result = await Swal.fire({
+                    title: '🧪 Test Printer BLE',
+                    html: `
+                        <div class="text-left">
+                            <p><strong>Test ini akan mencetak:</strong></p>
+                            <ul>
+                                <li>1 baris titik hitam (■)</li>
+                                <li>Tulisan "TEST"</li>
+                            </ul>
+                            <hr>
+                            <p><strong>Hasil yang mungkin:</strong></p>
+                            <p>✅ <strong>Ada titik hitam di atas TEST</strong><br>
+                            → Printer support image (logo/QR bisa di-print)</p>
+                            <p>❌ <strong>Hanya ada tulisan TEST</strong><br>
+                            → Printer text-only (logo/QR mustahil)</p>
+                        </div>
+                    `,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: '🖨️ Mulai Test',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#4e73df',
+                    cancelButtonColor: '#858796'
+                });
+
+                if (!result.isConfirmed) return;
+
+                // Show printing progress
+                Swal.fire({
+                    title: 'Mencetak...',
+                    text: 'Mengirim test command ke printer',
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    willOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Run the test
+                await window.BluetoothPrinter.testImageSupport();
+
+                // Show result instruction
+                Swal.fire({
+                    title: '✅ Test Selesai!',
+                    html: `
+                        <div class="text-left">
+                            <p><strong>👀 Lihat kertas printer:</strong></p>
+                            <hr>
+                            <p>✅ <strong>Jika ada TITIK HITAM (■) di atas "TEST":</strong><br>
+                            → Printer SUPPORT ESC * image<br>
+                            → Logo/QR bisa di-print (masalah di implementasi)<br>
+                            → Lanjut debug code</p>
+                            <hr>
+                            <p>❌ <strong>Jika HANYA ada tulisan "TEST":</strong><br>
+                            → Printer BLE TEXT-ONLY<br>
+                            → Logo/QR/Barcode MUSTAHIL via Web Bluetooth<br>
+                            → Solusi: gunakan <code>window.print()</code> atau USB/BT Classic</p>
+                        </div>
+                    `,
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#4e73df'
+                });
+
+            } catch (error) {
+                console.error('Test error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: error.message || 'Gagal menjalankan test',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
     </script>
 @endpush
