@@ -4,6 +4,11 @@
  * Solusi print langsung dari browser ke printer thermal via Bluetooth.
  * Data dibangun di client-side untuk menghindari masalah transfer data
  * yang tidak lengkap dari server.
+ * 
+ * Features:
+ * - Text printing with ESC/POS commands
+ * - Logo printing (bitmap)
+ * - QR Code printing
  */
 
 class BluetoothThermalPrinter {
@@ -11,6 +16,7 @@ class BluetoothThermalPrinter {
         this.device = null;
         this.characteristic = null;
         this.WIDTH = 32; // Character width for 58mm printer
+        this.PRINT_WIDTH = 384; // Pixel width for 58mm printer (48mm printable area @ 8 dots/mm)
         
         // ESC/POS Commands
         this.ESC = '\x1B';
@@ -25,6 +31,9 @@ class BluetoothThermalPrinter {
             CUT: '\x1D\x56\x00',
             FEED: '\n'
         };
+        
+        // Cache for loaded images
+        this.imageCache = {};
     }
 
     // Format currency to Rupiah
@@ -79,186 +88,439 @@ class BluetoothThermalPrinter {
         return output;
     }
 
-    // Build receipt content for Penjualan
-    buildPenjualanReceipt(data) {
-        let receipt = '';
+    /**
+     * Load image and convert to bitmap data for ESC/POS
+     * @param {string} imageUrl - URL of the image
+     * @param {number} maxWidth - Maximum width in pixels (default 384 for 58mm)
+     * @returns {Promise<Uint8Array>} - ESC/POS bitmap command data
+     */
+    async loadImageAsBitmap(imageUrl, maxWidth = null) {
+        maxWidth = maxWidth || this.PRINT_WIDTH;
         
-        // Header
-        receipt += this.COMMANDS.RESET;
-        receipt += this.COMMANDS.ALIGN_CENTER;
-        receipt += this.COMMANDS.BOLD_ON + 'HIBISCUS EFSYA\n' + this.COMMANDS.BOLD_OFF;
-        receipt += 'INVOICE PENJUALAN\n';
-        receipt += this.COMMANDS.ALIGN_LEFT;
-        receipt += '\n';
+        // Check cache
+        const cacheKey = imageUrl + '_' + maxWidth;
+        if (this.imageCache[cacheKey]) {
+            return this.imageCache[cacheKey];
+        }
+
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            
+            img.onload = () => {
+                try {
+                    // Calculate dimensions (maintain aspect ratio)
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > maxWidth) {
+                        height = Math.floor(height * (maxWidth / width));
+                        width = maxWidth;
+                    }
+                    
+                    // Width must be multiple of 8 for ESC/POS
+                    width = Math.floor(width / 8) * 8;
+                    
+                    // Create canvas
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // White background
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, width, height);
+                    
+                    // Draw image
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Get pixel data
+                    const imageData = ctx.getImageData(0, 0, width, height);
+                    const pixels = imageData.data;
+                    
+                    // Convert to monochrome bitmap
+                    const bytesPerLine = width / 8;
+                    const bitmapData = [];
+                    
+                    for (let y = 0; y < height; y++) {
+                        for (let byteX = 0; byteX < bytesPerLine; byteX++) {
+                            let byte = 0;
+                            for (let bit = 0; bit < 8; bit++) {
+                                const x = byteX * 8 + bit;
+                                const pixelIndex = (y * width + x) * 4;
+                                
+                                // Convert to grayscale
+                                const r = pixels[pixelIndex];
+                                const g = pixels[pixelIndex + 1];
+                                const b = pixels[pixelIndex + 2];
+                                const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                                
+                                // Threshold (black if < 128)
+                                if (gray < 128) {
+                                    byte |= (0x80 >> bit);
+                                }
+                            }
+                            bitmapData.push(byte);
+                        }
+                    }
+                    
+                    // Build ESC/POS raster bit image command
+                    // GS v 0 m xL xH yL yH d1...dk
+                    const xL = bytesPerLine & 0xFF;
+                    const xH = (bytesPerLine >> 8) & 0xFF;
+                    const yL = height & 0xFF;
+                    const yH = (height >> 8) & 0xFF;
+                    
+                    const command = new Uint8Array(8 + bitmapData.length);
+                    command[0] = 0x1D; // GS
+                    command[1] = 0x76; // v
+                    command[2] = 0x30; // 0
+                    command[3] = 0x00; // m = 0 (normal mode)
+                    command[4] = xL;
+                    command[5] = xH;
+                    command[6] = yL;
+                    command[7] = yH;
+                    
+                    for (let i = 0; i < bitmapData.length; i++) {
+                        command[8 + i] = bitmapData[i];
+                    }
+                    
+                    // Cache and return
+                    this.imageCache[cacheKey] = command;
+                    resolve(command);
+                    
+                } catch (error) {
+                    reject(error);
+                }
+            };
+            
+            img.onerror = () => {
+                reject(new Error('Failed to load image: ' + imageUrl));
+            };
+            
+            img.src = imageUrl;
+        });
+    }
+
+    /**
+     * Generate QR Code bitmap data using canvas
+     * @param {string} data - Data to encode in QR code
+     * @param {number} size - Size in pixels (default 200)
+     * @returns {Promise<Uint8Array>} - ESC/POS bitmap command data
+     */
+    async generateQRCode(data, size = 200) {
+        // Use QR Server API to generate QR code
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&margin=5`;
+        return await this.loadImageAsBitmap(qrUrl, size);
+    }
+
+    /**
+     * Print image/QR code (binary data)
+     * @param {Uint8Array} imageData - ESC/POS bitmap command data
+     */
+    async printImage(imageData) {
+        if (!this.characteristic) {
+            throw new Error('Printer tidak terhubung');
+        }
+
+        const chunkSize = 512; // Larger chunks for image data
+        
+        for (let i = 0; i < imageData.byteLength; i += chunkSize) {
+            const chunk = imageData.slice(i, Math.min(i + chunkSize, imageData.byteLength));
+            
+            try {
+                if (this.characteristic.properties.writeWithoutResponse) {
+                    await this.characteristic.writeValueWithoutResponse(chunk);
+                } else {
+                    await this.characteristic.writeValue(chunk);
+                }
+            } catch (error) {
+                console.error('Image write error at chunk', i / chunkSize, error);
+                throw error;
+            }
+            
+            // Longer delay for image data
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        return true;
+    }
+
+    // Build receipt content for Penjualan
+    async buildPenjualanReceipt(data, options = {}) {
+        const printLogo = options.printLogo !== false;
+        const printQR = options.printQR !== false;
+        const logoUrl = options.logoUrl || '/storage/logo.png';
+        const qrData = options.qrUrl || data.invoice_url || '';
+        
+        let parts = []; // Array of {type: 'text'|'image', data: ...}
+        
+        // Reset and center align
+        let header = this.COMMANDS.RESET + this.COMMANDS.ALIGN_CENTER;
+        
+        // Logo (if enabled)
+        if (printLogo) {
+            try {
+                parts.push({ type: 'text', data: header });
+                const logoData = await this.loadImageAsBitmap(logoUrl, 200);
+                parts.push({ type: 'image', data: logoData });
+                parts.push({ type: 'text', data: '\n' });
+                header = this.COMMANDS.ALIGN_CENTER; // Continue centered
+            } catch (e) {
+                console.warn('Could not load logo:', e);
+                // Continue without logo
+            }
+        }
+        
+        // Header text
+        header += this.COMMANDS.BOLD_ON + 'HIBISCUS EFSYA\n' + this.COMMANDS.BOLD_OFF;
+        header += 'INVOICE PENJUALAN\n';
+        header += this.COMMANDS.ALIGN_LEFT + '\n';
         
         // Info Section
-        receipt += this.formatInfoRow('Nomor', data.nomor);
-        receipt += this.formatInfoRow('Tanggal', data.tanggal);
-        receipt += this.formatInfoRow('Jatuh Tempo', data.jatuh_tempo);
-        receipt += this.formatInfoRow('Pembayaran', data.pembayaran);
-        receipt += this.formatInfoRow('Pelanggan', data.pelanggan);
-        receipt += this.formatInfoRow('Sales', data.sales);
-        receipt += this.formatInfoRow('Disetujui', data.approver);
-        receipt += this.formatInfoRow('Gudang', data.gudang);
-        receipt += this.formatInfoRow('Status', data.status);
+        let body = '';
+        body += this.formatInfoRow('Nomor', data.nomor);
+        body += this.formatInfoRow('Tanggal', data.tanggal);
+        body += this.formatInfoRow('Jatuh Tempo', data.jatuh_tempo);
+        body += this.formatInfoRow('Pembayaran', data.pembayaran);
+        body += this.formatInfoRow('Pelanggan', data.pelanggan);
+        body += this.formatInfoRow('Sales', data.sales);
+        body += this.formatInfoRow('Disetujui', data.approver);
+        body += this.formatInfoRow('Gudang', data.gudang);
+        body += this.formatInfoRow('Status', data.status);
         
         // Items
-        receipt += this.divider();
+        body += this.divider();
         
         data.items.forEach(item => {
-            receipt += this.COMMANDS.BOLD_ON + item.nama + this.COMMANDS.BOLD_OFF + '\n';
-            receipt += 'Qty: ' + item.qty + ' ' + item.unit + '\n';
-            receipt += this.padLine('Harga', this.formatRupiah(item.harga));
+            body += this.COMMANDS.BOLD_ON + item.nama + this.COMMANDS.BOLD_OFF + '\n';
+            body += 'Qty: ' + item.qty + ' ' + item.unit + '\n';
+            body += this.padLine('Harga', this.formatRupiah(item.harga));
             if (item.diskon > 0) {
-                receipt += this.padLine('Disc', item.diskon + '%');
+                body += this.padLine('Disc', item.diskon + '%');
             }
-            receipt += this.padLine('Jumlah', this.formatRupiah(item.jumlah));
+            body += this.padLine('Jumlah', this.formatRupiah(item.jumlah));
         });
         
         // Totals
-        receipt += this.divider();
-        receipt += this.padLine('Subtotal', this.formatRupiah(data.subtotal));
+        body += this.divider();
+        body += this.padLine('Subtotal', this.formatRupiah(data.subtotal));
         
         if (data.diskon_akhir > 0) {
-            receipt += this.padLine('Diskon Akhir', '- ' + this.formatRupiah(data.diskon_akhir));
+            body += this.padLine('Diskon Akhir', '- ' + this.formatRupiah(data.diskon_akhir));
         }
         
         if (data.tax_percentage > 0) {
-            receipt += this.padLine('Pajak (' + data.tax_percentage + '%)', this.formatRupiah(data.pajak));
+            body += this.padLine('Pajak (' + data.tax_percentage + '%)', this.formatRupiah(data.pajak));
         }
         
-        receipt += this.divider();
-        receipt += this.COMMANDS.BOLD_ON;
-        receipt += this.padLine('GRAND TOTAL', this.formatRupiah(data.grand_total));
-        receipt += this.COMMANDS.BOLD_OFF;
+        body += this.divider();
+        body += this.COMMANDS.BOLD_ON;
+        body += this.padLine('GRAND TOTAL', this.formatRupiah(data.grand_total));
+        body += this.COMMANDS.BOLD_OFF;
         
-        // Footer
-        receipt += '\n' + this.divider('=') + '\n';
-        receipt += this.COMMANDS.ALIGN_CENTER;
-        receipt += 'marketing@hibiscusefsya.com\n';
-        receipt += '-- Terima Kasih --\n';
-        receipt += '\n\n\n\n';
+        // Footer with QR Code
+        let footer = '\n' + this.divider('=');
         
-        return receipt;
+        parts.push({ type: 'text', data: header + body + footer });
+        
+        // QR Code (if enabled and URL provided)
+        if (printQR && qrData) {
+            try {
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk invoice:\n' });
+                const qrImage = await this.generateQRCode(qrData, 150);
+                parts.push({ type: 'image', data: qrImage });
+            } catch (e) {
+                console.warn('Could not generate QR code:', e);
+            }
+        }
+        
+        // Final footer
+        let finalFooter = '\n' + this.COMMANDS.ALIGN_CENTER;
+        finalFooter += 'marketing@hibiscusefsya.com\n';
+        finalFooter += '-- Terima Kasih --\n';
+        finalFooter += '\n\n\n\n';
+        
+        parts.push({ type: 'text', data: finalFooter });
+        
+        return parts;
     }
 
     // Build receipt content for Pembelian
-    buildPembelianReceipt(data) {
-        let receipt = '';
+    async buildPembelianReceipt(data, options = {}) {
+        const printLogo = options.printLogo !== false;
+        const printQR = options.printQR !== false;
+        const logoUrl = options.logoUrl || '/storage/logo.png';
+        const qrData = options.qrUrl || data.invoice_url || '';
         
-        // Header
-        receipt += this.COMMANDS.RESET;
-        receipt += this.COMMANDS.ALIGN_CENTER;
-        receipt += this.COMMANDS.BOLD_ON + 'HIBISCUS EFSYA\n' + this.COMMANDS.BOLD_OFF;
-        receipt += 'PERMINTAAN PEMBELIAN\n';
-        receipt += this.COMMANDS.ALIGN_LEFT;
-        receipt += '\n';
+        let parts = [];
         
-        // Info Section
-        receipt += this.formatInfoRow('Nomor', data.nomor);
-        receipt += this.formatInfoRow('Tanggal', data.tanggal);
-        receipt += this.formatInfoRow('Jatuh Tempo', data.jatuh_tempo);
-        receipt += this.formatInfoRow('Pembayaran', data.pembayaran);
-        receipt += this.formatInfoRow('Vendor', data.vendor);
-        receipt += this.formatInfoRow('Sales', data.sales);
-        receipt += this.formatInfoRow('Disetujui', data.approver);
-        receipt += this.formatInfoRow('Gudang', data.gudang);
-        receipt += this.formatInfoRow('Status', data.status);
+        let header = this.COMMANDS.RESET + this.COMMANDS.ALIGN_CENTER;
         
-        // Items
-        receipt += this.divider();
+        // Logo
+        if (printLogo) {
+            try {
+                parts.push({ type: 'text', data: header });
+                const logoData = await this.loadImageAsBitmap(logoUrl, 200);
+                parts.push({ type: 'image', data: logoData });
+                parts.push({ type: 'text', data: '\n' });
+                header = this.COMMANDS.ALIGN_CENTER;
+            } catch (e) {
+                console.warn('Could not load logo:', e);
+            }
+        }
+        
+        header += this.COMMANDS.BOLD_ON + 'HIBISCUS EFSYA\n' + this.COMMANDS.BOLD_OFF;
+        header += 'PERMINTAAN PEMBELIAN\n';
+        header += this.COMMANDS.ALIGN_LEFT + '\n';
+        
+        let body = '';
+        body += this.formatInfoRow('Nomor', data.nomor);
+        body += this.formatInfoRow('Tanggal', data.tanggal);
+        body += this.formatInfoRow('Jatuh Tempo', data.jatuh_tempo);
+        body += this.formatInfoRow('Pembayaran', data.pembayaran);
+        body += this.formatInfoRow('Vendor', data.vendor);
+        body += this.formatInfoRow('Sales', data.sales);
+        body += this.formatInfoRow('Disetujui', data.approver);
+        body += this.formatInfoRow('Gudang', data.gudang);
+        body += this.formatInfoRow('Status', data.status);
+        
+        body += this.divider();
         
         data.items.forEach(item => {
-            receipt += this.COMMANDS.BOLD_ON + item.nama + this.COMMANDS.BOLD_OFF + '\n';
-            receipt += 'Qty: ' + item.qty + ' ' + item.unit + '\n';
-            receipt += this.padLine('Harga', this.formatRupiah(item.harga));
+            body += this.COMMANDS.BOLD_ON + item.nama + this.COMMANDS.BOLD_OFF + '\n';
+            body += 'Qty: ' + item.qty + ' ' + item.unit + '\n';
+            body += this.padLine('Harga', this.formatRupiah(item.harga));
             if (item.diskon > 0) {
-                receipt += this.padLine('Disc', item.diskon + '%');
+                body += this.padLine('Disc', item.diskon + '%');
             }
-            receipt += this.padLine('Jumlah', this.formatRupiah(item.jumlah));
+            body += this.padLine('Jumlah', this.formatRupiah(item.jumlah));
         });
         
-        // Totals
-        receipt += this.divider();
-        receipt += this.padLine('Subtotal', this.formatRupiah(data.subtotal));
+        body += this.divider();
+        body += this.padLine('Subtotal', this.formatRupiah(data.subtotal));
         
         if (data.diskon_akhir > 0) {
-            receipt += this.padLine('Diskon Akhir', '- ' + this.formatRupiah(data.diskon_akhir));
+            body += this.padLine('Diskon Akhir', '- ' + this.formatRupiah(data.diskon_akhir));
         }
         
         if (data.tax_percentage > 0) {
-            receipt += this.padLine('Pajak (' + data.tax_percentage + '%)', this.formatRupiah(data.pajak));
+            body += this.padLine('Pajak (' + data.tax_percentage + '%)', this.formatRupiah(data.pajak));
         }
         
-        receipt += this.divider();
-        receipt += this.COMMANDS.BOLD_ON;
-        receipt += this.padLine('GRAND TOTAL', this.formatRupiah(data.grand_total));
-        receipt += this.COMMANDS.BOLD_OFF;
+        body += this.divider();
+        body += this.COMMANDS.BOLD_ON;
+        body += this.padLine('GRAND TOTAL', this.formatRupiah(data.grand_total));
+        body += this.COMMANDS.BOLD_OFF;
         
-        // Footer
-        receipt += '\n' + this.divider('=') + '\n';
-        receipt += this.COMMANDS.ALIGN_CENTER;
-        receipt += 'marketing@hibiscusefsya.com\n';
-        receipt += '-- Dokumen Internal --\n';
-        receipt += '\n\n\n\n';
+        let footer = '\n' + this.divider('=');
         
-        return receipt;
+        parts.push({ type: 'text', data: header + body + footer });
+        
+        // QR Code
+        if (printQR && qrData) {
+            try {
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk invoice:\n' });
+                const qrImage = await this.generateQRCode(qrData, 150);
+                parts.push({ type: 'image', data: qrImage });
+            } catch (e) {
+                console.warn('Could not generate QR code:', e);
+            }
+        }
+        
+        let finalFooter = '\n' + this.COMMANDS.ALIGN_CENTER;
+        finalFooter += 'marketing@hibiscusefsya.com\n';
+        finalFooter += '-- Dokumen Internal --\n';
+        finalFooter += '\n\n\n\n';
+        
+        parts.push({ type: 'text', data: finalFooter });
+        
+        return parts;
     }
 
     // Build receipt content for Biaya
-    buildBiayaReceipt(data) {
-        let receipt = '';
+    async buildBiayaReceipt(data, options = {}) {
+        const printLogo = options.printLogo !== false;
+        const printQR = options.printQR !== false;
+        const logoUrl = options.logoUrl || '/storage/logo.png';
+        const qrData = options.qrUrl || data.invoice_url || '';
         
-        // Header
-        receipt += this.COMMANDS.RESET;
-        receipt += this.COMMANDS.ALIGN_CENTER;
-        receipt += this.COMMANDS.BOLD_ON + 'HIBISCUS EFSYA\n' + this.COMMANDS.BOLD_OFF;
-        receipt += 'BUKTI PENGELUARAN\n';
-        receipt += this.COMMANDS.ALIGN_LEFT;
-        receipt += '\n';
+        let parts = [];
         
-        // Info Section
-        receipt += this.formatInfoRow('Nomor', data.nomor);
-        receipt += this.formatInfoRow('Tanggal', data.tanggal);
-        receipt += this.formatInfoRow('Pembayaran', data.cara_pembayaran);
-        receipt += this.formatInfoRow('Bayar Dari', data.bayar_dari);
-        receipt += this.formatInfoRow('Penerima', data.penerima);
-        receipt += this.formatInfoRow('Sales', data.sales);
-        receipt += this.formatInfoRow('Disetujui', data.approver);
-        receipt += this.formatInfoRow('Status', data.status);
+        let header = this.COMMANDS.RESET + this.COMMANDS.ALIGN_CENTER;
         
-        // Items
-        receipt += this.divider();
-        
-        data.items.forEach(item => {
-            receipt += this.COMMANDS.BOLD_ON + item.kategori + this.COMMANDS.BOLD_OFF + '\n';
-            if (item.deskripsi) {
-                receipt += 'Ket: ' + item.deskripsi + '\n';
+        // Logo
+        if (printLogo) {
+            try {
+                parts.push({ type: 'text', data: header });
+                const logoData = await this.loadImageAsBitmap(logoUrl, 200);
+                parts.push({ type: 'image', data: logoData });
+                parts.push({ type: 'text', data: '\n' });
+                header = this.COMMANDS.ALIGN_CENTER;
+            } catch (e) {
+                console.warn('Could not load logo:', e);
             }
-            receipt += this.padLine('Jumlah', this.formatRupiah(item.jumlah));
-        });
-        
-        // Totals
-        receipt += this.divider();
-        receipt += this.padLine('Subtotal', this.formatRupiah(data.subtotal));
-        
-        if (data.tax_percentage > 0) {
-            receipt += this.padLine('Pajak (' + data.tax_percentage + '%)', this.formatRupiah(data.pajak));
         }
         
-        receipt += this.divider();
-        receipt += this.COMMANDS.BOLD_ON;
-        receipt += this.padLine('GRAND TOTAL', this.formatRupiah(data.grand_total));
-        receipt += this.COMMANDS.BOLD_OFF;
+        header += this.COMMANDS.BOLD_ON + 'HIBISCUS EFSYA\n' + this.COMMANDS.BOLD_OFF;
+        header += 'BUKTI PENGELUARAN\n';
+        header += this.COMMANDS.ALIGN_LEFT + '\n';
         
-        // Footer
-        receipt += '\n' + this.divider('=') + '\n';
-        receipt += this.COMMANDS.ALIGN_CENTER;
-        receipt += 'marketing@hibiscusefsya.com\n';
-        receipt += '-- Terima Kasih --\n';
-        receipt += '\n\n\n\n';
+        let body = '';
+        body += this.formatInfoRow('Nomor', data.nomor);
+        body += this.formatInfoRow('Tanggal', data.tanggal);
+        body += this.formatInfoRow('Pembayaran', data.cara_pembayaran);
+        body += this.formatInfoRow('Bayar Dari', data.bayar_dari);
+        body += this.formatInfoRow('Penerima', data.penerima);
+        body += this.formatInfoRow('Sales', data.sales);
+        body += this.formatInfoRow('Disetujui', data.approver);
+        body += this.formatInfoRow('Status', data.status);
         
-        return receipt;
+        body += this.divider();
+        
+        data.items.forEach(item => {
+            body += this.COMMANDS.BOLD_ON + item.kategori + this.COMMANDS.BOLD_OFF + '\n';
+            if (item.deskripsi) {
+                body += 'Ket: ' + item.deskripsi + '\n';
+            }
+            body += this.padLine('Jumlah', this.formatRupiah(item.jumlah));
+        });
+        
+        body += this.divider();
+        body += this.padLine('Subtotal', this.formatRupiah(data.subtotal));
+        
+        if (data.tax_percentage > 0) {
+            body += this.padLine('Pajak (' + data.tax_percentage + '%)', this.formatRupiah(data.pajak));
+        }
+        
+        body += this.divider();
+        body += this.COMMANDS.BOLD_ON;
+        body += this.padLine('GRAND TOTAL', this.formatRupiah(data.grand_total));
+        body += this.COMMANDS.BOLD_OFF;
+        
+        let footer = '\n' + this.divider('=');
+        
+        parts.push({ type: 'text', data: header + body + footer });
+        
+        // QR Code
+        if (printQR && qrData) {
+            try {
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk invoice:\n' });
+                const qrImage = await this.generateQRCode(qrData, 150);
+                parts.push({ type: 'image', data: qrImage });
+            } catch (e) {
+                console.warn('Could not generate QR code:', e);
+            }
+        }
+        
+        let finalFooter = '\n' + this.COMMANDS.ALIGN_CENTER;
+        finalFooter += 'marketing@hibiscusefsya.com\n';
+        finalFooter += '-- Terima Kasih --\n';
+        finalFooter += '\n\n\n\n';
+        
+        parts.push({ type: 'text', data: finalFooter });
+        
+        return parts;
     }
 
     // Connect to Bluetooth printer
@@ -350,7 +612,7 @@ class BluetoothThermalPrinter {
         }
     }
 
-    // Print data with chunking for reliability
+    // Print text data with chunking for reliability
     async print(content) {
         if (!this.characteristic) {
             throw new Error('Printer tidak terhubung');
@@ -383,6 +645,22 @@ class BluetoothThermalPrinter {
         return true;
     }
 
+    /**
+     * Print receipt with mixed content (text + images)
+     * @param {Array} parts - Array of {type: 'text'|'image', data: string|Uint8Array}
+     */
+    async printMixed(parts) {
+        for (const part of parts) {
+            if (part.type === 'text') {
+                await this.print(part.data);
+            } else if (part.type === 'image') {
+                await this.printImage(part.data);
+            }
+            // Small delay between parts
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    }
+
     // Disconnect from printer
     disconnect() {
         if (this.device && this.device.gatt.connected) {
@@ -397,8 +675,16 @@ class BluetoothThermalPrinter {
 window.BluetoothPrinter = new BluetoothThermalPrinter();
 
 // Helper function for printing with button feedback
-async function printViaBluetooth(button, type, jsonUrl) {
+async function printViaBluetooth(button, type, jsonUrl, options = {}) {
     const originalHtml = button.innerHTML;
+    
+    // Default options
+    options = {
+        printLogo: true,
+        printQR: true,
+        logoUrl: '/storage/logo.png',
+        ...options
+    };
     
     try {
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
@@ -416,25 +702,28 @@ async function printViaBluetooth(button, type, jsonUrl) {
         }
         const data = await response.json();
 
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Printing...';
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing...';
 
-        // Build and print receipt based on type
-        let content = '';
+        // Build receipt based on type (now async because of image loading)
+        let parts = [];
         switch (type) {
             case 'penjualan':
-                content = window.BluetoothPrinter.buildPenjualanReceipt(data);
+                parts = await window.BluetoothPrinter.buildPenjualanReceipt(data, options);
                 break;
             case 'pembelian':
-                content = window.BluetoothPrinter.buildPembelianReceipt(data);
+                parts = await window.BluetoothPrinter.buildPembelianReceipt(data, options);
                 break;
             case 'biaya':
-                content = window.BluetoothPrinter.buildBiayaReceipt(data);
+                parts = await window.BluetoothPrinter.buildBiayaReceipt(data, options);
                 break;
             default:
                 throw new Error('Tipe tidak dikenali: ' + type);
         }
 
-        await window.BluetoothPrinter.print(content);
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Printing...';
+
+        // Print mixed content (text + images)
+        await window.BluetoothPrinter.printMixed(parts);
 
         // Success feedback
         button.innerHTML = '<i class="fas fa-check"></i> Berhasil!';

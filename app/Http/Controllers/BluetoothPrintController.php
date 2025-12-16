@@ -65,7 +65,8 @@ class BluetoothPrintController extends Controller
             'diskon_akhir' => $data->diskon_akhir ?? 0,
             'tax_percentage' => $data->tax_percentage ?? 0,
             'pajak' => $pajak,
-            'grand_total' => $data->grand_total
+            'grand_total' => $data->grand_total,
+            'invoice_url' => url('invoice/penjualan/' . $data->id)
         ]);
     }
 
@@ -110,7 +111,8 @@ class BluetoothPrintController extends Controller
             'diskon_akhir' => $data->diskon_akhir ?? 0,
             'tax_percentage' => $data->tax_percentage ?? 0,
             'pajak' => $pajak,
-            'grand_total' => $data->grand_total
+            'grand_total' => $data->grand_total,
+            'invoice_url' => url('invoice/pembelian/' . $data->id)
         ]);
     }
 
@@ -149,7 +151,8 @@ class BluetoothPrintController extends Controller
             'subtotal' => $subtotal,
             'tax_percentage' => $data->tax_percentage ?? 0,
             'pajak' => $pajak,
-            'grand_total' => $data->grand_total
+            'grand_total' => $data->grand_total,
+            'invoice_url' => url('invoice/biaya/' . $data->id)
         ]);
     }
 }
