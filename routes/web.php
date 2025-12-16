@@ -24,11 +24,11 @@ Route::prefix('invoice')->name('public.invoice.')->group(function () {
     // Penjualan
     Route::get('penjualan/{id}', 'PublicInvoiceController@showPenjualan')->name('penjualan');
     Route::get('penjualan/{id}/download', 'PublicInvoiceController@downloadPenjualan')->name('penjualan.download');
-    
+
     // Pembelian
     Route::get('pembelian/{id}', 'PublicInvoiceController@showPembelian')->name('pembelian');
     Route::get('pembelian/{id}/download', 'PublicInvoiceController@downloadPembelian')->name('pembelian.download');
-    
+
     // Biaya
     Route::get('biaya/{id}', 'PublicInvoiceController@showBiaya')->name('biaya');
     Route::get('biaya/{id}/download', 'PublicInvoiceController@downloadBiaya')->name('biaya.download');

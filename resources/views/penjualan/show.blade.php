@@ -38,9 +38,7 @@
                 @endif
 
                 {{-- Tombol Print & Kembali --}}
-                <button type="button" id="printBluetooth" class="btn btn-primary btn-sm shadow-sm" 
-                    data-type="penjualan"
-                    data-url="{{ route('bluetooth.penjualan
+                <button type="button" id="printBluetooth" class="btn btn-primary btn-sm shadow-sm" data-type="penjualan"
                     data-url="{{ route('bluetooth.penjualan', $penjualan->id) }}">
                     <i class="fas fa-bluetooth fa-sm"></i> Print Bluetooth
                 </button>
@@ -334,7 +332,8 @@
                     @endphp
                     <img src="{{ $qrUrl }}" alt="QR Code Invoice" class="img-fluid mb-3" style="max-width: 300px;">
                     <div class="alert alert-info">
-                        <small><i class="fas fa-info-circle"></i> QR Code ini bisa di-scan oleh pelanggan untuk melihat invoice tanpa login</small>
+                        <small><i class="fas fa-info-circle"></i> QR Code ini bisa di-scan oleh pelanggan untuk melihat
+                            invoice tanpa login</small>
                     </div>
                     <div class="input-group mt-3">
                         <input type="text" class="form-control" id="publicUrlInput" value="{{ $publicUrl }}" readonly>
@@ -352,25 +351,25 @@
     <!-- Include Bluetooth Print JS -->
     <script src="{{ asset('js/bluetooth-print.js') }}"></script>
     <script>
-    function copyPublicUrl() {
-        const input = document.getElementById('publicUrlInput');
-        input.select();
-        document.execCommand('copy');
-        
-        // Show feedback
-        const btn = event.target.closest('button');
-        const originalHtml = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-        setTimeout(() => {
-            btn.innerHTML = originalHtml;
-        }, 2000);
-    }
+        function copyPublicUrl() {
+            const input = document.getElementById('publicUrlInput');
+            input.select();
+            document.execCommand('copy');
 
-    // Bluetooth Print Function (using new client-side solution)
-    document.getElementById('printBluetooth')?.addEventListener('click', function() {
-        const type = this.dataset.type;
-        const jsonUrl = this.dataset.url;
-        printViaBluetooth(this, type, jsonUrl);
-    });
+            // Show feedback
+            const btn = event.target.closest('button');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+            }, 2000);
+        }
+
+        // Bluetooth Print Function (using new client-side solution)
+        document.getElementById('printBluetooth')?.addEventListener('click', function () {
+            const type = this.dataset.type;
+            const jsonUrl = this.dataset.url;
+            printViaBluetooth(this, type, jsonUrl);
+        });
     </script>
 @endsection

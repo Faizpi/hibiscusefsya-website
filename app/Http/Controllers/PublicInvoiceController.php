@@ -23,7 +23,7 @@ class PublicInvoiceController extends Controller
     public function showPenjualan($id)
     {
         $penjualan = Penjualan::with(['items.produk', 'user', 'gudang', 'approver'])->findOrFail($id);
-        
+
         return view('public.invoice-penjualan', compact('penjualan'));
     }
 
@@ -33,14 +33,14 @@ class PublicInvoiceController extends Controller
     public function downloadPenjualan($id)
     {
         $penjualan = Penjualan::with(['items.produk', 'user', 'gudang', 'approver'])->findOrFail($id);
-        
+
         $dateCode = $penjualan->created_at->format('Ymd');
         $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $filename = "INV-{$penjualan->user_id}-{$dateCode}-{$noUrut}.pdf";
-        
+
         $pdf = PDF::loadView('public.invoice-penjualan-pdf', compact('penjualan'));
         $pdf->setPaper('a4', 'portrait');
-        
+
         return $pdf->download($filename);
     }
 
@@ -50,7 +50,7 @@ class PublicInvoiceController extends Controller
     public function showPembelian($id)
     {
         $pembelian = Pembelian::with(['items.produk', 'user', 'gudang', 'approver'])->findOrFail($id);
-        
+
         return view('public.invoice-pembelian', compact('pembelian'));
     }
 
@@ -60,14 +60,14 @@ class PublicInvoiceController extends Controller
     public function downloadPembelian($id)
     {
         $pembelian = Pembelian::with(['items.produk', 'user', 'gudang', 'approver'])->findOrFail($id);
-        
+
         $dateCode = $pembelian->created_at->format('Ymd');
         $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $filename = "PR-{$pembelian->user_id}-{$dateCode}-{$noUrut}.pdf";
-        
+
         $pdf = PDF::loadView('public.invoice-pembelian-pdf', compact('pembelian'));
         $pdf->setPaper('a4', 'portrait');
-        
+
         return $pdf->download($filename);
     }
 
@@ -77,7 +77,7 @@ class PublicInvoiceController extends Controller
     public function showBiaya($id)
     {
         $biaya = Biaya::with(['items', 'user', 'approver'])->findOrFail($id);
-        
+
         return view('public.invoice-biaya', compact('biaya'));
     }
 
@@ -87,14 +87,14 @@ class PublicInvoiceController extends Controller
     public function downloadBiaya($id)
     {
         $biaya = Biaya::with(['items', 'user', 'approver'])->findOrFail($id);
-        
+
         $dateCode = $biaya->created_at->format('Ymd');
         $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $filename = "EXP-{$biaya->user_id}-{$dateCode}-{$noUrut}.pdf";
-        
+
         $pdf = PDF::loadView('public.invoice-biaya-pdf', compact('biaya'));
         $pdf->setPaper('a4', 'portrait');
-        
+
         return $pdf->download($filename);
     }
 }

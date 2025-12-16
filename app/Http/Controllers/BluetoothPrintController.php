@@ -22,10 +22,10 @@ class BluetoothPrintController extends Controller
     public function penjualanJson($id)
     {
         $data = Penjualan::with(['items.produk', 'user', 'gudang', 'approver'])->findOrFail($id);
-        
+
         $dateCode = $data->created_at->format('Ymd');
         $noUrut = str_pad($data->no_urut_harian, 3, '0', STR_PAD_LEFT);
-        
+
         // Calculate status display
         $status = $data->status;
         if ($data->syarat_pembayaran == 'Cash' && $data->status == 'Approved') {
@@ -33,12 +33,12 @@ class BluetoothPrintController extends Controller
         } elseif ($data->status == 'Approved') {
             $status = 'Belum Lunas';
         }
-        
+
         // Calculate tax
         $subtotal = $data->items->sum('jumlah_baris');
         $kenaPajak = max(0, $subtotal - $data->diskon_akhir);
         $pajak = $kenaPajak * ($data->tax_percentage / 100);
-        
+
         $items = $data->items->map(function ($item) {
             return [
                 'nama' => $item->produk->nama_produk . ($item->produk->item_code ? ' (' . $item->produk->item_code . ')' : ''),
@@ -75,15 +75,15 @@ class BluetoothPrintController extends Controller
     public function pembelianJson($id)
     {
         $data = Pembelian::with(['items.produk', 'user', 'gudang', 'approver'])->findOrFail($id);
-        
+
         $dateCode = $data->created_at->format('Ymd');
         $noUrut = str_pad($data->no_urut_harian, 3, '0', STR_PAD_LEFT);
-        
+
         // Calculate tax
         $subtotal = $data->items->sum('jumlah_baris');
         $kenaPajak = max(0, $subtotal - ($data->diskon_akhir ?? 0));
         $pajak = $kenaPajak * (($data->tax_percentage ?? 0) / 100);
-        
+
         $items = $data->items->map(function ($item) {
             return [
                 'nama' => $item->produk->nama_produk . ($item->produk->item_code ? ' (' . $item->produk->item_code . ')' : ''),
@@ -120,14 +120,14 @@ class BluetoothPrintController extends Controller
     public function biayaJson($id)
     {
         $data = Biaya::with(['items', 'user', 'approver'])->findOrFail($id);
-        
+
         $dateCode = $data->created_at->format('Ymd');
         $noUrut = str_pad($data->no_urut_harian, 3, '0', STR_PAD_LEFT);
-        
+
         // Calculate tax
         $subtotal = $data->items->sum('jumlah');
         $pajak = $subtotal * (($data->tax_percentage ?? 0) / 100);
-        
+
         $items = $data->items->map(function ($item) {
             return [
                 'kategori' => $item->kategori,
