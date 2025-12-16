@@ -284,6 +284,44 @@ class BluetoothThermalPrinter {
     }
 
     /**
+     * Generate Code39 Barcode - MOST compatible with cheap printers
+     * @param {string} data - Data to encode (alphanumeric, uppercase only)
+     * @param {number} height - Barcode height in dots (default 50)
+     * @param {number} width - Barcode width 2-6 (default 2)
+     * @returns {Uint8Array} - ESC/POS barcode command data
+     */
+    generateBarcode39(data, height = 50, width = 2) {
+        // CODE39 only supports uppercase letters, numbers, and some symbols
+        const cleanData = data.toString().toUpperCase().replace(/[^A-Z0-9\-\.\ \$\/\+\%]/g, '');
+        const encoder = new TextEncoder();
+        const dataBytes = encoder.encode(cleanData);
+        
+        const commands = [];
+        
+        // GS h n - Set barcode height
+        commands.push(0x1D, 0x68, height);
+        
+        // GS w n - Set barcode width (2-6)
+        commands.push(0x1D, 0x77, Math.min(6, Math.max(2, width)));
+        
+        // GS H n - HRI below barcode
+        commands.push(0x1D, 0x48, 0x02);
+        
+        // GS f n - HRI font A
+        commands.push(0x1D, 0x66, 0x00);
+        
+        // GS k m d1...dk NUL - Print CODE39 barcode
+        // m = 4 for CODE39
+        commands.push(0x1D, 0x6B, 0x04);
+        for (let i = 0; i < dataBytes.length; i++) {
+            commands.push(dataBytes[i]);
+        }
+        commands.push(0x00); // NUL terminator
+        
+        return new Uint8Array(commands);
+    }
+
+    /**
      * Generate a short code from URL for barcode
      * Extracts just the ID from invoice URL
      * @param {string} url - Full URL
@@ -423,28 +461,39 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // QR Code or Barcode (if enabled and URL provided)
-        // Try QR first, fallback to barcode if QR fails
+        // Try multiple barcode formats for maximum compatibility
         if (printQR && qrData) {
-            try {
-                // First try QR Code (better for smartphones)
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk invoice:\n' });
-                const qrCommand = this.generateQRCodeNative(qrData, 5);
-                parts.push({ type: 'binary', data: qrCommand });
-                parts.push({ type: 'text', data: '\n' });
-            } catch (e) {
-                console.warn('QR failed, trying barcode:', e);
-            }
+            const shortCode = this.extractShortCode(qrData);
             
-            // Also print barcode as fallback (more compatible with cheap printers)
+            // Try CODE39 first (most compatible with cheap printers)
             try {
-                const shortCode = this.extractShortCode(qrData);
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
-                const barcodeCommand = this.generateBarcode128(shortCode, 40, 2);
-                parts.push({ type: 'binary', data: barcodeCommand });
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nID: ' + shortCode + '\n' });
+                const barcode39 = this.generateBarcode39(shortCode, 50, 3);
+                parts.push({ type: 'binary', data: barcode39 });
                 parts.push({ type: 'text', data: '\n' });
             } catch (e) {
-                console.warn('Barcode also failed:', e);
+                console.warn('CODE39 failed:', e);
+                
+                // Fallback to CODE128
+                try {
+                    const barcode128 = this.generateBarcode128(shortCode, 50, 2);
+                    parts.push({ type: 'binary', data: barcode128 });
+                    parts.push({ type: 'text', data: '\n' });
+                } catch (e2) {
+                    console.warn('CODE128 also failed:', e2);
+                    
+                    // Last resort: try QR Code
+                    try {
+                        parts.push({ type: 'text', data: 'Scan:\n' });
+                        const qrCommand = this.generateQRCodeNative(qrData, 4);
+                        parts.push({ type: 'binary', data: qrCommand });
+                        parts.push({ type: 'text', data: '\n' });
+                    } catch (e3) {
+                        console.warn('QR also failed:', e3);
+                        // Just print the URL as text
+                        parts.push({ type: 'text', data: '\n' + qrData + '\n' });
+                    }
+                }
             }
         }
         
@@ -532,26 +581,31 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // QR Code or Barcode (if enabled and URL provided)
+        // Try multiple barcode formats for maximum compatibility
         if (printQR && qrData) {
-            try {
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk invoice:\n' });
-                const qrCommand = this.generateQRCodeNative(qrData, 5);
-                parts.push({ type: 'binary', data: qrCommand });
-                parts.push({ type: 'text', data: '\n' });
-            } catch (e) {
-                console.warn('QR failed, trying barcode:', e);
-            }
+            const shortCode = this.extractShortCode(qrData);
             
-            // Barcode fallback
             try {
-                const shortCode = this.extractShortCode(qrData);
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
-                const barcodeCommand = this.generateBarcode128(shortCode, 40, 2);
-                parts.push({ type: 'binary', data: barcodeCommand });
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nID: ' + shortCode + '\n' });
+                const barcode39 = this.generateBarcode39(shortCode, 50, 3);
+                parts.push({ type: 'binary', data: barcode39 });
                 parts.push({ type: 'text', data: '\n' });
             } catch (e) {
-                console.warn('Barcode also failed:', e);
+                console.warn('CODE39 failed:', e);
+                try {
+                    const barcode128 = this.generateBarcode128(shortCode, 50, 2);
+                    parts.push({ type: 'binary', data: barcode128 });
+                    parts.push({ type: 'text', data: '\n' });
+                } catch (e2) {
+                    console.warn('CODE128 also failed:', e2);
+                    try {
+                        const qrCommand = this.generateQRCodeNative(qrData, 4);
+                        parts.push({ type: 'binary', data: qrCommand });
+                        parts.push({ type: 'text', data: '\n' });
+                    } catch (e3) {
+                        parts.push({ type: 'text', data: '\n' + qrData + '\n' });
+                    }
+                }
             }
         }
         
@@ -631,26 +685,31 @@ class BluetoothThermalPrinter {
         
         parts.push({ type: 'text', data: header + body + footer });
         
-        // QR Code or Barcode (if enabled and URL provided)
+        // Try multiple barcode formats for maximum compatibility
         if (printQR && qrData) {
-            try {
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nScan untuk bukti:\n' });
-                const qrCommand = this.generateQRCodeNative(qrData, 5);
-                parts.push({ type: 'binary', data: qrCommand });
-                parts.push({ type: 'text', data: '\n' });
-            } catch (e) {
-                console.warn('QR failed, trying barcode:', e);
-            }
+            const shortCode = this.extractShortCode(qrData);
             
-            // Barcode fallback
             try {
-                const shortCode = this.extractShortCode(qrData);
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
-                const barcodeCommand = this.generateBarcode128(shortCode, 40, 2);
-                parts.push({ type: 'binary', data: barcodeCommand });
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER + '\nID: ' + shortCode + '\n' });
+                const barcode39 = this.generateBarcode39(shortCode, 50, 3);
+                parts.push({ type: 'binary', data: barcode39 });
                 parts.push({ type: 'text', data: '\n' });
             } catch (e) {
-                console.warn('Barcode also failed:', e);
+                console.warn('CODE39 failed:', e);
+                try {
+                    const barcode128 = this.generateBarcode128(shortCode, 50, 2);
+                    parts.push({ type: 'binary', data: barcode128 });
+                    parts.push({ type: 'text', data: '\n' });
+                } catch (e2) {
+                    console.warn('CODE128 also failed:', e2);
+                    try {
+                        const qrCommand = this.generateQRCodeNative(qrData, 4);
+                        parts.push({ type: 'binary', data: qrCommand });
+                        parts.push({ type: 'text', data: '\n' });
+                    } catch (e3) {
+                        parts.push({ type: 'text', data: '\n' + qrData + '\n' });
+                    }
+                }
             }
         }
         

@@ -149,12 +149,14 @@
             <tr>
                 <td class="label-col">Tanggal</td>
                 <td class="colon-col">:</td>
-                <td class="value-col">{{ $penjualan->tgl_transaksi->format('d/m/Y') }} | {{ $penjualan->created_at->format('H:i') }}</td>
+                <td class="value-col">{{ $penjualan->tgl_transaksi->format('d/m/Y') }} |
+                    {{ $penjualan->created_at->format('H:i') }}</td>
             </tr>
             <tr>
                 <td class="label-col">Jatuh Tempo</td>
                 <td class="colon-col">:</td>
-                <td class="value-col">{{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
+                <td class="value-col">
+                    {{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
             </tr>
             <tr>
                 <td class="label-col">Pembayaran</td>
@@ -174,7 +176,8 @@
             <tr>
                 <td class="label-col">Disetujui</td>
                 <td class="colon-col">:</td>
-                <td class="value-col">{{ $penjualan->status == 'Pending' ? '-' : ($penjualan->approver->name ?? '-') }}</td>
+                <td class="value-col">{{ $penjualan->status == 'Pending' ? '-' : ($penjualan->approver->name ?? '-') }}
+                </td>
             </tr>
             <tr>
                 <td class="label-col">Gudang</td>
@@ -242,7 +245,8 @@
         </table>
 
         <div class="qr-section">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}" alt="QR Code">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
+                alt="QR Code">
             <p>Scan untuk melihat invoice</p>
         </div>
 

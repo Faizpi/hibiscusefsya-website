@@ -138,7 +138,8 @@
             <tr>
                 <td class="label-col">Tanggal</td>
                 <td class="colon-col">:</td>
-                <td class="value-col">{{ $biaya->tgl_transaksi->format('d/m/Y') }} | {{ $biaya->created_at->format('H:i') }}</td>
+                <td class="value-col">{{ $biaya->tgl_transaksi->format('d/m/Y') }} |
+                    {{ $biaya->created_at->format('H:i') }}</td>
             </tr>
             <tr>
                 <td class="label-col">Pembayaran</td>
@@ -212,7 +213,8 @@
         </table>
 
         <div class="qr-section">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}" alt="QR Code">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
+                alt="QR Code">
             <p>Scan untuk melihat bukti</p>
         </div>
 
