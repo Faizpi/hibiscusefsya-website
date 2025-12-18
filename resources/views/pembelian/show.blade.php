@@ -365,7 +365,8 @@
     document.getElementById('printBluetooth')?.addEventListener('click', function() {
         const type = this.dataset.type;
         const jsonUrl = this.dataset.url;
-        printViaBluetooth(this, type, jsonUrl);
+        // Disable QR & Logo - printer BLE sering glitch dengan image
+        printViaBluetooth(this, type, jsonUrl, { printLogo: false, printQR: false });
     });
     </script>
 @endsection
