@@ -11,6 +11,7 @@
             <th>Pembuat</th>
             <th>Approver</th>
             <th>Gudang</th>
+            <th>Jenis Biaya</th>
             <th>Status</th>
             <th>Subtotal</th>
             <th>Pajak (%)</th>
@@ -34,6 +35,13 @@
                 <td>{{ $item->user->name ?? '-' }}</td>
                 <td>{{ $item->approver->name ?? '-' }}</td>
                 <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
+                <td>
+                    @if(isset($item->type) && $item->type === 'Biaya')
+                        {{ $item->jenis_biaya ? ucfirst($item->jenis_biaya) : '-' }}
+                    @else
+                        -
+                    @endif
+                </td>
                 <td>{{ $item->status }}</td>
                 <td>{{ round($subtotal) }}</td>
                 <td>{{ $item->tax_percentage ?? 0 }}</td>

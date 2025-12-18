@@ -622,6 +622,17 @@
                                     aktif</small>
                             </div>
                         @endif
+
+                        {{-- Jenis Biaya (muncul hanya jika tipe = biaya) --}}
+                        <div class="form-group" id="biayaJenisGroup" style="display: none;">
+                            <label for="biaya_jenis">Jenis Biaya</label>
+                            <select class="form-control" name="biaya_jenis" id="biaya_jenis">
+                                <option value="">Semua Jenis</option>
+                                <option value="masuk">Masuk</option>
+                                <option value="keluar">Keluar</option>
+                            </select>
+                            <small class="text-muted">*Hanya berlaku saat tipe transaksi = Biaya</small>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
@@ -644,6 +655,18 @@
     @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+                // Toggle Jenis Biaya dropdown based on transaction type
+                const typeSelect = document.getElementById('transaction_type');
+                const jenisGroup = document.getElementById('biayaJenisGroup');
+                const toggleJenis = () => {
+                    if (!typeSelect) return;
+                    jenisGroup.style.display = typeSelect.value === 'biaya' ? 'block' : 'none';
+                };
+                if (typeSelect && jenisGroup) {
+                    typeSelect.addEventListener('change', toggleJenis);
+                    toggleJenis();
+                }
+
                 // Data dari Controller
                 const chartLabels = @json($chartLabels ?? []);
                 const chartPenjualan = @json($chartPenjualan ?? []);

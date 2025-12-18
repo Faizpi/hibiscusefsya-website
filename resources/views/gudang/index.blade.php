@@ -39,8 +39,8 @@
                                     <td>{{ $item->alamat_gudang ?? '-' }}</td>
                                     <td class="text-center">
                                         <div class="dropdown">
-                                            <button class="btn btn-sm dropdown-toggle no-caret" type="button" data-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="false">
+                                            <button class="btn btn-sm dropdown-toggle no-caret" type="button"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 <i class="fas fa-ellipsis-v"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-right shadow-sm">

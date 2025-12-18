@@ -402,6 +402,7 @@ class DashboardController extends Controller
             'transaction_type' => 'required|in:all,penjualan,pembelian,biaya',
             'status_filter' => 'nullable|in:all,Pending,Approved,Rejected,Canceled,Lunas',
             'gudang_id' => 'nullable|exists:gudangs,id',
+            'biaya_jenis' => 'nullable|in:masuk,keluar',
         ]);
 
         $dateFrom = $request->date_from;
@@ -409,6 +410,7 @@ class DashboardController extends Controller
         $transactionType = $request->transaction_type;
         $statusFilter = $request->status_filter ?? 'all';
         $gudangId = $request->gudang_id;
+        $biayaJenis = $request->biaya_jenis; // optional filter khusus biaya
         $user = Auth::user();
 
         $penjualans = collect();
@@ -496,6 +498,11 @@ class DashboardController extends Controller
 
             if ($statusFilter != 'all') {
                 $query->where('status', $statusFilter);
+            }
+
+            // Filter jenis biaya jika dipilih
+            if ($transactionType === 'biaya' && $biayaJenis) {
+                $query->where('jenis_biaya', $biayaJenis);
             }
 
             $biayas = $query->get();

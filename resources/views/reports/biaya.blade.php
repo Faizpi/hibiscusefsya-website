@@ -6,6 +6,7 @@
             <th>No Transaksi</th>
             <th>Tgl Transaksi</th>
             <th>Jam</th>
+            <th>Jenis</th>
             <th>Bayar Dari</th>
             <th>Penerima</th>
             <th>Alamat Penagihan</th>
@@ -26,6 +27,7 @@
                 <td>{{ $item->number }}</td>
                 <td>{{ $item->tgl_transaksi->format('d/m/Y') }}</td>
                 <td>{{ $item->created_at->format('H:i') }}</td>
+                <td>{{ $item->jenis_biaya ? ucfirst($item->jenis_biaya) : '-' }}</td>
                 <td>{{ $item->bayar_dari ?? '-' }}</td>
                 <td>{{ $item->penerima ?? '-' }}</td>
                 <td>{{ $item->alamat_penagihan ?? '-' }}</td>
