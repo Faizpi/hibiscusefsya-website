@@ -143,6 +143,7 @@ class BluetoothPrintController extends Controller
         return response()->json([
             'nomor' => "EXP-{$data->user_id}-{$dateCode}-{$noUrut}",
             'tanggal' => $data->tgl_transaksi->format('d/m/Y') . ' | ' . $data->created_at->format('H:i'),
+            'jenis_biaya' => $data->jenis_biaya ?? 'keluar',
             'cara_pembayaran' => $data->cara_pembayaran ?? '-',
             'bayar_dari' => $data->bayar_dari ?? '-',
             'penerima' => $data->penerima ?? '-',

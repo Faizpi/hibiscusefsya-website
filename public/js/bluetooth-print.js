@@ -616,6 +616,11 @@ class BluetoothThermalPrinter {
         const baseUrl = window.location.origin;
         const logoUrl = options.logoUrl || (baseUrl + '/assets/img/logoHE1.png');
         const qrData = options.qrUrl || data.invoice_url || '';
+
+        // Jenis biaya (masuk/keluar) untuk judul & label
+        const isMasuk = (data.jenis_biaya || '').toLowerCase() === 'masuk';
+        const jenisLabel = isMasuk ? 'Biaya Masuk' : 'Biaya Keluar';
+        const titleText = isMasuk ? 'BUKTI PEMASUKAN' : 'BUKTI PENGELUARAN';
         
         let parts = [];
         
@@ -636,10 +641,11 @@ class BluetoothThermalPrinter {
         
         let header = this.COMMANDS.ALIGN_CENTER;
         header += this.COMMANDS.BOLD_ON + 'HIBISCUS EFSYA\n' + this.COMMANDS.BOLD_OFF;
-        header += 'BUKTI PENGELUARAN\n';
+        header += titleText + '\n';
         header += this.COMMANDS.ALIGN_LEFT + '\n';
         
         let body = '';
+        body += this.formatInfoRow('Jenis', jenisLabel);
         body += this.formatInfoRow('Nomor', data.nomor);
         body += this.formatInfoRow('Tanggal', data.tanggal);
         body += this.formatInfoRow('Pembayaran', data.cara_pembayaran);
