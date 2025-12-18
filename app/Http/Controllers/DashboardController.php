@@ -138,6 +138,7 @@ class DashboardController extends Controller
                     'pembelianNominalBulanIni' => 0,
                     'availableGudangs' => collect(),
                     'selectedGudangId' => null,
+                    'gudangs' => collect(),
                 ]);
             }
         } else {
