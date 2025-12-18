@@ -144,7 +144,7 @@
             $dateCode = $pembelian->created_at->format('Ymd');
             $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
             $nomorInvoice = "PR-{$pembelian->user_id}-{$dateCode}-{$noUrut}";
-            $invoiceUrl = url('invoice/pembelian/' . $pembelian->id);
+            $invoiceUrl = url('invoice/pembelian/' . $pembelian->uuid);
         @endphp
 
         <div class="header">

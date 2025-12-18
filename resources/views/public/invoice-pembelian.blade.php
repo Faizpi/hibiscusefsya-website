@@ -310,7 +310,7 @@
         $dateCode = $pembelian->created_at->format('Ymd');
         $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "PR-{$pembelian->user_id}-{$dateCode}-{$noUrut}";
-        $invoiceUrl = url('invoice/pembelian/' . $pembelian->id);
+        $invoiceUrl = url('invoice/pembelian/' . $pembelian->uuid);
 
         $subtotal = $pembelian->items->sum('jumlah_baris');
         $kenaPajak = max(0, $subtotal - ($pembelian->diskon_akhir ?? 0));

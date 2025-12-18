@@ -144,7 +144,7 @@
             $dateCode = $penjualan->created_at->format('Ymd');
             $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
             $nomorInvoice = "INV-{$penjualan->user_id}-{$dateCode}-{$noUrut}";
-            $invoiceUrl = url('invoice/penjualan/' . $penjualan->id);
+            $invoiceUrl = url('invoice/penjualan/' . $penjualan->uuid);
         @endphp
 
         <div class="header">

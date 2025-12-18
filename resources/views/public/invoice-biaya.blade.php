@@ -290,7 +290,7 @@
         $dateCode = $biaya->created_at->format('Ymd');
         $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "EXP-{$biaya->user_id}-{$dateCode}-{$noUrut}";
-        $invoiceUrl = url('invoice/biaya/' . $biaya->id);
+        $invoiceUrl = url('invoice/biaya/' . $biaya->uuid);
 
         $subtotal = $biaya->items->sum('jumlah');
         $pajakNominal = $subtotal * (($biaya->tax_percentage ?? 0) / 100);
