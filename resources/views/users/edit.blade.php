@@ -58,7 +58,8 @@
                                     required>
                                     @foreach($roles as $value => $label)
                                         <option value="{{ $value }}" {{ old('role', $user->role) == $value ? 'selected' : '' }}>
-                                            {{ $label }}</option>
+                                            {{ $label }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -66,7 +67,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="gudang_id">Gudang yang Dipegang <span id="gudang_required" class="text-danger" style="display:none;">*</span></label>
+                                <label for="gudang_id">Gudang yang Dipegang <span id="gudang_required" class="text-danger"
+                                        style="display:none;">*</span></label>
                                 <select class="form-control @error('gudang_id') is-invalid @enderror" id="gudang_id"
                                     name="gudang_id">
                                     <option value="">-- Pilih Gudang --</option>
@@ -114,24 +116,24 @@
 @endsection
 
 @push('scripts')
-<script>
-$(document).ready(function() {
-    function toggleGudangRequired() {
-        var role = $('#role').val();
-        if (role === 'admin' || role === 'user') {
-            $('#gudang_required').show();
-            $('#gudang_id').prop('required', true);
-        } else {
-            $('#gudang_required').hide();
-            $('#gudang_id').prop('required', false);
-        }
-    }
-    
-    // Initial check
-    toggleGudangRequired();
-    
-    // On role change
-    $('#role').on('change', toggleGudangRequired);
-});
-</script>
+    <script>
+        $(document).ready(function () {
+            function toggleGudangRequired() {
+                var role = $('#role').val();
+                if (role === 'admin' || role === 'user') {
+                    $('#gudang_required').show();
+                    $('#gudang_id').prop('required', true);
+                } else {
+                    $('#gudang_required').hide();
+                    $('#gudang_id').prop('required', false);
+                }
+            }
+
+            // Initial check
+            toggleGudangRequired();
+
+            // On role change
+            $('#role').on('change', toggleGudangRequired);
+        });
+    </script>
 @endpush

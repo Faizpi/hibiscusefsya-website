@@ -270,6 +270,10 @@ class PembelianController extends Controller
                 ]);
             }
             DB::commit();
+
+            // Kirim notifikasi email ke pembuat + approvers
+            InvoiceEmailService::sendCreatedNotification($pembelianInduk, 'pembelian');
+
         } catch (\Exception $e) {
             DB::rollBack();
             if ($path && File::exists(public_path('storage/' . $path))) {
@@ -526,8 +530,8 @@ class PembelianController extends Controller
             $pembelian->save();
             DB::commit();
 
-            // Kirim email invoice setelah approve (async-safe, tidak throw error)
-            InvoiceEmailService::sendPembelianInvoice($pembelian);
+            // Kirim notifikasi email ke pembuat bahwa transaksi telah disetujui
+            InvoiceEmailService::sendApprovedNotification($pembelian, 'pembelian');
 
             return back()->with('success', 'Disetujui. Stok ditambahkan.');
         } catch (\Exception $e) {

@@ -298,6 +298,9 @@ class PenjualanController extends Controller
 
             DB::commit();
 
+            // Kirim notifikasi email ke pembuat + approvers
+            InvoiceEmailService::sendCreatedNotification($penjualanInduk, 'penjualan');
+
         } catch (\Exception $e) {
 
             if ($path && File::exists(public_path('storage/' . $path))) {
@@ -590,8 +593,8 @@ class PenjualanController extends Controller
 
             DB::commit();
 
-            // Kirim email invoice setelah approve (async-safe, tidak throw error)
-            InvoiceEmailService::sendPenjualanInvoice($penjualan);
+            // Kirim notifikasi email ke pembuat bahwa transaksi telah disetujui
+            InvoiceEmailService::sendApprovedNotification($penjualan, 'penjualan');
 
             return redirect()->route('penjualan.index')
                 ->with('success', 'Penjualan disetujui. Stok dikurangi.');

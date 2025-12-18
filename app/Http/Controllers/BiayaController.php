@@ -210,6 +210,15 @@ class BiayaController extends Controller
                 ]);
             }
             DB::commit();
+
+            // Kirim notifikasi email ke pembuat + approvers (kecuali jika sudah auto-approved)
+            if ($initialStatus == 'Pending') {
+                InvoiceEmailService::sendCreatedNotification($biayaInduk, 'biaya');
+            } else {
+                // Jika sudah auto-approved (admin/super_admin buat biaya), kirim notifikasi created saja
+                InvoiceEmailService::sendCreatedNotification($biayaInduk, 'biaya');
+            }
+
         } catch (\Exception $e) {
             DB::rollBack();
             // Jika terjadi error, hapus file yang baru di-upload agar tidak orphan
@@ -237,8 +246,8 @@ class BiayaController extends Controller
         $biaya->approver_id = $user->id;
         $biaya->save();
 
-        // Kirim email invoice setelah approve (async-safe, tidak throw error)
-        InvoiceEmailService::sendBiayaInvoice($biaya);
+        // Kirim notifikasi email ke pembuat bahwa transaksi telah disetujui
+        InvoiceEmailService::sendApprovedNotification($biaya, 'biaya');
 
         return back()->with('success', 'Data biaya berhasil disetujui.');
     }
