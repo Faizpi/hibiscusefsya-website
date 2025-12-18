@@ -51,6 +51,12 @@
                                         class="form-control @error('stok') is-invalid @enderror" value="0" min="0" required>
                                     @error('stok') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
+                                <div class="form-group">
+                                    <label for="keterangan">Keterangan Perubahan</label>
+                                    <textarea name="keterangan" id="keterangan" rows="2"
+                                        class="form-control @error('keterangan') is-invalid @enderror" placeholder="Alasan perubahan stok...">{{ old('keterangan') }}</textarea>
+                                    @error('keterangan') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                                 <button type="submit" class="btn btn-primary">Simpan Stok</button>
                             </form>
                         </div>
@@ -63,10 +69,15 @@
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">Daftar Stok per Gudang</h6>
-                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal"
-                            data-target="#exportStokModal">
-                            <i class="fas fa-download mr-1"></i> Export Excel
-                        </button>
+                        <div>
+                            <a href="{{ route('stok.log') }}" class="btn btn-sm btn-info mr-2">
+                                <i class="fas fa-history mr-1"></i> Riwayat Perubahan
+                            </a>
+                            <button type="button" class="btn btn-sm btn-success" data-toggle="modal"
+                                data-target="#exportStokModal">
+                                <i class="fas fa-download mr-1"></i> Export Excel
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         {{-- Wrapper untuk accordion --}}

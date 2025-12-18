@@ -58,6 +58,16 @@
                     <div class="col-md-6">
                         <table class="table table-borderless">
                             <tr>
+                                <td style="width: 30%;"><strong>Jenis Biaya</strong></td>
+                                <td>: 
+                                    @if($biaya->jenis_biaya == 'masuk')
+                                        <span class="badge badge-success">Biaya Masuk</span>
+                                    @else
+                                        <span class="badge badge-danger">Biaya Keluar</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
                                 <td style="width: 30%;"><strong>Pembuat</strong></td>
                                 <td>: {{ $biaya->user->name }}</td>
                             </tr>

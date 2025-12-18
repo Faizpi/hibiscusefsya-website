@@ -90,6 +90,7 @@ Route::middleware(['auth'])->group(function () {
         // Cek Stok
         Route::get('stok', 'StokController@index')->name('stok.index');
         Route::post('stok/export', 'StokController@exportStok')->name('stok.export');
+        Route::get('stok/log', 'StokController@log')->name('stok.log');
 
         // Export Excel
         Route::get('/report/export', 'DashboardController@export')->name('report.export');

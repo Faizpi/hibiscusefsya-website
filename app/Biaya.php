@@ -10,6 +10,7 @@ class Biaya extends Model
         'user_id',
         'approver_id',
         'no_urut_harian',
+        'jenis_biaya',
         'nomor',
         'bayar_dari',
         'penerima',

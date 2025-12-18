@@ -9,6 +9,7 @@ use App\Gudang;
 use App\Kontak;
 use App\GudangProduk;
 use App\User;
+use App\Services\InvoiceEmailService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -588,6 +589,9 @@ class PenjualanController extends Controller
             $penjualan->save();
 
             DB::commit();
+
+            // Kirim email invoice setelah approve (async-safe, tidak throw error)
+            InvoiceEmailService::sendPenjualanInvoice($penjualan);
 
             return redirect()->route('penjualan.index')
                 ->with('success', 'Penjualan disetujui. Stok dikurangi.');

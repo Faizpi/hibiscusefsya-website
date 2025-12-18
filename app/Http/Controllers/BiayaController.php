@@ -6,6 +6,7 @@ use App\Biaya;
 use App\BiayaItem;
 use App\User;
 use App\Kontak;
+use App\Services\InvoiceEmailService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,11 @@ class BiayaController extends Controller
             $query->where('user_id', $user->id);
         }
 
+        // Filter jenis_biaya jika ada
+        if (request()->has('jenis') && request('jenis') != '') {
+            $query->where('jenis_biaya', request('jenis'));
+        }
+
         // Clone query untuk summary calculations (semua data)
         $summaryQuery = clone $query;
         $allForSummary = $summaryQuery->get();
@@ -45,6 +51,12 @@ class BiayaController extends Controller
         $totalBelumDibayar = $allForSummary->where('status', 'Pending')->sum('grand_total');
         $totalApproved = $allForSummary->where('status', 'Approved')->sum('grand_total');
         $totalCanceled = $allForSummary->where('status', 'Canceled')->count();
+
+        // Total biaya masuk dan keluar (approved only)
+        $totalBiayaMasuk = $allForSummary->where('jenis_biaya', 'masuk')
+            ->whereIn('status', ['Approved'])->sum('grand_total');
+        $totalBiayaKeluar = $allForSummary->where('jenis_biaya', 'keluar')
+            ->whereIn('status', ['Approved'])->sum('grand_total');
 
         // Paginated data untuk table display
         $biayas = $query->latest()->paginate(20);
@@ -62,6 +74,8 @@ class BiayaController extends Controller
             'totalBelumDibayar' => $totalBelumDibayar,
             'totalApproved' => $totalApproved,
             'totalCanceled' => $totalCanceled,
+            'totalBiayaMasuk' => $totalBiayaMasuk,
+            'totalBiayaKeluar' => $totalBiayaKeluar,
         ]);
     }
 
@@ -172,6 +186,7 @@ class BiayaController extends Controller
                 'status' => $initialStatus,
                 'approver_id' => $approverId,
                 'no_urut_harian' => $noUrut,
+                'jenis_biaya' => $request->jenis_biaya ?? 'keluar',
                 'nomor' => $nomor,
                 'bayar_dari' => $request->bayar_dari,
                 'penerima' => $request->penerima,
@@ -217,11 +232,14 @@ class BiayaController extends Controller
 
         if ($user->role == 'user')
             return back()->with('error', 'Akses ditolak.');
-        if ($user->role == 'admin' && !$user->canAccessGudang($biaya->gudang_id))
-            return back()->with('error', 'Bukan wewenang Anda.');
 
         $biaya->status = 'Approved';
+        $biaya->approver_id = $user->id;
         $biaya->save();
+        
+        // Kirim email invoice setelah approve (async-safe, tidak throw error)
+        InvoiceEmailService::sendBiayaInvoice($biaya);
+        
         return back()->with('success', 'Data biaya berhasil disetujui.');
     }
 

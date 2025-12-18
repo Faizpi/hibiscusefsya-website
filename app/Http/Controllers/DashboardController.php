@@ -359,6 +359,21 @@ class DashboardController extends Controller
             ->whereMonth('tgl_transaksi', $now->month)
             ->sum('grand_total');
 
+        // Biaya Masuk dan Keluar (Approved only)
+        $data['biayaMasukBulanIni'] = (clone $biayaQuery)
+            ->where('jenis_biaya', 'masuk')
+            ->where('status', 'Approved')
+            ->whereYear('tgl_transaksi', $now->year)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->sum('grand_total');
+
+        $data['biayaKeluarBulanIni'] = (clone $biayaQuery)
+            ->where('jenis_biaya', 'keluar')
+            ->where('status', 'Approved')
+            ->whereYear('tgl_transaksi', $now->year)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->sum('grand_total');
+
         $data['selectedGudangId'] = $selectedGudangId;
 
         return view('dashboard', $data);

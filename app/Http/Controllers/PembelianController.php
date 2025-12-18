@@ -9,6 +9,7 @@ use App\Gudang;
 use App\GudangProduk;
 use App\User;
 use App\Kontak;
+use App\Services\InvoiceEmailService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -524,6 +525,10 @@ class PembelianController extends Controller
             }
             $pembelian->save();
             DB::commit();
+            
+            // Kirim email invoice setelah approve (async-safe, tidak throw error)
+            InvoiceEmailService::sendPembelianInvoice($pembelian);
+            
             return back()->with('success', 'Disetujui. Stok ditambahkan.');
         } catch (\Exception $e) {
             DB::rollBack();

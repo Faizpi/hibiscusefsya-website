@@ -137,6 +137,46 @@
         </div>
     </div>
 
+    {{-- ROW 1.5: Cards Biaya Masuk/Keluar --}}
+    <div class="row">
+        {{-- Card Biaya Masuk --}}
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                <i class="fas fa-arrow-down"></i> Biaya Masuk (Bulan Ini)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($biayaMasukBulanIni ?? 0, 0, ',', '.') }}
+                            </div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-hand-holding-usd fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- Card Biaya Keluar --}}
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                <i class="fas fa-arrow-up"></i> Biaya Keluar (Bulan Ini)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($biayaKeluarBulanIni ?? 0, 0, ',', '.') }}
+                            </div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-money-bill-wave fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- ROW 2: Cards Statistik Tambahan --}}
     <div class="row">
         {{-- Card Total Penjualan --}}

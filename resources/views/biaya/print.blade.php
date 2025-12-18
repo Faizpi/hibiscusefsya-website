@@ -155,10 +155,15 @@
 
         <div class="header">
             <img src="{{ asset('assets/img/logoHE1.png') }}" class="logo">
-            <div class="title">BUKTI PENGELUARAN</div>
+            <div class="title">{{ $biaya->jenis_biaya == 'masuk' ? 'BUKTI PEMASUKAN' : 'BUKTI PENGELUARAN' }}</div>
         </div>
 
         <table>
+            <tr>
+                <td class="label">Jenis</td>
+                <td class="colon">:</td>
+                <td class="value">{{ $biaya->jenis_biaya == 'masuk' ? 'Biaya Masuk' : 'Biaya Keluar' }}</td>
+            </tr>
             <tr>
                 <td class="label">Nomor</td>
                 <td class="colon">:</td>

@@ -432,6 +432,28 @@ document.addEventListener('DOMContentLoaded', function () {
         initSelect2(this);
     });
 
+    // Init Select2 untuk dropdown Pelanggan/Kontak (agar searchable)
+    $('#kontak-select').select2({
+        placeholder: 'Cari pelanggan...',
+        allowClear: true,
+        width: '100%'
+    }).on('select2:select', function(e) {
+        // Trigger autofill email & alamat
+        const selectedOption = this.options[this.selectedIndex];
+        emailInput.value = selectedOption.dataset.email || '';
+        alamatInput.value = selectedOption.dataset.alamat || '';
+        
+        const disc = selectedOption.dataset.diskon || 0;
+        tableBody.querySelectorAll('.product-disc').forEach(input => {
+            input.value = disc;
+        });
+        // Hitung ulang baris karena diskon berubah
+        Array.from(tableBody.rows).forEach(row => calculateRow(row));
+    }).on('select2:clear', function(e) {
+        emailInput.value = '';
+        alamatInput.value = '';
+    });
+
     // --- 2. LOGIKA KALKULASI (AUTO UPDATE) ---
     function formatRupiah(num) { 
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num); 
@@ -532,6 +554,24 @@ document.addEventListener('DOMContentLoaded', function () {
             // Set selected product
             const mobileSelect = card.querySelector('.product-select-mobile');
             mobileSelect.value = select.value;
+            
+            // Init Select2 untuk mobile product select
+            $(mobileSelect).select2({
+                placeholder: 'Cari produk...',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $(card) // Penting agar dropdown muncul di dalam card
+            }).on('select2:select', function(e) {
+                const rowIdx = $(this).data('row');
+                const tableRow = tableBody.querySelectorAll('tr')[rowIdx];
+                if (tableRow) {
+                    const opt = e.params.data.element;
+                    $(tableRow).find('.product-select').val(e.params.data.id).trigger('change');
+                    tableRow.querySelector('.product-price').value = opt?.dataset?.harga || 0;
+                    tableRow.querySelector('.product-desc').value = opt?.dataset?.deskripsi || '';
+                    calculateRow(tableRow);
+                }
+            });
         });
     }
 

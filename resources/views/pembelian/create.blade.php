@@ -526,6 +526,24 @@
 
                     const mobileSelect = card.querySelector('.product-select-mobile');
                     mobileSelect.value = select.value;
+                    
+                    // Init Select2 untuk mobile product select
+                    $(mobileSelect).select2({
+                        placeholder: 'Cari produk...',
+                        allowClear: true,
+                        width: '100%',
+                        dropdownParent: $(card)
+                    }).on('select2:select', function(e) {
+                        const rowIdx = $(this).data('row');
+                        const tableRow = tableBody.querySelectorAll('tr')[rowIdx];
+                        if (tableRow) {
+                            const opt = e.params.data.element;
+                            $(tableRow).find('.product-select').val(e.params.data.id).trigger('change');
+                            tableRow.querySelector('.product-price').value = opt?.dataset?.harga || 0;
+                            tableRow.querySelector('.product-desc').value = opt?.dataset?.deskripsi || '';
+                            calculateRow(tableRow);
+                        }
+                    });
                 });
             }
 

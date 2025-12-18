@@ -33,7 +33,18 @@
                 <div class="card-body">
                     {{-- BAGIAN ATAS FORM --}}
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="jenis_biaya">Jenis Biaya *</label>
+                                <select class="form-control @error('jenis_biaya') is-invalid @enderror" id="jenis_biaya"
+                                    name="jenis_biaya" required>
+                                    <option value="keluar" {{ old('jenis_biaya', 'keluar') == 'keluar' ? 'selected' : '' }}>Biaya Keluar</option>
+                                    <option value="masuk" {{ old('jenis_biaya') == 'masuk' ? 'selected' : '' }}>Biaya Masuk</option>
+                                </select>
+                                @error('jenis_biaya') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label for="bayar_dari">Bayar Dari *</label>
                                 <select class="form-control @error('bayar_dari') is-invalid @enderror" id="bayar_dari"
@@ -46,7 +57,7 @@
                         </div>
 
                         {{-- APPROVER OTOMATIS DITENTUKAN SISTEM --}}
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <div class="alert alert-info mb-0">
                                 <i class="fas fa-info-circle"></i> Approver akan ditentukan otomatis berdasarkan gudang Anda
                             </div>
