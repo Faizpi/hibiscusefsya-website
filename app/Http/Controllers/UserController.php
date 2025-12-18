@@ -30,6 +30,12 @@ class UserController extends Controller
         // Tentukan role yang diperbolehkan berdasarkan user yang login
         $allowedRoles = array_keys(User::getAvailableRoles());
 
+        // Gudang wajib untuk role admin dan user
+        $gudangValidation = ['nullable', 'exists:gudangs,id'];
+        if (in_array($request->role, ['admin', 'user'])) {
+            $gudangValidation = ['required', 'exists:gudangs,id'];
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -37,7 +43,9 @@ class UserController extends Controller
             'role' => ['required', Rule::in($allowedRoles)],
             'alamat' => ['nullable', 'string'],
             'no_telp' => ['nullable', 'string', 'max:20'],
-            'gudang_id' => ['nullable', 'exists:gudangs,id'],
+            'gudang_id' => $gudangValidation,
+        ], [
+            'gudang_id.required' => 'Gudang wajib dipilih untuk role Admin dan User.',
         ]);
 
         User::create([
@@ -78,14 +86,22 @@ class UserController extends Controller
         // Jika bukan super_admin dan mencoba mengubah role super_admin, pertahankan role asli
         $roleValidation = ['required', Rule::in($allowedRoles)];
 
+        // Gudang wajib untuk role admin dan user
+        $gudangValidation = ['nullable', 'exists:gudangs,id'];
+        if (in_array($request->role, ['admin', 'user'])) {
+            $gudangValidation = ['required', 'exists:gudangs,id'];
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'role' => $roleValidation,
             'alamat' => ['nullable', 'string'],
             'no_telp' => ['nullable', 'string', 'max:20'],
-            'gudang_id' => ['nullable', 'exists:gudangs,id'],
+            'gudang_id' => $gudangValidation,
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ], [
+            'gudang_id.required' => 'Gudang wajib dipilih untuk role Admin dan User.',
         ]);
 
         $data = $request->only('name', 'email', 'alamat', 'no_telp', 'gudang_id');
