@@ -14,19 +14,19 @@ class CreateStokLogsTable extends Migration
             $table->unsignedBigInteger('produk_id');
             $table->unsignedBigInteger('gudang_id');
             $table->unsignedBigInteger('user_id'); // siapa yang edit
-            
+
             $table->string('produk_nama'); // snapshot nama produk
             $table->string('gudang_nama'); // snapshot nama gudang
             $table->string('user_nama');   // snapshot nama user
-            
+
             $table->integer('stok_sebelum');
             $table->integer('stok_sesudah');
             $table->integer('selisih'); // bisa + atau -
-            
+
             $table->string('keterangan')->nullable(); // alasan edit
-            
+
             $table->timestamps();
-            
+
             // Indexes
             $table->index('gudang_produk_id');
             $table->index('produk_id');

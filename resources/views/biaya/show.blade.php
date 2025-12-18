@@ -59,7 +59,7 @@
                         <table class="table table-borderless">
                             <tr>
                                 <td style="width: 30%;"><strong>Jenis Biaya</strong></td>
-                                <td>: 
+                                <td>:
                                     @if($biaya->jenis_biaya == 'masuk')
                                         <span class="badge badge-success">Biaya Masuk</span>
                                     @else

@@ -162,7 +162,8 @@
                 <td class="label">Tanggal</td>
                 <td class="colon">:</td>
                 <td class="value">{{ $pembelian->tgl_transaksi->format('d/m/Y') }} |
-                    {{ $pembelian->created_at->format('H:i') }}</td>
+                    {{ $pembelian->created_at->format('H:i') }}
+                </td>
             </tr>
             <tr>
                 <td class="label">Jatuh Tempo</td>

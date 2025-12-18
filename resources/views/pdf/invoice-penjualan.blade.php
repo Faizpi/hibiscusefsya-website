@@ -51,7 +51,8 @@
             margin-bottom: 15px;
         }
 
-        .info-left, .info-right {
+        .info-left,
+        .info-right {
             display: table-cell;
             width: 50%;
             vertical-align: top;
@@ -139,7 +140,8 @@
             font-weight: bold;
         }
 
-        .status-approved, .status-lunas {
+        .status-approved,
+        .status-lunas {
             background: #d4edda;
             color: #155724;
         }
@@ -208,19 +210,47 @@
     <div class="info-section">
         <div class="info-left">
             <table class="info-table">
-                <tr><td class="label">No. Invoice</td><td class="value">: {{ $nomorInvoice }}</td></tr>
-                <tr><td class="label">Tanggal Transaksi</td><td class="value">: {{ $penjualan->tgl_transaksi->format('d/m/Y') }}</td></tr>
-                <tr><td class="label">Jatuh Tempo</td><td class="value">: {{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td></tr>
-                <tr><td class="label">Syarat Pembayaran</td><td class="value">: {{ $penjualan->syarat_pembayaran ?? '-' }}</td></tr>
-                <tr><td class="label">Metode Pembayaran</td><td class="value">: {{ $penjualan->metode_pembayaran ?? '-' }}</td></tr>
+                <tr>
+                    <td class="label">No. Invoice</td>
+                    <td class="value">: {{ $nomorInvoice }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Tanggal Transaksi</td>
+                    <td class="value">: {{ $penjualan->tgl_transaksi->format('d/m/Y') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Jatuh Tempo</td>
+                    <td class="value">:
+                        {{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Syarat Pembayaran</td>
+                    <td class="value">: {{ $penjualan->syarat_pembayaran ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Metode Pembayaran</td>
+                    <td class="value">: {{ $penjualan->metode_pembayaran ?? '-' }}</td>
+                </tr>
             </table>
         </div>
         <div class="info-right">
             <table class="info-table">
-                <tr><td class="label">Pelanggan</td><td class="value">: {{ $penjualan->pelanggan ?? '-' }}</td></tr>
-                <tr><td class="label">Alamat</td><td class="value">: {{ $penjualan->alamat_pengiriman ?? '-' }}</td></tr>
-                <tr><td class="label">Sales</td><td class="value">: {{ $penjualan->user->name ?? '-' }}</td></tr>
-                <tr><td class="label">Gudang</td><td class="value">: {{ $penjualan->gudang->nama_gudang ?? '-' }}</td></tr>
+                <tr>
+                    <td class="label">Pelanggan</td>
+                    <td class="value">: {{ $penjualan->pelanggan ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Alamat</td>
+                    <td class="value">: {{ $penjualan->alamat_pengiriman ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Sales</td>
+                    <td class="value">: {{ $penjualan->user->name ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Gudang</td>
+                    <td class="value">: {{ $penjualan->gudang->nama_gudang ?? '-' }}</td>
+                </tr>
                 <tr>
                     <td class="label">Status</td>
                     <td class="value">:
@@ -247,14 +277,15 @@
         </thead>
         <tbody>
             @foreach($penjualan->items as $index => $item)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $item->produk->nama_produk ?? '-' }} <br><small style="color:#999">({{ $item->produk->item_code ?? '-' }})</small></td>
-                <td>{{ $item->kuantitas }} Pcs</td>
-                <td>Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
-                <td>Rp {{ number_format($item->diskon_per_item ?? 0, 0, ',', '.') }}</td>
-                <td>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
-            </tr>
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $item->produk->nama_produk ?? '-' }} <br><small
+                            style="color:#999">({{ $item->produk->item_code ?? '-' }})</small></td>
+                    <td>{{ $item->kuantitas }} Pcs</td>
+                    <td>Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->diskon_per_item ?? 0, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>
@@ -272,16 +303,16 @@
                 <td>Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
             </tr>
             @if($penjualan->diskon_akhir > 0)
-            <tr>
-                <td>Diskon Akhir</td>
-                <td>- Rp {{ number_format($penjualan->diskon_akhir, 0, ',', '.') }}</td>
-            </tr>
+                <tr>
+                    <td>Diskon Akhir</td>
+                    <td>- Rp {{ number_format($penjualan->diskon_akhir, 0, ',', '.') }}</td>
+                </tr>
             @endif
             @if($penjualan->tax_percentage > 0)
-            <tr>
-                <td>Pajak ({{ $penjualan->tax_percentage }}%)</td>
-                <td>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
-            </tr>
+                <tr>
+                    <td>Pajak ({{ $penjualan->tax_percentage }}%)</td>
+                    <td>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+                </tr>
             @endif
             <tr>
                 <td class="grand-total">GRAND TOTAL</td>
@@ -291,16 +322,16 @@
     </div>
 
     @if($penjualan->memo)
-    <div class="memo-section">
-        <div class="memo-title">Catatan:</div>
-        <div class="memo-content">{{ $penjualan->memo }}</div>
-    </div>
+        <div class="memo-section">
+            <div class="memo-title">Catatan:</div>
+            <div class="memo-content">{{ $penjualan->memo }}</div>
+        </div>
     @endif
 
     @if($penjualan->approver)
-    <div style="margin-top: 20px; font-size: 9pt;">
-        <strong>Disetujui oleh:</strong> {{ $penjualan->approver->name }}
-    </div>
+        <div style="margin-top: 20px; font-size: 9pt;">
+            <strong>Disetujui oleh:</strong> {{ $penjualan->approver->name }}
+        </div>
     @endif
 
     <!-- FOOTER -->
@@ -309,4 +340,5 @@
         <p>marketing@hibiscusefsya.com</p>
     </div>
 </body>
+
 </html>

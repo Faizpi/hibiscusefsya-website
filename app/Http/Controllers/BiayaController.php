@@ -236,10 +236,10 @@ class BiayaController extends Controller
         $biaya->status = 'Approved';
         $biaya->approver_id = $user->id;
         $biaya->save();
-        
+
         // Kirim email invoice setelah approve (async-safe, tidak throw error)
         InvoiceEmailService::sendBiayaInvoice($biaya);
-        
+
         return back()->with('success', 'Data biaya berhasil disetujui.');
     }
 

@@ -22,14 +22,18 @@
         .header {
             text-align: center;
             margin-bottom: 20px;
-            border-bottom: 2px solid {{ $biaya->jenis_biaya == 'masuk' ? '#28a745' : '#dc3545' }};
+            border-bottom: 2px solid
+                {{ $biaya->jenis_biaya == 'masuk' ? '#28a745' : '#dc3545' }}
+            ;
             padding-bottom: 15px;
         }
 
         .logo {
             font-size: 18pt;
             font-weight: bold;
-            color: {{ $biaya->jenis_biaya == 'masuk' ? '#28a745' : '#dc3545' }};
+            color:
+                {{ $biaya->jenis_biaya == 'masuk' ? '#28a745' : '#dc3545' }}
+            ;
             letter-spacing: 2px;
         }
 
@@ -70,7 +74,8 @@
             margin-bottom: 15px;
         }
 
-        .info-left, .info-right {
+        .info-left,
+        .info-right {
             display: table-cell;
             width: 50%;
             vertical-align: top;
@@ -101,7 +106,9 @@
         }
 
         .items-table th {
-            background: {{ $biaya->jenis_biaya == 'masuk' ? '#28a745' : '#dc3545' }};
+            background:
+                {{ $biaya->jenis_biaya == 'masuk' ? '#28a745' : '#dc3545' }}
+            ;
             color: white;
             padding: 8px 5px;
             text-align: left;
@@ -145,9 +152,13 @@
         .total-table .grand-total {
             font-weight: bold;
             font-size: 12pt;
-            border-top: 2px solid {{ $biaya->jenis_biaya == 'masuk' ? '#28a745' : '#dc3545' }};
+            border-top: 2px solid
+                {{ $biaya->jenis_biaya == 'masuk' ? '#28a745' : '#dc3545' }}
+            ;
             padding-top: 8px;
-            color: {{ $biaya->jenis_biaya == 'masuk' ? '#28a745' : '#dc3545' }};
+            color:
+                {{ $biaya->jenis_biaya == 'masuk' ? '#28a745' : '#dc3545' }}
+            ;
         }
 
         .status-badge {
@@ -230,16 +241,34 @@
     <div class="info-section">
         <div class="info-left">
             <table class="info-table">
-                <tr><td class="label">No. Transaksi</td><td class="value">: {{ $nomorInvoice }}</td></tr>
-                <tr><td class="label">Tanggal Transaksi</td><td class="value">: {{ $biaya->tgl_transaksi->format('d/m/Y') }}</td></tr>
-                <tr><td class="label">Cara Pembayaran</td><td class="value">: {{ $biaya->cara_pembayaran ?? '-' }}</td></tr>
-                <tr><td class="label">Bayar Dari</td><td class="value">: {{ $biaya->bayar_dari ?? '-' }}</td></tr>
+                <tr>
+                    <td class="label">No. Transaksi</td>
+                    <td class="value">: {{ $nomorInvoice }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Tanggal Transaksi</td>
+                    <td class="value">: {{ $biaya->tgl_transaksi->format('d/m/Y') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Cara Pembayaran</td>
+                    <td class="value">: {{ $biaya->cara_pembayaran ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Bayar Dari</td>
+                    <td class="value">: {{ $biaya->bayar_dari ?? '-' }}</td>
+                </tr>
             </table>
         </div>
         <div class="info-right">
             <table class="info-table">
-                <tr><td class="label">Penerima</td><td class="value">: {{ $biaya->penerima ?? '-' }}</td></tr>
-                <tr><td class="label">Pembuat</td><td class="value">: {{ $biaya->user->name ?? '-' }}</td></tr>
+                <tr>
+                    <td class="label">Penerima</td>
+                    <td class="value">: {{ $biaya->penerima ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Pembuat</td>
+                    <td class="value">: {{ $biaya->user->name ?? '-' }}</td>
+                </tr>
                 <tr>
                     <td class="label">Status</td>
                     <td class="value">:
@@ -264,12 +293,12 @@
         </thead>
         <tbody>
             @foreach($biaya->items as $index => $item)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $item->kategori ?? '-' }}</td>
-                <td>{{ $item->deskripsi ?? '-' }}</td>
-                <td>Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
-            </tr>
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $item->kategori ?? '-' }}</td>
+                    <td>{{ $item->deskripsi ?? '-' }}</td>
+                    <td>Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>
@@ -287,10 +316,10 @@
                 <td>Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
             </tr>
             @if($biaya->tax_percentage > 0)
-            <tr>
-                <td>Pajak ({{ $biaya->tax_percentage }}%)</td>
-                <td>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
-            </tr>
+                <tr>
+                    <td>Pajak ({{ $biaya->tax_percentage }}%)</td>
+                    <td>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+                </tr>
             @endif
             <tr>
                 <td class="grand-total">GRAND TOTAL</td>
@@ -300,16 +329,16 @@
     </div>
 
     @if($biaya->memo)
-    <div class="memo-section">
-        <div class="memo-title">Catatan:</div>
-        <div class="memo-content">{{ $biaya->memo }}</div>
-    </div>
+        <div class="memo-section">
+            <div class="memo-title">Catatan:</div>
+            <div class="memo-content">{{ $biaya->memo }}</div>
+        </div>
     @endif
 
     @if($biaya->approver)
-    <div style="margin-top: 20px; font-size: 9pt;">
-        <strong>Disetujui oleh:</strong> {{ $biaya->approver->name }}
-    </div>
+        <div style="margin-top: 20px; font-size: 9pt;">
+            <strong>Disetujui oleh:</strong> {{ $biaya->approver->name }}
+        </div>
     @endif
 
     <!-- FOOTER -->
@@ -318,4 +347,5 @@
         <p>marketing@hibiscusefsya.com</p>
     </div>
 </body>
+
 </html>

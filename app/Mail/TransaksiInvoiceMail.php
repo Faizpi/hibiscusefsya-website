@@ -38,10 +38,10 @@ class TransaksiInvoiceMail extends Mailable
             'pembelian' => 'Pembelian',
             'biaya' => 'Biaya'
         ];
-        
+
         $label = $typeLabels[$this->type] ?? 'Transaksi';
         $nomor = $this->transaksi->nomor ?? $this->transaksi->custom_number ?? $this->transaksi->id;
-        
+
         return $this->subject("Invoice {$label} #{$nomor} - Hibiscus Efsya")
             ->view('emails.transaksi-invoice')
             ->attachData($this->pdfContent, "invoice-{$this->type}-{$nomor}.pdf", [

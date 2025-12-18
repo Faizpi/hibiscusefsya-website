@@ -22,8 +22,10 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Biaya Masuk (Approved)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($totalBiayaMasuk ?? 0, 0, ',', '.') }}</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Biaya Masuk (Approved)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($totalBiayaMasuk ?? 0, 0, ',', '.') }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-arrow-down fa-2x text-gray-300"></i></div>
                     </div>
@@ -37,8 +39,10 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Biaya Keluar (Approved)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($totalBiayaKeluar ?? 0, 0, ',', '.') }}</div>
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Biaya Keluar (Approved)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($totalBiayaKeluar ?? 0, 0, ',', '.') }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-arrow-up fa-2x text-gray-300"></i></div>
                     </div>
@@ -53,7 +57,8 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Bulan Ini</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($totalBulanIni, 0, ',', '.') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($totalBulanIni, 0, ',', '.') }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-calendar-alt fa-2x text-gray-300"></i></div>
                     </div>
@@ -68,7 +73,8 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Approval</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($totalBelumDibayar, 0, ',', '.') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                                {{ number_format($totalBelumDibayar, 0, ',', '.') }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
                     </div>

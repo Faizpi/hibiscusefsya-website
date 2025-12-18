@@ -124,6 +124,20 @@ class DashboardController extends Controller
                     'card_4_icon' => 'fa-exclamation',
                     'totalProduk' => 0,
                     'totalTransaksi' => 0,
+                    'penjualanBulanIni' => 0,
+                    'pembelianBulanIni' => 0,
+                    'biayaBulanIni' => 0,
+                    'biayaMasukBulanIni' => 0,
+                    'biayaKeluarBulanIni' => 0,
+                    'penjualanCountBulanIni' => 0,
+                    'pembelianCountBulanIni' => 0,
+                    'biayaCountBulanIni' => 0,
+                    'penjualanTotal' => 0,
+                    'pembelianTotal' => 0,
+                    'biayaTotal' => 0,
+                    'pembelianNominalBulanIni' => 0,
+                    'availableGudangs' => collect(),
+                    'selectedGudangId' => null,
                 ]);
             }
         } else {

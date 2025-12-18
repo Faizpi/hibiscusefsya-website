@@ -64,259 +64,269 @@
                                         <label for="syarat_pembayaran">Syarat Pembayaran *</label>
                                         <select class="form-control @error('syarat_pembayaran') is-invalid @enderror"
                                             id="syarat_pembayaran" name="syarat_pembayaran" required>
-                                            <option value="Cash" {{ old('syarat_pembayaran') == 'Cash' ? 'selected' : '' }}>Cash</option>
-                                            <option value="Net 7" {{ old('syarat_pembayaran') == 'Net 7' ? 'selected' : '' }}>Net 7 Days</option>
+                                            <option value="Cash" {{ old('syarat_pembayaran') == 'Cash' ? 'selected' : '' }}>
+                                                Cash</option>
+                                            <option value="Net 7" {{ old('syarat_pembayaran') == 'Net 7' ? 'selected' : '' }}>
+                                                Net 7 Days</option>
                                             <option value="Net 14" {{ old('syarat_pembayaran') == 'Net 14' ? 'selected' : '' }}>Net 14 Days</option>
                                             <option value="Net 30" {{ old('syarat_pembayaran') == 'Net 30' ? 'selected' : '' }}>Net 30 Days</option>
                                             <option value="Net 60" {{ old('syarat_pembayaran') == 'Net 60' ? 'selected' : '' }}>Net 60 Days</option>
                                         </select>
-                                        @error('syarat_pembayaran') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        @error('syarat_pembayaran') <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="tgl_jatuh_tempo_display">Jatuh Tempo (Auto)</label>
-                                        <input type="text" class="form-control bg-light" id="tgl_jatuh_tempo_display" readonly>
+                                        <input type="text" class="form-control bg-light" id="tgl_jatuh_tempo_display"
+                                            readonly>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="urgensi">Urgensi *</label>
-                            <select class="form-control @error('urgensi') is-invalid @enderror" id="urgensi" name="urgensi"
-                                required>
-                                <option value="Rendah" {{ old('urgensi') == 'Rendah' ? 'selected' : '' }}>Rendah</option>
-                                <option value="Sedang" {{ old('urgensi', 'Sedang') == 'Sedang' ? 'selected' : '' }}>Sedang
-                                </option>
-                                <option value="Tinggi" {{ old('urgensi') == 'Tinggi' ? 'selected' : '' }}>Tinggi</option>
-                            </select>
-                            @error('urgensi') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-
-                        {{-- LOGIKA GUDANG --}}
-                        <div class="form-group">
-                            <label for="gudang_id">Gudang *</label>
-                            @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
-                                {{-- Admin Memilih Gudang --}}
-                                <select class="form-control @error('gudang_id') is-invalid @enderror" id="gudang_id"
-                                    name="gudang_id" required>
-                                    <option value="">Pilih Gudang...</option>
-                                    @foreach($gudangs as $g)
-                                        <option value="{{ $g->id }}" {{ old('gudang_id') == $g->id ? 'selected' : '' }}>
-                                            {{ $g->nama_gudang }}</option>
-                                    @endforeach
+                            <div class="form-group">
+                                <label for="urgensi">Urgensi *</label>
+                                <select class="form-control @error('urgensi') is-invalid @enderror" id="urgensi"
+                                    name="urgensi" required>
+                                    <option value="Rendah" {{ old('urgensi') == 'Rendah' ? 'selected' : '' }}>Rendah</option>
+                                    <option value="Sedang" {{ old('urgensi', 'Sedang') == 'Sedang' ? 'selected' : '' }}>Sedang
+                                    </option>
+                                    <option value="Tinggi" {{ old('urgensi') == 'Tinggi' ? 'selected' : '' }}>Tinggi</option>
                                 </select>
-                                @error('gudang_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            @else
-                                {{-- User Biasa (Readonly) --}}
-                                <input type="text" class="form-control" value="{{ auth()->user()->gudang->nama_gudang ?? '-' }}"
-                                    readonly>
-                                <input type="hidden" id="gudang_id" name="gudang_id" value="{{ auth()->user()->gudang_id }}">
-                                @error('gudang_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                            @endif
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tahun_anggaran">Tahun Anggaran</label>
-                            <input type="text" class="form-control @error('tahun_anggaran') is-invalid @enderror"
-                                id="tahun_anggaran" name="tahun_anggaran" value="{{ old('tahun_anggaran') }}">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tag">Tag (Pembuat)</label>
-                            <input type="text" class="form-control" id="tag" name="tag" value="{{ auth()->user()->name }}"
-                                readonly>
-                        </div>
-
-                        {{-- KOORDINAT LOKASI (AUTO) --}}
-                        <div class="form-group">
-                            <label for="koordinat">Koordinat Lokasi</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="koordinat" name="koordinat"
-                                    value="{{ old('koordinat') }}" placeholder="-6.123456, 106.123456" readonly>
-                                <div class="input-group-append">
-                                    <button type="button" class="btn btn-outline-primary" id="btn-get-location"
-                                        title="Refresh Lokasi">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                    </button>
-                                    <a href="#" class="btn btn-outline-success" id="btn-open-maps" target="_blank"
-                                        title="Buka di Google Maps">
-                                        <i class="fas fa-external-link-alt"></i>
-                                    </a>
-                                </div>
+                                @error('urgensi') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                            <small class="text-muted">Otomatis terisi saat halaman dimuat</small>
+
+                            {{-- LOGIKA GUDANG --}}
+                            <div class="form-group">
+                                <label for="gudang_id">Gudang *</label>
+                                @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
+                                    {{-- Admin Memilih Gudang --}}
+                                    <select class="form-control @error('gudang_id') is-invalid @enderror" id="gudang_id"
+                                        name="gudang_id" required>
+                                        <option value="">Pilih Gudang...</option>
+                                        @foreach($gudangs as $g)
+                                            <option value="{{ $g->id }}" {{ old('gudang_id') == $g->id ? 'selected' : '' }}>
+                                                {{ $g->nama_gudang }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('gudang_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @else
+                                    {{-- User Biasa (Readonly) --}}
+                                    <input type="text" class="form-control"
+                                        value="{{ auth()->user()->gudang->nama_gudang ?? '-' }}" readonly>
+                                    <input type="hidden" id="gudang_id" name="gudang_id"
+                                        value="{{ auth()->user()->gudang_id }}">
+                                    @error('gudang_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                @endif
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tahun_anggaran">Tahun Anggaran</label>
+                                <input type="text" class="form-control @error('tahun_anggaran') is-invalid @enderror"
+                                    id="tahun_anggaran" name="tahun_anggaran" value="{{ old('tahun_anggaran') }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tag">Tag (Pembuat)</label>
+                                <input type="text" class="form-control" id="tag" name="tag"
+                                    value="{{ auth()->user()->name }}" readonly>
+                            </div>
+
+                            {{-- KOORDINAT LOKASI (AUTO) --}}
+                            <div class="form-group">
+                                <label for="koordinat">Koordinat Lokasi</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="koordinat" name="koordinat"
+                                        value="{{ old('koordinat') }}" placeholder="-6.123456, 106.123456" readonly>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-primary" id="btn-get-location"
+                                            title="Refresh Lokasi">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </button>
+                                        <a href="#" class="btn btn-outline-success" id="btn-open-maps" target="_blank"
+                                            title="Buka di Google Maps">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Otomatis terisi saat halaman dimuat</small>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {{-- TABEL PRODUK (DESKTOP) --}}
-                <div class="table-responsive mt-3 desktop-product-table">
-                    <table class="table table-bordered">
-                        <thead class="thead-light">
-                            <tr>
-                                <th width="25%">Produk</th>
-                                <th>Deskripsi</th>
-                                <th width="10%">Qty</th>
-                                <th width="10%">Unit</th>
-                                <th width="15%">Harga</th>
-                                <th width="10%">Disc%</th>
-                                <th width="15%" class="text-right">Total</th>
-                                <th width="5%"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="product-table-body">
-                            {{-- REPOPULATE OLD DATA --}}
-                            @if(old('produk_id'))
-                                @foreach(old('produk_id') as $index => $oldPid)
+                    {{-- TABEL PRODUK (DESKTOP) --}}
+                    <div class="table-responsive mt-3 desktop-product-table">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th width="25%">Produk</th>
+                                    <th>Deskripsi</th>
+                                    <th width="10%">Qty</th>
+                                    <th width="10%">Unit</th>
+                                    <th width="15%">Harga</th>
+                                    <th width="10%">Disc%</th>
+                                    <th width="15%" class="text-right">Total</th>
+                                    <th width="5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-table-body">
+                                {{-- REPOPULATE OLD DATA --}}
+                                @if(old('produk_id'))
+                                    @foreach(old('produk_id') as $index => $oldPid)
+                                        <tr>
+                                            <td>
+                                                <select class="form-control product-select" name="produk_id[]" required>
+                                                    <option value="">Pilih...</option>
+                                                    @foreach($produks as $p)
+                                                        <option value="{{ $p->id }}" data-harga="{{ $p->harga }}"
+                                                            data-deskripsi="{{ $p->deskripsi }}" {{ $oldPid == $p->id ? 'selected' : '' }}>
+                                                            {{ $p->nama_produk }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td><input type="text" class="form-control product-desc" name="deskripsi[]"
+                                                    value="{{ old('deskripsi.' . $index) }}"></td>
+                                            <td><input type="number" class="form-control product-qty" name="kuantitas[]"
+                                                    value="{{ old('kuantitas.' . $index) }}" min="1" required></td>
+                                            <td>
+                                                <select class="form-control" name="unit[]">
+                                                    <option value="Pcs" {{ old('unit.' . $index) == 'Pcs' ? 'selected' : '' }}>Pcs
+                                                    </option>
+                                                    <option value="Box" {{ old('unit.' . $index) == 'Box' ? 'selected' : '' }}>Box
+                                                    </option>
+                                                    <option value="Karton" {{ old('unit.' . $index) == 'Karton' ? 'selected' : '' }}>
+                                                        Karton
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td><input type="number" class="form-control text-right product-price"
+                                                    name="harga_satuan[]" value="{{ old('harga_satuan.' . $index) }}" required></td>
+                                            <td><input type="number" class="form-control text-right product-disc" name="diskon[]"
+                                                    value="{{ old('diskon.' . $index) }}" min="0"></td>
+                                            <td><input type="text" class="form-control text-right product-total" readonly></td>
+                                            <td><button type="button" class="btn btn-danger btn-sm remove-btn">X</button></td>
+                                        </tr>
+                                    @endforeach
+                                @else
+                                    {{-- BARIS DEFAULT --}}
                                     <tr>
                                         <td>
                                             <select class="form-control product-select" name="produk_id[]" required>
                                                 <option value="">Pilih...</option>
                                                 @foreach($produks as $p)
                                                     <option value="{{ $p->id }}" data-harga="{{ $p->harga }}"
-                                                        data-deskripsi="{{ $p->deskripsi }}" {{ $oldPid == $p->id ? 'selected' : '' }}>
-                                                        {{ $p->nama_produk }}
-                                                    </option>
+                                                        data-deskripsi="{{ $p->deskripsi }}">{{ $p->nama_produk }}</option>
                                                 @endforeach
                                             </select>
                                         </td>
-                                        <td><input type="text" class="form-control product-desc" name="deskripsi[]"
-                                                value="{{ old('deskripsi.' . $index) }}"></td>
-                                        <td><input type="number" class="form-control product-qty" name="kuantitas[]"
-                                                value="{{ old('kuantitas.' . $index) }}" min="1" required></td>
+                                        <td><input type="text" class="form-control product-desc" name="deskripsi[]"></td>
+                                        <td><input type="number" class="form-control product-qty" name="kuantitas[]" value="1"
+                                                min="1" required></td>
                                         <td>
                                             <select class="form-control" name="unit[]">
-                                                <option value="Pcs" {{ old('unit.' . $index) == 'Pcs' ? 'selected' : '' }}>Pcs</option>
-                                                <option value="Box" {{ old('unit.' . $index) == 'Box' ? 'selected' : '' }}>Box</option>
-                                                <option value="Karton" {{ old('unit.' . $index) == 'Karton' ? 'selected' : '' }}>Karton
-                                                </option>
+                                                <option value="Pcs">Pcs</option>
+                                                <option value="Box">Box</option>
+                                                <option value="Karton">Karton</option>
                                             </select>
                                         </td>
-                                        <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]"
-                                                value="{{ old('harga_satuan.' . $index) }}" required></td>
+                                        <td><input type="number" class="form-control text-right product-price"
+                                                name="harga_satuan[]" value="0" required></td>
                                         <td><input type="number" class="form-control text-right product-disc" name="diskon[]"
-                                                value="{{ old('diskon.' . $index) }}" min="0"></td>
+                                                value="0" min="0"></td>
                                         <td><input type="text" class="form-control text-right product-total" readonly></td>
-                                        <td><button type="button" class="btn btn-danger btn-sm remove-btn">X</button></td>
+                                        <td></td>
                                     </tr>
-                                @endforeach
-                            @else
-                                {{-- BARIS DEFAULT --}}
-                                <tr>
-                                    <td>
-                                        <select class="form-control product-select" name="produk_id[]" required>
-                                            <option value="">Pilih...</option>
-                                            @foreach($produks as $p)
-                                                <option value="{{ $p->id }}" data-harga="{{ $p->harga }}"
-                                                    data-deskripsi="{{ $p->deskripsi }}">{{ $p->nama_produk }}</option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td><input type="text" class="form-control product-desc" name="deskripsi[]"></td>
-                                    <td><input type="number" class="form-control product-qty" name="kuantitas[]" value="1"
-                                            min="1" required></td>
-                                    <td>
-                                        <select class="form-control" name="unit[]">
-                                            <option value="Pcs">Pcs</option>
-                                            <option value="Box">Box</option>
-                                            <option value="Karton">Karton</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]"
-                                            value="0" required></td>
-                                    <td><input type="number" class="form-control text-right product-disc" name="diskon[]"
-                                            value="0" min="0"></td>
-                                    <td><input type="text" class="form-control text-right product-total" readonly></td>
-                                    <td></td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- MOBILE CARDS --}}
-                <div class="mobile-product-cards mt-3" id="mobile-product-cards">
-                    {{-- Cards akan di-generate via JavaScript --}}
-                </div>
-
-                <button type="button" class="btn btn-link pl-0" id="add-row-btn">+ Tambah Baris</button>
-                @error('produk_id.*') <div class="text-danger small mt-2">Error: Produk wajib dipilih</div> @enderror
-                @error('kuantitas.*') <div class="text-danger small mt-2">Error: Kuantitas wajib diisi</div> @enderror
-
-                {{-- TOTAL & PAJAK --}}
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="memo">Memo</label>
-                            <textarea class="form-control @error('memo') is-invalid @enderror" id="memo" name="memo"
-                                rows="3">{{ old('memo') }}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="lampiran">Lampiran</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror"
-                                    id="lampiran" name="lampiran">
-                                <label class="custom-file-label" for="lampiran">Pilih file...</label>
-                            </div>
-                            @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-borderless text-right">
-                            <tbody>
-                                <tr>
-                                    <td><strong>Subtotal</strong></td>
-                                    <td id="subtotal-display">Rp0</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label for="diskon_akhir_input" class="mb-0"><strong>Diskon Akhir
-                                                (Rp)</strong></label>
-                                    </td>
-                                    <td>
-                                        {{-- ID: diskon_akhir_input --}}
-                                        <input type="number" class="form-control text-right" id="diskon_akhir_input"
-                                            name="diskon_akhir" value="{{ old('diskon_akhir', 0) }}" min="0">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label for="tax_percentage_input" class="mb-0"><strong>Pajak (%)</strong></label>
-                                    </td>
-                                    <td style="width: 40%;">
-                                        {{-- ID: tax_percentage_input --}}
-                                        <input type="number" class="form-control text-right" id="tax_percentage_input"
-                                            name="tax_percentage" value="{{ old('tax_percentage', 0) }}" min="0"
-                                            step="0.01">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Jumlah Pajak</td>
-                                    <td id="tax-amount-display">Rp0</td>
-                                </tr>
-                                <tr class="border-top">
-                                    <td class="h5"><strong>Grand Total</strong></td>
-                                    {{-- ID: grand-total-bottom --}}
-                                    <td class="h5" id="grand-total-bottom">Rp0</td>
-                                </tr>
+                                @endif
                             </tbody>
                         </table>
                     </div>
+
+                    {{-- MOBILE CARDS --}}
+                    <div class="mobile-product-cards mt-3" id="mobile-product-cards">
+                        {{-- Cards akan di-generate via JavaScript --}}
+                    </div>
+
+                    <button type="button" class="btn btn-link pl-0" id="add-row-btn">+ Tambah Baris</button>
+                    @error('produk_id.*') <div class="text-danger small mt-2">Error: Produk wajib dipilih</div> @enderror
+                    @error('kuantitas.*') <div class="text-danger small mt-2">Error: Kuantitas wajib diisi</div> @enderror
+
+                    {{-- TOTAL & PAJAK --}}
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="memo">Memo</label>
+                                <textarea class="form-control @error('memo') is-invalid @enderror" id="memo" name="memo"
+                                    rows="3">{{ old('memo') }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="lampiran">Lampiran</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror"
+                                        id="lampiran" name="lampiran">
+                                    <label class="custom-file-label" for="lampiran">Pilih file...</label>
+                                </div>
+                                @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless text-right">
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Subtotal</strong></td>
+                                        <td id="subtotal-display">Rp0</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label for="diskon_akhir_input" class="mb-0"><strong>Diskon Akhir
+                                                    (Rp)</strong></label>
+                                        </td>
+                                        <td>
+                                            {{-- ID: diskon_akhir_input --}}
+                                            <input type="number" class="form-control text-right" id="diskon_akhir_input"
+                                                name="diskon_akhir" value="{{ old('diskon_akhir', 0) }}" min="0">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label for="tax_percentage_input" class="mb-0"><strong>Pajak
+                                                    (%)</strong></label>
+                                        </td>
+                                        <td style="width: 40%;">
+                                            {{-- ID: tax_percentage_input --}}
+                                            <input type="number" class="form-control text-right" id="tax_percentage_input"
+                                                name="tax_percentage" value="{{ old('tax_percentage', 0) }}" min="0"
+                                                step="0.01">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Jumlah Pajak</td>
+                                        <td id="tax-amount-display">Rp0</td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td class="h5"><strong>Grand Total</strong></td>
+                                        {{-- ID: grand-total-bottom --}}
+                                        <td class="h5" id="grand-total-bottom">Rp0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-    </div>
-    <div class="mt-3 text-right">
-        {{-- Tombol Simpan --}}
-        @if($userHasGudang || in_array(auth()->user()->role, ['admin', 'super_admin']))
-            <button type="submit" class="btn btn-primary">Simpan Pembelian</button>
-        @else
-            <button type="button" class="btn btn-secondary" disabled>Simpan (Non-Aktif)</button>
-        @endif
-    </div>
-    </form>
+            <div class="mt-3 text-right">
+                {{-- Tombol Simpan --}}
+                @if($userHasGudang || in_array(auth()->user()->role, ['admin', 'super_admin']))
+                    <button type="submit" class="btn btn-primary">Simpan Pembelian</button>
+                @else
+                    <button type="button" class="btn btn-secondary" disabled>Simpan (Non-Aktif)</button>
+                @endif
+            </div>
+        </form>
     </div>
 @endsection
 
@@ -355,12 +365,12 @@
                 const gudangProduks = null;
             @endif
 
-        // Semua produk dengan data lengkap
-        const allProduks = [
+            // Semua produk dengan data lengkap
+            const allProduks = [
                 @foreach($produks as $p)
                     { id: {{ $p->id }}, nama: "{{ addslashes($p->nama_produk) }}", harga: {{ $p->harga }}, deskripsi: "{{ addslashes($p->deskripsi ?? '') }}" },
                 @endforeach
-        ];
+            ];
 
             // Function untuk generate options HTML berdasarkan gudang
             function getProductOptionsHtml(gudangId = null) {
@@ -484,56 +494,56 @@
                     card.className = 'product-card-mobile';
                     card.dataset.rowIndex = index;
                     card.innerHTML = `
-                    <div class="card-header-mobile">
-                        <select class="form-control product-select-mobile" data-row="${index}">
-                            <option value="">Pilih...</option>
-                            ${productOptionsHtml}
-                        </select>
-                        ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
-                    </div>
-                    <div class="card-body-mobile">
-                        <div class="field-group full-width">
-                            <span class="field-label">Deskripsi</span>
-                            <input type="text" class="form-control product-desc-mobile" data-row="${index}" value="${desc}" placeholder="Deskripsi">
-                        </div>
-                        <div class="field-group">
-                            <span class="field-label">Qty</span>
-                            <input type="number" class="form-control product-qty-mobile" data-row="${index}" value="${qty}" min="1">
-                        </div>
-                        <div class="field-group">
-                            <span class="field-label">Unit</span>
-                            <select class="form-control product-unit-mobile" data-row="${index}">
-                                <option value="Pcs" ${unit === 'Pcs' ? 'selected' : ''}>Pcs</option>
-                                <option value="Box" ${unit === 'Box' ? 'selected' : ''}>Box</option>
-                                <option value="Karton" ${unit === 'Karton' ? 'selected' : ''}>Karton</option>
+                        <div class="card-header-mobile">
+                            <select class="form-control product-select-mobile" data-row="${index}">
+                                <option value="">Pilih...</option>
+                                ${productOptionsHtml}
                             </select>
+                            ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
                         </div>
-                        <div class="field-group">
-                            <span class="field-label">Harga</span>
-                            <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
+                        <div class="card-body-mobile">
+                            <div class="field-group full-width">
+                                <span class="field-label">Deskripsi</span>
+                                <input type="text" class="form-control product-desc-mobile" data-row="${index}" value="${desc}" placeholder="Deskripsi">
+                            </div>
+                            <div class="field-group">
+                                <span class="field-label">Qty</span>
+                                <input type="number" class="form-control product-qty-mobile" data-row="${index}" value="${qty}" min="1">
+                            </div>
+                            <div class="field-group">
+                                <span class="field-label">Unit</span>
+                                <select class="form-control product-unit-mobile" data-row="${index}">
+                                    <option value="Pcs" ${unit === 'Pcs' ? 'selected' : ''}>Pcs</option>
+                                    <option value="Box" ${unit === 'Box' ? 'selected' : ''}>Box</option>
+                                    <option value="Karton" ${unit === 'Karton' ? 'selected' : ''}>Karton</option>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <span class="field-label">Harga</span>
+                                <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
+                            </div>
+                            <div class="field-group">
+                                <span class="field-label">Disc%</span>
+                                <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
+                            </div>
                         </div>
-                        <div class="field-group">
-                            <span class="field-label">Disc%</span>
-                            <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
+                        <div class="total-row">
+                            <span class="total-label">Total</span>
+                            <span class="total-value">${formatRupiah(total)}</span>
                         </div>
-                    </div>
-                    <div class="total-row">
-                        <span class="total-label">Total</span>
-                        <span class="total-value">${formatRupiah(total)}</span>
-                    </div>
-                `;
+                    `;
                     mobileCardsContainer.appendChild(card);
 
                     const mobileSelect = card.querySelector('.product-select-mobile');
                     mobileSelect.value = select.value;
-                    
+
                     // Init Select2 untuk mobile product select
                     $(mobileSelect).select2({
                         placeholder: 'Cari produk...',
                         allowClear: true,
                         width: '100%',
                         dropdownParent: $(card)
-                    }).on('select2:select', function(e) {
+                    }).on('select2:select', function (e) {
                         const rowIdx = $(this).data('row');
                         const tableRow = tableBody.querySelectorAll('tr')[rowIdx];
                         if (tableRow) {
@@ -619,30 +629,30 @@
 
             // Tambah Baris
             const productDropdownHtml = `
-            <select class="form-control product-select" name="produk_id[]" required>
-                <option value="">Pilih...</option>
-                @foreach($produks as $p) <option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}">{{ $p->nama_produk }}</option> @endforeach
-            </select>
-        `;
+                <select class="form-control product-select" name="produk_id[]" required>
+                    <option value="">Pilih...</option>
+                    @foreach($produks as $p) <option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}">{{ $p->nama_produk }}</option> @endforeach
+                </select>
+            `;
 
             addRowBtn.addEventListener('click', function () {
                 const newRow = tableBody.insertRow();
                 newRow.innerHTML = `
-                <td>${productDropdownHtml}</td>
-                <td><input type="text" class="form-control product-desc" name="deskripsi[]"></td>
-                <td><input type="number" class="form-control product-qty" name="kuantitas[]" value="1" min="1" required></td>
-                <td>
-                    <select class="form-control" name="unit[]">
-                        <option value="Pcs">Pcs</option>
-                        <option value="Box">Box</option>
-                        <option value="Karton">Karton</option>
-                    </select>
-                </td>
-                <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]" value="0" required></td>
-                <td><input type="number" class="form-control text-right product-disc" name="diskon[]" value="0" min="0"></td>
-                <td><input type="text" class="form-control text-right product-total" readonly></td>
-                <td><button type="button" class="btn btn-danger btn-sm remove-btn">X</button></td>
-            `;
+                    <td>${productDropdownHtml}</td>
+                    <td><input type="text" class="form-control product-desc" name="deskripsi[]"></td>
+                    <td><input type="number" class="form-control product-qty" name="kuantitas[]" value="1" min="1" required></td>
+                    <td>
+                        <select class="form-control" name="unit[]">
+                            <option value="Pcs">Pcs</option>
+                            <option value="Box">Box</option>
+                            <option value="Karton">Karton</option>
+                        </select>
+                    </td>
+                    <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]" value="0" required></td>
+                    <td><input type="number" class="form-control text-right product-disc" name="diskon[]" value="0" min="0"></td>
+                    <td><input type="text" class="form-control text-right product-total" readonly></td>
+                    <td><button type="button" class="btn btn-danger btn-sm remove-btn">X</button></td>
+                `;
                 // Init Select2 untuk dropdown baru
                 initSelect2(newRow.querySelector('.product-select'));
                 syncMobileCards();

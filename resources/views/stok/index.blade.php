@@ -54,7 +54,8 @@
                                 <div class="form-group">
                                     <label for="keterangan">Keterangan Perubahan</label>
                                     <textarea name="keterangan" id="keterangan" rows="2"
-                                        class="form-control @error('keterangan') is-invalid @enderror" placeholder="Alasan perubahan stok...">{{ old('keterangan') }}</textarea>
+                                        class="form-control @error('keterangan') is-invalid @enderror"
+                                        placeholder="Alasan perubahan stok...">{{ old('keterangan') }}</textarea>
                                     @error('keterangan') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                                 <button type="submit" class="btn btn-primary">Simpan Stok</button>

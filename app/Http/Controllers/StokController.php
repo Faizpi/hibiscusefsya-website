@@ -58,7 +58,7 @@ class StokController extends Controller
         $existing = GudangProduk::where('gudang_id', $request->gudang_id)
             ->where('produk_id', $request->produk_id)
             ->first();
-        
+
         $stokSebelum = $existing ? $existing->stok : 0;
         $stokSesudah = $request->stok;
         $selisih = $stokSesudah - $stokSebelum;

@@ -525,10 +525,10 @@ class PembelianController extends Controller
             }
             $pembelian->save();
             DB::commit();
-            
+
             // Kirim email invoice setelah approve (async-safe, tidak throw error)
             InvoiceEmailService::sendPembelianInvoice($pembelian);
-            
+
             return back()->with('success', 'Disetujui. Stok ditambahkan.');
         } catch (\Exception $e) {
             DB::rollBack();

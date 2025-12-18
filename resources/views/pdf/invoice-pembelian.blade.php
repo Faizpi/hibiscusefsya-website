@@ -51,7 +51,8 @@
             margin-bottom: 15px;
         }
 
-        .info-left, .info-right {
+        .info-left,
+        .info-right {
             display: table-cell;
             width: 50%;
             vertical-align: top;
@@ -139,7 +140,8 @@
             font-weight: bold;
         }
 
-        .status-approved, .status-lunas {
+        .status-approved,
+        .status-lunas {
             background: #d4edda;
             color: #155724;
         }
@@ -208,18 +210,43 @@
     <div class="info-section">
         <div class="info-left">
             <table class="info-table">
-                <tr><td class="label">No. Pembelian</td><td class="value">: {{ $nomorPembelian }}</td></tr>
-                <tr><td class="label">Tanggal Transaksi</td><td class="value">: {{ $pembelian->tgl_transaksi->format('d/m/Y') }}</td></tr>
-                <tr><td class="label">Jatuh Tempo</td><td class="value">: {{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td></tr>
-                <tr><td class="label">Syarat Pembayaran</td><td class="value">: {{ $pembelian->cara_pembayaran ?? '-' }}</td></tr>
+                <tr>
+                    <td class="label">No. Pembelian</td>
+                    <td class="value">: {{ $nomorPembelian }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Tanggal Transaksi</td>
+                    <td class="value">: {{ $pembelian->tgl_transaksi->format('d/m/Y') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Jatuh Tempo</td>
+                    <td class="value">:
+                        {{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Syarat Pembayaran</td>
+                    <td class="value">: {{ $pembelian->cara_pembayaran ?? '-' }}</td>
+                </tr>
             </table>
         </div>
         <div class="info-right">
             <table class="info-table">
-                <tr><td class="label">Supplier</td><td class="value">: {{ $pembelian->supplier ?? '-' }}</td></tr>
-                <tr><td class="label">Alamat</td><td class="value">: {{ $pembelian->alamat ?? '-' }}</td></tr>
-                <tr><td class="label">Pembuat</td><td class="value">: {{ $pembelian->user->name ?? '-' }}</td></tr>
-                <tr><td class="label">Gudang</td><td class="value">: {{ $pembelian->gudang->nama_gudang ?? '-' }}</td></tr>
+                <tr>
+                    <td class="label">Supplier</td>
+                    <td class="value">: {{ $pembelian->supplier ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Alamat</td>
+                    <td class="value">: {{ $pembelian->alamat ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Pembuat</td>
+                    <td class="value">: {{ $pembelian->user->name ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Gudang</td>
+                    <td class="value">: {{ $pembelian->gudang->nama_gudang ?? '-' }}</td>
+                </tr>
                 <tr>
                     <td class="label">Status</td>
                     <td class="value">:
@@ -246,14 +273,15 @@
         </thead>
         <tbody>
             @foreach($pembelian->items as $index => $item)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $item->produk->nama_produk ?? '-' }} <br><small style="color:#999">({{ $item->produk->item_code ?? '-' }})</small></td>
-                <td>{{ $item->kuantitas }} Pcs</td>
-                <td>Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
-                <td>Rp {{ number_format($item->diskon_per_item ?? 0, 0, ',', '.') }}</td>
-                <td>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
-            </tr>
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $item->produk->nama_produk ?? '-' }} <br><small
+                            style="color:#999">({{ $item->produk->item_code ?? '-' }})</small></td>
+                    <td>{{ $item->kuantitas }} Pcs</td>
+                    <td>Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->diskon_per_item ?? 0, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>
@@ -271,16 +299,16 @@
                 <td>Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
             </tr>
             @if($pembelian->diskon_akhir > 0)
-            <tr>
-                <td>Diskon Akhir</td>
-                <td>- Rp {{ number_format($pembelian->diskon_akhir, 0, ',', '.') }}</td>
-            </tr>
+                <tr>
+                    <td>Diskon Akhir</td>
+                    <td>- Rp {{ number_format($pembelian->diskon_akhir, 0, ',', '.') }}</td>
+                </tr>
             @endif
             @if($pembelian->tax_percentage > 0)
-            <tr>
-                <td>Pajak ({{ $pembelian->tax_percentage }}%)</td>
-                <td>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
-            </tr>
+                <tr>
+                    <td>Pajak ({{ $pembelian->tax_percentage }}%)</td>
+                    <td>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+                </tr>
             @endif
             <tr>
                 <td class="grand-total">GRAND TOTAL</td>
@@ -290,16 +318,16 @@
     </div>
 
     @if($pembelian->memo)
-    <div class="memo-section">
-        <div class="memo-title">Catatan:</div>
-        <div class="memo-content">{{ $pembelian->memo }}</div>
-    </div>
+        <div class="memo-section">
+            <div class="memo-title">Catatan:</div>
+            <div class="memo-content">{{ $pembelian->memo }}</div>
+        </div>
     @endif
 
     @if($pembelian->approver)
-    <div style="margin-top: 20px; font-size: 9pt;">
-        <strong>Disetujui oleh:</strong> {{ $pembelian->approver->name }}
-    </div>
+        <div style="margin-top: 20px; font-size: 9pt;">
+            <strong>Disetujui oleh:</strong> {{ $pembelian->approver->name }}
+        </div>
     @endif
 
     <!-- FOOTER -->
@@ -308,4 +336,5 @@
         <p>marketing@hibiscusefsya.com</p>
     </div>
 </body>
+
 </html>
