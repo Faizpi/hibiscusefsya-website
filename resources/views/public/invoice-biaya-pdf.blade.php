@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Bukti Pengeluaran {{ $biaya->penerima }}</title>
+    <title>{{ strtolower($biaya->jenis_biaya ?? 'keluar') === 'masuk' ? 'Bukti Pemasukan' : 'Bukti Pengeluaran' }} {{ $biaya->penerima }}</title>
     <style>
         @page {
             size: A4;
@@ -126,7 +126,7 @@
     <div class="receipt">
         <div class="header">
             <img src="{{ public_path('assets/img/logoHE1.png') }}" class="logo" alt="Logo">
-            <div class="title">BUKTI PENGELUARAN</div>
+            <div class="title">{{ strtolower($biaya->jenis_biaya ?? 'keluar') === 'masuk' ? 'BUKTI PEMASUKAN' : 'BUKTI PENGELUARAN' }}</div>
         </div>
 
         <table>
@@ -145,6 +145,11 @@
                 <td class="label-col">Pembayaran</td>
                 <td class="colon-col">:</td>
                 <td class="value-col">{{ $biaya->cara_pembayaran ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Jenis</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ strtolower($biaya->jenis_biaya ?? 'keluar') === 'masuk' ? 'Biaya Masuk' : 'Biaya Keluar' }}</td>
             </tr>
             <tr>
                 <td class="label-col">Bayar Dari</td>
