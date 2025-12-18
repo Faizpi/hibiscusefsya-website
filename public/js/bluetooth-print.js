@@ -619,9 +619,11 @@ class BluetoothThermalPrinter {
 
         // Jenis biaya (masuk/keluar) untuk judul & label
         const jenisRaw = (data.jenis_biaya || '').toString().toLowerCase();
+        console.log('DEBUG jenis_biaya:', data.jenis_biaya, '| jenisRaw:', jenisRaw);
         const isMasuk = jenisRaw.includes('masuk'); // robust even if value is "Biaya Masuk"
         const jenisLabel = isMasuk ? 'Biaya Masuk' : 'Biaya Keluar';
         const titleText = isMasuk ? 'BUKTI PEMASUKAN' : 'BUKTI PENGELUARAN';
+        console.log('DEBUG isMasuk:', isMasuk, '| titleText:', titleText);
         
         let parts = [];
         
@@ -890,6 +892,9 @@ async function printViaBluetooth(button, type, jsonUrl, options = {}) {
             throw new Error('Gagal mengambil data dari server');
         }
         const data = await response.json();
+        
+        // Debug: log data untuk troubleshooting
+        console.log('Bluetooth Print Data:', type, data);
 
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing...';
 
