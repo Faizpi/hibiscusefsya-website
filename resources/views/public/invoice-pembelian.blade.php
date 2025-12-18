@@ -437,7 +437,7 @@
                 <p>Scan untuk melihat invoice ini</p>
             </div>
 
-            <a href="{{ route('public.invoice.pembelian.download', $pembelian->id) }}" class="btn-download">
+            <a href="{{ route('public.invoice.pembelian.download', $pembelian->uuid) }}" class="btn-download">
                 <i class="fas fa-download"></i> Download PDF
             </a>
         </div>

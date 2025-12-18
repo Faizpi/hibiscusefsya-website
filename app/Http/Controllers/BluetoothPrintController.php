@@ -68,7 +68,7 @@ class BluetoothPrintController extends Controller
             'tax_percentage' => $data->tax_percentage ?? 0,
             'pajak' => $pajak,
             'grand_total' => $data->grand_total,
-            'invoice_url' => url('invoice/penjualan/' . $data->id)
+            'invoice_url' => url('invoice/penjualan/' . $data->uuid)
         ]);
     }
 
@@ -114,7 +114,7 @@ class BluetoothPrintController extends Controller
             'tax_percentage' => $data->tax_percentage ?? 0,
             'pajak' => $pajak,
             'grand_total' => $data->grand_total,
-            'invoice_url' => url('invoice/pembelian/' . $data->id)
+            'invoice_url' => url('invoice/pembelian/' . $data->uuid)
         ]);
     }
 
@@ -155,7 +155,7 @@ class BluetoothPrintController extends Controller
             'tax_percentage' => $data->tax_percentage ?? 0,
             'pajak' => $pajak,
             'grand_total' => $data->grand_total,
-            'invoice_url' => url('invoice/biaya/' . $data->id)
+            'invoice_url' => url('invoice/biaya/' . $data->uuid)
         ]);
     }
 }

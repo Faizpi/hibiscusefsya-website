@@ -19,19 +19,20 @@ Auth::routes();
 
 // ========================================================================
 // PUBLIC ROUTES (Tanpa Login) - Untuk QR Code Invoice
+// Security: Menggunakan UUID bukan ID untuk prevent enumeration attack
 // ========================================================================
 Route::prefix('invoice')->name('public.invoice.')->group(function () {
     // Penjualan
-    Route::get('penjualan/{id}', 'PublicInvoiceController@showPenjualan')->name('penjualan');
-    Route::get('penjualan/{id}/download', 'PublicInvoiceController@downloadPenjualan')->name('penjualan.download');
+    Route::get('penjualan/{uuid}', 'PublicInvoiceController@showPenjualan')->name('penjualan');
+    Route::get('penjualan/{uuid}/download', 'PublicInvoiceController@downloadPenjualan')->name('penjualan.download');
 
     // Pembelian
-    Route::get('pembelian/{id}', 'PublicInvoiceController@showPembelian')->name('pembelian');
-    Route::get('pembelian/{id}/download', 'PublicInvoiceController@downloadPembelian')->name('pembelian.download');
+    Route::get('pembelian/{uuid}', 'PublicInvoiceController@showPembelian')->name('pembelian');
+    Route::get('pembelian/{uuid}/download', 'PublicInvoiceController@downloadPembelian')->name('pembelian.download');
 
     // Biaya
-    Route::get('biaya/{id}', 'PublicInvoiceController@showBiaya')->name('biaya');
-    Route::get('biaya/{id}/download', 'PublicInvoiceController@downloadBiaya')->name('biaya.download');
+    Route::get('biaya/{uuid}', 'PublicInvoiceController@showBiaya')->name('biaya');
+    Route::get('biaya/{uuid}/download', 'PublicInvoiceController@downloadBiaya')->name('biaya.download');
 });
 
 // ========================================================================

@@ -394,7 +394,7 @@
                 <p>Scan untuk melihat bukti ini</p>
             </div>
 
-            <a href="{{ route('public.invoice.biaya.download', $biaya->id) }}" class="btn-download">
+            <a href="{{ route('public.invoice.biaya.download', $biaya->uuid) }}" class="btn-download">
                 <i class="fas fa-download"></i> Download PDF
             </a>
         </div>

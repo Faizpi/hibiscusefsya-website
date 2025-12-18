@@ -14,15 +14,17 @@ use PDF;
  * Menampilkan invoice yang bisa diakses tanpa login.
  * Digunakan untuk QR code pada struk yang bisa di-scan
  * oleh pelanggan untuk melihat/download invoice.
+ * 
+ * Security: Menggunakan UUID instead of ID untuk prevent enumeration attack
  */
 class PublicInvoiceController extends Controller
 {
     /**
      * Show public invoice for Penjualan
      */
-    public function showPenjualan($id)
+    public function showPenjualan($uuid)
     {
-        $penjualan = Penjualan::with(['items.produk', 'user', 'gudang', 'approver'])->findOrFail($id);
+        $penjualan = Penjualan::where('uuid', $uuid)->with(['items.produk', 'user', 'gudang', 'approver'])->firstOrFail();
 
         return view('public.invoice-penjualan', compact('penjualan'));
     }
@@ -30,9 +32,9 @@ class PublicInvoiceController extends Controller
     /**
      * Download PDF for Penjualan
      */
-    public function downloadPenjualan($id)
+    public function downloadPenjualan($uuid)
     {
-        $penjualan = Penjualan::with(['items.produk', 'user', 'gudang', 'approver'])->findOrFail($id);
+        $penjualan = Penjualan::where('uuid', $uuid)->with(['items.produk', 'user', 'gudang', 'approver'])->firstOrFail();
 
         $dateCode = $penjualan->created_at->format('Ymd');
         $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
@@ -47,9 +49,9 @@ class PublicInvoiceController extends Controller
     /**
      * Show public invoice for Pembelian
      */
-    public function showPembelian($id)
+    public function showPembelian($uuid)
     {
-        $pembelian = Pembelian::with(['items.produk', 'user', 'gudang', 'approver'])->findOrFail($id);
+        $pembelian = Pembelian::where('uuid', $uuid)->with(['items.produk', 'user', 'gudang', 'approver'])->firstOrFail();
 
         return view('public.invoice-pembelian', compact('pembelian'));
     }
@@ -57,9 +59,9 @@ class PublicInvoiceController extends Controller
     /**
      * Download PDF for Pembelian
      */
-    public function downloadPembelian($id)
+    public function downloadPembelian($uuid)
     {
-        $pembelian = Pembelian::with(['items.produk', 'user', 'gudang', 'approver'])->findOrFail($id);
+        $pembelian = Pembelian::where('uuid', $uuid)->with(['items.produk', 'user', 'gudang', 'approver'])->firstOrFail();
 
         $dateCode = $pembelian->created_at->format('Ymd');
         $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
@@ -74,9 +76,9 @@ class PublicInvoiceController extends Controller
     /**
      * Show public invoice for Biaya
      */
-    public function showBiaya($id)
+    public function showBiaya($uuid)
     {
-        $biaya = Biaya::with(['items', 'user', 'approver'])->findOrFail($id);
+        $biaya = Biaya::where('uuid', $uuid)->with(['items', 'user', 'approver'])->firstOrFail();
 
         return view('public.invoice-biaya', compact('biaya'));
     }
@@ -84,9 +86,9 @@ class PublicInvoiceController extends Controller
     /**
      * Download PDF for Biaya
      */
-    public function downloadBiaya($id)
+    public function downloadBiaya($uuid)
     {
-        $biaya = Biaya::with(['items', 'user', 'approver'])->findOrFail($id);
+        $biaya = Biaya::where('uuid', $uuid)->with(['items', 'user', 'approver'])->firstOrFail();
 
         $dateCode = $biaya->created_at->format('Ymd');
         $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);

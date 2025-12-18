@@ -3,10 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Biaya extends Model
 {
     protected $fillable = [
+        'uuid',
         'user_id',
         'approver_id',
         'no_urut_harian',
@@ -25,6 +27,20 @@ class Biaya extends Model
         'tax_percentage',
         'grand_total'
     ];
+
+    /**
+     * Boot method - auto-generate UUID
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) Str::uuid();
+            }
+        });
+    }
 
     protected $casts = [
         'tgl_transaksi' => 'date',

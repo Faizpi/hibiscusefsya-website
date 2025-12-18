@@ -325,7 +325,7 @@
                 <div class="modal-body text-center">
                     <p class="mb-3">Scan QR Code di bawah untuk melihat dokumen:</p>
                     @php
-                        $publicUrl = route('public.invoice.pembelian', $pembelian->id);
+                        $publicUrl = route('public.invoice.pembelian', $pembelian->uuid);
                         $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($publicUrl);
                     @endphp
                     <img src="{{ $qrUrl }}" alt="QR Code Dokumen" class="img-fluid mb-3" style="max-width: 300px;">

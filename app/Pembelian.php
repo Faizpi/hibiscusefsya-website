@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Pembelian extends Model
 {
@@ -12,6 +13,7 @@ class Pembelian extends Model
         'approver_id',
         'no_urut_harian',
         'nomor',
+        'uuid',
         'gudang_id',
 
         // Field Transaksi
@@ -33,6 +35,20 @@ class Pembelian extends Model
         'tax_percentage',
         'grand_total'
     ];
+
+    /**
+     * Boot method - auto-generate UUID
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) Str::uuid();
+            }
+        });
+    }
 
     protected $casts = [
         'tgl_transaksi' => 'date',
