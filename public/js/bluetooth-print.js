@@ -618,7 +618,8 @@ class BluetoothThermalPrinter {
         const qrData = options.qrUrl || data.invoice_url || '';
 
         // Jenis biaya (masuk/keluar) untuk judul & label
-        const isMasuk = (data.jenis_biaya || '').toLowerCase() === 'masuk';
+        const jenisRaw = (data.jenis_biaya || '').toString().toLowerCase();
+        const isMasuk = jenisRaw.includes('masuk'); // robust even if value is "Biaya Masuk"
         const jenisLabel = isMasuk ? 'Biaya Masuk' : 'Biaya Keluar';
         const titleText = isMasuk ? 'BUKTI PEMASUKAN' : 'BUKTI PENGELUARAN';
         
