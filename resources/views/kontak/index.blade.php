@@ -38,7 +38,7 @@
                                     <td class="text-right">{{ $item->diskon_persen ?? 0 }}%</td>
                                     <td class="text-center">
                                         <div class="dropdown">
-                                            <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown"
+                                            <button class="btn btn-sm dropdown-toggle no-caret" type="button" data-toggle="dropdown"
                                                 aria-haspopup="true" aria-expanded="false">
                                                 <i class="fas fa-ellipsis-v"></i>
                                             </button>

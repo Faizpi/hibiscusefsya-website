@@ -42,9 +42,9 @@
                                     <td>{{ $admin->email }}</td>
                                     <td>
                                         @if($admin->gudangs->count() > 0)
-                                            <div>
+                                            <div class="d-flex flex-wrap align-items-center">
                                                 @foreach($admin->gudangs as $gudang)
-                                                    <span class="badge badge-primary">{{ $gudang->nama_gudang }}</span>
+                                                    <span class="badge badge-primary mr-1 mb-1">{{ $gudang->nama_gudang }}</span>
                                                 @endforeach
                                             </div>
                                         @else

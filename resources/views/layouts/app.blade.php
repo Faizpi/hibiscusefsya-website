@@ -40,6 +40,11 @@
             overflow-x: hidden;
         }
 
+        /* Hide caret on custom dropdown buttons that use ellipsis icon */
+        .dropdown-toggle.no-caret::after {
+            display: none;
+        }
+
         /* ========== WRAPPER ========== */
         #wrapper {
             display: flex;
