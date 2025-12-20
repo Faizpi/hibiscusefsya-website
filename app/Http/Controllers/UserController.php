@@ -48,7 +48,7 @@ class UserController extends Controller
             'gudang_id.required' => 'Gudang wajib dipilih untuk role Admin dan User.',
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -57,6 +57,11 @@ class UserController extends Controller
             'no_telp' => $request->no_telp,
             'gudang_id' => $request->gudang_id,
         ]);
+
+        // Jika role admin, sync gudang ke pivot table admin_gudang
+        if ($request->role === 'admin' && $request->gudang_id) {
+            $user->gudangs()->sync([$request->gudang_id]);
+        }
 
         return redirect()->route('users.index')->with('success', 'User baru berhasil ditambahkan.');
     }
@@ -116,6 +121,15 @@ class UserController extends Controller
         }
 
         $user->update($data);
+
+        // Jika role admin, sync gudang ke pivot table admin_gudang
+        // Jika role berubah dari admin ke user, atau user tetap user, tidak perlu sync
+        if ($request->role === 'admin' && $request->gudang_id) {
+            // Cek apakah gudang sudah ada di pivot, jika belum tambahkan (tanpa menghapus yang lain)
+            if (!$user->gudangs()->where('gudang_id', $request->gudang_id)->exists()) {
+                $user->gudangs()->attach($request->gudang_id);
+            }
+        }
 
         return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
     }
