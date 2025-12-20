@@ -292,18 +292,12 @@ class PembelianController extends Controller
     public function edit(Pembelian $pembelian)
     {
         $user = Auth::user();
-        
-        // Admin tidak boleh mengedit, hanya super_admin atau pemilik (Pending)
-        if ($user->role === 'admin') {
-            return redirect()->route('pembelian.index')->with('error', 'Admin tidak diperbolehkan mengubah data pembelian.');
-        }
-        $canEdit = false;
 
-        if ($user->role === 'super_admin') {
-            $canEdit = true;
-        } elseif ($pembelian->user_id == $user->id && $pembelian->status == 'Pending') {
-            $canEdit = true;
+        // Only super_admin dapat mengedit
+        if ($user->role !== 'super_admin') {
+            return redirect()->route('pembelian.index')->with('error', 'Anda tidak memiliki akses untuk mengedit data pembelian.');
         }
+        $canEdit = true;
 
         if (!$canEdit) {
             return redirect()->route('pembelian.index')->with('error', 'Anda tidak memiliki akses untuk mengedit data ini.');
@@ -332,15 +326,13 @@ class PembelianController extends Controller
     public function update(Request $request, Pembelian $pembelian)
     {
         $user = Auth::user();
-        
+
         // Admin tidak boleh mengedit/update
         if ($user->role === 'admin') {
             return redirect()->route('pembelian.index')->with('error', 'Admin tidak diperbolehkan mengubah data pembelian.');
         }
         $canUpdate = false;
         if ($user->role === 'super_admin') {
-            $canUpdate = true;
-        } elseif ($pembelian->user_id == $user->id && $pembelian->status == 'Pending') {
             $canUpdate = true;
         }
 
@@ -607,8 +599,6 @@ class PembelianController extends Controller
         $user = Auth::user();
         $canDelete = false;
         if ($user->role === 'super_admin') {
-            $canDelete = true;
-        } elseif ($pembelian->user_id == $user->id && $pembelian->status == 'Pending') {
             $canDelete = true;
         }
         if (!$canDelete)

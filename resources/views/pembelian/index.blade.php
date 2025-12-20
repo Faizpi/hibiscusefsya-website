@@ -195,16 +195,8 @@
                                                 @endif
                                             @endif
 
-                                            {{-- EDIT & DELETE --}}
-                                            @php
-                                                $canEdit = false;
-                                                if ($role == 'super_admin')
-                                                    $canEdit = true;
-                                                elseif ($item->user_id == auth()->id() && $item->status == 'Pending')
-                                                    $canEdit = true;
-                                            @endphp
-
-                                            @if($canEdit)
+                                            {{-- EDIT & DELETE: Super Admin saja --}}
+                                            @if($role == 'super_admin')
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item" href="{{ route('pembelian.edit', $item->id) }}">
                                                     <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit

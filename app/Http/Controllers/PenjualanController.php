@@ -321,16 +321,10 @@ class PenjualanController extends Controller
     {
         $user = Auth::user();
         $canEdit = false;
-        
-        // Admin tidak boleh mengedit, hanya super_admin atau pemilik (Pending)
-        if ($user->role === 'admin') {
-            return redirect()->route('penjualan.index')->with('error', 'Admin tidak diperbolehkan mengubah data penjualan.');
-        }
 
-        if ($user->role === 'super_admin') {
-            $canEdit = true;
-        } elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending') {
-            $canEdit = true;
+        // Only super_admin dapat mengedit
+        if ($user->role !== 'super_admin') {
+            return redirect()->route('penjualan.index')->with('error', 'Anda tidak memiliki akses untuk mengedit data penjualan.');
         }
 
         if (!$canEdit) {
@@ -362,15 +356,13 @@ class PenjualanController extends Controller
     {
         $user = Auth::user();
         $canUpdate = false;
-        
+
         // Admin tidak boleh mengedit/update
         if ($user->role === 'admin') {
             return back()->with('error', 'Admin tidak diperbolehkan mengubah data penjualan.');
         }
 
         if ($user->role === 'super_admin')
-            $canUpdate = true;
-        elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending')
             $canUpdate = true;
 
         if (!$canUpdate)
@@ -702,8 +694,6 @@ class PenjualanController extends Controller
         $canDelete = false;
 
         if ($user->role === 'super_admin') {
-            $canDelete = true;
-        } elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending') {
             $canDelete = true;
         }
 
