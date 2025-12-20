@@ -31,8 +31,10 @@ class PembelianController extends Controller
                 $query->where('gudang_id', $currentGudang->id);
             } else {
                 // Jika admin tidak punya gudang, tidak bisa lihat apapun
+                // Return empty paginator agar view tidak error
+                $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20);
                 return view('pembelian.index', [
-                    'pembelians' => collect(),
+                    'pembelians' => $emptyPaginator,
                     'fakturPending' => 0,
                     'fakturBelumDibayar' => 0,
                     'fakturCanceled' => 0,

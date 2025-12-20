@@ -31,8 +31,10 @@ class PenjualanController extends Controller
                 $query->where('gudang_id', $currentGudang->id);
             } else {
                 // Jika admin tidak punya gudang, tidak bisa lihat apapun
+                // Return empty paginator agar view tidak error
+                $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20);
                 return view('penjualan.index', [
-                    'penjualans' => collect(),
+                    'penjualans' => $emptyPaginator,
                     'totalBelumDibayar' => 0,
                     'totalTelatDibayar' => 0,
                     'pelunasan30Hari' => 0,
