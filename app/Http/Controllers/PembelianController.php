@@ -570,8 +570,9 @@ class PembelianController extends Controller
             return redirect()->route('pembelian.index')->with('error', 'Transaksi sudah dibatalkan.');
         }
 
-        if ($user->role === 'admin' && in_array($pembelian->status, ['Approved', 'Lunas'])) {
-            return redirect()->route('pembelian.index')->with('error', 'Admin tidak dapat membatalkan transaksi yang sudah disetujui.');
+        // Hanya super_admin yang bisa cancel Approved/Lunas
+        if (in_array($pembelian->status, ['Approved', 'Lunas']) && $user->role !== 'super_admin') {
+            return redirect()->route('pembelian.index')->with('error', 'Hanya Super Admin yang dapat membatalkan transaksi yang sudah disetujui.');
         }
 
         DB::beginTransaction();

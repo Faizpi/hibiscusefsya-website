@@ -270,8 +270,9 @@ class BiayaController extends Controller
             return redirect()->route('biaya.index')->with('error', 'Transaksi sudah dibatalkan.');
         }
 
-        if ($user->role === 'admin' && $biaya->status === 'Approved') {
-            return redirect()->route('biaya.index')->with('error', 'Admin tidak dapat membatalkan transaksi yang sudah disetujui.');
+        // Hanya super_admin yang bisa cancel Approved
+        if ($biaya->status === 'Approved' && $user->role !== 'super_admin') {
+            return redirect()->route('biaya.index')->with('error', 'Hanya Super Admin yang dapat membatalkan transaksi yang sudah disetujui.');
         }
 
         $biaya->status = 'Canceled';
