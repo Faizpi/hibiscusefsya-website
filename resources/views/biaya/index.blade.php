@@ -173,12 +173,14 @@
                                                 </form>
                                             @endif
 
-                                            {{-- CANCEL --}}
+                                            {{-- CANCEL: Hanya super_admin bisa cancel Approved, admin hanya Pending --}}
                                             @if(in_array($role, ['admin', 'super_admin']) && $item->status != 'Canceled')
-                                                <button type="button" class="dropdown-item" data-toggle="modal"
-                                                    data-target="#cancelModal" data-action="{{ route('biaya.cancel', $item->id) }}">
-                                                    <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan
-                                                </button>
+                                                @if($role == 'super_admin' || $item->status == 'Pending')
+                                                    <button type="button" class="dropdown-item" data-toggle="modal"
+                                                        data-target="#cancelModal" data-action="{{ route('biaya.cancel', $item->id) }}">
+                                                        <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan
+                                                    </button>
+                                                @endif
                                             @endif
 
                                             {{-- EDIT & DELETE --}}

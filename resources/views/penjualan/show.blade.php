@@ -30,11 +30,15 @@
                     </form>
                 @endif
 
-                {{-- Tombol Cancel (Admin) --}}
-                @if($penjualan->status != 'Canceled' && in_array($user->role, ['admin', 'super_admin']))
-                    <button type="button" class="btn btn-dark btn-sm shadow-sm" data-toggle="modal" data-target="#cancelModal">
-                        <i class="fas fa-ban fa-sm"></i> Cancel
-                    </button>
+                {{-- Tombol Cancel (Hanya super_admin bisa cancel Approved/Lunas) --}}
+                @if($penjualan->status != 'Canceled')
+                    @if($user->role == 'super_admin' || $penjualan->status == 'Pending')
+                        @if(in_array($user->role, ['admin', 'super_admin']))
+                            <button type="button" class="btn btn-dark btn-sm shadow-sm" data-toggle="modal" data-target="#cancelModal">
+                                <i class="fas fa-ban fa-sm"></i> Cancel
+                            </button>
+                        @endif
+                    @endif
                 @endif
 
                 {{-- Tombol Print & Kembali --}}

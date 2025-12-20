@@ -184,13 +184,15 @@
                                                     </form>
                                                 @endif
 
-                                                {{-- CANCEL: Jika belum Canceled --}}
+                                                {{-- CANCEL: Jika belum Canceled, hanya super_admin bisa cancel Approved/Lunas --}}
                                                 @if($item->status != 'Canceled')
-                                                    <button type="button" class="dropdown-item" data-toggle="modal"
-                                                        data-target="#cancelModal"
-                                                        data-action="{{ route('penjualan.cancel', $item->id) }}">
-                                                        <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan
-                                                    </button>
+                                                    @if($role == 'super_admin' || $item->status == 'Pending')
+                                                        <button type="button" class="dropdown-item" data-toggle="modal"
+                                                            data-target="#cancelModal"
+                                                            data-action="{{ route('penjualan.cancel', $item->id) }}">
+                                                            <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan
+                                                        </button>
+                                                    @endif
                                                 @endif
                                             @endif
 

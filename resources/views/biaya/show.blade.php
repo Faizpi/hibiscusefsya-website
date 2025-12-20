@@ -20,11 +20,15 @@
                     @endif
                 @endif
 
-                {{-- Tombol Cancel (Admin/Super Admin) --}}
-                @if($biaya->status != 'Canceled' && in_array($user->role, ['admin', 'super_admin']))
-                    <button type="button" class="btn btn-dark btn-sm shadow-sm" data-toggle="modal" data-target="#cancelModal">
-                        <i class="fas fa-ban fa-sm"></i> Cancel
-                    </button>
+                {{-- Tombol Cancel (Hanya super_admin bisa cancel Approved) --}}
+                @if($biaya->status != 'Canceled')
+                    @if($user->role == 'super_admin' || $biaya->status == 'Pending')
+                        @if(in_array($user->role, ['admin', 'super_admin']))
+                            <button type="button" class="btn btn-dark btn-sm shadow-sm" data-toggle="modal" data-target="#cancelModal">
+                                <i class="fas fa-ban fa-sm"></i> Cancel
+                            </button>
+                        @endif
+                    @endif
                 @endif
 
                 <button type="button" id="printBluetooth" class="btn btn-primary btn-sm shadow-sm" data-type="biaya"
