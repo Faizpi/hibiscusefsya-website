@@ -686,7 +686,7 @@ class PenjualanController extends Controller
 
     public function markAsPaid(Penjualan $penjualan)
     {
-        if (Auth::user()->role !== 'super_admin') {
+        if (!in_array(Auth::user()->role, ['admin', 'super_admin'])) {
             return back()->with('error', 'Akses ditolak.');
         }
         $penjualan->status = 'Lunas';
