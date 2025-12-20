@@ -197,7 +197,7 @@
                                             @endif
 
                                             {{-- EDIT & DELETE: Super Admin kapan saja, sisanya jika Pending --}}
-                                            @if($role == 'super_admin' || $item->status == 'Pending')
+                                            @if($role == 'super_admin' || ($item->status == 'Pending' && $item->user_id == auth()->id()))
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item" href="{{ route('penjualan.edit', $item->id) }}">
                                                     <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit

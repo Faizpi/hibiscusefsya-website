@@ -198,7 +198,7 @@
                                             {{-- EDIT & DELETE --}}
                                             @php
                                                 $canEdit = false;
-                                                if (in_array($role, ['admin', 'super_admin']))
+                                                if ($role == 'super_admin')
                                                     $canEdit = true;
                                                 elseif ($item->user_id == auth()->id() && $item->status == 'Pending')
                                                     $canEdit = true;

@@ -185,8 +185,8 @@
 
                                             {{-- EDIT & DELETE --}}
                                             @php
-                                                $canEdit = $role == 'super_admin' || ($item->user_id == auth()->id() && $item->status == 'Pending') || $role == 'admin';
-                                                $canDelete = $role == 'super_admin' || $item->status == 'Pending';
+                                                $canEdit = $role == 'super_admin' || ($item->user_id == auth()->id() && $item->status == 'Pending');
+                                                $canDelete = $role == 'super_admin' || ($item->user_id == auth()->id() && $item->status == 'Pending');
                                             @endphp
 
                                             @if($canEdit || $canDelete)
