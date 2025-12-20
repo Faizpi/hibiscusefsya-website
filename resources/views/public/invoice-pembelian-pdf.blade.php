@@ -140,13 +140,15 @@
                 <td class="label-col">Tanggal</td>
                 <td class="colon-col">:</td>
                 <td class="value-col">{{ $pembelian->tgl_transaksi->format('d/m/Y') }} |
-                    {{ $pembelian->created_at->format('H:i') }}</td>
+                    {{ $pembelian->created_at->format('H:i') }}
+                </td>
             </tr>
             <tr>
                 <td class="label-col">Jatuh Tempo</td>
                 <td class="colon-col">:</td>
                 <td class="value-col">
-                    {{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
+                    {{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d/m/Y') : '-' }}
+                </td>
             </tr>
             <tr>
                 <td class="label-col">Pembayaran</td>

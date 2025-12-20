@@ -242,6 +242,14 @@ class BiayaController extends Controller
         if ($user->role == 'user')
             return back()->with('error', 'Akses ditolak.');
 
+        if ($biaya->status === 'Canceled') {
+            return back()->with('error', 'Transaksi sudah dibatalkan, tidak bisa di-approve.');
+        }
+
+        if ($user->role === 'admin' && $biaya->status === 'Approved') {
+            return back()->with('error', 'Transaksi sudah disetujui. Admin tidak bisa melakukan approve ulang.');
+        }
+
         $biaya->status = 'Approved';
         $biaya->approver_id = $user->id;
         $biaya->save();
@@ -258,6 +266,14 @@ class BiayaController extends Controller
         if (!in_array($user->role, ['admin', 'super_admin']))
             return back()->with('error', 'Akses ditolak.');
 
+        if ($biaya->status === 'Canceled') {
+            return redirect()->route('biaya.index')->with('error', 'Transaksi sudah dibatalkan.');
+        }
+
+        if ($user->role === 'admin' && $biaya->status === 'Approved') {
+            return redirect()->route('biaya.index')->with('error', 'Admin tidak dapat membatalkan transaksi yang sudah disetujui.');
+        }
+
         $biaya->status = 'Canceled';
         $biaya->save();
         return back()->with('success', 'Transaksi dibatalkan.');
@@ -267,7 +283,7 @@ class BiayaController extends Controller
     {
         $user = Auth::user();
         $canDelete = false;
-        if (in_array($user->role, ['admin', 'super_admin']))
+        if ($user->role === 'super_admin')
             $canDelete = true;
         elseif ($biaya->user_id == $user->id && $biaya->status == 'Pending')
             $canDelete = true;
@@ -299,9 +315,14 @@ class BiayaController extends Controller
     public function edit(Biaya $biaya)
     {
         $user = Auth::user();
+        
+        // Admin tidak boleh mengedit, hanya super_admin atau pemilik (Pending)
+        if ($user->role === 'admin') {
+            return redirect()->route('biaya.index')->with('error', 'Admin tidak diperbolehkan mengubah data biaya.');
+        }
         $canEdit = false;
 
-        if (in_array($user->role, ['admin', 'super_admin'])) {
+        if ($user->role === 'super_admin') {
             $canEdit = true;
         } elseif ($biaya->user_id == $user->id && $biaya->status == 'Pending') {
             $canEdit = true;
@@ -321,8 +342,13 @@ class BiayaController extends Controller
     public function update(Request $request, Biaya $biaya)
     {
         $user = Auth::user();
+        
+        // Admin tidak boleh mengedit/update
+        if ($user->role === 'admin') {
+            return redirect()->route('biaya.index')->with('error', 'Admin tidak diperbolehkan mengubah data biaya.');
+        }
         $canUpdate = false;
-        if (in_array($user->role, ['admin', 'super_admin'])) {
+        if ($user->role === 'super_admin') {
             $canUpdate = true;
         } elseif ($biaya->user_id == $user->id && $biaya->status == 'Pending') {
             $canUpdate = true;

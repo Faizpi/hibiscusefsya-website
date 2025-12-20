@@ -150,13 +150,15 @@
                 <td class="label-col">Tanggal</td>
                 <td class="colon-col">:</td>
                 <td class="value-col">{{ $penjualan->tgl_transaksi->format('d/m/Y') }} |
-                    {{ $penjualan->created_at->format('H:i') }}</td>
+                    {{ $penjualan->created_at->format('H:i') }}
+                </td>
             </tr>
             <tr>
                 <td class="label-col">Jatuh Tempo</td>
                 <td class="colon-col">:</td>
                 <td class="value-col">
-                    {{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
+                    {{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}
+                </td>
             </tr>
             <tr>
                 <td class="label-col">Pembayaran</td>

@@ -18,11 +18,11 @@ echo "Found " . $admins->count() . " admin(s) with gudang_id\n\n";
 foreach ($admins as $admin) {
     $gudangId = $admin->gudang_id;
     $currentGudangs = $admin->gudangs()->pluck('gudang_id')->toArray();
-    
+
     echo "Admin: {$admin->name} (ID: {$admin->id})\n";
     echo "  - gudang_id: {$gudangId}\n";
     echo "  - Current pivot gudangs: " . implode(', ', $currentGudangs) . "\n";
-    
+
     if (!in_array($gudangId, $currentGudangs)) {
         $admin->gudangs()->attach($gudangId);
         echo "  - SYNCED gudang_id {$gudangId} to pivot table\n";

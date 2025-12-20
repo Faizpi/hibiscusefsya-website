@@ -321,8 +321,13 @@ class PenjualanController extends Controller
     {
         $user = Auth::user();
         $canEdit = false;
+        
+        // Admin tidak boleh mengedit, hanya super_admin atau pemilik (Pending)
+        if ($user->role === 'admin') {
+            return redirect()->route('penjualan.index')->with('error', 'Admin tidak diperbolehkan mengubah data penjualan.');
+        }
 
-        if (in_array($user->role, ['admin', 'super_admin'])) {
+        if ($user->role === 'super_admin') {
             $canEdit = true;
         } elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending') {
             $canEdit = true;
@@ -357,8 +362,13 @@ class PenjualanController extends Controller
     {
         $user = Auth::user();
         $canUpdate = false;
+        
+        // Admin tidak boleh mengedit/update
+        if ($user->role === 'admin') {
+            return back()->with('error', 'Admin tidak diperbolehkan mengubah data penjualan.');
+        }
 
-        if (in_array($user->role, ['admin', 'super_admin']))
+        if ($user->role === 'super_admin')
             $canUpdate = true;
         elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending')
             $canUpdate = true;
@@ -553,6 +563,14 @@ class PenjualanController extends Controller
         if ($user->role == 'user')
             return back()->with('error', 'Akses ditolak.');
 
+        if ($penjualan->status === 'Canceled') {
+            return back()->with('error', 'Transaksi sudah dibatalkan, tidak bisa di-approve.');
+        }
+
+        if ($user->role === 'admin' && in_array($penjualan->status, ['Approved', 'Lunas'])) {
+            return back()->with('error', 'Transaksi sudah disetujui. Admin tidak bisa melakukan approve ulang.');
+        }
+
         // Admin/super admin hanya bisa approve di gudang yang dia pegang
         if ($user->role == 'admin') {
             if (!$user->canAccessGudang($penjualan->gudang_id)) {
@@ -625,6 +643,14 @@ class PenjualanController extends Controller
             return back()->with('error', 'Akses ditolak.');
         }
 
+        if ($penjualan->status === 'Canceled') {
+            return redirect()->route('penjualan.index')->with('error', 'Transaksi sudah dibatalkan.');
+        }
+
+        if ($user->role === 'admin' && in_array($penjualan->status, ['Approved', 'Lunas'])) {
+            return redirect()->route('penjualan.index')->with('error', 'Admin tidak dapat membatalkan transaksi yang sudah disetujui.');
+        }
+
         DB::beginTransaction();
         try {
             if ($penjualan->status == 'Approved') {
@@ -660,7 +686,7 @@ class PenjualanController extends Controller
 
     public function markAsPaid(Penjualan $penjualan)
     {
-        if (!in_array(Auth::user()->role, ['admin', 'super_admin'])) {
+        if (Auth::user()->role !== 'super_admin') {
             return back()->with('error', 'Akses ditolak.');
         }
         $penjualan->status = 'Lunas';
@@ -674,10 +700,11 @@ class PenjualanController extends Controller
         $user = Auth::user();
         $canDelete = false;
 
-        if (in_array($user->role, ['admin', 'super_admin']))
+        if ($user->role === 'super_admin') {
             $canDelete = true;
-        elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending')
+        } elseif ($penjualan->user_id == $user->id && $penjualan->status == 'Pending') {
             $canDelete = true;
+        }
 
         if (!$canDelete)
             return back()->with('error', 'Akses ditolak.');
