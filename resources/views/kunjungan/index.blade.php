@@ -111,8 +111,12 @@
                         @php $role = auth()->user()->role; @endphp
                         @forelse($kunjungans as $item)
                             <tr>
-                                <td>{{ $item->custom_number }}</td>
-                                <td>{{ $item->tgl_kunjungan->format('d M Y') }}</td>
+                                <td>
+                                    <a href="{{ route('kunjungan.show', $item->id) }}">
+                                        <strong>{{ $item->custom_number }}</strong>
+                                    </a>
+                                </td>
+                                <td>{{ $item->tgl_kunjungan->format('d M Y') }}<br><small class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
                                 <td>
                                     <strong>{{ $item->sales_nama }}</strong>
                                     @if($item->sales_email)
@@ -134,6 +138,8 @@
                                         <span class="badge badge-success">{{ $item->status }}</span>
                                     @elseif($item->status == 'Pending')
                                         <span class="badge badge-warning">{{ $item->status }}</span>
+                                    @elseif($item->status == 'Canceled')
+                                        <span class="badge badge-secondary">Canceled</span>
                                     @else
                                         <span class="badge badge-danger">{{ $item->status }}</span>
                                     @endif
@@ -146,11 +152,7 @@
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
                                             <a class="dropdown-item" href="{{ route('kunjungan.show', $item->id) }}">
-                                                <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat
-                                            </a>
-                                            <a class="dropdown-item" href="{{ route('kunjungan.print', $item->id) }}"
-                                                target="_blank">
-                                                <i class="fas fa-print fa-fw mr-2 text-primary"></i> Cetak Struk
+                                                <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat Detail
                                             </a>
 
                                             {{-- APPROVE: Hanya admin/super_admin untuk status Pending --}}

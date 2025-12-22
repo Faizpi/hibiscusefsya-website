@@ -198,28 +198,52 @@
     </div>
 
     {{-- Modal QR Code --}}
-    <div class="modal fade" id="qrModal" tabindex="-1">
-        <div class="modal-dialog modal-sm">
+    <div class="modal fade" id="qrModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">QR Code Invoice</h5>
-                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-qrcode mr-2"></i>QR Code Kunjungan</h5>
+                    <button class="close text-white" type="button" data-dismiss="modal"><span>×</span></button>
                 </div>
                 <div class="modal-body text-center">
+                    <p class="mb-3">Scan QR Code di bawah untuk melihat detail kunjungan:</p>
                     @php
                         $publicUrl = route('public.invoice.kunjungan', $kunjungan->uuid);
                         $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($publicUrl);
                     @endphp
-                    <div id="qr-code-container">
-                        <img src="{{ $qrUrl }}" alt="QR Code" class="img-fluid" style="max-width: 200px;">
+                    <img src="{{ $qrUrl }}" alt="QR Code Kunjungan" class="img-fluid mb-3" style="max-width: 300px;">
+                    <div class="alert alert-info">
+                        <small><i class="fas fa-info-circle"></i> QR Code ini bisa di-scan untuk melihat
+                            detail kunjungan tanpa login</small>
                     </div>
-                    <p class="mt-3 small text-muted">Scan untuk melihat invoice</p>
+                    <div class="input-group mt-3">
+                        <input type="text" class="form-control" id="publicUrlInput" value="{{ $publicUrl }}" readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyPublicUrl()">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
                     <a href="{{ route('public.invoice.kunjungan', $kunjungan->uuid) }}" target="_blank"
-                        class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-external-link-alt"></i> Buka Invoice
+                        class="btn btn-primary">
+                        <i class="fas fa-external-link-alt"></i> Buka Halaman Publik
                     </a>
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        function copyPublicUrl() {
+            var copyText = document.getElementById("publicUrlInput");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+            alert("Link berhasil disalin!");
+        }
+    </script>
+@endpush

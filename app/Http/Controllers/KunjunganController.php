@@ -94,7 +94,9 @@ class KunjunganController extends Controller
             'sales_nama' => 'required|string|max:255',
             'sales_email' => 'nullable|email|max:255',
             'sales_alamat' => 'nullable|string',
+            'tgl_kunjungan' => 'required|date',
             'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Penawaran',
+            'koordinat' => 'nullable|string|max:255',
             'memo' => 'nullable|string',
             'lampiran' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
         ]);
@@ -178,7 +180,7 @@ class KunjunganController extends Controller
                 'sales_nama' => $request->sales_nama,
                 'sales_email' => $request->sales_email,
                 'sales_alamat' => $request->sales_alamat,
-                'tgl_kunjungan' => Carbon::today(),
+                'tgl_kunjungan' => $request->tgl_kunjungan,
                 'tujuan' => $request->tujuan,
                 'koordinat' => $request->koordinat,
                 'memo' => $request->memo,

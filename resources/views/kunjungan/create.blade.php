@@ -84,9 +84,10 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="tgl_kunjungan">Tanggal Kunjungan</label>
-                                        <input type="text" class="form-control" id="tgl_kunjungan"
+                                        <label for="tgl_kunjungan_display">Tanggal Kunjungan *</label>
+                                        <input type="text" class="form-control" id="tgl_kunjungan_display"
                                             value="{{ date('d F Y') }}" readonly>
+                                        <input type="hidden" name="tgl_kunjungan" value="{{ date('Y-m-d') }}">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -184,15 +185,21 @@
             // Auto get location
             function getLocation() {
                 if (navigator.geolocation) {
+                    $('#btn-get-location').html('<i class="fas fa-spinner fa-spin"></i>');
                     navigator.geolocation.getCurrentPosition(function (position) {
                         var lat = position.coords.latitude.toFixed(6);
                         var lng = position.coords.longitude.toFixed(6);
                         var koordinat = lat + ', ' + lng;
                         $('#koordinat').val(koordinat);
                         $('#btn-open-maps').attr('href', 'https://www.google.com/maps?q=' + lat + ',' + lng);
+                        $('#btn-get-location').html('<i class="fas fa-map-marker-alt"></i>');
                     }, function (error) {
                         console.log('Geolocation error:', error);
+                        alert('Tidak dapat mengambil lokasi. Pastikan Anda mengizinkan akses lokasi.');
+                        $('#btn-get-location').html('<i class="fas fa-map-marker-alt"></i>');
                     });
+                } else {
+                    alert('Browser Anda tidak mendukung geolocation.');
                 }
             }
 
