@@ -414,8 +414,16 @@
                                                 <td>
                                                     <a href="{{ $item->route }}"><strong>{{ $item->number }}</strong></a>
                                                 </td>
-                                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small
-                                                        class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
+                                                <td>
+                                                    @if(isset($item->tgl_transaksi))
+                                                        {{ $item->tgl_transaksi->format('d/m/Y') }}
+                                                    @elseif(isset($item->tgl_kunjungan))
+                                                        {{ $item->tgl_kunjungan->format('d/m/Y') }}
+                                                    @else
+                                                        -
+                                                    @endif
+                                                    <br><small class="text-muted">{{ $item->created_at->format('H:i') }}</small>
+                                                </td>
                                                 <td>{{ $item->user->name }}</td>
                                                 <td class="text-center">
                                                     @if($item->status == 'Approved')
@@ -500,8 +508,16 @@
                                                 <td>
                                                     <a href="{{ $item->route }}"><strong>{{ $item->number }}</strong></a>
                                                 </td>
-                                                <td>{{ $item->tgl_transaksi->format('d/m/Y') }}<br><small
-                                                        class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
+                                                <td>
+                                                    @if(isset($item->tgl_transaksi))
+                                                        {{ $item->tgl_transaksi->format('d/m/Y') }}
+                                                    @elseif(isset($item->tgl_kunjungan))
+                                                        {{ $item->tgl_kunjungan->format('d/m/Y') }}
+                                                    @else
+                                                        -
+                                                    @endif
+                                                    <br><small class="text-muted">{{ $item->created_at->format('H:i') }}</small>
+                                                </td>
                                                 <td>{{ $item->user->name }}</td>
                                                 <td class="text-center">
                                                     <span class="badge badge-warning">{{ $item->status }}</span>
