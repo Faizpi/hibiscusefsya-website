@@ -244,8 +244,12 @@
         <div class="divider"></div>
 
         {{-- QR CODE --}}
+        @php
+            $invoiceUrl = route('public.invoice.kunjungan', $kunjungan->uuid);
+        @endphp
         <div class="qr-section">
-            {!! QrCode::size(100)->generate(route('public.invoice.kunjungan', $kunjungan->uuid)) !!}
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
+                alt="QR Code" style="width: 100px; height: 100px;">
             <p>Scan untuk detail kunjungan</p>
         </div>
 

@@ -206,8 +206,12 @@
                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <div class="modal-body text-center">
+                    @php
+                        $publicUrl = route('public.invoice.kunjungan', $kunjungan->uuid);
+                        $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($publicUrl);
+                    @endphp
                     <div id="qr-code-container">
-                        {!! QrCode::size(200)->generate(route('public.invoice.kunjungan', $kunjungan->uuid)) !!}
+                        <img src="{{ $qrUrl }}" alt="QR Code" class="img-fluid" style="max-width: 200px;">
                     </div>
                     <p class="mt-3 small text-muted">Scan untuk melihat invoice</p>
                     <a href="{{ route('public.invoice.kunjungan', $kunjungan->uuid) }}" target="_blank"
