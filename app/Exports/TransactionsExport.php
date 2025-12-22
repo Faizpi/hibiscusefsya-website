@@ -31,6 +31,8 @@ class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithSty
             $viewName = 'reports.pembelian';
         } elseif ($this->exportType == 'biaya') {
             $viewName = 'reports.biaya';
+        } elseif ($this->exportType == 'kunjungan') {
+            $viewName = 'reports.kunjungan';
         }
 
         return view($viewName, [
@@ -45,7 +47,8 @@ class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithSty
             'all' => 'Semua Transaksi',
             'penjualan' => 'Laporan Penjualan',
             'pembelian' => 'Laporan Pembelian',
-            'biaya' => 'Laporan Biaya'
+            'biaya' => 'Laporan Biaya',
+            'kunjungan' => 'Laporan Kunjungan'
         ];
 
         return $titles[$this->exportType] ?? 'Laporan Transaksi';

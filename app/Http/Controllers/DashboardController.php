@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Penjualan;
 use App\Pembelian;
 use App\Biaya;
+use App\Kunjungan;
 use App\User;
 use App\Produk;
 use App\Gudang;
@@ -60,6 +61,10 @@ class DashboardController extends Controller
                     return $q->where('gudang_id', $selectedGudangId);
                 });
             $biayaQuery = Biaya::where('status', '!=', 'Canceled');
+            $kunjunganQuery = Kunjungan::where('status', '!=', 'Canceled')
+                ->when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                    return $q->where('gudang_id', $selectedGudangId);
+                });
 
             $data['card_4_title'] = 'Jumlah User Terdaftar';
             $data['card_4_value'] = User::count();
@@ -72,12 +77,15 @@ class DashboardController extends Controller
                     ->where('gudang_id', $selectedGudangId)->count()
                     + Pembelian::where('status', '!=', 'Canceled')
                         ->where('gudang_id', $selectedGudangId)->count()
-                    + Biaya::where('status', '!=', 'Canceled')->count();
+                    + Biaya::where('status', '!=', 'Canceled')->count()
+                    + Kunjungan::where('status', '!=', 'Canceled')
+                        ->where('gudang_id', $selectedGudangId)->count();
             } else {
                 $data['totalProduk'] = Produk::count();
                 $data['totalTransaksi'] = Penjualan::where('status', '!=', 'Canceled')->count()
                     + Pembelian::where('status', '!=', 'Canceled')->count()
-                    + Biaya::where('status', '!=', 'Canceled')->count();
+                    + Biaya::where('status', '!=', 'Canceled')->count()
+                    + Kunjungan::where('status', '!=', 'Canceled')->count();
             }
 
             // Ambil semua transaksi untuk tabel (exclude Canceled) - filtered by gudang
@@ -90,6 +98,10 @@ class DashboardController extends Controller
                     return $q->where('gudang_id', $selectedGudangId);
                 })->get();
             $biayas = Biaya::with('user')->where('status', '!=', 'Canceled')->get();
+            $kunjungans = Kunjungan::with('user')->where('status', '!=', 'Canceled')
+                ->when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                    return $q->where('gudang_id', $selectedGudangId);
+                })->get();
 
         } elseif ($role == 'admin') {
             // Admin lihat data sesuai gudang yang dipilih dari filter (sudah divalidasi aksesnya di atas)
@@ -97,10 +109,12 @@ class DashboardController extends Controller
                 $penjualanQuery = Penjualan::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled');
                 $pembelianQuery = Pembelian::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled');
                 $biayaQuery = Biaya::where('status', '!=', 'Canceled'); // Biaya tidak punya gudang
+                $kunjunganQuery = Kunjungan::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled');
 
                 $pendingCount = Penjualan::where('gudang_id', $selectedGudangId)->where('status', 'Pending')->count()
                     + Pembelian::where('gudang_id', $selectedGudangId)->where('status', 'Pending')->count()
-                    + Biaya::where('status', 'Pending')->count();
+                    + Biaya::where('status', 'Pending')->count()
+                    + Kunjungan::where('gudang_id', $selectedGudangId)->where('status', 'Pending')->count();
 
                 $data['card_4_title'] = 'Menunggu Approval Anda';
                 $data['card_4_value'] = $pendingCount;
@@ -110,12 +124,14 @@ class DashboardController extends Controller
                 $data['totalProduk'] = GudangProduk::where('gudang_id', $selectedGudangId)->count();
                 $data['totalTransaksi'] = Penjualan::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->count()
                     + Pembelian::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->count()
-                    + Biaya::where('status', '!=', 'Canceled')->count();
+                    + Biaya::where('status', '!=', 'Canceled')->count()
+                    + Kunjungan::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->count();
 
                 // Ambil transaksi di gudang terpilih (exclude Canceled)
                 $penjualans = Penjualan::with('user')->where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->get();
                 $pembelians = Pembelian::with('user')->where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->get();
                 $biayas = Biaya::with('user')->where('status', '!=', 'Canceled')->get();
+                $kunjungans = Kunjungan::with('user')->where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->get();
             } else {
                 // Admin tanpa gudang tidak bisa melihat apapun
                 return view('dashboard', [
@@ -127,14 +143,17 @@ class DashboardController extends Controller
                     'penjualanBulanIni' => 0,
                     'pembelianBulanIni' => 0,
                     'biayaBulanIni' => 0,
+                    'kunjunganBulanIni' => 0,
                     'biayaMasukBulanIni' => 0,
                     'biayaKeluarBulanIni' => 0,
                     'penjualanCountBulanIni' => 0,
                     'pembelianCountBulanIni' => 0,
                     'biayaCountBulanIni' => 0,
+                    'kunjunganCountBulanIni' => 0,
                     'penjualanTotal' => 0,
                     'pembelianTotal' => 0,
                     'biayaTotal' => 0,
+                    'kunjunganTotal' => 0,
                     'pembelianNominalBulanIni' => 0,
                     'availableGudangs' => collect(),
                     'selectedGudangId' => null,
@@ -145,10 +164,12 @@ class DashboardController extends Controller
             $penjualanQuery = Penjualan::where('user_id', $userId)->where('status', '!=', 'Canceled');
             $pembelianQuery = Pembelian::where('user_id', $userId)->where('status', '!=', 'Canceled');
             $biayaQuery = Biaya::where('user_id', $userId)->where('status', '!=', 'Canceled');
+            $kunjunganQuery = Kunjungan::where('user_id', $userId)->where('status', '!=', 'Canceled');
 
             $pendingCount = (clone $penjualanQuery)->where('status', 'Pending')->count()
                 + (clone $pembelianQuery)->where('status', 'Pending')->count()
-                + (clone $biayaQuery)->where('status', 'Pending')->count();
+                + (clone $biayaQuery)->where('status', 'Pending')->count()
+                + (clone $kunjunganQuery)->where('status', 'Pending')->count();
 
             $data['card_4_title'] = 'Data Menunggu Persetujuan';
             $data['card_4_value'] = $pendingCount;
@@ -162,7 +183,8 @@ class DashboardController extends Controller
             }
             $data['totalTransaksi'] = (clone $penjualanQuery)->count()
                 + (clone $pembelianQuery)->count()
-                + (clone $biayaQuery)->count();
+                + (clone $biayaQuery)->count()
+                + (clone $kunjunganQuery)->count();
         }
 
         // ==================== STATISTIK TAMBAHAN ====================
@@ -182,10 +204,16 @@ class DashboardController extends Controller
             ->whereMonth('tgl_transaksi', $now->month)
             ->count();
 
+        $data['kunjunganCountBulanIni'] = (clone $kunjunganQuery)
+            ->whereYear('tgl_kunjungan', $now->year)
+            ->whereMonth('tgl_kunjungan', $now->month)
+            ->count();
+
         // Total nominal keseluruhan (semua waktu)
         $data['penjualanTotal'] = (clone $penjualanQuery)->sum('grand_total');
         $data['pembelianTotal'] = (clone $pembelianQuery)->sum('grand_total');
         $data['biayaTotal'] = (clone $biayaQuery)->sum('grand_total');
+        $data['kunjunganTotal'] = (clone $kunjunganQuery)->count();
 
         // Nominal pembelian bulan ini
         $data['pembelianNominalBulanIni'] = (clone $pembelianQuery)
@@ -347,8 +375,15 @@ class DashboardController extends Controller
                 $item->route = route('biaya.show', $item->id);
                 $item->number = "EXP-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
             });
+            $kunjungans->each(function ($item) {
+                $dateCode = $item->created_at->format('Ymd');
+                $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
+                $item->type = 'Kunjungan';
+                $item->route = route('kunjungan.show', $item->id);
+                $item->number = "VST-{$dateCode}-{$item->user_id}-{$noUrutPadded}";
+            });
 
-            $allTransactions = $penjualans->concat($pembelians)->concat($biayas)->sortByDesc('created_at')->values();
+            $allTransactions = $penjualans->concat($pembelians)->concat($biayas)->concat($kunjungans)->sortByDesc('created_at')->values();
 
             // Manual Pagination
             $currentPage = $request->get('page', 1);
@@ -373,6 +408,11 @@ class DashboardController extends Controller
             ->whereYear('tgl_transaksi', $now->year)
             ->whereMonth('tgl_transaksi', $now->month)
             ->sum('grand_total');
+
+        $data['kunjunganBulanIni'] = (clone $kunjunganQuery)
+            ->whereYear('tgl_kunjungan', $now->year)
+            ->whereMonth('tgl_kunjungan', $now->month)
+            ->count();
 
         // Biaya Masuk dan Keluar (Approved only)
         $data['biayaMasukBulanIni'] = (clone $biayaQuery)
@@ -399,7 +439,7 @@ class DashboardController extends Controller
         $request->validate([
             'date_from' => 'required|date',
             'date_to' => 'required|date|after_or_equal:date_from',
-            'transaction_type' => 'required|in:all,penjualan,pembelian,biaya',
+            'transaction_type' => 'required|in:all,penjualan,pembelian,biaya,kunjungan',
             'status_filter' => 'nullable|in:all,Pending,Approved,Rejected,Canceled,Lunas',
             'gudang_id' => 'nullable|exists:gudangs,id',
             'biaya_jenis' => 'nullable|in:masuk,keluar',
@@ -416,6 +456,7 @@ class DashboardController extends Controller
         $penjualans = collect();
         $pembelians = collect();
         $biayas = collect();
+        $kunjungans = collect();
 
         // Helper function untuk generate custom number
         $generateNumber = function ($item, $prefix) {
@@ -512,12 +553,42 @@ class DashboardController extends Controller
             });
         }
 
+        // KUNJUNGAN
+        if (in_array($transactionType, ['all', 'kunjungan'])) {
+            $query = Kunjungan::with('user', 'gudang', 'approver')
+                ->whereBetween('tgl_kunjungan', [$dateFrom, $dateTo]);
+
+            if ($user->role == 'admin') {
+                $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
+                $query->whereIn('gudang_id', $accessibleGudangIds);
+            }
+
+            // Gudang filter
+            if ($gudangId) {
+                if ($user->role == 'admin' && !$user->canAccessGudang($gudangId)) {
+                    abort(403, 'Tidak memiliki akses ke gudang ini');
+                }
+                $query->where('gudang_id', $gudangId);
+            }
+
+            if ($statusFilter != 'all') {
+                $query->where('status', $statusFilter);
+            }
+
+            $kunjungans = $query->get();
+            $kunjungans->each(function ($item) use ($generateNumber) {
+                $item->type = 'Kunjungan';
+                $item->number = $generateNumber($item, 'VST');
+            });
+        }
+
         // Determine export type and file name
         $typeLabel = [
             'all' => 'Semua_Transaksi',
             'penjualan' => 'Penjualan',
             'pembelian' => 'Pembelian',
-            'biaya' => 'Biaya'
+            'biaya' => 'Biaya',
+            'kunjungan' => 'Kunjungan'
         ];
 
         $gudangLabel = '';
@@ -530,10 +601,10 @@ class DashboardController extends Controller
 
         // Export based on type
         if ($transactionType == 'all') {
-            $allTransactions = $penjualans->concat($pembelians)->concat($biayas)->sortBy('tgl_transaksi');
+            $allTransactions = $penjualans->concat($pembelians)->concat($biayas)->concat($kunjungans)->sortBy('created_at');
             return Excel::download(new TransactionsExport($allTransactions, 'all'), $fileName);
         } else {
-            $data = ${$transactionType . 's'}; // $penjualans, $pembelians, $biayas
+            $data = ${$transactionType . 's'}; // $penjualans, $pembelians, $biayas, $kunjungans
             return Excel::download(new TransactionsExport($data, $transactionType), $fileName);
         }
     }

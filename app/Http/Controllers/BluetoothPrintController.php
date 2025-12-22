@@ -158,4 +158,32 @@ class BluetoothPrintController extends Controller
             'invoice_url' => url('invoice/biaya/' . $data->uuid)
         ]);
     }
+
+    /**
+     * Get Kunjungan data as JSON for Bluetooth printing
+     */
+    public function kunjunganJson($id)
+    {
+        $data = \App\Kunjungan::with(['user', 'gudang', 'approver'])->findOrFail($id);
+
+        $dateCode = $data->created_at->format('Ymd');
+        $noUrut = str_pad($data->no_urut_harian, 3, '0', STR_PAD_LEFT);
+
+        return response()->json([
+            'nomor' => "VST-{$data->user_id}-{$dateCode}-{$noUrut}",
+            'tanggal' => $data->tgl_kunjungan->format('d/m/Y'),
+            'waktu' => $data->created_at->format('H:i'),
+            'tujuan' => $data->tujuan,
+            'sales_nama' => $data->sales_nama,
+            'sales_email' => $data->sales_email ?? '-',
+            'sales_alamat' => $data->sales_alamat ?? '-',
+            'pembuat' => optional($data->user)->name ?? '-',
+            'approver' => ($data->status != 'Pending' && $data->approver) ? $data->approver->name : '-',
+            'gudang' => optional($data->gudang)->nama_gudang ?? '-',
+            'status' => $data->status,
+            'koordinat' => $data->koordinat ?? '-',
+            'memo' => $data->memo ?? '-',
+            'invoice_url' => url('invoice/kunjungan/' . $data->uuid)
+        ]);
+    }
 }

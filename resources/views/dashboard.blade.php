@@ -119,8 +119,31 @@
                 </div>
             </div>
         </div>
-        {{-- Card Ke-4 Dinamis --}}
+        {{-- Card Kunjungan --}}
         <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Kunjungan (Bulan Ini)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ $kunjunganBulanIni ?? 0 }}
+                            </div>
+                            <div class="text-xs text-muted mt-1">
+                                {{ $kunjunganCountBulanIni ?? 0 }} kunjungan
+                            </div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-map-marker-alt fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ROW 1.5: Card Dinamis + Biaya Masuk/Keluar --}}
+    <div class="row">
+        {{-- Card Dinamis --}}
+        <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -135,12 +158,8 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    {{-- ROW 1.5: Cards Biaya Masuk/Keluar --}}
-    <div class="row">
         {{-- Card Biaya Masuk --}}
-        <div class="col-xl-6 col-md-6 mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -158,7 +177,7 @@
             </div>
         </div>
         {{-- Card Biaya Keluar --}}
-        <div class="col-xl-6 col-md-6 mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-danger shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -564,6 +583,7 @@
                                 <option value="penjualan">Penjualan</option>
                                 <option value="pembelian">Pembelian</option>
                                 <option value="biaya">Biaya</option>
+                                <option value="kunjungan">Kunjungan</option>
                             </select>
                         </div>
 

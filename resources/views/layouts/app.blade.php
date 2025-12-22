@@ -1609,6 +1609,12 @@
                         <span>Biaya</span>
                     </a>
                 </li>
+                <li class="nav-item {{ Route::is('kunjungan.*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('kunjungan.index') }}" title="Kunjungan">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Kunjungan</span>
+                    </a>
+                </li>
 
                 @if(auth()->user()->role == 'super_admin')
                     <hr class="sidebar-divider">

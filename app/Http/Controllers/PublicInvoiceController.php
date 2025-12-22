@@ -99,4 +99,31 @@ class PublicInvoiceController extends Controller
 
         return $pdf->download($filename);
     }
+
+    /**
+     * Show public invoice for Kunjungan
+     */
+    public function showKunjungan($uuid)
+    {
+        $kunjungan = \App\Kunjungan::where('uuid', $uuid)->with(['user', 'gudang', 'approver'])->firstOrFail();
+
+        return view('public.invoice-kunjungan', compact('kunjungan'));
+    }
+
+    /**
+     * Download PDF for Kunjungan
+     */
+    public function downloadKunjungan($uuid)
+    {
+        $kunjungan = \App\Kunjungan::where('uuid', $uuid)->with(['user', 'gudang', 'approver'])->firstOrFail();
+
+        $dateCode = $kunjungan->created_at->format('Ymd');
+        $noUrut = str_pad($kunjungan->no_urut_harian, 3, '0', STR_PAD_LEFT);
+        $filename = "VST-{$kunjungan->user_id}-{$dateCode}-{$noUrut}.pdf";
+
+        $pdf = PDF::loadView('public.invoice-kunjungan-pdf', compact('kunjungan'));
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->download($filename);
+    }
 }

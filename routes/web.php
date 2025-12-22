@@ -33,6 +33,10 @@ Route::prefix('invoice')->name('public.invoice.')->group(function () {
     // Biaya
     Route::get('biaya/{uuid}', 'PublicInvoiceController@showBiaya')->name('biaya');
     Route::get('biaya/{uuid}/download', 'PublicInvoiceController@downloadBiaya')->name('biaya.download');
+
+    // Kunjungan
+    Route::get('kunjungan/{uuid}', 'PublicInvoiceController@showKunjungan')->name('kunjungan');
+    Route::get('kunjungan/{uuid}/download', 'PublicInvoiceController@downloadKunjungan')->name('kunjungan.download');
 });
 
 // ========================================================================
@@ -48,6 +52,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('bluetooth/penjualan/{id}', 'BluetoothPrintController@penjualanJson')->name('bluetooth.penjualan');
     Route::get('bluetooth/pembelian/{id}', 'BluetoothPrintController@pembelianJson')->name('bluetooth.pembelian');
     Route::get('bluetooth/biaya/{id}', 'BluetoothPrintController@biayaJson')->name('bluetooth.biaya');
+    Route::get('bluetooth/kunjungan/{id}', 'BluetoothPrintController@kunjunganJson')->name('bluetooth.kunjungan');
 
     // --- TRANSAKSI (CRUD & PRINT) ---
 
@@ -78,6 +83,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('biaya/{biaya}/approve', 'BiayaController@approve')->name('biaya.approve');
     Route::post('biaya/{biaya}/cancel', 'BiayaController@cancel')->name('biaya.cancel');
     Route::resource('biaya', 'BiayaController');
+
+    // 4. Modul Kunjungan
+    Route::get('kunjungan/{kunjungan}/print', 'KunjunganController@print')->name('kunjungan.print');
+    Route::get('kunjungan/{kunjungan}/print-json', 'KunjunganController@printJson')->name('kunjungan.printJson');
+    Route::post('kunjungan/{kunjungan}/approve', 'KunjunganController@approve')->name('kunjungan.approve');
+    Route::post('kunjungan/{kunjungan}/cancel', 'KunjunganController@cancel')->name('kunjungan.cancel');
+    Route::resource('kunjungan', 'KunjunganController');
 
 
     // ====================================================================
