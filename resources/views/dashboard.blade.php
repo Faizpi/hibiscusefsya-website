@@ -407,8 +407,12 @@
                                                         <span class="badge badge-primary">Penjualan</span>
                                                     @elseif($item->type == 'Pembelian')
                                                         <span class="badge badge-success">Pembelian</span>
-                                                    @else
+                                                    @elseif($item->type == 'Biaya')
                                                         <span class="badge badge-info">Biaya</span>
+                                                    @elseif($item->type == 'Kunjungan')
+                                                        <span class="badge badge-secondary">Kunjungan</span>
+                                                    @else
+                                                        <span class="badge badge-light">-</span>
                                                     @endif
                                                 </td>
                                                 <td>
@@ -501,8 +505,12 @@
                                                         <span class="badge badge-primary">Penjualan</span>
                                                     @elseif($item->type == 'Pembelian')
                                                         <span class="badge badge-success">Pembelian</span>
-                                                    @else
+                                                    @elseif($item->type == 'Biaya')
                                                         <span class="badge badge-info">Biaya</span>
+                                                    @elseif($item->type == 'Kunjungan')
+                                                        <span class="badge badge-secondary">Kunjungan</span>
+                                                    @else
+                                                        <span class="badge badge-light">-</span>
                                                     @endif
                                                 </td>
                                                 <td>

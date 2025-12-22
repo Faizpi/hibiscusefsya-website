@@ -141,17 +141,14 @@
                             <div class="form-group">
                                 <label for="lampiran">Lampiran</label>
                                 @if($kunjungan->lampiran_path)
-                                    <div class="mb-2">
-                                        <a href="{{ asset('storage/' . $kunjungan->lampiran_path) }}" target="_blank"
-                                            class="btn btn-sm btn-outline-info">
-                                            <i class="fas fa-file"></i> Lihat Lampiran Saat Ini
-                                        </a>
-                                    </div>
+                                    <div class="mb-2 small">File saat ini: <a href="{{ asset('storage/' . $kunjungan->lampiran_path) }}" target="_blank">{{ basename($kunjungan->lampiran_path) }}</a></div>
                                 @endif
-                                <input type="file" class="form-control-file @error('lampiran') is-invalid @enderror"
-                                    id="lampiran" name="lampiran" accept=".jpg,.png,.pdf,.zip,.doc,.docx">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror" id="lampiran" name="lampiran" accept=".jpg,.png,.pdf,.zip,.doc,.docx">
+                                    <label class="custom-file-label" for="lampiran">Pilih file baru...</label>
+                                </div>
                                 <small class="text-muted">Kosongkan jika tidak ingin mengubah lampiran</small>
-                                @error('lampiran') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>

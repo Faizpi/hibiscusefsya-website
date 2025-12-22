@@ -25,9 +25,11 @@ class KunjunganController extends Controller
         if ($user->role == 'super_admin') {
             // Super admin lihat semua
         } elseif ($user->role == 'admin') {
-            // Admin lihat data di gudang yang dia handle atau yang dia buat
-            $query->where(function ($q) use ($user) {
-                $q->where('approver_id', $user->id)
+            // Admin: lihat data pada gudang yang dia akses, atau yang dia buat, atau yang ditunjuk ke dia
+            $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
+            $query->where(function ($q) use ($user, $accessibleGudangIds) {
+                $q->whereIn('gudang_id', $accessibleGudangIds)
+                    ->orWhere('approver_id', $user->id)
                     ->orWhere('user_id', $user->id);
             });
         } else {
@@ -303,8 +305,12 @@ class KunjunganController extends Controller
     {
         $user = Auth::user();
 
-        // Hanya admin yang ditunjuk atau super_admin yang bisa approve
-        if ($user->role == 'super_admin' || ($user->role == 'admin' && $kunjungan->approver_id == $user->id)) {
+        // Hanya super_admin atau admin yang memiliki akses ke gudang/ditunjuk yang bisa approve
+        $canApproveAsAdmin = $user->role == 'admin' && (
+            $kunjungan->approver_id == $user->id || ($kunjungan->gudang_id && method_exists($user, 'canAccessGudang') && $user->canAccessGudang($kunjungan->gudang_id))
+        );
+
+        if ($user->role == 'super_admin' || $canApproveAsAdmin) {
             $kunjungan->update([
                 'status' => 'Approved',
                 'approver_id' => $user->id

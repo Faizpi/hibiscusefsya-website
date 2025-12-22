@@ -157,7 +157,8 @@
 
                                             {{-- APPROVE: Hanya admin/super_admin untuk status Pending --}}
                                             @if($item->status == 'Pending')
-                                                @if($role == 'super_admin' || ($role == 'admin' && $item->approver_id == auth()->id()))
+                                                @php $user = auth()->user(); @endphp
+                                                @if($role == 'super_admin' || ($role == 'admin' && ( $item->approver_id == $user->id || ($item->gudang_id && method_exists($user, 'canAccessGudang') && $user->canAccessGudang($item->gudang_id)) )))
                                                     <form action="{{ route('kunjungan.approve', $item->id) }}" method="POST"
                                                         class="d-inline">
                                                         @csrf

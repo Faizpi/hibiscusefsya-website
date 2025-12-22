@@ -138,10 +138,12 @@
 
                             <div class="form-group">
                                 <label for="lampiran">Lampiran</label>
-                                <input type="file" class="form-control-file @error('lampiran') is-invalid @enderror"
-                                    id="lampiran" name="lampiran" accept=".jpg,.png,.pdf,.zip,.doc,.docx">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror" id="lampiran" name="lampiran" accept=".jpg,.png,.pdf,.zip,.doc,.docx">
+                                    <label class="custom-file-label" for="lampiran">Pilih file...</label>
+                                </div>
                                 <small class="text-muted">Format: jpg, png, pdf, zip, doc, docx (max 2MB)</small>
-                                @error('lampiran') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>

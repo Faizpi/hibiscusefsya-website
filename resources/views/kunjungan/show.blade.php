@@ -8,9 +8,9 @@
             <div>
                 @php $user = auth()->user(); @endphp
 
-                {{-- Tombol Approve (Super Admin atau Admin yang ditunjuk) --}}
+                {{-- Tombol Approve (Super Admin atau Admin yang punya akses gudang/ditunjuk) --}}
                 @if($kunjungan->status == 'Pending')
-                    @if($user->role == 'super_admin' || ($user->role == 'admin' && $kunjungan->approver_id == $user->id))
+                    @if($user->role == 'super_admin' || ($user->role == 'admin' && ( $kunjungan->approver_id == $user->id || ($kunjungan->gudang_id && method_exists($user, 'canAccessGudang') && $user->canAccessGudang($kunjungan->gudang_id)) )))
                         <form action="{{ route('kunjungan.approve', $kunjungan->id) }}" method="POST" class="d-inline"
                             title="Setujui data ini">
                             @csrf
@@ -141,36 +141,53 @@
                                     @endif
                                 </td>
                             </tr>
-                            <tr>
-                                <td><strong>Lampiran</strong></td>
-                                <td>:
-                                    @if($kunjungan->lampiran_path)
-                                        <a href="{{ asset('storage/' . $kunjungan->lampiran_path) }}" target="_blank"
-                                            class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-download"></i> Download
-                                        </a>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                            </tr>
+                            
                         </table>
                     </div>
                 </div>
 
-                {{-- MEMO --}}
-                @if($kunjungan->memo)
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h6 class="font-weight-bold">Memo / Catatan:</h6>
-                                    <p class="mb-0">{{ $kunjungan->memo }}</p>
-                                </div>
+                {{-- MEMO & LAMPIRAN (samakan dengan Penjualan/Pembelian) --}}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Memo</h6>
+                            </div>
+                            <div class="card-body">{{ $kunjungan->memo ?? 'Tidak ada memo.' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Lampiran</h6>
+                            </div>
+                            <div class="card-body">
+                                @if($kunjungan->lampiran_path)
+                                    @php
+                                        $path = $kunjungan->lampiran_path;
+                                        $isImage = in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                    @endphp
+                                    @if($isImage)
+                                        <a href="{{ asset('storage/' . $path) }}" target="_blank">
+                                            <img src="{{ asset('storage/' . $path) }}" alt="Lampiran" class="img-fluid rounded"
+                                                style="max-height: 250px;">
+                                        </a>
+                                    @else
+                                        <div class="alert alert-info d-flex align-items-center mb-0">
+                                            <i class="fas fa-file-alt fa-2x mr-3"></i>
+                                            <div>
+                                                <strong>File terlampir:</strong><br>
+                                                <a href="{{ asset('storage/' . $path) }}" target="_blank">{{ basename($path) }}</a>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @else
+                                    <p class="text-muted mb-0">Tidak ada lampiran.</p>
+                                @endif
                             </div>
                         </div>
                     </div>
-                @endif
+                </div>
             </div>
         </div>
     </div>
