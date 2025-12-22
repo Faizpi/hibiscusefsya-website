@@ -297,11 +297,6 @@ class PembelianController extends Controller
         if ($user->role !== 'super_admin') {
             return redirect()->route('pembelian.index')->with('error', 'Anda tidak memiliki akses untuk mengedit data pembelian.');
         }
-        $canEdit = true;
-
-        if (!$canEdit) {
-            return redirect()->route('pembelian.index')->with('error', 'Anda tidak memiliki akses untuk mengedit data ini.');
-        }
 
         // Untuk user biasa, hanya tampilkan produk yang ada di gudang mereka
         if ($user->role == 'user' && $user->gudang_id) {

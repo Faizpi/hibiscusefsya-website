@@ -319,11 +319,6 @@ class BiayaController extends Controller
         if ($user->role !== 'super_admin') {
             return redirect()->route('biaya.index')->with('error', 'Anda tidak memiliki akses untuk mengedit data biaya.');
         }
-        $canEdit = true;
-
-        if (!$canEdit) {
-            return redirect()->route('biaya.index')->with('error', 'Anda tidak memiliki akses untuk mengedit data ini.');
-        }
 
         $biaya->load('items');
         $kontaks = Kontak::all();

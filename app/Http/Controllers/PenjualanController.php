@@ -320,15 +320,10 @@ class PenjualanController extends Controller
     public function edit(Penjualan $penjualan)
     {
         $user = Auth::user();
-        $canEdit = false;
 
         // Only super_admin dapat mengedit
         if ($user->role !== 'super_admin') {
             return redirect()->route('penjualan.index')->with('error', 'Anda tidak memiliki akses untuk mengedit data penjualan.');
-        }
-
-        if (!$canEdit) {
-            return redirect()->route('penjualan.index')->with('error', 'Akses ditolak.');
         }
 
         // Untuk user biasa, hanya tampilkan produk yang ada di gudang mereka
