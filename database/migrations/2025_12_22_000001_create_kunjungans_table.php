@@ -11,7 +11,7 @@ class CreateKunjungansTable extends Migration
         Schema::create('kunjungans', function (Blueprint $table) {
             $table->id();
             $table->string('uuid', 36)->unique();
-            
+
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
 
@@ -23,24 +23,24 @@ class CreateKunjungansTable extends Migration
 
             $table->integer('no_urut_harian')->default(1);
             $table->string('nomor')->nullable();
-            
+
             // Sales/kontak info
             $table->string('sales_nama');
             $table->string('sales_email')->nullable();
             $table->text('sales_alamat')->nullable();
-            
+
             // Kunjungan details
             $table->date('tgl_kunjungan');
             $table->enum('tujuan', ['Pemeriksaan Stock', 'Penagihan', 'Penawaran']);
-            
+
             // Location & memo
             $table->string('koordinat')->nullable();
             $table->text('memo')->nullable();
             $table->string('lampiran_path')->nullable();
-            
+
             // Status (same as other modules)
             $table->string('status')->default('Pending');
-            
+
             $table->timestamps();
         });
     }

@@ -175,18 +175,18 @@
                 <td class="value">{{ $kunjungan->sales_nama }}</td>
             </tr>
             @if($kunjungan->sales_email)
-            <tr>
-                <td class="label">Email</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $kunjungan->sales_email }}</td>
-            </tr>
+                <tr>
+                    <td class="label">Email</td>
+                    <td class="colon">:</td>
+                    <td class="value">{{ $kunjungan->sales_email }}</td>
+                </tr>
             @endif
             @if($kunjungan->sales_alamat)
-            <tr>
-                <td class="label">Alamat</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $kunjungan->sales_alamat }}</td>
-            </tr>
+                <tr>
+                    <td class="label">Alamat</td>
+                    <td class="colon">:</td>
+                    <td class="value">{{ $kunjungan->sales_alamat }}</td>
+                </tr>
             @endif
         </table>
 
@@ -210,35 +210,35 @@
                 <td class="value">{{ $kunjungan->status }}</td>
             </tr>
             @if($kunjungan->status != 'Pending' && $kunjungan->approver)
-            <tr>
-                <td class="label">Approver</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $kunjungan->approver->name }}</td>
-            </tr>
+                <tr>
+                    <td class="label">Approver</td>
+                    <td class="colon">:</td>
+                    <td class="value">{{ $kunjungan->approver->name }}</td>
+                </tr>
             @endif
         </table>
 
         @if($kunjungan->koordinat)
-        <div class="divider"></div>
-        <table>
-            <tr>
-                <td class="label">Koordinat</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $kunjungan->koordinat }}</td>
-            </tr>
-        </table>
+            <div class="divider"></div>
+            <table>
+                <tr>
+                    <td class="label">Koordinat</td>
+                    <td class="colon">:</td>
+                    <td class="value">{{ $kunjungan->koordinat }}</td>
+                </tr>
+            </table>
         @endif
 
         @if($kunjungan->memo)
-        <div class="divider"></div>
-        <table>
-            <tr>
-                <td colspan="3"><strong>Memo:</strong></td>
-            </tr>
-            <tr>
-                <td colspan="3">{{ $kunjungan->memo }}</td>
-            </tr>
-        </table>
+            <div class="divider"></div>
+            <table>
+                <tr>
+                    <td colspan="3"><strong>Memo:</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="3">{{ $kunjungan->memo }}</td>
+                </tr>
+            </table>
         @endif
 
         <div class="divider"></div>

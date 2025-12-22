@@ -39,7 +39,8 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Gudang</label>
-                                <input type="text" class="form-control" value="{{ $gudang ? $gudang->nama_gudang : 'Tidak ada gudang' }}" readonly>
+                                <input type="text" class="form-control"
+                                    value="{{ $gudang ? $gudang->nama_gudang : 'Tidak ada gudang' }}" readonly>
                             </div>
                         </div>
                     </div>
@@ -55,10 +56,8 @@
                                     name="sales_nama" required>
                                     <option value="">Pilih kontak...</option>
                                     @foreach($kontaks as $kontak)
-                                        <option value="{{ $kontak->nama }}" 
-                                            data-email="{{ $kontak->email }}" 
-                                            data-alamat="{{ $kontak->alamat }}"
-                                            {{ old('sales_nama') == $kontak->nama ? 'selected' : '' }}>
+                                        <option value="{{ $kontak->nama }}" data-email="{{ $kontak->email }}"
+                                            data-alamat="{{ $kontak->alamat }}" {{ old('sales_nama') == $kontak->nama ? 'selected' : '' }}>
                                             {{ $kontak->nama }}
                                         </option>
                                     @endforeach
@@ -76,9 +75,8 @@
 
                             <div class="form-group">
                                 <label for="sales_alamat">Alamat</label>
-                                <textarea class="form-control @error('sales_alamat') is-invalid @enderror"
-                                    id="sales_alamat" name="sales_alamat"
-                                    rows="3">{{ old('sales_alamat') }}</textarea>
+                                <textarea class="form-control @error('sales_alamat') is-invalid @enderror" id="sales_alamat"
+                                    name="sales_alamat" rows="3">{{ old('sales_alamat') }}</textarea>
                                 @error('sales_alamat') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -101,8 +99,8 @@
 
                             <div class="form-group">
                                 <label for="tujuan">Tujuan Kunjungan *</label>
-                                <select class="form-control @error('tujuan') is-invalid @enderror" id="tujuan"
-                                    name="tujuan" required>
+                                <select class="form-control @error('tujuan') is-invalid @enderror" id="tujuan" name="tujuan"
+                                    required>
                                     <option value="">Pilih tujuan...</option>
                                     <option value="Pemeriksaan Stock" {{ old('tujuan') == 'Pemeriksaan Stock' ? 'selected' : '' }}>
                                         Kunjungan Pemeriksaan Stock
@@ -171,51 +169,51 @@
 @endsection
 
 @push('scripts')
-<script>
-    $(document).ready(function() {
-        // Auto-fill email dan alamat saat kontak dipilih
-        $('#sales_nama').on('change', function() {
-            var selected = $(this).find(':selected');
-            var email = selected.data('email') || '';
-            var alamat = selected.data('alamat') || '';
-            
-            $('#sales_email').val(email);
-            $('#sales_alamat').val(alamat);
-        });
+    <script>
+        $(document).ready(function () {
+            // Auto-fill email dan alamat saat kontak dipilih
+            $('#sales_nama').on('change', function () {
+                var selected = $(this).find(':selected');
+                var email = selected.data('email') || '';
+                var alamat = selected.data('alamat') || '';
 
-        // Auto get location
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    var lat = position.coords.latitude.toFixed(6);
-                    var lng = position.coords.longitude.toFixed(6);
-                    var koordinat = lat + ', ' + lng;
-                    $('#koordinat').val(koordinat);
-                    $('#btn-open-maps').attr('href', 'https://www.google.com/maps?q=' + lat + ',' + lng);
-                }, function(error) {
-                    console.log('Geolocation error:', error);
-                });
-            }
-        }
+                $('#sales_email').val(email);
+                $('#sales_alamat').val(alamat);
+            });
 
-        // Get location on page load
-        getLocation();
-
-        // Refresh location button
-        $('#btn-get-location').on('click', function() {
-            getLocation();
-        });
-
-        // Update maps link when koordinat changes
-        $('#koordinat').on('change', function() {
-            var val = $(this).val();
-            if (val) {
-                var parts = val.split(',');
-                if (parts.length == 2) {
-                    $('#btn-open-maps').attr('href', 'https://www.google.com/maps?q=' + parts[0].trim() + ',' + parts[1].trim());
+            // Auto get location
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        var lat = position.coords.latitude.toFixed(6);
+                        var lng = position.coords.longitude.toFixed(6);
+                        var koordinat = lat + ', ' + lng;
+                        $('#koordinat').val(koordinat);
+                        $('#btn-open-maps').attr('href', 'https://www.google.com/maps?q=' + lat + ',' + lng);
+                    }, function (error) {
+                        console.log('Geolocation error:', error);
+                    });
                 }
             }
+
+            // Get location on page load
+            getLocation();
+
+            // Refresh location button
+            $('#btn-get-location').on('click', function () {
+                getLocation();
+            });
+
+            // Update maps link when koordinat changes
+            $('#koordinat').on('change', function () {
+                var val = $(this).val();
+                if (val) {
+                    var parts = val.split(',');
+                    if (parts.length == 2) {
+                        $('#btn-open-maps').attr('href', 'https://www.google.com/maps?q=' + parts[0].trim() + ',' + parts[1].trim());
+                    }
+                }
+            });
         });
-    });
-</script>
+    </script>
 @endpush

@@ -316,16 +316,16 @@
                     <span class="value">{{ $kunjungan->sales_nama }}</span>
                 </div>
                 @if($kunjungan->sales_email)
-                <div class="info-row">
-                    <span class="label">Email</span>
-                    <span class="value">{{ $kunjungan->sales_email }}</span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">Email</span>
+                        <span class="value">{{ $kunjungan->sales_email }}</span>
+                    </div>
                 @endif
                 @if($kunjungan->sales_alamat)
-                <div class="info-row">
-                    <span class="label">Alamat</span>
-                    <span class="value">{{ $kunjungan->sales_alamat }}</span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">Alamat</span>
+                        <span class="value">{{ $kunjungan->sales_alamat }}</span>
+                    </div>
                 @endif
             </div>
 
@@ -343,29 +343,30 @@
                     <span class="value">{{ $kunjungan->user->name }}</span>
                 </div>
                 @if($kunjungan->status != 'Pending' && $kunjungan->approver)
-                <div class="info-row">
-                    <span class="label">Approver</span>
-                    <span class="value">{{ $kunjungan->approver->name }}</span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">Approver</span>
+                        <span class="value">{{ $kunjungan->approver->name }}</span>
+                    </div>
                 @endif
                 @if($kunjungan->koordinat)
-                <div class="info-row">
-                    <span class="label">Koordinat</span>
-                    <span class="value">
-                        <a href="https://www.google.com/maps?q={{ $kunjungan->koordinat }}" target="_blank" class="koordinat-link">
-                            {{ $kunjungan->koordinat }} <i class="fas fa-external-link-alt fa-xs"></i>
-                        </a>
-                    </span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">Koordinat</span>
+                        <span class="value">
+                            <a href="https://www.google.com/maps?q={{ $kunjungan->koordinat }}" target="_blank"
+                                class="koordinat-link">
+                                {{ $kunjungan->koordinat }} <i class="fas fa-external-link-alt fa-xs"></i>
+                            </a>
+                        </span>
+                    </div>
                 @endif
             </div>
 
             {{-- MEMO --}}
             @if($kunjungan->memo)
-            <div class="memo-section">
-                <h4><i class="fas fa-sticky-note"></i> Memo / Catatan</h4>
-                <p>{{ $kunjungan->memo }}</p>
-            </div>
+                <div class="memo-section">
+                    <h4><i class="fas fa-sticky-note"></i> Memo / Catatan</h4>
+                    <p>{{ $kunjungan->memo }}</p>
+                </div>
             @endif
 
             {{-- DOWNLOAD BUTTON --}}

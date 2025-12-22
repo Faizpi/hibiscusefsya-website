@@ -85,7 +85,8 @@
                 <form method="GET" class="mr-3">
                     <select name="tujuan" class="form-control form-control-sm" onchange="this.form.submit()">
                         <option value="">Semua Tujuan</option>
-                        <option value="Pemeriksaan Stock" {{ request('tujuan') == 'Pemeriksaan Stock' ? 'selected' : '' }}>Pemeriksaan Stock</option>
+                        <option value="Pemeriksaan Stock" {{ request('tujuan') == 'Pemeriksaan Stock' ? 'selected' : '' }}>
+                            Pemeriksaan Stock</option>
                         <option value="Penagihan" {{ request('tujuan') == 'Penagihan' ? 'selected' : '' }}>Penagihan</option>
                         <option value="Penawaran" {{ request('tujuan') == 'Penawaran' ? 'selected' : '' }}>Penawaran</option>
                     </select>
@@ -169,7 +170,8 @@
                                             @if(in_array($role, ['admin', 'super_admin']) && $item->status != 'Canceled')
                                                 @if($role == 'super_admin' || $item->status == 'Pending')
                                                     <button type="button" class="dropdown-item" data-toggle="modal"
-                                                        data-target="#cancelModal" data-action="{{ route('kunjungan.cancel', $item->id) }}">
+                                                        data-target="#cancelModal"
+                                                        data-action="{{ route('kunjungan.cancel', $item->id) }}">
                                                         <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan
                                                     </button>
                                                 @endif
@@ -255,17 +257,17 @@
 @endsection
 
 @push('scripts')
-<script>
-    $('#cancelModal').on('show.bs.modal', function(event) {
-        var button = $(event.relatedTarget);
-        var action = button.data('action');
-        $(this).find('#cancelForm').attr('action', action);
-    });
+    <script>
+        $('#cancelModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var action = button.data('action');
+            $(this).find('#cancelForm').attr('action', action);
+        });
 
-    $('#deleteModal').on('show.bs.modal', function(event) {
-        var button = $(event.relatedTarget);
-        var action = button.data('action');
-        $(this).find('#deleteForm').attr('action', action);
-    });
-</script>
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var action = button.data('action');
+            $(this).find('#deleteForm').attr('action', action);
+        });
+    </script>
 @endpush

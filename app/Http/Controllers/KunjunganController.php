@@ -78,7 +78,7 @@ class KunjunganController extends Controller
     {
         $kontaks = Kontak::all();
         $user = Auth::user();
-        
+
         // Get user's gudang
         $gudang = $user->getCurrentGudang();
 

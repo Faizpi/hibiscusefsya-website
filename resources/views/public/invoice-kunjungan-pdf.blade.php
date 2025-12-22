@@ -229,28 +229,28 @@
                 <td class="value">{{ $kunjungan->user->name }}</td>
             </tr>
             @if($kunjungan->status != 'Pending' && $kunjungan->approver)
-            <tr>
-                <td class="label">Approver</td>
-                <td class="value">{{ $kunjungan->approver->name }}</td>
-            </tr>
+                <tr>
+                    <td class="label">Approver</td>
+                    <td class="value">{{ $kunjungan->approver->name }}</td>
+                </tr>
             @endif
             @if($kunjungan->koordinat)
-            <tr>
-                <td class="label">Koordinat</td>
-                <td class="value">{{ $kunjungan->koordinat }}</td>
-            </tr>
+                <tr>
+                    <td class="label">Koordinat</td>
+                    <td class="value">{{ $kunjungan->koordinat }}</td>
+                </tr>
             @endif
         </table>
     </div>
 
     {{-- MEMO --}}
     @if($kunjungan->memo)
-    <div class="section">
-        <div class="section-title">Memo / Catatan</div>
-        <div class="memo-box">
-            {{ $kunjungan->memo }}
+        <div class="section">
+            <div class="section-title">Memo / Catatan</div>
+            <div class="memo-box">
+                {{ $kunjungan->memo }}
+            </div>
         </div>
-    </div>
     @endif
 
     {{-- FOOTER --}}

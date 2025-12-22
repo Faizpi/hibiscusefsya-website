@@ -35,7 +35,8 @@
                     data-url="{{ route('bluetooth.kunjungan', $kunjungan->id) }}">
                     <i class="fab fa-bluetooth-b fa-sm text-white"></i> Print Bluetooth
                 </button>
-                <a href="{{ route('kunjungan.print', $kunjungan->id) }}" target="_blank" class="btn btn-info btn-sm shadow-sm">
+                <a href="{{ route('kunjungan.print', $kunjungan->id) }}" target="_blank"
+                    class="btn btn-info btn-sm shadow-sm">
                     <i class="fas fa-print fa-sm"></i> Cetak Struk
                 </a>
                 <button type="button" class="btn btn-success btn-sm shadow-sm" data-toggle="modal" data-target="#qrModal">
