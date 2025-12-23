@@ -179,14 +179,16 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        // Auto-fill email dan alamat saat kontak dipilih
-        $('#sales_nama').on('change', function() {
-            var selected = $(this).find(':selected');
-            var email = selected.data('email') || '';
-            var alamat = selected.data('alamat') || '';
-            
-            $('#sales_email').val(email);
-            $('#sales_alamat').val(alamat);
+        // Init Select2 untuk dropdown Kontak (searchable)
+        $('#sales_nama').select2({
+            placeholder: 'Cari kontak...',
+            allowClear: true,
+            width: '100%'
+        }).on('select2:select', function(e) {
+            // Auto-fill email dan alamat saat kontak dipilih
+            var selected = this.options[this.selectedIndex];
+            $('#sales_email').val(selected.dataset.email || '');
+            $('#sales_alamat').val(selected.dataset.alamat || '');
         });
 
         // Refresh location button

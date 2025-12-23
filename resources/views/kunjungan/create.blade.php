@@ -139,7 +139,8 @@
                             <div class="form-group">
                                 <label for="lampiran">Lampiran</label>
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror" id="lampiran" name="lampiran" accept=".jpg,.png,.pdf,.zip,.doc,.docx">
+                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror"
+                                        id="lampiran" name="lampiran" accept=".jpg,.png,.pdf,.zip,.doc,.docx">
                                     <label class="custom-file-label" for="lampiran">Pilih file...</label>
                                 </div>
                                 <small class="text-muted">Format: jpg, png, pdf, zip, doc, docx (max 2MB)</small>
@@ -174,17 +175,16 @@
 @push('scripts')
     <script>
         $(document).ready(function () {
-            // Auto-fill email dan alamat saat kontak dipilih
-            $('#sales_nama').on('change', function () {
-                var selected = $(this).find(':selected');
-                var email = selected.data('email') || '';
-                var alamat = selected.data('alamat') || '';
-
-                $('#sales_email').val(email);
-                $('#sales_alamat').val(alamat);
-            });
-
-            // Auto get location
+            // Init Select2 untuk dropdown Kontak (searchable)
+            $('#sales_nama').select2({
+                placeholder: 'Cari kontak...',
+                allowClear: true,
+                width: '100%'
+            }).on('select2:select', function(e) {
+                // Auto-fill email dan alamat saat kontak dipilih
+                var selected = this.options[this.selectedIndex];
+                $('#sales_email').val(selected.dataset.email || '');
+                $('#sales_alamat').val(selected.dataset.alamat || '');
             function getLocation() {
                 if (navigator.geolocation) {
                     $('#btn-get-location').html('<i class="fas fa-spinner fa-spin"></i>');

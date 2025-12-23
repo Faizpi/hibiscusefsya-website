@@ -116,7 +116,8 @@
                                         <strong>{{ $item->custom_number }}</strong>
                                     </a>
                                 </td>
-                                <td>{{ $item->tgl_kunjungan->format('d M Y') }}<br><small class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
+                                <td>{{ $item->tgl_kunjungan->format('d M Y') }}<br><small
+                                        class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
                                 <td>
                                     <strong>{{ $item->sales_nama }}</strong>
                                     @if($item->sales_email)
@@ -158,7 +159,7 @@
                                             {{-- APPROVE: Hanya admin/super_admin untuk status Pending --}}
                                             @if($item->status == 'Pending')
                                                 @php $user = auth()->user(); @endphp
-                                                @if($role == 'super_admin' || ($role == 'admin' && ( $item->approver_id == $user->id || ($item->gudang_id && method_exists($user, 'canAccessGudang') && $user->canAccessGudang($item->gudang_id)) )))
+                                                @if($role == 'super_admin' || ($role == 'admin' && ($item->approver_id == $user->id || ($item->gudang_id && method_exists($user, 'canAccessGudang') && $user->canAccessGudang($item->gudang_id)))))
                                                     <form action="{{ route('kunjungan.approve', $item->id) }}" method="POST"
                                                         class="d-inline">
                                                         @csrf

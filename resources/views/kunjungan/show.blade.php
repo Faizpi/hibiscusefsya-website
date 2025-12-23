@@ -10,7 +10,7 @@
 
                 {{-- Tombol Approve (Super Admin atau Admin yang punya akses gudang/ditunjuk) --}}
                 @if($kunjungan->status == 'Pending')
-                    @if($user->role == 'super_admin' || ($user->role == 'admin' && ( $kunjungan->approver_id == $user->id || ($kunjungan->gudang_id && method_exists($user, 'canAccessGudang') && $user->canAccessGudang($kunjungan->gudang_id)) )))
+                    @if($user->role == 'super_admin' || ($user->role == 'admin' && ($kunjungan->approver_id == $user->id || ($kunjungan->gudang_id && method_exists($user, 'canAccessGudang') && $user->canAccessGudang($kunjungan->gudang_id)))))
                         <form action="{{ route('kunjungan.approve', $kunjungan->id) }}" method="POST" class="d-inline"
                             title="Setujui data ini">
                             @csrf
@@ -141,7 +141,7 @@
                                     @endif
                                 </td>
                             </tr>
-                            
+
                         </table>
                     </div>
                 </div>
