@@ -133,30 +133,26 @@
 
         @php
             $dateCode = $kunjungan->created_at->format('Ymd');
-            $noUrutPadded = str_pad($kunjungan->no_urut_harian, 3, '0', STR_PAD_LEFT);
-            $customNumber = "VST-{$dateCode}-{$kunjungan->user_id}-{$noUrutPadded}";
+            $noUrut = str_pad($kunjungan->no_urut_harian, 3, '0', STR_PAD_LEFT);
+            $nomorInvoice = "VST-{$kunjungan->user_id}-{$dateCode}-{$noUrut}";
+            $invoiceUrl = url('invoice/kunjungan/' . $kunjungan->uuid);
         @endphp
 
-        {{-- HEADER --}}
         <div class="header">
-            <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo" class="logo">
+            <img src="{{ asset('assets/img/logoHE1.png') }}" class="logo">
             <div class="title">BUKTI KUNJUNGAN</div>
-            <div>{{ $customNumber }}</div>
         </div>
 
-        <div class="divider"></div>
-
-        {{-- INFO UTAMA --}}
         <table>
+            <tr>
+                <td class="label">Nomor</td>
+                <td class="colon">:</td>
+                <td class="value">{{ $nomorInvoice }}</td>
+            </tr>
             <tr>
                 <td class="label">Tanggal</td>
                 <td class="colon">:</td>
-                <td class="value">{{ $kunjungan->tgl_kunjungan->format('d/m/Y') }}</td>
-            </tr>
-            <tr>
-                <td class="label">Waktu</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $kunjungan->created_at->format('H:i') }} WIB</td>
+                <td class="value">{{ $kunjungan->tgl_kunjungan->format('d/m/Y') }} | {{ $kunjungan->created_at->format('H:i') }}</td>
             </tr>
             <tr>
                 <td class="label">Tujuan</td>
@@ -244,9 +240,6 @@
         <div class="divider"></div>
 
         {{-- QR CODE --}}
-        @php
-            $invoiceUrl = route('public.invoice.kunjungan', $kunjungan->uuid);
-        @endphp
         <div class="qr-section">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
                 alt="QR Code" style="width: 100px; height: 100px;">
