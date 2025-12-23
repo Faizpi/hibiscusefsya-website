@@ -175,6 +175,11 @@
 @push('scripts')
     <script>
         $(document).ready(function () {
+            // Predefined elements
+            const salesNamaSelect = document.getElementById('sales_nama');
+            const salesEmailInput = document.getElementById('sales_email');
+            const salesAlamatInput = document.getElementById('sales_alamat');
+
             // Init Select2 untuk dropdown Kontak (searchable)
             $('#sales_nama').select2({
                 placeholder: 'Cari kontak...',
@@ -182,9 +187,11 @@
                 width: '100%'
             }).on('select2:select', function(e) {
                 // Auto-fill email dan alamat saat kontak dipilih
-                var selected = this.options[this.selectedIndex];
-                $('#sales_email').val(selected.dataset.email || '');
-                $('#sales_alamat').val(selected.dataset.alamat || '');
+                const selectedOption = this.options[this.selectedIndex];
+                salesEmailInput.value = selectedOption.dataset.email || '';
+                salesAlamatInput.value = selectedOption.dataset.alamat || '';
+            });
+
             function getLocation() {
                 if (navigator.geolocation) {
                     $('#btn-get-location').html('<i class="fas fa-spinner fa-spin"></i>');
