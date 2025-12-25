@@ -88,13 +88,16 @@
                                         name="penerima">
                                         <option value="">Pilih kontak...</option>
                                         @foreach($kontaks as $kontak)
-                                            <option value="{{ $kontak->nama }}" data-id="{{ $kontak->id }}" data-kode="{{ $kontak->kode_kontak }}" data-alamat="{{ $kontak->alamat }}" {{ old('penerima') == $kontak->nama ? 'selected' : '' }}>
+                                            <option value="{{ $kontak->nama }}" data-id="{{ $kontak->id }}"
+                                                data-kode="{{ $kontak->kode_kontak }}" data-alamat="{{ $kontak->alamat }}" {{ old('penerima') == $kontak->nama ? 'selected' : '' }}>
                                                 [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
                                             </option>
                                         @endforeach
                                     </select>
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-info" onclick="scanKontak(document.getElementById('penerima'))" title="Scan Barcode/QR Kontak">
+                                        <button type="button" class="btn btn-outline-info"
+                                            onclick="scanKontak(document.getElementById('penerima'))"
+                                            title="Scan Barcode/QR Kontak">
                                             <i class="fas fa-camera"></i>
                                         </button>
                                     </div>
@@ -352,29 +355,29 @@
                     card.className = 'product-card-mobile';
                     card.dataset.rowIndex = index;
                     card.innerHTML = `
-                        <div class="card-header-mobile">
-                            <span class="item-number">Item ${index + 1}</span>
-                            ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
-                        </div>
-                        <div class="card-body-mobile">
-                            <div class="field-group full-width">
-                                <span class="field-label">Akun Biaya</span>
-                                <input type="text" class="form-control kategori-mobile" data-row="${index}" value="${kategori}" placeholder="Contoh: Biaya Listrik">
+                            <div class="card-header-mobile">
+                                <span class="item-number">Item ${index + 1}</span>
+                                ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
                             </div>
-                            <div class="field-group full-width">
-                                <span class="field-label">Deskripsi</span>
-                                <input type="text" class="form-control deskripsi-mobile" data-row="${index}" value="${deskripsi}" placeholder="Deskripsi">
+                            <div class="card-body-mobile">
+                                <div class="field-group full-width">
+                                    <span class="field-label">Akun Biaya</span>
+                                    <input type="text" class="form-control kategori-mobile" data-row="${index}" value="${kategori}" placeholder="Contoh: Biaya Listrik">
+                                </div>
+                                <div class="field-group full-width">
+                                    <span class="field-label">Deskripsi</span>
+                                    <input type="text" class="form-control deskripsi-mobile" data-row="${index}" value="${deskripsi}" placeholder="Deskripsi">
+                                </div>
+                                <div class="field-group full-width">
+                                    <span class="field-label">Jumlah</span>
+                                    <input type="number" class="form-control text-right jumlah-mobile" data-row="${index}" value="${jumlah}">
+                                </div>
                             </div>
-                            <div class="field-group full-width">
-                                <span class="field-label">Jumlah</span>
-                                <input type="number" class="form-control text-right jumlah-mobile" data-row="${index}" value="${jumlah}">
+                            <div class="total-row">
+                                <span class="total-label">Jumlah</span>
+                                <span class="total-value">${formatRupiah(jumlah)}</span>
                             </div>
-                        </div>
-                        <div class="total-row">
-                            <span class="total-label">Jumlah</span>
-                            <span class="total-value">${formatRupiah(jumlah)}</span>
-                        </div>
-                    `;
+                        `;
                     mobileCardsContainer.appendChild(card);
                 });
             }
@@ -422,11 +425,11 @@
             addRowBtn.addEventListener('click', function () {
                 const newRow = tableBody.insertRow();
                 newRow.innerHTML = `
-                    <td><input type="text" class="form-control" name="kategori[]" placeholder="Contoh: Biaya Listrik"></td>
-                    <td><input type="text" class="form-control" name="deskripsi_akun[]"></td>
-                    <td><input type="number" class="form-control text-right expense-amount" name="total[]" value="0" required></td>
-                    <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
-                `;
+                        <td><input type="text" class="form-control" name="kategori[]" placeholder="Contoh: Biaya Listrik"></td>
+                        <td><input type="text" class="form-control" name="deskripsi_akun[]"></td>
+                        <td><input type="number" class="form-control text-right expense-amount" name="total[]" value="0" required></td>
+                        <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
+                    `;
                 syncMobileCards();
             });
 
