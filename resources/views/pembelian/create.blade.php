@@ -192,7 +192,17 @@
                                             <td>
                                                 <select class="form-control product-select" name="produk_id[]" required>
                                                     <option value="">Pilih...</option>
-                                                    @foreach($produks as $p)
+                                                    @php
+                                                        $renderProduks = $produks;
+                                                        $oldGudang = old('gudang_id');
+                                                        if(auth()->user()->role == 'super_admin' && isset($gudangProduks) && $gudangProduks && $oldGudang){
+                                                            $allowedIds = $gudangProduks[$oldGudang] ?? [];
+                                                            $renderProduks = $produks->whereIn('id', $allowedIds);
+                                                        } elseif(auth()->user()->role == 'super_admin') {
+                                                            $renderProduks = collect();
+                                                        }
+                                                    @endphp
+                                                    @foreach($renderProduks as $p)
                                                         <option value="{{ $p->id }}" data-kode="{{ $p->item_code ?? '' }}" data-harga="{{ $p->harga }}"
                                                             data-deskripsi="{{ $p->deskripsi }}" {{ $oldPid == $p->id ? 'selected' : '' }}>
                                                             [{{ $p->item_code }}] {{ $p->nama_produk }}
@@ -230,7 +240,13 @@
                                         <td>
                                             <select class="form-control product-select" name="produk_id[]" required>
                                                 <option value="">Pilih...</option>
-                                                @foreach($produks as $p)
+                                                @php
+                                                    $renderProduks = $produks;
+                                                    if(auth()->user()->role == 'super_admin') {
+                                                        $renderProduks = collect();
+                                                    }
+                                                @endphp
+                                                @foreach($renderProduks as $p)
                                                     <option value="{{ $p->id }}" data-kode="{{ $p->item_code ?? '' }}" data-harga="{{ $p->harga }}"
                                                         data-deskripsi="{{ $p->deskripsi }}">[{{ $p->item_code }}] {{ $p->nama_produk }}</option>
                                                 @endforeach
@@ -389,6 +405,11 @@
             function getProductOptionsHtml(gudangId = null) {
                 let options = '<option value="">Pilih...</option>';
 
+                // Super admin wajib pilih gudang dulu
+                if (gudangProduks && !gudangId) {
+                    return options;
+                }
+
                 allProduks.forEach(p => {
                     // Jika ada filter gudang dan ada data gudangProduks
                     if (gudangId && gudangProduks && gudangProduks[gudangId]) {
@@ -397,10 +418,7 @@
                             options += `<option value="${p.id}" data-harga="${p.harga}" data-deskripsi="${p.deskripsi}">${p.nama}</option>`;
                         }
                     } else if (!gudangProduks) {
-                        // User biasa - tampilkan semua (sudah difilter dari controller)
-                        options += `<option value="${p.id}" data-harga="${p.harga}" data-deskripsi="${p.deskripsi}">${p.nama}</option>`;
-                    } else if (!gudangId) {
-                        // Belum pilih gudang - tampilkan semua untuk pembelian
+                        // User/admin - data sudah difilter dari controller
                         options += `<option value="${p.id}" data-harga="${p.harga}" data-deskripsi="${p.deskripsi}">${p.nama}</option>`;
                     }
                 });
@@ -409,17 +427,15 @@
             }
 
             // Default product options
-            let productOptionsHtml = getProductOptionsHtml();
+            let productOptionsHtml = getProductOptionsHtml(gudangSelect ? gudangSelect.value : null);
 
-            // Event listener untuk perubahan gudang (pembelian bisa tambah produk baru, jadi tampilkan semua)
-            // Untuk pembelian, kita tidak perlu filter ketat seperti penjualan
-            // Tapi jika ingin filter juga, uncomment kode di bawah:
-            /*
+            // Event listener untuk perubahan gudang (super admin)
             if (gudangSelect && gudangProduks) {
                 gudangSelect.addEventListener('change', function() {
                     const selectedGudang = this.value;
                     productOptionsHtml = getProductOptionsHtml(selectedGudang);
 
+                    // Update semua dropdown produk
                     document.querySelectorAll('.product-select').forEach(select => {
                         const currentValue = $(select).val();
                         $(select).select2('destroy');
@@ -428,6 +444,14 @@
                             const optionExists = select.querySelector(`option[value="${currentValue}"]`);
                             if (optionExists) {
                                 select.value = currentValue;
+                            } else {
+                                select.value = '';
+                                const row = select.closest('tr');
+                                if (row) {
+                                    row.querySelector('.product-price').value = 0;
+                                    row.querySelector('.product-desc').value = '';
+                                    row.querySelector('.product-total').value = 0;
+                                }
                             }
                         }
                         initSelect2(select);
@@ -436,7 +460,6 @@
                     syncMobileCards();
                 });
             }
-            */
 
             // --- INISIALISASI SELECT2 ---
             function initSelect2(selectElement) {

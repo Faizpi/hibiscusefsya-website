@@ -193,17 +193,27 @@
                                 <tr>
                                     <td>
                                         <select class="form-control product-select" name="produk_id[]" required>
-                                            <option value="">Pilih...</option>
-                                            @foreach($produks as $p)
-                                                <option value="{{ $p->id }}" 
-                                                        data-kode="{{ $p->item_code ?? '' }}"
-                                                        data-harga="{{ $p->harga }}" 
-                                                        data-deskripsi="{{ $p->deskripsi }}"
-                                                        {{ $oldPid == $p->id ? 'selected' : '' }}>
-                                                    [{{ $p->item_code }}] {{ $p->nama_produk }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                                    <option value="">Pilih...</option>
+                                                    @php
+                                                        $renderProduks = $produks;
+                                                        $oldGudang = old('gudang_id');
+                                                        if(auth()->user()->role == 'super_admin' && isset($gudangProduks) && $gudangProduks && $oldGudang){
+                                                            $allowedIds = $gudangProduks[$oldGudang] ?? [];
+                                                            $renderProduks = $produks->whereIn('id', $allowedIds);
+                                                        } elseif(auth()->user()->role == 'super_admin') {
+                                                            $renderProduks = collect(); // kosong jika belum pilih gudang
+                                                        }
+                                                    @endphp
+                                                    @foreach($renderProduks as $p)
+                                                        <option value="{{ $p->id }}" 
+                                                                data-kode="{{ $p->item_code ?? '' }}"
+                                                                data-harga="{{ $p->harga }}" 
+                                                                data-deskripsi="{{ $p->deskripsi }}"
+                                                                {{ $oldPid == $p->id ? 'selected' : '' }}>
+                                                            [{{ $p->item_code }}] {{ $p->nama_produk }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                     </td>
                                     <td class="text-center"><button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i class="fas fa-camera"></i></button></td>
                                     <td><input type="text" class="form-control product-desc" name="deskripsi[]" value="{{ old('deskripsi.'.$index) }}"></td>
@@ -226,7 +236,14 @@
                                     <td>
                                         <select class="form-control product-select" name="produk_id[]" required>
                                             <option value="">Pilih...</option>
-                                            @foreach($produks as $p) 
+                                            @php
+                                                $renderProduks = $produks;
+                                                if(auth()->user()->role == 'super_admin') {
+                                                    // super admin: kosongkan jika belum pilih gudang
+                                                    $renderProduks = collect();
+                                                }
+                                            @endphp
+                                            @foreach($renderProduks as $p) 
                                                 <option value="{{ $p->id }}" data-kode="{{ $p->item_code ?? '' }}" data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}">[{{ $p->item_code }}] {{ $p->nama_produk }}</option> 
                                             @endforeach
                                         </select>
@@ -374,6 +391,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Function untuk generate options HTML berdasarkan gudang
     function getProductOptionsHtml(gudangId = null) {
         let options = '<option value="">Pilih...</option>';
+
+        // Super admin wajib pilih gudang dulu
+        if (gudangProduks && !gudangId) {
+            return options;
+        }
         
         allProduks.forEach(p => {
             // Jika ada filter gudang dan ada data gudangProduks
@@ -383,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     options += `<option value="${p.id}" data-harga="${p.harga}" data-deskripsi="${p.deskripsi}">${p.nama}</option>`;
                 }
             } else if (!gudangProduks) {
-                // User biasa - tampilkan semua (sudah difilter dari controller)
+                // User/admin - data sudah difilter dari controller
                 options += `<option value="${p.id}" data-harga="${p.harga}" data-deskripsi="${p.deskripsi}">${p.nama}</option>`;
             }
         });
@@ -391,8 +413,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return options;
     }
 
-    // Default product options (semua produk)
-    let productOptionsHtml = getProductOptionsHtml();
+    // Default product options
+    let productOptionsHtml = getProductOptionsHtml(gudangSelect ? gudangSelect.value : null);
 
     // Event listener untuk perubahan gudang
     if (gudangSelect && gudangProduks) {
