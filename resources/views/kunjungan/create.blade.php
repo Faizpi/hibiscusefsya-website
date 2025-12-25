@@ -185,7 +185,7 @@
                 placeholder: 'Cari kontak...',
                 allowClear: true,
                 width: '100%'
-            }).on('select2:select', function(e) {
+            }).on('select2:select', function (e) {
                 // Auto-fill email dan alamat saat kontak dipilih
                 const selectedOption = this.options[this.selectedIndex];
                 salesEmailInput.value = selectedOption.dataset.email || '';

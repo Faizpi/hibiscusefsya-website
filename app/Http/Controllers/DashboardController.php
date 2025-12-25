@@ -429,6 +429,39 @@ class DashboardController extends Controller
             ->whereMonth('tgl_transaksi', $now->month)
             ->sum('grand_total');
 
+        // Canceled transactions (Bulan Ini)
+        $canceledPenjualan = Penjualan::where('status', 'Canceled')
+            ->whereYear('tgl_transaksi', $now->year)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                return $q->where('gudang_id', $selectedGudangId);
+            })
+            ->count();
+        
+        $canceledPembelian = Pembelian::where('status', 'Canceled')
+            ->whereYear('tgl_transaksi', $now->year)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                return $q->where('gudang_id', $selectedGudangId);
+            })
+            ->count();
+        
+        $canceledBiaya = Biaya::where('status', 'Canceled')
+            ->whereYear('tgl_transaksi', $now->year)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->count();
+        
+        $canceledKunjungan = Kunjungan::where('status', 'Canceled')
+            ->whereYear('tgl_kunjungan', $now->year)
+            ->whereMonth('tgl_kunjungan', $now->month)
+            ->when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                return $q->where('gudang_id', $selectedGudangId);
+            })
+            ->count();
+        
+        $data['canceledBulanIni'] = $canceledPenjualan + $canceledPembelian + $canceledBiaya + $canceledKunjungan;
+        $data['canceledCountBulanIni'] = $data['canceledBulanIni'];
+
         $data['selectedGudangId'] = $selectedGudangId;
 
         return view('dashboard', $data);

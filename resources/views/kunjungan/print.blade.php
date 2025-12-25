@@ -152,7 +152,8 @@
             <tr>
                 <td class="label">Tanggal</td>
                 <td class="colon">:</td>
-                <td class="value">{{ $kunjungan->tgl_kunjungan->format('d/m/Y') }} | {{ $kunjungan->created_at->format('H:i') }}</td>
+                <td class="value">{{ $kunjungan->tgl_kunjungan->format('d/m/Y') }} |
+                    {{ $kunjungan->created_at->format('H:i') }}</td>
             </tr>
             <tr>
                 <td class="label">Tujuan</td>
