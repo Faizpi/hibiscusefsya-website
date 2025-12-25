@@ -34,7 +34,8 @@
                                     <tr>
                                         <td width="35%"><strong>Kode Kontak</strong></td>
                                         <td width="5%">:</td>
-                                        <td><span class="badge badge-dark font-weight-bold" style="font-size: 1rem;">{{ $kontak->kode_kontak }}</span></td>
+                                        <td><span class="badge badge-dark font-weight-bold"
+                                                style="font-size: 1rem;">{{ $kontak->kode_kontak }}</span></td>
                                     </tr>
                                     <tr>
                                         <td><strong>Nama</strong></td>
@@ -94,7 +95,8 @@
                         @php
                             $barcodeUrl = 'https://barcodeapi.org/api/128/' . urlencode($kontak->kode_kontak);
                         @endphp
-                        <img src="{{ $barcodeUrl }}" alt="Barcode {{ $kontak->kode_kontak }}" class="img-fluid mb-3" style="max-width: 250px;">
+                        <img src="{{ $barcodeUrl }}" alt="Barcode {{ $kontak->kode_kontak }}" class="img-fluid mb-3"
+                            style="max-width: 250px;">
                         <p class="font-weight-bold mb-1">{{ $kontak->kode_kontak }}</p>
                         <small class="text-muted">{{ $kontak->nama }}</small>
 
@@ -104,7 +106,8 @@
                             <a href="{{ route('kontak.download', $kontak->id) }}" class="btn btn-outline-primary btn-sm">
                                 <i class="fas fa-download"></i> Download PDF
                             </a>
-                            <a href="{{ route('kontak.print', $kontak->id) }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                            <a href="{{ route('kontak.print', $kontak->id) }}" target="_blank"
+                                class="btn btn-outline-secondary btn-sm">
                                 <i class="fas fa-print"></i> Print
                             </a>
                         </div>

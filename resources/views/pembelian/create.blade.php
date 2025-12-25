@@ -163,7 +163,8 @@
                         <table class="table table-bordered">
                             <thead class="thead-light">
                                 <tr>
-                                    <th width="25%">Produk</th>
+                                    <th width="22%">Produk</th>
+                                    <th width="3%"></th>
                                     <th>Deskripsi</th>
                                     <th width="10%">Qty</th>
                                     <th width="10%">Unit</th>
@@ -182,13 +183,14 @@
                                                 <select class="form-control product-select" name="produk_id[]" required>
                                                     <option value="">Pilih...</option>
                                                     @foreach($produks as $p)
-                                                        <option value="{{ $p->id }}" data-harga="{{ $p->harga }}"
+                                                        <option value="{{ $p->id }}" data-kode="{{ $p->item_kode ?? '' }}" data-harga="{{ $p->harga }}"
                                                             data-deskripsi="{{ $p->deskripsi }}" {{ $oldPid == $p->id ? 'selected' : '' }}>
-                                                            {{ $p->nama_produk }}
+                                                            [{{ $p->item_kode }}] {{ $p->nama_produk }}
                                                         </option>
                                                     @endforeach
                                                 </select>
                                             </td>
+                                            <td class="text-center"><button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i class="fas fa-camera"></i></button></td>
                                             <td><input type="text" class="form-control product-desc" name="deskripsi[]"
                                                     value="{{ old('deskripsi.' . $index) }}"></td>
                                             <td><input type="number" class="form-control product-qty" name="kuantitas[]"
@@ -219,11 +221,12 @@
                                             <select class="form-control product-select" name="produk_id[]" required>
                                                 <option value="">Pilih...</option>
                                                 @foreach($produks as $p)
-                                                    <option value="{{ $p->id }}" data-harga="{{ $p->harga }}"
-                                                        data-deskripsi="{{ $p->deskripsi }}">{{ $p->nama_produk }}</option>
+                                                    <option value="{{ $p->id }}" data-kode="{{ $p->item_kode ?? '' }}" data-harga="{{ $p->harga }}"
+                                                        data-deskripsi="{{ $p->deskripsi }}">[{{ $p->item_kode }}] {{ $p->nama_produk }}</option>
                                                 @endforeach
                                             </select>
                                         </td>
+                                        <td class="text-center"><button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i class="fas fa-camera"></i></button></td>
                                         <td><input type="text" class="form-control product-desc" name="deskripsi[]"></td>
                                         <td><input type="number" class="form-control product-qty" name="kuantitas[]" value="1"
                                                 min="1" required></td>
@@ -664,6 +667,12 @@
                     e.target.closest('tr').remove();
                     calculateTotal();
                 }
+                // Scan barcode produk
+                if (e.target.closest('.btn-scan-produk')) {
+                    const row = e.target.closest('tr');
+                    const select = row.querySelector('.product-select');
+                    scanProduk(select);
+                }
             });
 
             // Init - Kalkulasi awal
@@ -727,3 +736,7 @@
         });
     </script>
 @endpush
+
+@section('modals')
+    @include('partials.barcode-scanner-modal')
+@endsection

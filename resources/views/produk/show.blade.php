@@ -34,7 +34,9 @@
                                     <tr>
                                         <td width="35%"><strong>Kode Produk</strong></td>
                                         <td width="5%">:</td>
-                                        <td><span class="badge badge-dark font-weight-bold" style="font-size: 1rem;">{{ $produk->item_kode ?? $produk->item_code ?? '-' }}</span></td>
+                                        <td><span class="badge badge-dark font-weight-bold"
+                                                style="font-size: 1rem;">{{ $produk->item_kode ?? $produk->item_code ?? '-' }}</span>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td><strong>Nama Produk</strong></td>
@@ -44,7 +46,8 @@
                                     <tr>
                                         <td><strong>Harga</strong></td>
                                         <td>:</td>
-                                        <td><span class="text-success font-weight-bold">Rp {{ number_format($produk->harga ?? 0, 0, ',', '.') }}</span></td>
+                                        <td><span class="text-success font-weight-bold">Rp
+                                                {{ number_format($produk->harga ?? 0, 0, ',', '.') }}</span></td>
                                     </tr>
                                 </table>
                             </div>
@@ -93,7 +96,7 @@
                                         @foreach($produk->gudangProduks as $gp)
                                             @php $totalStok += $gp->stok; @endphp
                                             <tr>
-                                                <td>{{ optional($gp->gudang)->nama_gudang ?? 'Gudang #'.$gp->gudang_id }}</td>
+                                                <td>{{ optional($gp->gudang)->nama_gudang ?? 'Gudang #' . $gp->gudang_id }}</td>
                                                 <td class="text-center">
                                                     @if($gp->stok > 10)
                                                         <span class="badge badge-success">{{ $gp->stok }}</span>
@@ -129,10 +132,11 @@
                     </div>
                     <div class="card-body text-center">
                         @php
-                            $itemKode = $produk->item_kode ?? $produk->item_code ?? 'PRD'.$produk->id;
+                            $itemKode = $produk->item_kode ?? $produk->item_code ?? 'PRD' . $produk->id;
                             $barcodeUrl = 'https://barcodeapi.org/api/128/' . urlencode($itemKode);
                         @endphp
-                        <img src="{{ $barcodeUrl }}" alt="Barcode {{ $itemKode }}" class="img-fluid mb-3" style="max-width: 250px;">
+                        <img src="{{ $barcodeUrl }}" alt="Barcode {{ $itemKode }}" class="img-fluid mb-3"
+                            style="max-width: 250px;">
                         <p class="font-weight-bold mb-1">{{ $itemKode }}</p>
                         <small class="text-muted">{{ $produk->item_nama ?? $produk->nama_produk }}</small>
 
@@ -142,7 +146,8 @@
                             <a href="{{ route('produk.download', $produk->id) }}" class="btn btn-outline-primary btn-sm">
                                 <i class="fas fa-download"></i> Download PDF
                             </a>
-                            <a href="{{ route('produk.print', $produk->id) }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                            <a href="{{ route('produk.print', $produk->id) }}" target="_blank"
+                                class="btn btn-outline-secondary btn-sm">
                                 <i class="fas fa-print"></i> Print
                             </a>
                         </div>

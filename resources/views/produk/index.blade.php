@@ -35,8 +35,10 @@
                             @forelse ($produks as $item)
                                 <tr>
                                     <td>
-                                        <a href="{{ route('produk.show', $item->id) }}" class="badge badge-dark" title="Lihat Detail & Barcode">
-                                            <i class="fas fa-barcode fa-sm"></i> {{ $item->item_kode ?? $item->item_code ?? 'PRD'.$item->id }}
+                                        <a href="{{ route('produk.show', $item->id) }}" class="badge badge-dark"
+                                            title="Lihat Detail & Barcode">
+                                            <i class="fas fa-barcode fa-sm"></i>
+                                            {{ $item->item_kode ?? $item->item_code ?? 'PRD' . $item->id }}
                                         </a>
                                     </td>
                                     <td>

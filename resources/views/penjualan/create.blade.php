@@ -42,19 +42,28 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="pelanggan">Pelanggan *</label>
-                                    <select class="form-control @error('pelanggan') is-invalid @enderror" id="kontak-select" name="pelanggan" required>
-                                        <option value="">Pilih kontak...</option>
-                                        @foreach($kontaks as $kontak)
-                                            <option value="{{ $kontak->nama }}"
-                                                    data-email="{{ $kontak->email }}"
-                                                    data-alamat="{{ $kontak->alamat }}"
-                                                    data-diskon="{{ $kontak->diskon_persen }}"
-                                                    {{ old('pelanggan') == $kontak->nama ? 'selected' : '' }}>
-                                                {{ $kontak->nama }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('pelanggan') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    <div class="input-group">
+                                        <select class="form-control @error('pelanggan') is-invalid @enderror" id="kontak-select" name="pelanggan" required>
+                                            <option value="">Pilih kontak...</option>
+                                            @foreach($kontaks as $kontak)
+                                                <option value="{{ $kontak->nama }}"
+                                                        data-id="{{ $kontak->id }}"
+                                                        data-kode="{{ $kontak->kode_kontak }}"
+                                                        data-email="{{ $kontak->email }}"
+                                                        data-alamat="{{ $kontak->alamat }}"
+                                                        data-diskon="{{ $kontak->diskon_persen }}"
+                                                        {{ old('pelanggan') == $kontak->nama ? 'selected' : '' }}>
+                                                    [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-info" onclick="scanKontak(document.getElementById('kontak-select'))" title="Scan Barcode/QR Kontak">
+                                                <i class="fas fa-camera"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @error('pelanggan') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -158,7 +167,8 @@
                     <table class="table table-bordered">
                         <thead class="thead-light">
                             <tr>
-                                <th style="width: 25%;">Produk</th>
+                                <th style="width: 23%;">Produk</th>
+                                <th style="width: 3%;"></th>
                                 <th>Deskripsi</th>
                                 <th style="width: 10%;">Qty</th>
                                 <th style="width: 10%;">Unit</th>
@@ -177,14 +187,16 @@
                                             <option value="">Pilih...</option>
                                             @foreach($produks as $p)
                                                 <option value="{{ $p->id }}" 
+                                                        data-kode="{{ $p->item_kode ?? '' }}"
                                                         data-harga="{{ $p->harga }}" 
                                                         data-deskripsi="{{ $p->deskripsi }}"
                                                         {{ $oldPid == $p->id ? 'selected' : '' }}>
-                                                    {{ $p->nama_produk }}
+                                                    [{{ $p->item_kode }}] {{ $p->nama_produk }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </td>
+                                    <td class="text-center"><button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i class="fas fa-camera"></i></button></td>
                                     <td><input type="text" class="form-control product-desc" name="deskripsi[]" value="{{ old('deskripsi.'.$index) }}"></td>
                                     <td><input type="number" class="form-control product-qty" name="kuantitas[]" value="{{ old('kuantitas.'.$index) }}" min="1" required></td>
                                     <td>
@@ -206,10 +218,11 @@
                                         <select class="form-control product-select" name="produk_id[]" required>
                                             <option value="">Pilih...</option>
                                             @foreach($produks as $p) 
-                                                <option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}">{{ $p->nama_produk }}</option> 
+                                                <option value="{{ $p->id }}" data-kode="{{ $p->item_kode ?? '' }}" data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}">[{{ $p->item_kode }}] {{ $p->nama_produk }}</option> 
                                             @endforeach
                                         </select>
                                     </td>
+                                    <td class="text-center"><button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i class="fas fa-camera"></i></button></td>
                                     <td><input type="text" class="form-control product-desc" name="deskripsi[]"></td>
                                     <td><input type="number" class="form-control product-qty" name="kuantitas[]" value="1" min="1" required></td>
                                     <td>
@@ -743,6 +756,12 @@ document.addEventListener('DOMContentLoaded', function () {
             calculateGrandTotal();
             syncMobileCards();
         }
+        // Scan barcode produk
+        if(e.target.closest('.btn-scan-produk')) {
+            const row = e.target.closest('tr');
+            const select = row.querySelector('.product-select');
+            scanProduk(select);
+        }
     });
     
     // Init Calc
@@ -810,3 +829,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endpush
+
+@section('modals')
+    @include('partials.barcode-scanner-modal')
+@endsection

@@ -34,7 +34,8 @@
                             @forelse ($kontaks as $item)
                                 <tr>
                                     <td>
-                                        <a href="{{ route('kontak.show', $item->id) }}" class="badge badge-dark" title="Lihat Detail & Barcode">
+                                        <a href="{{ route('kontak.show', $item->id) }}" class="badge badge-dark"
+                                            title="Lihat Detail & Barcode">
                                             <i class="fas fa-barcode fa-sm"></i> {{ $item->kode_kontak }}
                                         </a>
                                     </td>

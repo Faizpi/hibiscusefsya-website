@@ -52,22 +52,29 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="kontak_id">Sales/Kontak *</label>
-                                <select class="form-control @error('kontak_id') is-invalid @enderror" id="kontak_id"
-                                    name="kontak_id" required>
-                                    <option value="">Pilih kontak...</option>
-                                    @foreach($kontaks as $kontak)
-                                        <option value="{{ $kontak->id }}" 
-                                            data-nama="{{ $kontak->nama }}"
-                                            data-kode="{{ $kontak->kode_kontak }}"
-                                            data-email="{{ $kontak->email }}"
-                                            data-alamat="{{ $kontak->alamat }}" 
-                                            {{ old('kontak_id') == $kontak->id ? 'selected' : '' }}>
-                                            [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-control @error('kontak_id') is-invalid @enderror" id="kontak_id"
+                                        name="kontak_id" required>
+                                        <option value="">Pilih kontak...</option>
+                                        @foreach($kontaks as $kontak)
+                                            <option value="{{ $kontak->id }}" 
+                                                data-nama="{{ $kontak->nama }}"
+                                                data-kode="{{ $kontak->kode_kontak }}"
+                                                data-email="{{ $kontak->email }}"
+                                                data-alamat="{{ $kontak->alamat }}" 
+                                                {{ old('kontak_id') == $kontak->id ? 'selected' : '' }}>
+                                                [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-info" onclick="scanKontak(document.getElementById('kontak_id'))" title="Scan Barcode/QR Kontak">
+                                            <i class="fas fa-camera"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <input type="hidden" name="sales_nama" id="sales_nama_hidden" value="{{ old('sales_nama') }}">
-                                @error('kontak_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('kontak_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="form-group">
@@ -163,16 +170,21 @@
                     <h5 class="text-primary mb-3"><i class="fas fa-boxes"></i> Produk Terkait</h5>
                     <div id="produk-container">
                         <div class="row produk-row mb-2">
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <select class="form-control produk-select" name="produk_id[]">
                                     <option value="">Pilih produk...</option>
                                     @foreach($produks as $produk)
-                                        <option value="{{ $produk->id }}" data-stok="{{ $produk->gudangProduks->first()->stok ?? 0 }}">
+                                        <option value="{{ $produk->id }}" data-kode="{{ $produk->item_kode }}" data-stok="{{ $produk->gudangProduks->first()->stok ?? 0 }}">
                                             [{{ $produk->item_kode }}] {{ $produk->item_nama }} 
                                             (Stok: {{ $produk->gudangProduks->first()->stok ?? 0 }})
                                         </option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
+                                    <i class="fas fa-camera"></i>
+                                </button>
                             </div>
                             <div class="col-md-2">
                                 <input type="number" class="form-control" name="jumlah[]" placeholder="Jumlah" min="1" value="1">
@@ -250,16 +262,21 @@
             $('#btn-add-produk').on('click', function () {
                 const newRow = `
                     <div class="row produk-row mb-2">
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <select class="form-control produk-select" name="produk_id[]">
                                 <option value="">Pilih produk...</option>
                                 @foreach($produks as $produk)
-                                    <option value="{{ $produk->id }}" data-stok="{{ $produk->gudangProduks->first()->stok ?? 0 }}">
+                                    <option value="{{ $produk->id }}" data-kode="{{ $produk->item_kode }}" data-stok="{{ $produk->gudangProduks->first()->stok ?? 0 }}">
                                         [{{ $produk->item_kode }}] {{ $produk->item_nama }} 
                                         (Stok: {{ $produk->gudangProduks->first()->stok ?? 0 }})
                                     </option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
+                                <i class="fas fa-camera"></i>
+                            </button>
                         </div>
                         <div class="col-md-2">
                             <input type="number" class="form-control" name="jumlah[]" placeholder="Jumlah" min="1" value="1">
@@ -283,6 +300,13 @@
             $(document).on('click', '.btn-remove-produk', function () {
                 $(this).closest('.produk-row').remove();
                 updateRemoveButtons();
+            });
+
+            // Scan barcode produk
+            $(document).on('click', '.btn-scan-produk', function () {
+                const row = $(this).closest('.produk-row');
+                const select = row.find('.produk-select')[0];
+                scanProduk(select);
             });
 
             function updateRemoveButtons() {
@@ -333,3 +357,7 @@
         });
     </script>
 @endpush
+
+@section('modals')
+    @include('partials.barcode-scanner-modal')
+@endsection

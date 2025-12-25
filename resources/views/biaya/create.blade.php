@@ -83,16 +83,23 @@
                             <div class="form-group">
                                 <label for="penerima">Penerima (Kontak)</label>
                                 {{-- Dropdown Kontak --}}
-                                <select class="form-control @error('penerima') is-invalid @enderror" id="penerima"
-                                    name="penerima">
-                                    <option value="">Pilih kontak...</option>
-                                    @foreach($kontaks as $kontak)
-                                        <option value="{{ $kontak->nama }}" data-alamat="{{ $kontak->alamat }}" {{ old('penerima') == $kontak->nama ? 'selected' : '' }}>
-                                            {{ $kontak->nama }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('penerima') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <div class="input-group">
+                                    <select class="form-control @error('penerima') is-invalid @enderror" id="penerima"
+                                        name="penerima">
+                                        <option value="">Pilih kontak...</option>
+                                        @foreach($kontaks as $kontak)
+                                            <option value="{{ $kontak->nama }}" data-id="{{ $kontak->id }}" data-kode="{{ $kontak->kode_kontak }}" data-alamat="{{ $kontak->alamat }}" {{ old('penerima') == $kontak->nama ? 'selected' : '' }}>
+                                                [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-info" onclick="scanKontak(document.getElementById('penerima'))" title="Scan Barcode/QR Kontak">
+                                            <i class="fas fa-camera"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                @error('penerima') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                             <div class="form-group">
                                 <label for="alamat_penagihan">Alamat Penagihan</label>
@@ -495,3 +502,7 @@
         });
     </script>
 @endpush
+
+@section('modals')
+    @include('partials.barcode-scanner-modal')
+@endsection

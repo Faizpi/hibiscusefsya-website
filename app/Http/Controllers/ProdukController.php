@@ -37,8 +37,8 @@ class ProdukController extends Controller
     public function downloadPdf(Produk $produk)
     {
         $produk->load('gudangProduks.gudang');
-        $itemKode = $produk->item_kode ?? $produk->item_code ?? 'PRD'.$produk->id;
-        
+        $itemKode = $produk->item_kode ?? $produk->item_code ?? 'PRD' . $produk->id;
+
         $pdf = PDF::loadView('produk.print', compact('produk'));
         $pdf->setPaper([0, 0, 164.409, 400], 'portrait'); // 58mm width
         return $pdf->download('produk-' . $itemKode . '.pdf');
@@ -84,7 +84,7 @@ class ProdukController extends Controller
 
     public function destroy(Produk $produk)
     {
-        
+
         $produk->delete();
         return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus.');
     }
