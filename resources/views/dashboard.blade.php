@@ -100,25 +100,6 @@
                 </div>
             </div>
         </div>
-        {{-- Card Biaya --}}
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Biaya (Bulan Ini)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($biayaBulanIni, 0, ',', '.') }}
-                            </div>
-                            <div class="text-xs text-muted mt-1">
-                                {{ $biayaCountBulanIni ?? 0 }} transaksi
-                            </div>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-receipt fa-2x text-gray-300"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
         {{-- Card Kunjungan --}}
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-secondary shadow h-100 py-2">
@@ -197,60 +178,8 @@
         </div>
     </div>
 
-    {{-- ROW 2: Cards Statistik Tambahan --}}
+    {{-- ROW 2: Total Produk --}}
     <div class="row">
-        {{-- Card Total Penjualan --}}
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2" style="border-left-color: #6c5ce7 !important;">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #6c5ce7;">
-                                Total Penjualan (All Time)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($penjualanTotal ?? 0, 0, ',', '.') }}
-                            </div>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-chart-line fa-2x text-gray-300"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- Card Total Pembelian --}}
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2" style="border-left-color: #00b894 !important;">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #00b894;">
-                                Total Pembelian (All Time)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($pembelianTotal ?? 0, 0, ',', '.') }}
-                            </div>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-chart-bar fa-2x text-gray-300"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- Card Total Biaya --}}
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2" style="border-left-color: #e17055 !important;">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #e17055;">
-                                Total Biaya (All Time)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($biayaTotal ?? 0, 0, ',', '.') }}
-                            </div>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-wallet fa-2x text-gray-300"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- Card Produk & Transaksi --}}
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-dark shadow h-100 py-2">
                 <div class="card-body">
