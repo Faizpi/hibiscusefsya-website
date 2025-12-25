@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Produk;
 use App\GudangProduk;
 use Illuminate\Http\Request;
+use PDF;
 
 class ProdukController extends Controller
 {
@@ -25,6 +26,22 @@ class ProdukController extends Controller
         // Load stok di semua gudang
         $produk->load('gudangProduks.gudang');
         return view('produk.show', compact('produk'));
+    }
+
+    public function print(Produk $produk)
+    {
+        $produk->load('gudangProduks.gudang');
+        return view('produk.print', compact('produk'));
+    }
+
+    public function downloadPdf(Produk $produk)
+    {
+        $produk->load('gudangProduks.gudang');
+        $itemKode = $produk->item_kode ?? $produk->item_code ?? 'PRD'.$produk->id;
+        
+        $pdf = PDF::loadView('produk.print', compact('produk'));
+        $pdf->setPaper([0, 0, 164.409, 400], 'portrait'); // 58mm width
+        return $pdf->download('produk-' . $itemKode . '.pdf');
     }
 
     public function create()

@@ -98,6 +98,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin'])->group(function () {
 
         // Master Kontak
+        Route::get('kontak/{kontak}/print', 'KontakController@print')->name('kontak.print');
+        Route::get('kontak/{kontak}/download', 'KontakController@downloadPdf')->name('kontak.download');
         Route::resource('kontak', 'KontakController');
 
         // Cek Stok
@@ -126,6 +128,8 @@ Route::middleware(['auth'])->group(function () {
 
         // Master Data Inti
         Route::resource('gudang', 'GudangController');
+        Route::get('produk/{produk}/print', 'ProdukController@print')->name('produk.print');
+        Route::get('produk/{produk}/download', 'ProdukController@downloadPdf')->name('produk.download');
         Route::resource('produk', 'ProdukController');
 
         // Edit Stok Manual

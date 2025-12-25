@@ -101,12 +101,12 @@
                         <hr>
 
                         <div class="btn-group">
-                            <a href="{{ $barcodeUrl }}" download="{{ $kontak->kode_kontak }}.png" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-download"></i> Download
+                            <a href="{{ route('kontak.download', $kontak->id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-download"></i> Download PDF
                             </a>
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="printBarcode()">
+                            <a href="{{ route('kontak.print', $kontak->id) }}" target="_blank" class="btn btn-outline-secondary btn-sm">
                                 <i class="fas fa-print"></i> Print
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -131,38 +131,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-<script>
-function printBarcode() {
-    var barcodeUrl = '{{ $barcodeUrl }}';
-    var kode = '{{ $kontak->kode_kontak }}';
-    var nama = '{{ $kontak->nama }}';
-    
-    var printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-        <html>
-        <head>
-            <title>Print Barcode - ${kode}</title>
-            <style>
-                body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-                .barcode-container { margin: 20px auto; }
-                .code { font-size: 18px; font-weight: bold; margin-top: 10px; }
-                .nama { font-size: 14px; color: #666; }
-                @media print { body { padding: 0; } }
-            </style>
-        </head>
-        <body>
-            <div class="barcode-container">
-                <img src="${barcodeUrl}" alt="Barcode">
-                <div class="code">${kode}</div>
-                <div class="nama">${nama}</div>
-            </div>
-            <script>window.onload = function() { window.print(); window.close(); }<\/script>
-        </body>
-        </html>
-    `);
-    printWindow.document.close();
-}
-</script>
-@endpush

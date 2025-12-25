@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Kontak;
 use Illuminate\Http\Request;
+use PDF;
 
 class KontakController extends Controller
 {
@@ -22,6 +23,18 @@ class KontakController extends Controller
     public function show(Kontak $kontak)
     {
         return view('kontak.show', compact('kontak'));
+    }
+
+    public function print(Kontak $kontak)
+    {
+        return view('kontak.print', compact('kontak'));
+    }
+
+    public function downloadPdf(Kontak $kontak)
+    {
+        $pdf = PDF::loadView('kontak.print', compact('kontak'));
+        $pdf->setPaper([0, 0, 164.409, 400], 'portrait'); // 58mm width
+        return $pdf->download('kontak-' . $kontak->kode_kontak . '.pdf');
     }
 
     public function create()

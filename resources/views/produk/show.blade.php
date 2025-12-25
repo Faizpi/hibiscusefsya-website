@@ -139,12 +139,12 @@
                         <hr>
 
                         <div class="btn-group">
-                            <a href="{{ $barcodeUrl }}" download="{{ $itemKode }}.png" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-download"></i> Download
+                            <a href="{{ route('produk.download', $produk->id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-download"></i> Download PDF
                             </a>
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="printBarcode()">
+                            <a href="{{ route('produk.print', $produk->id) }}" target="_blank" class="btn btn-outline-secondary btn-sm">
                                 <i class="fas fa-print"></i> Print
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -169,41 +169,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-<script>
-function printBarcode() {
-    var barcodeUrl = '{{ $barcodeUrl }}';
-    var kode = '{{ $itemKode }}';
-    var nama = '{{ $produk->item_nama ?? $produk->nama_produk }}';
-    var harga = 'Rp {{ number_format($produk->harga ?? 0, 0, ",", ".") }}';
-    
-    var printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-        <html>
-        <head>
-            <title>Print Barcode - ${kode}</title>
-            <style>
-                body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-                .barcode-container { margin: 20px auto; }
-                .code { font-size: 18px; font-weight: bold; margin-top: 10px; }
-                .nama { font-size: 14px; color: #666; }
-                .harga { font-size: 16px; color: #28a745; font-weight: bold; margin-top: 5px; }
-                @media print { body { padding: 0; } }
-            </style>
-        </head>
-        <body>
-            <div class="barcode-container">
-                <img src="${barcodeUrl}" alt="Barcode">
-                <div class="code">${kode}</div>
-                <div class="nama">${nama}</div>
-                <div class="harga">${harga}</div>
-            </div>
-            <script>window.onload = function() { window.print(); window.close(); }<\/script>
-        </body>
-        </html>
-    `);
-    printWindow.document.close();
-}
-</script>
-@endpush
