@@ -49,20 +49,23 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="sales_nama">Sales/Kontak *</label>
-                                <select class="form-control @error('sales_nama') is-invalid @enderror" id="sales_nama"
-                                    name="sales_nama" required>
+                                <label for="kontak_id">Sales/Kontak *</label>
+                                <select class="form-control @error('kontak_id') is-invalid @enderror" id="kontak_id"
+                                    name="kontak_id" required>
                                     <option value="">Pilih kontak...</option>
                                     @foreach($kontaks as $kontak)
-                                        <option value="{{ $kontak->nama }}" 
+                                        <option value="{{ $kontak->id }}" 
+                                            data-nama="{{ $kontak->nama }}"
+                                            data-kode="{{ $kontak->kode_kontak }}"
                                             data-email="{{ $kontak->email }}" 
                                             data-alamat="{{ $kontak->alamat }}"
-                                            {{ old('sales_nama', $kunjungan->sales_nama) == $kontak->nama ? 'selected' : '' }}>
-                                            {{ $kontak->nama }}
+                                            {{ old('kontak_id', $kunjungan->kontak_id) == $kontak->id ? 'selected' : '' }}>
+                                            [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('sales_nama') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <input type="hidden" name="sales_nama" id="sales_nama_hidden" value="{{ old('sales_nama', $kunjungan->sales_nama) }}">
+                                @error('kontak_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="form-group">
@@ -113,6 +116,9 @@
                                     <option value="Penawaran" {{ old('tujuan', $kunjungan->tujuan) == 'Penawaran' ? 'selected' : '' }}>
                                         Kunjungan Penawaran
                                     </option>
+                                    <option value="Promo" {{ old('tujuan', $kunjungan->tujuan) == 'Promo' ? 'selected' : '' }}>
+                                        Kunjungan Promo
+                                    </option>
                                 </select>
                                 @error('tujuan') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
@@ -155,6 +161,69 @@
 
                     <hr>
 
+                    {{-- PRODUK ITEMS --}}
+                    <h5 class="text-primary mb-3"><i class="fas fa-boxes"></i> Produk Terkait</h5>
+                    <div id="produk-container">
+                        @forelse($kunjungan->items as $index => $item)
+                        <div class="row produk-row mb-2">
+                            <div class="col-md-5">
+                                <select class="form-control produk-select" name="produk_id[]">
+                                    <option value="">Pilih produk...</option>
+                                    @foreach($produks as $produk)
+                                        <option value="{{ $produk->id }}" 
+                                            data-stok="{{ $produk->gudangProduks->first()->stok ?? 0 }}"
+                                            {{ $item->produk_id == $produk->id ? 'selected' : '' }}>
+                                            [{{ $produk->item_kode }}] {{ $produk->item_nama }} 
+                                            (Stok: {{ $produk->gudangProduks->first()->stok ?? 0 }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" class="form-control" name="jumlah[]" placeholder="Jumlah" min="1" value="{{ $item->jumlah }}">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="keterangan[]" placeholder="Keterangan (opsional)" value="{{ $item->keterangan }}">
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        @empty
+                        <div class="row produk-row mb-2">
+                            <div class="col-md-5">
+                                <select class="form-control produk-select" name="produk_id[]">
+                                    <option value="">Pilih produk...</option>
+                                    @foreach($produks as $produk)
+                                        <option value="{{ $produk->id }}" data-stok="{{ $produk->gudangProduks->first()->stok ?? 0 }}">
+                                            [{{ $produk->item_kode }}] {{ $produk->item_nama }} 
+                                            (Stok: {{ $produk->gudangProduks->first()->stok ?? 0 }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" class="form-control" name="jumlah[]" placeholder="Jumlah" min="1" value="1">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="keterangan[]" placeholder="Keterangan (opsional)">
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-danger btn-sm btn-remove-produk" style="display:none;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        @endforelse
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm mb-3" id="btn-add-produk">
+                        <i class="fas fa-plus"></i> Tambah Produk
+                    </button>
+
+                    <hr>
+
                     {{-- MEMO --}}
                     <div class="form-group">
                         <label for="memo">Memo / Catatan</label>
@@ -180,21 +249,80 @@
 <script>
     $(document).ready(function() {
         // Predefined elements
-        const salesNamaSelect = document.getElementById('sales_nama');
+        const kontakSelect = document.getElementById('kontak_id');
+        const salesNamaHidden = document.getElementById('sales_nama_hidden');
         const salesEmailInput = document.getElementById('sales_email');
         const salesAlamatInput = document.getElementById('sales_alamat');
 
         // Init Select2 untuk dropdown Kontak (searchable)
-        $('#sales_nama').select2({
+        $('#kontak_id').select2({
             placeholder: 'Cari kontak...',
             allowClear: true,
             width: '100%'
         }).on('select2:select', function(e) {
             // Auto-fill email dan alamat saat kontak dipilih
             const selectedOption = this.options[this.selectedIndex];
+            salesNamaHidden.value = selectedOption.dataset.nama || '';
             salesEmailInput.value = selectedOption.dataset.email || '';
             salesAlamatInput.value = selectedOption.dataset.alamat || '';
         });
+
+        // Init Select2 untuk produk
+        function initProdukSelect2() {
+            $('.produk-select').select2({
+                placeholder: 'Pilih produk...',
+                allowClear: true,
+                width: '100%'
+            });
+        }
+        initProdukSelect2();
+
+        // Tambah baris produk
+        $('#btn-add-produk').on('click', function () {
+            const newRow = `
+                <div class="row produk-row mb-2">
+                    <div class="col-md-5">
+                        <select class="form-control produk-select" name="produk_id[]">
+                            <option value="">Pilih produk...</option>
+                            @foreach($produks as $produk)
+                                <option value="{{ $produk->id }}" data-stok="{{ $produk->gudangProduks->first()->stok ?? 0 }}">
+                                    [{{ $produk->item_kode }}] {{ $produk->item_nama }} 
+                                    (Stok: {{ $produk->gudangProduks->first()->stok ?? 0 }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" name="jumlah[]" placeholder="Jumlah" min="1" value="1">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" name="keterangan[]" placeholder="Keterangan (opsional)">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            $('#produk-container').append(newRow);
+            initProdukSelect2();
+            updateRemoveButtons();
+        });
+
+        // Hapus baris produk
+        $(document).on('click', '.btn-remove-produk', function () {
+            $(this).closest('.produk-row').remove();
+            updateRemoveButtons();
+        });
+
+        function updateRemoveButtons() {
+            const rows = $('.produk-row');
+            rows.each(function(index) {
+                $(this).find('.btn-remove-produk').toggle(rows.length > 1);
+            });
+        }
+        updateRemoveButtons();
 
         // Refresh location button
         $('#btn-get-location').on('click', function() {

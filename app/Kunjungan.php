@@ -12,6 +12,7 @@ class Kunjungan extends Model
         'user_id',
         'approver_id',
         'gudang_id',
+        'kontak_id',
         'no_urut_harian',
         'nomor',
         'sales_nama',
@@ -58,6 +59,16 @@ class Kunjungan extends Model
         return $this->belongsTo(Gudang::class);
     }
 
+    public function kontak()
+    {
+        return $this->belongsTo(Kontak::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(KunjunganItem::class);
+    }
+
     /**
      * Accessor untuk custom_number
      * Format: VST-YYYYMMDD-USERID-NOURUT
@@ -91,7 +102,18 @@ class Kunjungan extends Model
             'Pemeriksaan Stock' => '<span class="badge badge-info">Pemeriksaan Stock</span>',
             'Penagihan' => '<span class="badge badge-warning">Penagihan</span>',
             'Penawaran' => '<span class="badge badge-success">Penawaran</span>',
+            'Promo' => '<span class="badge badge-primary">Promo</span>',
         ];
         return $badges[$this->tujuan] ?? '<span class="badge badge-secondary">' . $this->tujuan . '</span>';
     }
+
+    /**
+     * Constant untuk jenis tujuan kunjungan
+     */
+    const TUJUAN_OPTIONS = [
+        'Pemeriksaan Stock',
+        'Penagihan',
+        'Penawaran',
+        'Promo',
+    ];
 }

@@ -13,4 +13,16 @@ class Produk extends Model
     {
         return $this->hasMany(GudangProduk::class);
     }
+
+    // Alias for gudangProduks
+    public function gudangProduks()
+    {
+        return $this->hasMany(GudangProduk::class);
+    }
+
+    // Relasi ke kunjungan items
+    public function kunjunganItems()
+    {
+        return $this->hasMany(KunjunganItem::class);
+    }
 }

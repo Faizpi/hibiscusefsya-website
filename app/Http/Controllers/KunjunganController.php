@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Kunjungan;
+use App\KunjunganItem;
 use App\User;
 use App\Kontak;
 use App\Gudang;
+use App\GudangProduk;
+use App\Produk;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -53,6 +56,8 @@ class KunjunganController extends Controller
             ->whereIn('status', ['Pending', 'Approved'])->count();
         $totalPenawaran = $allForSummary->where('tujuan', 'Penawaran')
             ->whereIn('status', ['Pending', 'Approved'])->count();
+        $totalPromo = $allForSummary->where('tujuan', 'Promo')
+            ->whereIn('status', ['Pending', 'Approved'])->count();
         $totalCanceled = $allForSummary->where('status', 'Canceled')->count();
 
         // Paginated data untuk table display
@@ -69,6 +74,7 @@ class KunjunganController extends Controller
             'totalPemeriksaanStock' => $totalPemeriksaanStock,
             'totalPenagihan' => $totalPenagihan,
             'totalPenawaran' => $totalPenawaran,
+            'totalPromo' => $totalPromo,
             'totalCanceled' => $totalCanceled,
         ]);
     }
@@ -84,7 +90,17 @@ class KunjunganController extends Controller
         // Get user's gudang
         $gudang = $user->getCurrentGudang();
 
-        return view('kunjungan.create', compact('kontaks', 'gudang'));
+        // Get produk dari gudang user
+        $produks = [];
+        if ($gudang) {
+            $produks = Produk::whereHas('gudangProduks', function($q) use ($gudang) {
+                $q->where('gudang_id', $gudang->id);
+            })->with(['gudangProduks' => function($q) use ($gudang) {
+                $q->where('gudang_id', $gudang->id);
+            }])->get();
+        }
+
+        return view('kunjungan.create', compact('kontaks', 'gudang', 'produks'));
     }
 
     /**
@@ -93,14 +109,21 @@ class KunjunganController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'kontak_id' => 'required|exists:kontaks,id',
             'sales_nama' => 'required|string|max:255',
             'sales_email' => 'nullable|email|max:255',
             'sales_alamat' => 'nullable|string',
             'tgl_kunjungan' => 'required|date',
-            'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Penawaran',
+            'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Penawaran,Promo',
             'koordinat' => 'nullable|string|max:255',
             'memo' => 'nullable|string',
             'lampiran' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
+            'produk_id' => 'nullable|array',
+            'produk_id.*' => 'exists:produks,id',
+            'jumlah' => 'nullable|array',
+            'jumlah.*' => 'integer|min:1',
+            'keterangan' => 'nullable|array',
+            'keterangan.*' => 'nullable|string|max:255',
         ]);
 
         $user = Auth::user();
@@ -177,6 +200,7 @@ class KunjunganController extends Controller
                 'status' => $initialStatus,
                 'approver_id' => $approverId,
                 'gudang_id' => $gudangId,
+                'kontak_id' => $request->kontak_id,
                 'no_urut_harian' => $noUrut,
                 'nomor' => $nomor,
                 'sales_nama' => $request->sales_nama,
@@ -188,6 +212,20 @@ class KunjunganController extends Controller
                 'memo' => $request->memo,
                 'lampiran_path' => $path,
             ]);
+
+            // Simpan produk items jika ada
+            if ($request->has('produk_id') && is_array($request->produk_id)) {
+                foreach ($request->produk_id as $index => $produkId) {
+                    if ($produkId) {
+                        KunjunganItem::create([
+                            'kunjungan_id' => $kunjungan->id,
+                            'produk_id' => $produkId,
+                            'jumlah' => $request->jumlah[$index] ?? 1,
+                            'keterangan' => $request->keterangan[$index] ?? null,
+                        ]);
+                    }
+                }
+            }
 
             DB::commit();
             return redirect()->route('kunjungan.show', $kunjungan->id)
@@ -203,7 +241,7 @@ class KunjunganController extends Controller
      */
     public function show(Kunjungan $kunjungan)
     {
-        $kunjungan->load(['user', 'approver', 'gudang']);
+        $kunjungan->load(['user', 'approver', 'gudang', 'kontak', 'items.produk']);
         return view('kunjungan.show', compact('kunjungan'));
     }
 
@@ -220,7 +258,20 @@ class KunjunganController extends Controller
         }
 
         $kontaks = Kontak::all();
-        return view('kunjungan.edit', compact('kunjungan', 'kontaks'));
+
+        // Get produk dari gudang kunjungan
+        $produks = [];
+        if ($kunjungan->gudang_id) {
+            $produks = Produk::whereHas('gudangProduks', function($q) use ($kunjungan) {
+                $q->where('gudang_id', $kunjungan->gudang_id);
+            })->with(['gudangProduks' => function($q) use ($kunjungan) {
+                $q->where('gudang_id', $kunjungan->gudang_id);
+            }])->get();
+        }
+
+        $kunjungan->load('items.produk');
+
+        return view('kunjungan.edit', compact('kunjungan', 'kontaks', 'produks'));
     }
 
     /**
@@ -236,12 +287,19 @@ class KunjunganController extends Controller
         }
 
         $request->validate([
+            'kontak_id' => 'required|exists:kontaks,id',
             'sales_nama' => 'required|string|max:255',
             'sales_email' => 'nullable|email|max:255',
             'sales_alamat' => 'nullable|string',
-            'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Penawaran',
+            'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Penawaran,Promo',
             'memo' => 'nullable|string',
             'lampiran' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
+            'produk_id' => 'nullable|array',
+            'produk_id.*' => 'exists:produks,id',
+            'jumlah' => 'nullable|array',
+            'jumlah.*' => 'integer|min:1',
+            'keterangan' => 'nullable|array',
+            'keterangan.*' => 'nullable|string|max:255',
         ]);
 
         // Handle lampiran upload
@@ -264,6 +322,7 @@ class KunjunganController extends Controller
         }
 
         $kunjungan->update([
+            'kontak_id' => $request->kontak_id,
             'sales_nama' => $request->sales_nama,
             'sales_email' => $request->sales_email,
             'sales_alamat' => $request->sales_alamat,
@@ -272,6 +331,21 @@ class KunjunganController extends Controller
             'memo' => $request->memo,
             'lampiran_path' => $path,
         ]);
+
+        // Update items: hapus lama, buat baru
+        $kunjungan->items()->delete();
+        if ($request->has('produk_id') && is_array($request->produk_id)) {
+            foreach ($request->produk_id as $index => $produkId) {
+                if ($produkId) {
+                    KunjunganItem::create([
+                        'kunjungan_id' => $kunjungan->id,
+                        'produk_id' => $produkId,
+                        'jumlah' => $request->jumlah[$index] ?? 1,
+                        'keterangan' => $request->keterangan[$index] ?? null,
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('kunjungan.show', $kunjungan->id)
             ->with('success', 'Kunjungan berhasil diperbarui.');
@@ -347,7 +421,7 @@ class KunjunganController extends Controller
      */
     public function print(Kunjungan $kunjungan)
     {
-        $kunjungan->load(['user', 'approver', 'gudang']);
+        $kunjungan->load(['user', 'approver', 'gudang', 'kontak', 'items.produk']);
         return view('kunjungan.print', compact('kunjungan'));
     }
 

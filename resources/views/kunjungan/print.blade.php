@@ -166,6 +166,13 @@
 
         {{-- DETAIL SALES/KONTAK --}}
         <table>
+            @if($kunjungan->kontak)
+            <tr>
+                <td class="label">Kode</td>
+                <td class="colon">:</td>
+                <td class="value">{{ $kunjungan->kontak->kode_kontak }}</td>
+            </tr>
+            @endif
             <tr>
                 <td class="label">Sales</td>
                 <td class="colon">:</td>
@@ -186,6 +193,22 @@
                 </tr>
             @endif
         </table>
+
+        {{-- PRODUK ITEMS --}}
+        @if($kunjungan->items && $kunjungan->items->count() > 0)
+        <div class="divider"></div>
+        <div style="font-weight: bold; margin-bottom: 4px;">PRODUK:</div>
+        <table>
+            @foreach($kunjungan->items as $item)
+            <tr>
+                <td colspan="3" style="font-size: 8pt;">
+                    {{ $item->produk->item_kode }} - {{ $item->produk->item_nama }}
+                    <br>Qty: {{ $item->jumlah }}{{ $item->keterangan ? ' | '.$item->keterangan : '' }}
+                </td>
+            </tr>
+            @endforeach
+        </table>
+        @endif
 
         <div class="divider"></div>
 

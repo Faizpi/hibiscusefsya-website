@@ -69,6 +69,8 @@
                                         <span class="badge badge-info">{{ $kunjungan->tujuan }}</span>
                                     @elseif($kunjungan->tujuan == 'Penagihan')
                                         <span class="badge badge-warning">{{ $kunjungan->tujuan }}</span>
+                                    @elseif($kunjungan->tujuan == 'Promo')
+                                        <span class="badge badge-primary">{{ $kunjungan->tujuan }}</span>
                                     @else
                                         <span class="badge badge-success">{{ $kunjungan->tujuan }}</span>
                                     @endif
@@ -117,6 +119,10 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td><strong>Kode Kontak</strong></td>
+                                <td>: <span class="badge badge-secondary">{{ optional($kunjungan->kontak)->kode_kontak ?? '-' }}</span></td>
+                            </tr>
+                            <tr>
                                 <td><strong>Sales/Kontak</strong></td>
                                 <td>: {{ $kunjungan->sales_nama }}</td>
                             </tr>
@@ -145,6 +151,41 @@
                         </table>
                     </div>
                 </div>
+
+                {{-- PRODUK ITEMS --}}
+                @if($kunjungan->items && $kunjungan->items->count() > 0)
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-boxes"></i> Produk Terkait</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="15%">Kode Produk</th>
+                                        <th width="35%">Nama Produk</th>
+                                        <th width="10%">Jumlah</th>
+                                        <th width="35%">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($kunjungan->items as $index => $item)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td><code>{{ optional($item->produk)->item_kode ?? '-' }}</code></td>
+                                        <td>{{ optional($item->produk)->item_nama ?? '-' }}</td>
+                                        <td class="text-center">{{ $item->jumlah }}</td>
+                                        <td>{{ $item->keterangan ?? '-' }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @endif
 
                 {{-- MEMO & LAMPIRAN (samakan dengan Penjualan/Pembelian) --}}
                 <div class="row">
