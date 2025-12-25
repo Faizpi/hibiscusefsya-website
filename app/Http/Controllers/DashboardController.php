@@ -437,7 +437,7 @@ class DashboardController extends Controller
                 return $q->where('gudang_id', $selectedGudangId);
             })
             ->count();
-        
+
         $canceledPembelian = Pembelian::where('status', 'Canceled')
             ->whereYear('tgl_transaksi', $now->year)
             ->whereMonth('tgl_transaksi', $now->month)
@@ -445,12 +445,12 @@ class DashboardController extends Controller
                 return $q->where('gudang_id', $selectedGudangId);
             })
             ->count();
-        
+
         $canceledBiaya = Biaya::where('status', 'Canceled')
             ->whereYear('tgl_transaksi', $now->year)
             ->whereMonth('tgl_transaksi', $now->month)
             ->count();
-        
+
         $canceledKunjungan = Kunjungan::where('status', 'Canceled')
             ->whereYear('tgl_kunjungan', $now->year)
             ->whereMonth('tgl_kunjungan', $now->month)
@@ -458,7 +458,7 @@ class DashboardController extends Controller
                 return $q->where('gudang_id', $selectedGudangId);
             })
             ->count();
-        
+
         $data['canceledBulanIni'] = $canceledPenjualan + $canceledPembelian + $canceledBiaya + $canceledKunjungan;
         $data['canceledCountBulanIni'] = $data['canceledBulanIni'];
 
