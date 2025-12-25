@@ -32,10 +32,10 @@ class UpdateKunjungansAddPromoAndItems extends Migration
             $table->id();
             $table->unsignedBigInteger('kunjungan_id');
             $table->foreign('kunjungan_id')->references('id')->on('kunjungans')->onDelete('cascade');
-            
+
             $table->unsignedBigInteger('produk_id');
             $table->foreign('produk_id')->references('id')->on('produks');
-            
+
             $table->integer('jumlah')->default(1);
             $table->text('keterangan')->nullable();
             $table->timestamps();

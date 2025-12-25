@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Kontak; // atau App\Models\Kontak
+use App\Kontak;
 use Illuminate\Http\Request;
 
 class KontakController extends Controller
@@ -17,6 +17,11 @@ class KontakController extends Controller
     {
         $kontaks = Kontak::all();
         return view('kontak.index', compact('kontaks'));
+    }
+
+    public function show(Kontak $kontak)
+    {
+        return view('kontak.show', compact('kontak'));
     }
 
     public function create()

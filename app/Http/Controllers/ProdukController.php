@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Produk; 
+use App\Produk;
+use App\GudangProduk;
 use Illuminate\Http\Request;
 
 class ProdukController extends Controller
@@ -17,6 +18,13 @@ class ProdukController extends Controller
     {
         $produks = Produk::all();
         return view('produk.index', compact('produks'));
+    }
+
+    public function show(Produk $produk)
+    {
+        // Load stok di semua gudang
+        $produk->load('gudangProduks.gudang');
+        return view('produk.show', compact('produk'));
     }
 
     public function create()

@@ -22,6 +22,7 @@
                     <table class="table table-bordered" width="100%" cellspacing="0">
                         <thead>
                             <tr>
+                                <th>Kode</th>
                                 <th>Nama</th>
                                 <th>Email</th>
                                 <th>No. Telepon</th>
@@ -32,7 +33,16 @@
                         <tbody>
                             @forelse ($kontaks as $item)
                                 <tr>
-                                    <td>{{ $item->nama }}</td>
+                                    <td>
+                                        <a href="{{ route('kontak.show', $item->id) }}" class="badge badge-dark" title="Lihat Detail & Barcode">
+                                            <i class="fas fa-barcode fa-sm"></i> {{ $item->kode_kontak }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('kontak.show', $item->id) }}">
+                                            {{ $item->nama }}
+                                        </a>
+                                    </td>
                                     <td>{{ $item->email ?? '-' }}</td>
                                     <td>{{ $item->no_telp ?? '-' }}</td>
                                     <td class="text-right">{{ $item->diskon_persen ?? 0 }}%</td>
@@ -43,6 +53,9 @@
                                                 <i class="fas fa-ellipsis-v"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-right shadow-sm">
+                                                <a class="dropdown-item" href="{{ route('kontak.show', $item->id) }}">
+                                                    <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat Detail
+                                                </a>
                                                 <a class="dropdown-item" href="{{ route('kontak.edit', $item->id) }}">
                                                     <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
                                                 </a>
@@ -57,7 +70,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center">Belum ada data kontak.</td>
+                                    <td colspan="6" class="text-center">Belum ada data kontak.</td>
                                 </tr>
                             @endforelse
                         </tbody>

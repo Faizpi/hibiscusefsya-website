@@ -25,8 +25,7 @@
                     <table class="table table-bordered" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Item Code</th>
+                                <th>Kode Produk</th>
                                 <th>Nama Produk</th>
                                 <th class="text-right">Harga</th>
                                 <th class="text-center">Aksi</th>
@@ -35,9 +34,16 @@
                         <tbody>
                             @forelse ($produks as $item)
                                 <tr>
-                                    <td>{{ $item->id }}</td>
-                                    <td>{{ $item->item_code ?? '-' }}</td>
-                                    <td>{{ $item->nama_produk }}</td>
+                                    <td>
+                                        <a href="{{ route('produk.show', $item->id) }}" class="badge badge-dark" title="Lihat Detail & Barcode">
+                                            <i class="fas fa-barcode fa-sm"></i> {{ $item->item_kode ?? $item->item_code ?? 'PRD'.$item->id }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('produk.show', $item->id) }}">
+                                            {{ $item->item_nama ?? $item->nama_produk }}
+                                        </a>
+                                    </td>
                                     <td class="text-right">Rp {{ number_format($item->harga, 0, ',', '.') }}</td>
                                     <td class="text-center">
                                         <div class="dropdown">
@@ -46,6 +52,9 @@
                                                 <i class="fas fa-ellipsis-v"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-right shadow-sm">
+                                                <a class="dropdown-item" href="{{ route('produk.show', $item->id) }}">
+                                                    <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat Detail
+                                                </a>
                                                 <a class="dropdown-item" href="{{ route('produk.edit', $item->id) }}">
                                                     <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
                                                 </a>
@@ -60,7 +69,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center">Belum ada data produk.</td>
+                                    <td colspan="4" class="text-center">Belum ada data produk.</td>
                                 </tr>
                             @endforelse
                         </tbody>

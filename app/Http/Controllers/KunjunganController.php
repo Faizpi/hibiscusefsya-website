@@ -93,11 +93,13 @@ class KunjunganController extends Controller
         // Get produk dari gudang user
         $produks = [];
         if ($gudang) {
-            $produks = Produk::whereHas('gudangProduks', function($q) use ($gudang) {
+            $produks = Produk::whereHas('gudangProduks', function ($q) use ($gudang) {
                 $q->where('gudang_id', $gudang->id);
-            })->with(['gudangProduks' => function($q) use ($gudang) {
-                $q->where('gudang_id', $gudang->id);
-            }])->get();
+            })->with([
+                        'gudangProduks' => function ($q) use ($gudang) {
+                            $q->where('gudang_id', $gudang->id);
+                        }
+                    ])->get();
         }
 
         return view('kunjungan.create', compact('kontaks', 'gudang', 'produks'));
@@ -262,11 +264,13 @@ class KunjunganController extends Controller
         // Get produk dari gudang kunjungan
         $produks = [];
         if ($kunjungan->gudang_id) {
-            $produks = Produk::whereHas('gudangProduks', function($q) use ($kunjungan) {
+            $produks = Produk::whereHas('gudangProduks', function ($q) use ($kunjungan) {
                 $q->where('gudang_id', $kunjungan->gudang_id);
-            })->with(['gudangProduks' => function($q) use ($kunjungan) {
-                $q->where('gudang_id', $kunjungan->gudang_id);
-            }])->get();
+            })->with([
+                        'gudangProduks' => function ($q) use ($kunjungan) {
+                            $q->where('gudang_id', $kunjungan->gudang_id);
+                        }
+                    ])->get();
         }
 
         $kunjungan->load('items.produk');

@@ -1,0 +1,209 @@
+@extends('layouts.app')
+
+@section('content')
+    <div class="container-fluid">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Detail Produk</h1>
+            <div>
+                <a href="{{ route('produk.edit', $produk->id) }}" class="btn btn-warning btn-sm shadow-sm">
+                    <i class="fas fa-edit fa-sm"></i> Edit
+                </a>
+                <a href="{{ route('produk.index') }}" class="btn btn-secondary btn-sm shadow-sm">
+                    <i class="fas fa-arrow-left fa-sm"></i> Kembali
+                </a>
+            </div>
+        </div>
+
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+
+        <div class="row">
+            {{-- Kolom Kiri: Info Produk --}}
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-box"></i> Informasi Produk
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td width="35%"><strong>Kode Produk</strong></td>
+                                        <td width="5%">:</td>
+                                        <td><span class="badge badge-dark font-weight-bold" style="font-size: 1rem;">{{ $produk->item_kode ?? $produk->item_code ?? '-' }}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Nama Produk</strong></td>
+                                        <td>:</td>
+                                        <td>{{ $produk->item_nama ?? $produk->nama_produk }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Harga</strong></td>
+                                        <td>:</td>
+                                        <td><span class="text-success font-weight-bold">Rp {{ number_format($produk->harga ?? 0, 0, ',', '.') }}</span></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td width="35%"><strong>Deskripsi</strong></td>
+                                        <td width="5%">:</td>
+                                        <td>{{ $produk->deskripsi ?? '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Dibuat</strong></td>
+                                        <td>:</td>
+                                        <td>{{ $produk->created_at ? $produk->created_at->format('d M Y, H:i') : '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Diupdate</strong></td>
+                                        <td>:</td>
+                                        <td>{{ $produk->updated_at ? $produk->updated_at->format('d M Y, H:i') : '-' }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Stok per Gudang --}}
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-warehouse"></i> Stok per Gudang
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        @if($produk->gudangProduks && $produk->gudangProduks->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Gudang</th>
+                                            <th class="text-center">Stok</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php $totalStok = 0; @endphp
+                                        @foreach($produk->gudangProduks as $gp)
+                                            @php $totalStok += $gp->stok; @endphp
+                                            <tr>
+                                                <td>{{ optional($gp->gudang)->nama_gudang ?? 'Gudang #'.$gp->gudang_id }}</td>
+                                                <td class="text-center">
+                                                    @if($gp->stok > 10)
+                                                        <span class="badge badge-success">{{ $gp->stok }}</span>
+                                                    @elseif($gp->stok > 0)
+                                                        <span class="badge badge-warning">{{ $gp->stok }}</span>
+                                                    @else
+                                                        <span class="badge badge-danger">{{ $gp->stok }}</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        <tr class="table-secondary">
+                                            <td><strong>Total Stok</strong></td>
+                                            <td class="text-center"><strong>{{ $totalStok }}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <p class="text-muted mb-0">Produk ini belum memiliki stok di gudang manapun.</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            {{-- Kolom Kanan: Barcode --}}
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-barcode"></i> Barcode
+                        </h6>
+                    </div>
+                    <div class="card-body text-center">
+                        @php
+                            $itemKode = $produk->item_kode ?? $produk->item_code ?? 'PRD'.$produk->id;
+                            $barcodeUrl = 'https://barcodeapi.org/api/128/' . urlencode($itemKode);
+                        @endphp
+                        <img src="{{ $barcodeUrl }}" alt="Barcode {{ $itemKode }}" class="img-fluid mb-3" style="max-width: 250px;">
+                        <p class="font-weight-bold mb-1">{{ $itemKode }}</p>
+                        <small class="text-muted">{{ $produk->item_nama ?? $produk->nama_produk }}</small>
+
+                        <hr>
+
+                        <div class="btn-group">
+                            <a href="{{ $barcodeUrl }}" download="{{ $itemKode }}.png" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="printBarcode()">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- QR Code --}}
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-qrcode"></i> QR Code
+                        </h6>
+                    </div>
+                    <div class="card-body text-center">
+                        @php
+                            $qrData = "PRODUK\nKode: {$itemKode}\nNama: " . ($produk->item_nama ?? $produk->nama_produk) . "\nHarga: Rp " . number_format($produk->harga ?? 0, 0, ',', '.');
+                            $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' . urlencode($qrData);
+                        @endphp
+                        <img src="{{ $qrUrl }}" alt="QR Code" class="img-fluid mb-2" style="max-width: 150px;">
+                        <p class="text-muted small mb-0">Scan untuk info produk</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('scripts')
+<script>
+function printBarcode() {
+    var barcodeUrl = '{{ $barcodeUrl }}';
+    var kode = '{{ $itemKode }}';
+    var nama = '{{ $produk->item_nama ?? $produk->nama_produk }}';
+    var harga = 'Rp {{ number_format($produk->harga ?? 0, 0, ",", ".") }}';
+    
+    var printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Print Barcode - ${kode}</title>
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+                .barcode-container { margin: 20px auto; }
+                .code { font-size: 18px; font-weight: bold; margin-top: 10px; }
+                .nama { font-size: 14px; color: #666; }
+                .harga { font-size: 16px; color: #28a745; font-weight: bold; margin-top: 5px; }
+                @media print { body { padding: 0; } }
+            </style>
+        </head>
+        <body>
+            <div class="barcode-container">
+                <img src="${barcodeUrl}" alt="Barcode">
+                <div class="code">${kode}</div>
+                <div class="nama">${nama}</div>
+                <div class="harga">${harga}</div>
+            </div>
+            <script>window.onload = function() { window.print(); window.close(); }<\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
+</script>
+@endpush
