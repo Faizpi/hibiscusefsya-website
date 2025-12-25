@@ -120,28 +120,28 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    {{-- ROW 1.5: Card Dinamis + Biaya Masuk/Keluar --}}
-    <div class="row">
-        {{-- Card Dinamis --}}
-        <div class="col-xl-4 col-md-6 mb-4">
+        {{-- Card Total User Terdaftar --}}
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                {{ $card_4_title }}
+                                Total User Terdaftar
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $card_4_value }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalUsers ?? 0 }}</div>
                         </div>
-                        <div class="col-auto"><i class="fas {{ $card_4_icon }} fa-2x text-gray-300"></i></div>
+                        <div class="col-auto"><i class="fas fa-users fa-2x text-gray-300"></i></div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    {{-- ROW 2: Biaya Masuk, Biaya Keluar, Total Produk, Card Dinamis --}}
+    <div class="row">
         {{-- Card Biaya Masuk --}}
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -159,7 +159,7 @@
             </div>
         </div>
         {{-- Card Biaya Keluar --}}
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-danger shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -176,10 +176,7 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    {{-- ROW 2: Total Produk --}}
-    <div class="row">
+        {{-- Card Total Produk --}}
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-dark shadow h-100 py-2">
                 <div class="card-body">
@@ -198,6 +195,22 @@
                             </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-boxes fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- Card Dinamis (Pending Approvals / Products) --}}
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                {{ $card_4_title }}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $card_4_value }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas {{ $card_4_icon }} fa-2x text-gray-300"></i></div>
                     </div>
                 </div>
             </div>
