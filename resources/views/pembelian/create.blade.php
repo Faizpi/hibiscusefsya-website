@@ -498,11 +498,16 @@
                     card.dataset.rowIndex = index;
                     card.innerHTML = `
                         <div class="card-header-mobile">
-                            <select class="form-control product-select-mobile" data-row="${index}">
-                                <option value="">Pilih...</option>
-                                ${productOptionsHtml}
-                            </select>
-                            ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
+                            <div class="d-flex flex-grow-1">
+                                <select class="form-control product-select-mobile" data-row="${index}">
+                                    <option value="">Pilih...</option>
+                                    ${productOptionsHtml}
+                                </select>
+                                <button type="button" class="btn btn-outline-info btn-sm ml-1 btn-scan-produk-mobile" data-row="${index}" title="Scan Barcode">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                            </div>
+                            ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm ml-1 remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
                         </div>
                         <div class="card-body-mobile">
                             <div class="field-group full-width">
@@ -608,6 +613,30 @@
                             row.remove();
                             calculateTotal();
                         }
+                    }
+                    
+                    // Handle scan produk mobile
+                    if (e.target.closest('.btn-scan-produk-mobile')) {
+                        const btn = e.target.closest('.btn-scan-produk-mobile');
+                        const rowIndex = btn.dataset.row;
+                        scanProduk(function(produkId) {
+                            // Update select di mobile card
+                            const card = mobileCardsContainer.querySelector(`.product-card-mobile[data-row-index="${rowIndex}"]`);
+                            if (card) {
+                                const select = card.querySelector('.product-select-mobile');
+                                if (select) {
+                                    $(select).val(produkId).trigger('change');
+                                }
+                            }
+                            // Update select di table row
+                            const rows = tableBody.querySelectorAll('tr');
+                            if (rows[rowIndex]) {
+                                const tableSelect = rows[rowIndex].querySelector('.product-select');
+                                if (tableSelect) {
+                                    $(tableSelect).val(produkId).trigger('change');
+                                }
+                            }
+                        });
                     }
                 });
             }
