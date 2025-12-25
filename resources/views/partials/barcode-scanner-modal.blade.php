@@ -52,8 +52,18 @@
         })->values() : []),
         produks: @json(isset($produks) ? collect($produks)->map(function ($p) {
             return ['id' => $p->id, 'kode' => $p->item_kode ?? $p->item_code ?? '', 'nama' => $p->item_nama ?? $p->nama_produk ?? ''];
-        })->values() : [])
+        })->values() : []),
+        // Data produk yang tersedia per gudang (untuk penjualan)
+        gudangProduks: @json(isset($gudangProduks) ? $gudangProduks : null)
     };
+    
+    // Variabel untuk menyimpan gudang yang sedang dipilih
+    let currentGudangId = null;
+    
+    // Fungsi untuk set gudang yang aktif
+    function setCurrentGudang(gudangId) {
+        currentGudangId = gudangId;
+    }
 
     // Fungsi untuk membuka scanner
     function openBarcodeScanner(targetType, callback) {
@@ -119,24 +129,54 @@
 
     function onScanSuccess(decodedText, decodedResult) {
         console.log("Scanned:", decodedText);
+        
+        // Normalize scanned text (trim whitespace)
+        const scannedCode = decodedText.trim();
 
         // Cari data berdasarkan target type
         let foundItem = null;
         const dataList = currentScanTarget === 'kontak' ? scannerData.kontaks : scannerData.produks;
 
-        // Cari berdasarkan kode
-        foundItem = dataList.find(item => {
-            // Cek exact match
-            if (item.kode === decodedText) return true;
-            // Cek jika QR code mengandung kode
-            if (decodedText.includes(item.kode)) return true;
-            // Cek jika QR code format "KONTAK\nKode: xxx" atau "PRODUK\nKode: xxx"
-            const kodeMatch = decodedText.match(/Kode:\s*([^\n\r]+)/i);
-            if (kodeMatch && kodeMatch[1].trim() === item.kode) return true;
-            return false;
-        });
+        // Cari berdasarkan kode - EXACT MATCH FIRST
+        for (let item of dataList) {
+            // Skip item tanpa kode
+            if (!item.kode || item.kode === '') continue;
+            
+            // 1. Cek exact match (prioritas tertinggi)
+            if (item.kode === scannedCode) {
+                foundItem = item;
+                break;
+            }
+        }
+        
+        // Jika tidak exact match, coba parse format QR code
+        if (!foundItem) {
+            const kodeMatch = scannedCode.match(/Kode:\s*([^\n\r]+)/i);
+            if (kodeMatch) {
+                const extractedKode = kodeMatch[1].trim();
+                for (let item of dataList) {
+                    if (!item.kode || item.kode === '') continue;
+                    if (item.kode === extractedKode) {
+                        foundItem = item;
+                        break;
+                    }
+                }
+            }
+        }
 
         if (foundItem) {
+            // Untuk produk, cek apakah ada di gudang yang dipilih (jika dalam konteks penjualan)
+            if (currentScanTarget === 'produk' && scannerData.gudangProduks && currentGudangId) {
+                const produkIdsInGudang = scannerData.gudangProduks[currentGudangId] || [];
+                if (!produkIdsInGudang.includes(foundItem.id)) {
+                    // Produk tidak ada di gudang yang dipilih
+                    document.getElementById('error-text').textContent = `Stok produk "${foundItem.nama}" (${foundItem.kode}) tidak tersedia di gudang yang dipilih.`;
+                    document.getElementById('scanner-error').style.display = 'block';
+                    document.getElementById('scanner-result').style.display = 'none';
+                    return;
+                }
+            }
+            
             // Success - item ditemukan
             document.getElementById('result-text').textContent = `Ditemukan: ${foundItem.nama} (${foundItem.kode})`;
             document.getElementById('scanner-result').style.display = 'block';

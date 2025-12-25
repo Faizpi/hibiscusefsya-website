@@ -344,6 +344,13 @@ document.addEventListener('DOMContentLoaded', function () {
     @else
     const gudangProduks = null;
     @endif
+    
+    // Set gudang untuk user biasa (dari hidden input)
+    @if(!in_array(auth()->user()->role, ['admin', 'super_admin']) && auth()->user()->gudang_id)
+    if (typeof setCurrentGudang === 'function') {
+        setCurrentGudang('{{ auth()->user()->gudang_id }}');
+    }
+    @endif
 
     // Semua produk dengan data lengkap
     const allProduks = [
@@ -381,6 +388,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const selectedGudang = this.value;
             productOptionsHtml = getProductOptionsHtml(selectedGudang);
             
+            // Update currentGudangId untuk scanner
+            if (typeof setCurrentGudang === 'function') {
+                setCurrentGudang(selectedGudang);
+            }
+            
             // Update semua dropdown produk
             document.querySelectorAll('.product-select').forEach(select => {
                 const currentValue = $(select).val();
@@ -412,6 +424,11 @@ document.addEventListener('DOMContentLoaded', function () {
             
             syncMobileCards();
         });
+        
+        // Set initial gudang untuk scanner
+        if (gudangSelect.value && typeof setCurrentGudang === 'function') {
+            setCurrentGudang(gudangSelect.value);
+        }
     }
 
     // --- INISIALISASI SELECT2 ---
