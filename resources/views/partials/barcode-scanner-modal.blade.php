@@ -51,7 +51,7 @@
             return ['id' => $k->id, 'kode' => $k->kode_kontak ?? '', 'nama' => $k->nama];
         })->values() : []),
         produks: @json(isset($produks) ? collect($produks)->map(function ($p) {
-            return ['id' => $p->id, 'kode' => $p->item_kode ?? $p->item_code ?? '', 'nama' => $p->item_nama ?? $p->nama_produk ?? ''];
+            return ['id' => $p->id, 'kode' => $p->item_code ?? '', 'nama' => $p->nama_produk ?? ''];
         })->values() : []),
         // Data produk yang tersedia per gudang (untuk penjualan)
         gudangProduks: @json(isset($gudangProduks) ? $gudangProduks : null)

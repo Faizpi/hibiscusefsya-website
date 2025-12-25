@@ -193,9 +193,9 @@
                                                 <select class="form-control product-select" name="produk_id[]" required>
                                                     <option value="">Pilih...</option>
                                                     @foreach($produks as $p)
-                                                        <option value="{{ $p->id }}" data-kode="{{ $p->item_kode ?? '' }}" data-harga="{{ $p->harga }}"
+                                                        <option value="{{ $p->id }}" data-kode="{{ $p->item_code ?? '' }}" data-harga="{{ $p->harga }}"
                                                             data-deskripsi="{{ $p->deskripsi }}" {{ $oldPid == $p->id ? 'selected' : '' }}>
-                                                            [{{ $p->item_kode }}] {{ $p->nama_produk }}
+                                                            [{{ $p->item_code }}] {{ $p->nama_produk }}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -231,8 +231,8 @@
                                             <select class="form-control product-select" name="produk_id[]" required>
                                                 <option value="">Pilih...</option>
                                                 @foreach($produks as $p)
-                                                    <option value="{{ $p->id }}" data-kode="{{ $p->item_kode ?? '' }}" data-harga="{{ $p->harga }}"
-                                                        data-deskripsi="{{ $p->deskripsi }}">[{{ $p->item_kode }}] {{ $p->nama_produk }}</option>
+                                                    <option value="{{ $p->id }}" data-kode="{{ $p->item_code ?? '' }}" data-harga="{{ $p->harga }}"
+                                                        data-deskripsi="{{ $p->deskripsi }}">[{{ $p->item_code }}] {{ $p->nama_produk }}</option>
                                                 @endforeach
                                             </select>
                                         </td>

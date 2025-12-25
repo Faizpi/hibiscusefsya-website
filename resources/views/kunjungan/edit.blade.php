@@ -165,25 +165,23 @@
                     <h5 class="text-primary mb-3"><i class="fas fa-boxes"></i> Produk Terkait</h5>
                     <div id="produk-container">
                         @forelse($kunjungan->items as $index => $item)
-                        <div class="row produk-row mb-2">
-                            <div class="col-md-5">
+                        <div class="row produk-row mb-2 align-items-center">
+                            <div class="col-md-9">
                                 <select class="form-control produk-select" name="produk_id[]">
                                     <option value="">Pilih produk...</option>
                                     @foreach($produks as $produk)
                                         <option value="{{ $produk->id }}" 
-                                            data-stok="{{ $produk->gudangProduks->first()->stok ?? 0 }}"
+                                            data-kode="{{ $produk->item_code }}"
                                             {{ $item->produk_id == $produk->id ? 'selected' : '' }}>
-                                            [{{ $produk->item_kode }}] {{ $produk->item_nama }} 
-                                            (Stok: {{ $produk->gudangProduks->first()->stok ?? 0 }})
+                                            [{{ $produk->item_code }}] {{ $produk->nama_produk }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <input type="number" class="form-control" name="jumlah[]" placeholder="Jumlah" min="1" value="{{ $item->jumlah }}">
-                            </div>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" name="keterangan[]" placeholder="Keterangan (opsional)" value="{{ $item->keterangan }}">
+                                <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
+                                    <i class="fas fa-camera"></i>
+                                </button>
                             </div>
                             <div class="col-md-1">
                                 <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
@@ -192,23 +190,21 @@
                             </div>
                         </div>
                         @empty
-                        <div class="row produk-row mb-2">
-                            <div class="col-md-5">
+                        <div class="row produk-row mb-2 align-items-center">
+                            <div class="col-md-9">
                                 <select class="form-control produk-select" name="produk_id[]">
                                     <option value="">Pilih produk...</option>
                                     @foreach($produks as $produk)
-                                        <option value="{{ $produk->id }}" data-stok="{{ $produk->gudangProduks->first()->stok ?? 0 }}">
-                                            [{{ $produk->item_kode }}] {{ $produk->item_nama }} 
-                                            (Stok: {{ $produk->gudangProduks->first()->stok ?? 0 }})
+                                        <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}">
+                                            [{{ $produk->item_code }}] {{ $produk->nama_produk }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <input type="number" class="form-control" name="jumlah[]" placeholder="Jumlah" min="1" value="1">
-                            </div>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" name="keterangan[]" placeholder="Keterangan (opsional)">
+                                <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
+                                    <i class="fas fa-camera"></i>
+                                </button>
                             </div>
                             <div class="col-md-1">
                                 <button type="button" class="btn btn-danger btn-sm btn-remove-produk" style="display:none;">
@@ -280,23 +276,21 @@
         // Tambah baris produk
         $('#btn-add-produk').on('click', function () {
             const newRow = `
-                <div class="row produk-row mb-2">
-                    <div class="col-md-5">
+                <div class="row produk-row mb-2 align-items-center">
+                    <div class="col-md-9">
                         <select class="form-control produk-select" name="produk_id[]">
                             <option value="">Pilih produk...</option>
                             @foreach($produks as $produk)
-                                <option value="{{ $produk->id }}" data-stok="{{ $produk->gudangProduks->first()->stok ?? 0 }}">
-                                    [{{ $produk->item_kode }}] {{ $produk->item_nama }} 
-                                    (Stok: {{ $produk->gudangProduks->first()->stok ?? 0 }})
+                                <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}">
+                                    [{{ $produk->item_code }}] {{ $produk->nama_produk }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <input type="number" class="form-control" name="jumlah[]" placeholder="Jumlah" min="1" value="1">
-                    </div>
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" name="keterangan[]" placeholder="Keterangan (opsional)">
+                        <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
+                            <i class="fas fa-camera"></i>
+                        </button>
                     </div>
                     <div class="col-md-1">
                         <button type="button" class="btn btn-danger btn-sm btn-remove-produk">

@@ -167,19 +167,16 @@
                                         <tr>
                                             <th width="5%">#</th>
                                             <th width="15%">Kode Produk</th>
-                                            <th width="35%">Nama Produk</th>
-                                            <th width="10%">Jumlah</th>
-                                            <th width="35%">Keterangan</th>
+                                            <th width="20%">Kode Produk</th>
+                                            <th width="60%">Nama Produk</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach($kunjungan->items as $index => $item)
                                             <tr>
                                                 <td>{{ $index + 1 }}</td>
-                                                <td><code>{{ optional($item->produk)->item_kode ?? '-' }}</code></td>
-                                                <td>{{ optional($item->produk)->item_nama ?? '-' }}</td>
-                                                <td class="text-center">{{ $item->jumlah }}</td>
-                                                <td>{{ $item->keterangan ?? '-' }}</td>
+                                                <td><code>{{ optional($item->produk)->item_code ?? '-' }}</code></td>
+                                                <td>{{ optional($item->produk)->nama_produk ?? '-' }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
