@@ -2,6 +2,13 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    @php
+        $itemKode = $produk->item_kode ?? $produk->item_code ?? 'PRD'.$produk->id;
+        $itemNama = $produk->item_nama ?? $produk->nama_produk;
+        $barcodeUrl = 'https://barcodeapi.org/api/128/' . urlencode($itemKode);
+        $qrData = "PRODUK\nKode: {$itemKode}\nNama: {$itemNama}\nHarga: Rp " . number_format($produk->harga ?? 0, 0, ',', '.');
+        $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . urlencode($qrData);
+    @endphp
     <title>Print Barcode Produk - {{ $itemKode }}</title>
     <style>
         @page {
@@ -135,14 +142,6 @@
 </head>
 <body onload="window.print()">
     <div class="receipt">
-        @php
-            $itemKode = $produk->item_kode ?? $produk->item_code ?? 'PRD'.$produk->id;
-            $itemNama = $produk->item_nama ?? $produk->nama_produk;
-            $barcodeUrl = 'https://barcodeapi.org/api/128/' . urlencode($itemKode);
-            $qrData = "PRODUK\nKode: {$itemKode}\nNama: {$itemNama}\nHarga: Rp " . number_format($produk->harga ?? 0, 0, ',', '.');
-            $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . urlencode($qrData);
-        @endphp
-        
         <div class="header">
             <div class="title">LABEL PRODUK</div>
             <div style="font-size: 9pt;">{{ config('app.name') }}</div>
