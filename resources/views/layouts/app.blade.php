@@ -21,21 +21,14 @@
 
     <style>
         :root {
-            --sidebar-bg: rgba(255, 255, 255, 0.75);
-            --sidebar-hover: rgba(239, 246, 255, 0.8);
+            --sidebar-bg: #ffffff;
+            --sidebar-hover: #eff6ff;
             --sidebar-active: #3b82f6;
             --text-primary: #1f2937;
             --text-secondary: #6b7280;
             --text-muted: #9ca3af;
-            --border-color: rgba(255, 255, 255, 0.2);
-            --bg-light: #f0f4f8;
-            
-            /* Glassmorphism variables */
-            --glass-bg: rgba(255, 255, 255, 0.18);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
-            --glass-blur: 15px;
-            --glass-inner-glow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            --border-color: #e5e7eb;
+            --bg-light: #f9fafb;
         }
 
         * {
@@ -43,17 +36,8 @@
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
-            min-height: 100vh;
+            background: var(--bg-light);
             overflow-x: hidden;
-        }
-
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
 
         /* Hide caret on custom dropdown buttons that use ellipsis icon */
@@ -69,19 +53,16 @@
             overflow-x: hidden;
         }
 
-        /* ========== SIDEBAR - Glassmorphism Style (FIXED) ========== */
+        /* ========== SIDEBAR - White Blue Style (FIXED) ========== */
         .sidebar {
-            background: var(--glass-bg) !important;
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
+            background: var(--sidebar-bg) !important;
             height: 100vh;
             width: 14rem !important;
             min-width: 14rem;
             flex-shrink: 0;
             overflow-y: auto;
             overflow-x: hidden;
-            border-right: 1px solid var(--glass-border);
-            box-shadow: var(--glass-shadow), var(--glass-inner-glow);
+            border-right: 1px solid var(--border-color);
             transition: all 0.2s ease;
             z-index: 1000;
             position: fixed;
@@ -92,8 +73,8 @@
         .sidebar .sidebar-brand {
             height: 65px;
             padding: 0 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid var(--glass-border);
+            background: transparent;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
         }
@@ -182,15 +163,13 @@
             color: #fff;
         }
 
-        /* ========== TOPBAR - Glassmorphism (FIXED) ========== */
+        /* ========== TOPBAR (FIXED) ========== */
         .topbar {
-            background: var(--glass-bg);
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
+            background: #fff;
             height: 65px;
             padding: 0 1.5rem;
-            box-shadow: var(--glass-shadow), var(--glass-inner-glow);
-            border-bottom: 1px solid var(--glass-border);
+            box-shadow: none;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             position: fixed;
@@ -207,7 +186,7 @@
         }
 
         .topbar .navbar-nav .nav-item .nav-link {
-            color: var(--text-primary);
+            color: var(--text-secondary);
             padding: 0.5rem;
         }
 
@@ -293,22 +272,20 @@
             min-width: 340px;
             max-width: 380px;
             padding: 0;
-            background: var(--glass-bg);
-            backdrop-filter: blur(var(--glass-blur));
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-shadow);
-            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
             overflow: hidden;
             margin-top: 0.5rem;
         }
 
         .notification-dropdown .dropdown-header {
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--bg-light);
             padding: 0.85rem 1rem;
             font-weight: 600;
             font-size: 0.875rem;
             color: var(--text-primary);
-            border-bottom: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -328,13 +305,13 @@
             display: flex;
             align-items: center;
             padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--border-color);
             text-decoration: none;
             transition: background 0.15s ease;
         }
 
         .notification-dropdown .notification-item:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--bg-light);
         }
 
         .notification-dropdown .notification-item:last-child {
@@ -354,12 +331,12 @@
         }
 
         .notification-dropdown .notification-icon.bg-primary {
-            background: rgba(59, 130, 246, 0.25) !important;
+            background: rgba(59, 130, 246, 0.15) !important;
             color: #3b82f6;
         }
 
         .notification-dropdown .notification-icon.bg-success {
-            background: rgba(16, 185, 129, 0.25) !important;
+            background: rgba(16, 185, 129, 0.15) !important;
             color: #10b981;
         }
 
@@ -446,11 +423,9 @@
         }
 
         .topbar .dropdown-menu {
-            background: var(--glass-bg);
-            backdrop-filter: blur(var(--glass-blur));
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-shadow);
-            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
             padding: 0.5rem;
             min-width: 200px;
         }
@@ -463,7 +438,7 @@
         }
 
         .topbar .dropdown-item:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: var(--bg-light);
         }
 
         .topbar .dropdown-item i {
@@ -473,7 +448,7 @@
 
         /* ========== CONTENT ========== */
         #content-wrapper {
-            background: transparent;
+            background: var(--bg-light);
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -503,32 +478,27 @@
         .page-title {
             font-size: 1.25rem;
             font-weight: 700;
-            color: #fff;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            color: var(--text-primary);
             margin-bottom: 1.5rem;
         }
 
         .h3.text-gray-800 {
             font-size: 1.25rem;
             font-weight: 700;
-            color: #fff !important;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            color: var(--text-primary) !important;
         }
 
         /* ========== CARDS ========== */
-        /* ========== CARDS - Glassmorphism ========== */
         .card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            box-shadow: var(--glass-shadow), var(--glass-inner-glow);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: none;
+            background: #fff;
         }
 
         .card-header {
-            background: rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid var(--glass-border);
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
             padding: 1rem 1.25rem;
             font-weight: 600;
             font-size: 0.875rem;
@@ -537,8 +507,7 @@
 
         .card-header.bg-primary,
         .card-header.bg-gradient-primary {
-            background: rgba(59, 130, 246, 0.7) !important;
-            backdrop-filter: blur(10px);
+            background: var(--sidebar-active) !important;
             border: none;
         }
 
@@ -550,100 +519,66 @@
             overflow-x: auto;
         }
 
-        /* Card border-left colors with glass effect */
-        .card.border-left-primary {
-            border-left: 4px solid #3b82f6 !important;
-        }
-        .card.border-left-success {
-            border-left: 4px solid #10b981 !important;
-        }
-        .card.border-left-info {
-            border-left: 4px solid #06b6d4 !important;
-        }
-        .card.border-left-warning {
-            border-left: 4px solid #f59e0b !important;
-        }
-        .card.border-left-danger {
-            border-left: 4px solid #ef4444 !important;
-        }
-        .card.border-left-secondary {
-            border-left: 4px solid #6b7280 !important;
-        }
-        .card.border-left-dark {
-            border-left: 4px solid #374151 !important;
-        }
-
-        /* ========== BUTTONS - Glassmorphism ========== */
+        /* ========== BUTTONS ========== */
         .btn {
             font-weight: 600;
             font-size: 0.875rem;
             padding: 0.5rem 1rem;
             border-radius: 8px;
-            border: 1px solid var(--glass-border);
+            border: none;
             transition: all 0.15s ease;
-            backdrop-filter: blur(5px);
         }
 
         .btn-primary {
-            background: rgba(59, 130, 246, 0.8);
-            border-color: rgba(59, 130, 246, 0.3);
+            background: var(--sidebar-active);
         }
 
         .btn-primary:hover {
-            background: rgba(37, 99, 235, 0.9);
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            background: #2563eb;
         }
 
         .btn-success {
-            background: rgba(16, 185, 129, 0.8);
-            border-color: rgba(16, 185, 129, 0.3);
+            background: #10b981;
         }
 
         .btn-success:hover {
-            background: rgba(5, 150, 105, 0.9);
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            background: #059669;
         }
 
         .btn-danger {
-            background: rgba(239, 68, 68, 0.8);
-            border-color: rgba(239, 68, 68, 0.3);
+            background: #ef4444;
         }
 
         .btn-danger:hover {
-            background: rgba(220, 38, 38, 0.9);
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            background: #dc2626;
         }
 
         .btn-warning {
-            background: rgba(245, 158, 11, 0.8);
-            border-color: rgba(245, 158, 11, 0.3);
+            background: #f59e0b;
             color: #fff;
         }
 
         .btn-warning:hover {
-            background: rgba(217, 119, 6, 0.9);
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            background: #d97706;
             color: #fff;
         }
 
         .btn-secondary {
-            background: rgba(107, 114, 128, 0.8);
-            border-color: rgba(107, 114, 128, 0.3);
+            background: #6b7280;
         }
 
         .btn-secondary:hover {
-            background: rgba(75, 85, 99, 0.9);
-            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4);
+            background: #4b5563;
         }
 
         .btn-outline-primary {
-            border: 1px solid rgba(59, 130, 246, 0.5);
+            border: 1px solid var(--sidebar-active);
             color: var(--sidebar-active);
-            background: rgba(255, 255, 255, 0.1);
+            background: transparent;
         }
 
         .btn-outline-primary:hover {
-            background: rgba(59, 130, 246, 0.8);
+            background: var(--sidebar-active);
             color: #fff;
         }
 
@@ -652,25 +587,22 @@
             font-size: 0.8125rem;
         }
 
-        /* ========== FORMS - Glassmorphism ========== */
+        /* ========== FORMS ========== */
         .form-control {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(5px);
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 0.5rem 0.75rem;
             font-size: 0.875rem;
             color: var(--text-primary);
-            transition: all 0.15s ease;
+            transition: border-color 0.15s ease;
             height: auto;
             min-height: 38px;
             line-height: 1.5;
         }
 
         .form-control:focus {
-            background: rgba(255, 255, 255, 0.9);
             border-color: var(--sidebar-active);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), var(--glass-inner-glow);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .form-control::placeholder {
@@ -689,20 +621,20 @@
             appearance: none;
         }
 
-        /* Action Dropdown Styling - Glassmorphism */
+        /* Action Dropdown Styling */
         .action-dropdown .dropdown-toggle {
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(5px);
-            border: 1px solid var(--glass-border);
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
             border-radius: 6px;
             padding: 0.375rem 0.5rem;
-            color: var(--text-secondary);
+            color: #64748b;
             transition: all 0.2s ease;
         }
 
         .action-dropdown .dropdown-toggle:hover {
-            background: rgba(255, 255, 255, 0.5);
-            color: var(--text-primary);
+            background: #e2e8f0;
+            color: #334155;
+            border-color: #cbd5e1;
         }
 
         .action-dropdown .dropdown-toggle:focus {
@@ -717,18 +649,16 @@
         .action-dropdown .dropdown-menu {
             min-width: 160px;
             padding: 0.5rem 0;
-            background: var(--glass-bg);
-            backdrop-filter: blur(var(--glass-blur));
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            box-shadow: var(--glass-shadow);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
             margin-top: 4px;
         }
 
         .action-dropdown .dropdown-item {
             padding: 0.5rem 1rem;
             font-size: 0.875rem;
-            color: var(--text-primary);
+            color: #334155;
             display: flex;
             align-items: center;
             gap: 0.625rem;
@@ -742,20 +672,20 @@
         }
 
         .action-dropdown .dropdown-item:hover {
-            background: rgba(255, 255, 255, 0.3);
-            color: var(--text-primary);
+            background: #f1f5f9;
+            color: #1e293b;
         }
 
         .action-dropdown .dropdown-item.text-primary:hover {
-            background: rgba(59, 130, 246, 0.2);
+            background: rgba(59, 130, 246, 0.1);
         }
 
         .action-dropdown .dropdown-item.text-success:hover {
-            background: rgba(34, 197, 94, 0.2);
+            background: rgba(34, 197, 94, 0.1);
         }
 
         .action-dropdown .dropdown-item.text-warning:hover {
-            background: rgba(245, 158, 11, 0.2);
+            background: rgba(245, 158, 11, 0.1);
         }
 
         .action-dropdown .dropdown-item.text-danger:hover {
@@ -832,13 +762,13 @@
         }
 
         .table thead th {
-            background: rgba(255, 255, 255, 0.2);
-            color: var(--text-primary);
+            background: var(--bg-light);
+            color: var(--text-secondary);
             font-weight: 600;
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.025em;
-            border-bottom: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--border-color);
             padding: 0.75rem 0.75rem;
             white-space: nowrap;
         }
@@ -846,98 +776,85 @@
         .table tbody td {
             padding: 0.75rem 0.75rem;
             color: var(--text-primary);
-            border-bottom: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
             word-break: break-word;
         }
 
         .table tbody tr:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--bg-light);
         }
 
         .table tbody tr:last-child td {
             border-bottom: none;
         }
 
-        /* ========== BADGES - Glassmorphism ========== */
+        /* ========== BADGES ========== */
         .badge {
             font-weight: 500;
             font-size: 0.75rem;
             padding: 0.25rem 0.625rem;
             border-radius: 6px;
-            backdrop-filter: blur(5px);
         }
 
         .badge-primary {
-            background: rgba(59, 130, 246, 0.2);
-            color: #2563eb;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--sidebar-active);
         }
 
         .badge-success {
-            background: rgba(16, 185, 129, 0.2);
+            background: rgba(16, 185, 129, 0.1);
             color: #059669;
         }
 
         .badge-danger {
-            background: rgba(239, 68, 68, 0.2);
+            background: rgba(239, 68, 68, 0.1);
             color: #dc2626;
         }
 
         .badge-warning {
-            background: rgba(245, 158, 11, 0.2);
-            color: #92400e;
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
         }
 
-        /* ========== ALERTS - Glassmorphism ========== */
+        /* ========== ALERTS ========== */
         .alert {
-            background: var(--glass-bg);
-            backdrop-filter: blur(var(--glass-blur));
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
+            border: none;
+            border-radius: 8px;
             font-size: 0.875rem;
             padding: 0.875rem 1rem;
-            box-shadow: var(--glass-shadow);
         }
 
         .alert-success {
-            background: rgba(16, 185, 129, 0.2);
-            border-color: rgba(16, 185, 129, 0.3);
-            color: #065f46;
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
         }
 
         .alert-danger {
-            background: rgba(239, 68, 68, 0.2);
-            border-color: rgba(239, 68, 68, 0.3);
-            color: #991b1b;
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
         }
 
         .alert-warning {
-            background: rgba(245, 158, 11, 0.2);
-            border-color: rgba(245, 158, 11, 0.3);
-            color: #92400e;
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
         }
 
         .alert-info {
-            background: rgba(59, 130, 246, 0.2);
-            border-color: rgba(59, 130, 246, 0.3);
-            color: #1e40af;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--sidebar-active);
         }
 
-        /* ========== MODAL - Glassmorphism ========== */
+        /* ========== MODAL ========== */
         .modal-content {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), var(--glass-inner-glow);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
         .modal-header {
-            background: rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--border-color);
             padding: 1rem 1.25rem;
-            border-radius: 16px 16px 0 0;
         }
 
         .modal-title {
@@ -948,46 +865,12 @@
 
         .modal-body {
             padding: 1.25rem;
-            color: var(--text-primary);
+            color: var(--text-secondary);
         }
 
         .modal-footer {
-            background: rgba(255, 255, 255, 0.05);
-            border-top: 1px solid var(--glass-border);
+            border-top: 1px solid var(--border-color);
             padding: 1rem 1.25rem;
-            border-radius: 0 0 16px 16px;
-        }
-
-        /* ========== FOOTER - Glassmorphism ========== */
-        .sticky-footer {
-            background: var(--glass-bg) !important;
-            backdrop-filter: blur(var(--glass-blur));
-            border-top: 1px solid var(--glass-border);
-            padding: 1rem;
-        }
-
-        .sticky-footer .copyright {
-            font-size: 0.8125rem;
-            color: var(--text-primary);
-        }
-
-        /* ========== PAGINATION - Glassmorphism ========== */
-        .pagination .page-link {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid var(--glass-border);
-            color: var(--text-primary);
-            font-size: 0.875rem;
-            padding: 0.5rem 0.875rem;
-            backdrop-filter: blur(5px);
-        }
-
-        .pagination .page-item.active .page-link {
-            background: rgba(59, 130, 246, 0.8);
-            border-color: rgba(59, 130, 246, 0.5);
-        }
-
-        .pagination .page-link:hover {
-            background: rgba(255, 255, 255, 0.4);
         }
 
         /* ========== MOBILE RESPONSIVE FOR FORMS ========== */
@@ -1148,6 +1031,35 @@
                 padding: 0.375rem 0.5rem !important;
                 font-size: 0.75rem !important;
             }
+        }
+
+        /* ========== FOOTER ========== */
+        .sticky-footer {
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            padding: 1rem;
+        }
+
+        .sticky-footer .copyright {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+        }
+
+        /* ========== PAGINATION ========== */
+        .pagination .page-link {
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            padding: 0.5rem 0.875rem;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--sidebar-active);
+            border-color: var(--sidebar-active);
+        }
+
+        .pagination .page-link:hover {
+            background: var(--bg-light);
         }
 
         /* ========== UTILITIES ========== */
