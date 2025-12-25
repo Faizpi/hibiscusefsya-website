@@ -102,8 +102,8 @@
                             {{-- LOGIKA GUDANG --}}
                             <div class="form-group">
                                 <label for="gudang_id">Gudang *</label>
-                                @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
-                                    {{-- Admin Memilih Gudang --}}
+                                @if(auth()->user()->role == 'super_admin')
+                                    {{-- Super Admin bisa pilih semua gudang --}}
                                     <select class="form-control @error('gudang_id') is-invalid @enderror" id="gudang_id"
                                         name="gudang_id" required>
                                         <option value="">Pilih Gudang...</option>
@@ -114,6 +114,16 @@
                                         @endforeach
                                     </select>
                                     @error('gudang_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @elseif(auth()->user()->role == 'admin')
+                                    {{-- Admin readonly, hanya gudang yang ditugaskan --}}
+                                    @php
+                                        $adminGudang = auth()->user()->getCurrentGudang();
+                                    @endphp
+                                    <input type="text" class="form-control"
+                                        value="{{ $adminGudang->nama_gudang ?? 'Admin tidak terhubung ke gudang' }}" readonly>
+                                    <input type="hidden" id="gudang_id" name="gudang_id"
+                                        value="{{ $adminGudang->id ?? '' }}">
+                                    @error('gudang_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                 @else
                                     {{-- User Biasa (Readonly) --}}
                                     <input type="text" class="form-control"

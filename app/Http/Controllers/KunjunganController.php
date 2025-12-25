@@ -90,16 +90,12 @@ class KunjunganController extends Controller
         // Get user's gudang
         $gudang = $user->getCurrentGudang();
 
-        // Get produk dari gudang user
+        // Get produk dari gudang user (tanpa info stok, kunjungan tidak perlu stok)
         $produks = [];
         if ($gudang) {
             $produks = Produk::whereHas('gudangProduks', function ($q) use ($gudang) {
                 $q->where('gudang_id', $gudang->id);
-            })->with([
-                        'gudangProduks' => function ($q) use ($gudang) {
-                            $q->where('gudang_id', $gudang->id);
-                        }
-                    ])->get();
+            })->get();
         }
 
         return view('kunjungan.create', compact('kontaks', 'gudang', 'produks'));

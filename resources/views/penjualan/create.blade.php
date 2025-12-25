@@ -144,7 +144,8 @@
                         {{-- GUDANG --}}
                         <div class="form-group">
                             <label for="gudang_id">Gudang *</label>
-                            @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
+                            @if(auth()->user()->role == 'super_admin')
+                                {{-- Super Admin bisa pilih semua gudang --}}
                                 <select class="form-control @error('gudang_id') is-invalid @enderror" id="gudang_id" name="gudang_id" required>
                                     <option value="">Pilih gudang...</option>
                                     @foreach($gudangs as $gudang)
@@ -153,9 +154,17 @@
                                         </option>
                                     @endforeach
                                 </select>
+                            @elseif(auth()->user()->role == 'admin')
+                                {{-- Admin readonly, hanya bisa gudang yang ditugaskan --}}
+                                @php
+                                    $adminGudang = auth()->user()->getCurrentGudang();
+                                @endphp
+                                <input type="text" class="form-control" value="{{ $adminGudang->nama_gudang ?? 'Admin tidak terhubung ke gudang' }}" readonly>
+                                <input type="hidden" id="gudang_id" name="gudang_id" value="{{ $adminGudang->id ?? '' }}">
                             @else
+                                {{-- User biasa readonly --}}
                                 <input type="text" class="form-control" value="{{ auth()->user()->gudang->nama_gudang ?? 'User tidak terhubung ke gudang' }}" readonly>
-                                <input type="hidden" name="gudang_id" value="{{ auth()->user()->gudang_id }}">
+                                <input type="hidden" id="gudang_id" name="gudang_id" value="{{ auth()->user()->gudang_id }}">
                             @endif
                             @error('gudang_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
@@ -345,10 +354,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const gudangProduks = null;
     @endif
     
-    // Set gudang untuk user biasa (dari hidden input)
-    @if(!in_array(auth()->user()->role, ['admin', 'super_admin']) && auth()->user()->gudang_id)
+    // Set gudang untuk user/admin (dari hidden input) saat page load
+    @if(auth()->user()->role != 'super_admin')
     if (typeof setCurrentGudang === 'function') {
-        setCurrentGudang('{{ auth()->user()->gudang_id }}');
+        const hiddenGudang = document.querySelector('input[name="gudang_id"][type="hidden"]');
+        if (hiddenGudang && hiddenGudang.value) {
+            setCurrentGudang(hiddenGudang.value);
+        }
     }
     @endif
 

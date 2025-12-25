@@ -56,10 +56,10 @@
         // Data produk yang tersedia per gudang (untuk penjualan)
         gudangProduks: @json(isset($gudangProduks) ? $gudangProduks : null)
     };
-    
+
     // Variabel untuk menyimpan gudang yang sedang dipilih
     let currentGudangId = null;
-    
+
     // Fungsi untuk set gudang yang aktif
     function setCurrentGudang(gudangId) {
         currentGudangId = gudangId;
@@ -129,7 +129,7 @@
 
     function onScanSuccess(decodedText, decodedResult) {
         console.log("Scanned:", decodedText);
-        
+
         // Normalize scanned text (trim whitespace)
         const scannedCode = decodedText.trim();
 
@@ -141,14 +141,14 @@
         for (let item of dataList) {
             // Skip item tanpa kode
             if (!item.kode || item.kode === '') continue;
-            
+
             // 1. Cek exact match (prioritas tertinggi)
             if (item.kode === scannedCode) {
                 foundItem = item;
                 break;
             }
         }
-        
+
         // Jika tidak exact match, coba parse format QR code
         if (!foundItem) {
             const kodeMatch = scannedCode.match(/Kode:\s*([^\n\r]+)/i);
@@ -176,7 +176,7 @@
                     return;
                 }
             }
-            
+
             // Success - item ditemukan
             document.getElementById('result-text').textContent = `Ditemukan: ${foundItem.nama} (${foundItem.kode})`;
             document.getElementById('scanner-result').style.display = 'block';

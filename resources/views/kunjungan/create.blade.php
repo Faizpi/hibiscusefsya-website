@@ -174,9 +174,8 @@
                                 <select class="form-control produk-select" name="produk_id[]">
                                     <option value="">Pilih produk...</option>
                                     @foreach($produks as $produk)
-                                        <option value="{{ $produk->id }}" data-kode="{{ $produk->item_kode }}" data-stok="{{ $produk->gudangProduks->first()->stok ?? 0 }}">
-                                            [{{ $produk->item_kode }}] {{ $produk->item_nama }} 
-                                            (Stok: {{ $produk->gudangProduks->first()->stok ?? 0 }})
+                                        <option value="{{ $produk->id }}" data-kode="{{ $produk->item_kode }}">
+                                            [{{ $produk->item_kode }}] {{ $produk->item_nama }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -266,9 +265,8 @@
                             <select class="form-control produk-select" name="produk_id[]">
                                 <option value="">Pilih produk...</option>
                                 @foreach($produks as $produk)
-                                    <option value="{{ $produk->id }}" data-kode="{{ $produk->item_kode }}" data-stok="{{ $produk->gudangProduks->first()->stok ?? 0 }}">
-                                        [{{ $produk->item_kode }}] {{ $produk->item_nama }} 
-                                        (Stok: {{ $produk->gudangProduks->first()->stok ?? 0 }})
+                                    <option value="{{ $produk->id }}" data-kode="{{ $produk->item_kode }}">
+                                        [{{ $produk->item_kode }}] {{ $produk->item_nama }}
                                     </option>
                                 @endforeach
                             </select>
