@@ -274,10 +274,10 @@
         </div>
 
         @if($type != 'kunjungan')
-        <div class="total-box total-{{ $notificationType }}">
-            <div style="font-size: 14px; opacity: 0.9;">Total {{ $label }}</div>
-            <div class="amount">Rp {{ number_format($transaksi->total ?? 0, 0, ',', '.') }}</div>
-        </div>
+            <div class="total-box total-{{ $notificationType }}">
+                <div style="font-size: 14px; opacity: 0.9;">Total {{ $label }}</div>
+                <div class="amount">Rp {{ number_format($transaksi->total ?? 0, 0, ',', '.') }}</div>
+            </div>
         @endif
 
         @if($notificationType == 'needs_approval')

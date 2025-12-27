@@ -195,10 +195,8 @@ class InvoiceEmailService
     {
         try {
             // Load relasi yang dibutuhkan
-            if ($type == 'penjualan') {
-                $transaksi->load(['items.produk', 'user', 'gudang', 'pelanggan']);
-            } elseif ($type == 'pembelian') {
-                $transaksi->load(['items.produk', 'user', 'gudang', 'supplier']);
+            if (in_array($type, ['penjualan', 'pembelian'])) {
+                $transaksi->load(['items.produk', 'user', 'gudang']);
             } elseif ($type == 'kunjungan') {
                 $transaksi->load(['items.produk', 'user', 'gudang', 'kontak']);
             } else {
@@ -244,10 +242,8 @@ class InvoiceEmailService
     {
         try {
             // Load relasi yang dibutuhkan
-            if ($type == 'penjualan') {
-                $transaksi->load(['items.produk', 'user', 'gudang', 'pelanggan', 'approver']);
-            } elseif ($type == 'pembelian') {
-                $transaksi->load(['items.produk', 'user', 'gudang', 'supplier', 'approver']);
+            if (in_array($type, ['penjualan', 'pembelian'])) {
+                $transaksi->load(['items.produk', 'user', 'gudang', 'approver']);
             } elseif ($type == 'kunjungan') {
                 $transaksi->load(['items.produk', 'user', 'gudang', 'kontak', 'approver']);
             } else {

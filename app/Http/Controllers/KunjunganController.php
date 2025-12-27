@@ -241,12 +241,12 @@ class KunjunganController extends Controller
             }
 
             DB::commit();
-            
+
             // Kirim email notification (jika bukan super admin yang langsung approved)
             if ($initialStatus == 'Pending') {
                 InvoiceEmailService::sendCreatedNotification($kunjungan, 'kunjungan');
             }
-            
+
             return redirect()->route('kunjungan.show', $kunjungan->id)
                 ->with('success', 'Kunjungan berhasil dibuat dengan nomor ' . $nomor);
         } catch (\Exception $e) {
@@ -410,10 +410,10 @@ class KunjunganController extends Controller
                 'status' => 'Approved',
                 'approver_id' => $user->id
             ]);
-            
+
             // Kirim email notification ke pembuat kunjungan
             InvoiceEmailService::sendApprovedNotification($kunjungan, 'kunjungan');
-            
+
             return back()->with('success', 'Kunjungan berhasil disetujui.');
         }
 

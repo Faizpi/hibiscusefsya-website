@@ -222,7 +222,7 @@
         $dateCode = $kunjungan->created_at->format('Ymd');
         $noUrut = str_pad($kunjungan->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = $kunjungan->nomor ?? "VST-{$dateCode}-{$kunjungan->user_id}-{$noUrut}";
-        
+
         $tujuanClass = [
             'Pemeriksaan Stock' => 'pemeriksaan',
             'Penagihan' => 'penagihan',
@@ -282,10 +282,10 @@
                     <td class="value">: {{ $kunjungan->user->name ?? '-' }}</td>
                 </tr>
                 @if($kunjungan->gudang)
-                <tr>
-                    <td class="label">Gudang</td>
-                    <td class="value">: {{ $kunjungan->gudang->nama_gudang ?? '-' }}</td>
-                </tr>
+                    <tr>
+                        <td class="label">Gudang</td>
+                        <td class="value">: {{ $kunjungan->gudang->nama_gudang ?? '-' }}</td>
+                    </tr>
                 @endif
             </table>
         </div>
@@ -293,42 +293,42 @@
 
     <!-- KONTAK SECTION -->
     @if($kunjungan->kontak)
-    <div class="kontak-section">
-        <div class="kontak-title">Informasi Kontak yang Dikunjungi</div>
-        <div class="kontak-content">
-            <div class="row"><strong>Nama:</strong> {{ $kunjungan->kontak->nama ?? '-' }}</div>
-            @if($kunjungan->kontak->telepon)
-            <div class="row"><strong>Telepon:</strong> {{ $kunjungan->kontak->telepon }}</div>
-            @endif
-            @if($kunjungan->kontak->alamat)
-            <div class="row"><strong>Alamat:</strong> {{ $kunjungan->kontak->alamat }}</div>
-            @endif
+        <div class="kontak-section">
+            <div class="kontak-title">Informasi Kontak yang Dikunjungi</div>
+            <div class="kontak-content">
+                <div class="row"><strong>Nama:</strong> {{ $kunjungan->kontak->nama ?? '-' }}</div>
+                @if($kunjungan->kontak->telepon)
+                    <div class="row"><strong>Telepon:</strong> {{ $kunjungan->kontak->telepon }}</div>
+                @endif
+                @if($kunjungan->kontak->alamat)
+                    <div class="row"><strong>Alamat:</strong> {{ $kunjungan->kontak->alamat }}</div>
+                @endif
+            </div>
         </div>
-    </div>
     @endif
 
     <!-- ITEMS TABLE (if any) -->
     @if($kunjungan->items && $kunjungan->items->count() > 0)
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th style="width: 5%">No</th>
-                <th style="width: 40%">Produk</th>
-                <th style="width: 15%">Jumlah</th>
-                <th style="width: 40%">Keterangan</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($kunjungan->items as $index => $item)
+        <table class="items-table">
+            <thead>
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $item->produk->nama ?? '-' }}</td>
-                    <td>{{ $item->jumlah ?? '-' }}</td>
-                    <td>{{ $item->keterangan ?? '-' }}</td>
+                    <th style="width: 5%">No</th>
+                    <th style="width: 40%">Produk</th>
+                    <th style="width: 15%">Jumlah</th>
+                    <th style="width: 40%">Keterangan</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach($kunjungan->items as $index => $item)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $item->produk->nama ?? '-' }}</td>
+                        <td>{{ $item->jumlah ?? '-' }}</td>
+                        <td>{{ $item->keterangan ?? '-' }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     @endif
 
     @if($kunjungan->koordinat)
