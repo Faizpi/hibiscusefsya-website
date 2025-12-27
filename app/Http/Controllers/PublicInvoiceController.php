@@ -106,7 +106,7 @@ class PublicInvoiceController extends Controller
      */
     public function showKunjungan($uuid)
     {
-        $kunjungan = \App\Kunjungan::where('uuid', $uuid)->with(['user', 'gudang', 'approver'])->firstOrFail();
+        $kunjungan = Kunjungan::where('uuid', $uuid)->with(['user', 'gudang', 'approver'])->firstOrFail();
 
         return view('public.invoice-kunjungan', compact('kunjungan'));
     }
@@ -116,7 +116,7 @@ class PublicInvoiceController extends Controller
      */
     public function downloadKunjungan($uuid)
     {
-        $kunjungan = \App\Kunjungan::where('uuid', $uuid)->with(['user', 'gudang', 'approver'])->firstOrFail();
+        $kunjungan = Kunjungan::where('uuid', $uuid)->with(['user', 'gudang', 'approver'])->firstOrFail();
 
         $dateCode = $kunjungan->created_at->format('Ymd');
         $noUrut = str_pad($kunjungan->no_urut_harian, 3, '0', STR_PAD_LEFT);

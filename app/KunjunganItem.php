@@ -4,6 +4,15 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $kunjungan_id
+ * @property int $produk_id
+ * @property int|null $jumlah
+ * @property string|null $keterangan
+ * @property-read \App\Kunjungan $kunjungan
+ * @property-read \App\Produk $produk
+ */
 class KunjunganItem extends Model
 {
     protected $table = 'kunjungan_items';

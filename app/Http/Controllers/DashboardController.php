@@ -426,7 +426,7 @@ class DashboardController extends Controller
                     $salesQuantityLabels[] = $salesUser->name;
 
                     // Query to get total quantity sold by this sales
-                    $query = \App\PenjualanItem::whereHas('penjualan', function ($q) use ($salesUser, $selectedGudangId) {
+                    $query = PenjualanItem::whereHas('penjualan', function ($q) use ($salesUser, $selectedGudangId) {
                         $q->where('user_id', $salesUser->id)
                             ->whereIn('status', ['Approved', 'Lunas'])
                             ->when($selectedGudangId, function ($q2) use ($selectedGudangId) {
