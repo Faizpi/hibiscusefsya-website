@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
-
+@php
+    $dateCode = $pembelian->created_at->format('Ymd');
+    $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
+    $nomorPembelian = "REQ-{$pembelian->user_id}-{$dateCode}-{$noUrut}";
+@endphp
 <head>
     <meta charset="UTF-8">
     <title>Invoice Pembelian - {{ $nomorPembelian }}</title>
@@ -193,12 +197,6 @@
 </head>
 
 <body>
-    @php
-        $dateCode = $pembelian->created_at->format('Ymd');
-        $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
-        $nomorPembelian = "REQ-{$pembelian->user_id}-{$dateCode}-{$noUrut}";
-    @endphp
-
     <!-- HEADER -->
     <div class="header">
         <div class="logo">HIBISCUS EFSYA</div>

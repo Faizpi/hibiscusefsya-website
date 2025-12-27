@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
-
+@php
+    $dateCode = $penjualan->created_at->format('Ymd');
+    $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
+    $nomorInvoice = "INV-{$penjualan->user_id}-{$dateCode}-{$noUrut}";
+@endphp
 <head>
     <meta charset="UTF-8">
     <title>Invoice Penjualan - {{ $nomorInvoice }}</title>
@@ -193,12 +197,6 @@
 </head>
 
 <body>
-    @php
-        $dateCode = $penjualan->created_at->format('Ymd');
-        $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
-        $nomorInvoice = "INV-{$penjualan->user_id}-{$dateCode}-{$noUrut}";
-    @endphp
-
     <!-- HEADER -->
     <div class="header">
         <div class="logo">HIBISCUS EFSYA</div>

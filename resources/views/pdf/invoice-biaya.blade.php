@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
-
+@php
+    $dateCode = $biaya->created_at->format('Ymd');
+    $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);
+    $nomorInvoice = "EXP-{$biaya->user_id}-{$dateCode}-{$noUrut}";
+@endphp
 <head>
     <meta charset="UTF-8">
     <title>Invoice Biaya - {{ $nomorInvoice }}</title>
@@ -221,12 +225,6 @@
 </head>
 
 <body>
-    @php
-        $dateCode = $biaya->created_at->format('Ymd');
-        $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);
-        $nomorInvoice = "EXP-{$biaya->user_id}-{$dateCode}-{$noUrut}";
-    @endphp
-
     <!-- HEADER -->
     <div class="header">
         <div class="logo">HIBISCUS EFSYA</div>
