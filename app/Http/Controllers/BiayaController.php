@@ -22,7 +22,7 @@ class BiayaController extends Controller
         $user = Auth::user();
         $query = Biaya::with(['user', 'approver']);
         if ($user->role == 'super_admin') {
-        } elseif ($user->role == 'admin') {
+        } elseif (in_array($user->role, ['admin', 'spectator'])) {
             $query->where(function ($q) use ($user) {
                 $q->where('approver_id', $user->id)
                     ->orWhere('user_id', $user->id);
@@ -81,6 +81,13 @@ class BiayaController extends Controller
 
     public function create()
     {
+        $user = Auth::user();
+
+        // Spectator tidak bisa membuat transaksi
+        if ($user->role === 'spectator') {
+            return redirect()->route('biaya.index')->with('error', 'Spectator tidak memiliki akses untuk membuat transaksi.');
+        }
+
         $kontaks = Kontak::all();
 
         // Tidak perlu lagi, approver otomatis ditentukan di backend
@@ -91,6 +98,13 @@ class BiayaController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+
+        // Spectator tidak bisa membuat transaksi
+        if ($user->role === 'spectator') {
+            return redirect()->route('biaya.index')->with('error', 'Spectator tidak memiliki akses untuk membuat transaksi.');
+        }
+
         $request->validate([
             // approver_id tidak perlu lagi dari request, akan di-set otomatis
             'bayar_dari' => 'required|string',
@@ -142,24 +156,6 @@ class BiayaController extends Controller
             $approverId = null;
         }
 
-        // Default path null
-        $path = null;
-
-        // Pastikan folder public/storage/lampiran_biaya ada
-        $publicFolder = public_path('storage/lampiran_biaya');
-        if (!File::exists($publicFolder)) {
-            File::makeDirectory($publicFolder, 0755, true);
-        }
-
-        if ($request->hasFile('lampiran')) {
-            $file = $request->file('lampiran');
-            $extension = $file->getClientOriginalExtension();
-            $filename = time() . '_' . uniqid() . '.' . $extension;
-            // Pindah langsung ke public/storage/lampiran_biaya
-            $file->move($publicFolder, $filename);
-            $path = 'lampiran_biaya/' . $filename;
-        }
-
         $subTotal = 0;
         foreach ($request->total as $index => $jumlah) {
             $subTotal += $jumlah ?? 0;
@@ -178,6 +174,22 @@ class BiayaController extends Controller
         $dateCode = Carbon::parse($request->tgl_transaksi)->format('Ymd');
         $noUrutPadded = str_pad($noUrut, 3, '0', STR_PAD_LEFT);
         $nomor = "EXP-{$dateCode}-" . Auth::id() . "-{$noUrutPadded}";
+
+        // Upload lampiran dengan nama sesuai kode invoice
+        $path = null;
+        $publicFolder = public_path('storage/lampiran_biaya');
+        if (!File::exists($publicFolder)) {
+            File::makeDirectory($publicFolder, 0755, true);
+        }
+
+        if ($request->hasFile('lampiran')) {
+            $file = $request->file('lampiran');
+            $extension = $file->getClientOriginalExtension();
+            // Gunakan nomor invoice sebagai nama file
+            $filename = $nomor . '.' . $extension;
+            $file->move($publicFolder, $filename);
+            $path = 'lampiran_biaya/' . $filename;
+        }
 
         DB::beginTransaction();
         try {
@@ -239,7 +251,7 @@ class BiayaController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role == 'user')
+        if (!in_array($user->role, ['admin', 'super_admin']))
             return back()->with('error', 'Akses ditolak.');
 
         if ($biaya->status === 'Canceled') {

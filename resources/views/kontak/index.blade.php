@@ -4,9 +4,11 @@
     <div class="container-fluid">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Master Kontak</h1>
-            <a href="{{ route('kontak.create') }}" class="btn btn-primary shadow-sm">
-                <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Kontak Baru
-            </a>
+            @if(auth()->user()->role !== 'spectator')
+                <a href="{{ route('kontak.create') }}" class="btn btn-primary shadow-sm">
+                    <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Kontak Baru
+                </a>
+            @endif
         </div>
 
         @if (session('success'))
@@ -57,14 +59,16 @@
                                                 <a class="dropdown-item" href="{{ route('kontak.show', $item->id) }}">
                                                     <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat Detail
                                                 </a>
-                                                <a class="dropdown-item" href="{{ route('kontak.edit', $item->id) }}">
-                                                    <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
-                                                </a>
-                                                <button type="button" class="dropdown-item text-danger" data-toggle="modal"
-                                                    data-target="#deleteModal"
-                                                    data-action="{{ route('kontak.destroy', $item->id) }}">
-                                                    <i class="fas fa-trash fa-fw mr-2"></i> Hapus
-                                                </button>
+                                                @if(auth()->user()->role !== 'spectator')
+                                                    <a class="dropdown-item" href="{{ route('kontak.edit', $item->id) }}">
+                                                        <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
+                                                    </a>
+                                                    <button type="button" class="dropdown-item text-danger" data-toggle="modal"
+                                                        data-target="#deleteModal"
+                                                        data-action="{{ route('kontak.destroy', $item->id) }}">
+                                                        <i class="fas fa-trash fa-fw mr-2"></i> Hapus
+                                                    </button>
+                                                @endif
                                             </div>
                                         </div>
                                     </td>

@@ -40,7 +40,7 @@ class ProdukController extends Controller
         $itemKode = $produk->item_kode ?? $produk->item_code ?? 'PRD' . $produk->id;
 
         $pdf = PDF::loadView('produk.print', compact('produk'));
-        $pdf->setPaper([0, 0, 164.409, 400], 'portrait'); // 58mm width
+        $pdf->setPaper('a4', 'portrait');
         return $pdf->download('produk-' . $itemKode . '.pdf');
     }
 

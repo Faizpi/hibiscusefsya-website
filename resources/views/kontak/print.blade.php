@@ -6,8 +6,8 @@
     <title>Print Barcode Kontak - {{ $kontak->kode_kontak }}</title>
     <style>
         @page {
-            size: 58mm auto;
-            margin: 0;
+            size: A4;
+            margin: 15mm;
         }
 
         html,
@@ -20,14 +20,15 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            font-size: 10pt;
+            font-size: 11pt;
             color: #000;
         }
 
         .receipt {
-            width: 58mm;
+            width: 100%;
+            max-width: 180mm;
             margin: 0 auto;
-            padding: 3mm 2mm;
+            padding: 10mm;
             box-sizing: border-box;
         }
 
@@ -45,34 +46,35 @@
 
         .header {
             text-align: center;
-            margin-bottom: 8px;
-            border-bottom: 1px dashed #000;
-            padding-bottom: 8px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
         }
 
         .header .logo {
-            max-width: 45mm;
-            margin-bottom: 4px;
+            max-width: 80mm;
+            margin-bottom: 10px;
         }
 
         .header .title {
-            font-size: 12pt;
+            font-size: 18pt;
             font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
         }
 
         .barcode-section {
             text-align: center;
-            padding: 10px 0;
+            padding: 20px 0;
         }
 
         .barcode-section img {
-            max-width: 100%;
+            max-width: 80%;
             height: auto;
+            max-height: 80px;
         }
 
         .code {
-            font-size: 14pt;
+            font-size: 18pt;
             font-weight: bold;
             margin: 8px 0 4px;
             letter-spacing: 2px;

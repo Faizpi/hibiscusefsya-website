@@ -4,9 +4,11 @@
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-2 mb-sm-0 text-gray-800">Kunjungan</h1>
-        <a href="{{ route('kunjungan.create') }}" class="btn btn-primary shadow-sm">
-            <i class="fas fa-plus fa-sm text-white-50"></i> Buat Kunjungan Baru
-        </a>
+        @if(auth()->user()->role !== 'spectator')
+            <a href="{{ route('kunjungan.create') }}" class="btn btn-primary shadow-sm">
+                <i class="fas fa-plus fa-sm text-white-50"></i> Buat Kunjungan Baru
+            </a>
+        @endif
     </div>
 
     @if (session('success'))

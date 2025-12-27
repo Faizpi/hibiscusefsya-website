@@ -27,8 +27,8 @@ class KunjunganController extends Controller
 
         if ($user->role == 'super_admin') {
             // Super admin lihat semua
-        } elseif ($user->role == 'admin') {
-            // Admin: lihat data pada gudang yang dia akses, atau yang dia buat, atau yang ditunjuk ke dia
+        } elseif (in_array($user->role, ['admin', 'spectator'])) {
+            // Admin/Spectator: lihat data pada gudang yang dia akses, atau yang dia buat, atau yang ditunjuk ke dia
             $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
             $query->where(function ($q) use ($user, $accessibleGudangIds) {
                 $q->whereIn('gudang_id', $accessibleGudangIds)
@@ -84,8 +84,14 @@ class KunjunganController extends Controller
      */
     public function create()
     {
-        $kontaks = Kontak::all();
         $user = Auth::user();
+
+        // Spectator tidak bisa membuat transaksi
+        if ($user->role === 'spectator') {
+            return redirect()->route('kunjungan.index')->with('error', 'Spectator tidak memiliki akses untuk membuat transaksi.');
+        }
+
+        $kontaks = Kontak::all();
 
         // Get user's gudang
         $gudang = $user->getCurrentGudang();
@@ -106,6 +112,13 @@ class KunjunganController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+
+        // Spectator tidak bisa membuat transaksi
+        if ($user->role === 'spectator') {
+            return redirect()->route('kunjungan.index')->with('error', 'Spectator tidak memiliki akses untuk membuat transaksi.');
+        }
+
         $request->validate([
             'kontak_id' => 'required|exists:kontaks,id',
             'sales_nama' => 'required|string|max:255',
@@ -165,21 +178,6 @@ class KunjunganController extends Controller
             $approverId = null;
         }
 
-        // Handle lampiran upload
-        $path = null;
-        $publicFolder = public_path('storage/lampiran_kunjungan');
-        if (!File::exists($publicFolder)) {
-            File::makeDirectory($publicFolder, 0755, true);
-        }
-
-        if ($request->hasFile('lampiran')) {
-            $file = $request->file('lampiran');
-            $extension = $file->getClientOriginalExtension();
-            $filename = time() . '_' . uniqid() . '.' . $extension;
-            $file->move($publicFolder, $filename);
-            $path = 'lampiran_kunjungan/' . $filename;
-        }
-
         // Generate nomor urut
         $countToday = Kunjungan::where('user_id', Auth::id())
             ->whereDate('created_at', Carbon::today())
@@ -190,6 +188,22 @@ class KunjunganController extends Controller
         $dateCode = Carbon::now()->format('Ymd');
         $noUrutPadded = str_pad($noUrut, 3, '0', STR_PAD_LEFT);
         $nomor = "VST-{$dateCode}-" . Auth::id() . "-{$noUrutPadded}";
+
+        // Upload lampiran dengan nama sesuai kode invoice
+        $path = null;
+        $publicFolder = public_path('storage/lampiran_kunjungan');
+        if (!File::exists($publicFolder)) {
+            File::makeDirectory($publicFolder, 0755, true);
+        }
+
+        if ($request->hasFile('lampiran')) {
+            $file = $request->file('lampiran');
+            $extension = $file->getClientOriginalExtension();
+            // Gunakan nomor invoice sebagai nama file
+            $filename = $nomor . '.' . $extension;
+            $file->move($publicFolder, $filename);
+            $path = 'lampiran_kunjungan/' . $filename;
+        }
 
         DB::beginTransaction();
         try {

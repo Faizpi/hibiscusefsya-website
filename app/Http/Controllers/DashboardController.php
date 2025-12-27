@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Penjualan;
+use App\PenjualanItem;
 use App\Pembelian;
 use App\Biaya;
 use App\Kunjungan;
@@ -38,7 +39,7 @@ class DashboardController extends Controller
             if ($selectedGudangId && !$availableGudangs->pluck('id')->contains((int) $selectedGudangId)) {
                 $selectedGudangId = null;
             }
-        } elseif ($role === 'admin') {
+        } elseif (in_array($role, ['admin', 'spectator'])) {
             $availableGudangs = $user->gudangs()->get();
             $currentGudang = $user->getCurrentGudang();
 
@@ -160,6 +161,59 @@ class DashboardController extends Controller
                     'gudangs' => collect(),
                 ]);
             }
+        } elseif ($role == 'spectator') {
+            // Spectator lihat data sesuai gudang yang ditugaskan (read-only)
+            if ($selectedGudangId) {
+                $penjualanQuery = Penjualan::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled');
+                $pembelianQuery = Pembelian::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled');
+                $biayaQuery = Biaya::where('status', '!=', 'Canceled');
+                $kunjunganQuery = Kunjungan::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled');
+
+                $data['card_4_title'] = 'Total Transaksi Disetujui';
+                $data['card_4_value'] = Penjualan::where('gudang_id', $selectedGudangId)->whereIn('status', ['Approved', 'Lunas'])->count()
+                    + Pembelian::where('gudang_id', $selectedGudangId)->where('status', 'Approved')->count();
+                $data['card_4_icon'] = 'fa-check-circle';
+
+                // Statistik tambahan untuk spectator
+                $data['totalProduk'] = GudangProduk::where('gudang_id', $selectedGudangId)->count();
+                $data['totalTransaksi'] = Penjualan::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->count()
+                    + Pembelian::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->count()
+                    + Biaya::where('status', '!=', 'Canceled')->count()
+                    + Kunjungan::where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->count();
+
+                // Ambil transaksi di gudang terpilih (exclude Canceled)
+                $penjualans = Penjualan::with('user')->where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->get();
+                $pembelians = Pembelian::with('user')->where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->get();
+                $biayas = Biaya::with('user')->where('status', '!=', 'Canceled')->get();
+                $kunjungans = Kunjungan::with('user')->where('gudang_id', $selectedGudangId)->where('status', '!=', 'Canceled')->get();
+            } else {
+                // Spectator tanpa gudang tidak bisa melihat apapun
+                return view('dashboard', [
+                    'card_4_title' => 'Belum Ditugaskan ke Gudang',
+                    'card_4_value' => 0,
+                    'card_4_icon' => 'fa-exclamation',
+                    'totalProduk' => 0,
+                    'totalTransaksi' => 0,
+                    'penjualanBulanIni' => 0,
+                    'pembelianBulanIni' => 0,
+                    'biayaBulanIni' => 0,
+                    'kunjunganBulanIni' => 0,
+                    'biayaMasukBulanIni' => 0,
+                    'biayaKeluarBulanIni' => 0,
+                    'penjualanCountBulanIni' => 0,
+                    'pembelianCountBulanIni' => 0,
+                    'biayaCountBulanIni' => 0,
+                    'kunjunganCountBulanIni' => 0,
+                    'penjualanTotal' => 0,
+                    'pembelianTotal' => 0,
+                    'biayaTotal' => 0,
+                    'kunjunganTotal' => 0,
+                    'pembelianNominalBulanIni' => 0,
+                    'availableGudangs' => collect(),
+                    'selectedGudangId' => null,
+                    'gudangs' => collect(),
+                ]);
+            }
         } else {
             $penjualanQuery = Penjualan::where('user_id', $userId)->where('status', '!=', 'Canceled');
             $pembelianQuery = Pembelian::where('user_id', $userId)->where('status', '!=', 'Canceled');
@@ -223,7 +277,7 @@ class DashboardController extends Controller
         // ==================== END STATISTIK TAMBAHAN ====================
 
         // ==================== CHART DATA ====================
-        if (in_array($role, ['super_admin', 'admin'])) {
+        if (in_array($role, ['super_admin', 'admin', 'spectator'])) {
             // LINE CHART: Tren 6 bulan terakhir
             $chartLabels = [];
             $chartPenjualan = [];
@@ -257,7 +311,7 @@ class DashboardController extends Controller
                         ->where('status', 'Approved')
                         ->sum('grand_total');
                 } else {
-                    // Admin: filter berdasarkan gudang yang diakses
+                    // Admin/Spectator: filter berdasarkan gudang yang diakses
                     if ($selectedGudangId) {
                         $chartPenjualan[] = Penjualan::whereYear('tgl_transaksi', $month->year)
                             ->whereMonth('tgl_transaksi', $month->month)
@@ -328,7 +382,7 @@ class DashboardController extends Controller
                         ->where('status', 'Approved')
                         ->sum('grand_total');
                 } else {
-                    // Admin: gunakan akses gudang, bukan approver_id
+                    // Admin/Spectator: gunakan akses gudang
                     $gudangPenjualan[] = Penjualan::where('gudang_id', $gudang->id)
                         ->whereYear('tgl_transaksi', $now->year)
                         ->whereMonth('tgl_transaksi', $now->month)
@@ -347,13 +401,53 @@ class DashboardController extends Controller
             $data['gudangPenjualan'] = $gudangPenjualan;
             $data['gudangPembelian'] = $gudangPembelian;
             $data['gudangs'] = $gudangs; // Untuk dropdown export & filter chart
+
+            // ==================== SALES QUANTITY CHART (Super Admin & Spectator Only) ====================
+            if (in_array($role, ['super_admin', 'spectator'])) {
+                // Get all products for filter
+                $data['allProduks'] = Produk::orderBy('nama_produk')->get();
+                $selectedProdukId = $request->get('produk_filter');
+
+                // Data for sales quantity chart - Quantity produk terjual per sales
+                $salesQuantityLabels = [];
+                $salesQuantityData = [];
+
+                // Get all users with role 'user' (sales)
+                $salesUsers = User::where('role', 'user')->get();
+
+                foreach ($salesUsers as $salesUser) {
+                    $salesQuantityLabels[] = $salesUser->name;
+
+                    // Query to get total quantity sold by this sales
+                    $query = \App\PenjualanItem::whereHas('penjualan', function ($q) use ($salesUser, $selectedGudangId) {
+                        $q->where('user_id', $salesUser->id)
+                            ->whereIn('status', ['Approved', 'Lunas'])
+                            ->when($selectedGudangId, function ($q2) use ($selectedGudangId) {
+                                return $q2->where('gudang_id', $selectedGudangId);
+                            });
+                    });
+
+                    // Filter by product if selected
+                    if ($selectedProdukId) {
+                        $query->where('produk_id', $selectedProdukId);
+                    }
+
+                    $totalQty = $query->sum('kuantitas');
+                    $salesQuantityData[] = (int) $totalQty;
+                }
+
+                $data['salesQuantityLabels'] = $salesQuantityLabels;
+                $data['salesQuantityData'] = $salesQuantityData;
+                $data['selectedProdukId'] = $selectedProdukId;
+            }
+            // ==================== END SALES QUANTITY CHART ====================
         } else {
             $data['gudangs'] = collect([]); // User biasa tidak perlu filter gudang
         }
         // ==================== END CHART DATA ====================
 
         // Transform transaksi untuk tabel
-        if (in_array($role, ['super_admin', 'admin'])) {
+        if (in_array($role, ['super_admin', 'admin', 'spectator'])) {
             $penjualans->each(function ($item) {
                 $dateCode = $item->created_at->format('Ymd');
                 $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);

@@ -76,8 +76,8 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <small class="form-text text-muted" id="gudang_help">Wajib untuk role Admin dan
-                                    User.</small>
+                                <small class="form-text text-muted" id="gudang_help">Wajib untuk role Admin, User, dan
+                                    Spectator.</small>
                                 @error('gudang_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -118,7 +118,7 @@
         $(document).ready(function () {
             function toggleGudangRequired() {
                 var role = $('#role').val();
-                if (role === 'admin' || role === 'user') {
+                if (role === 'admin' || role === 'user' || role === 'spectator') {
                     $('#gudang_required').show();
                     $('#gudang_id').prop('required', true);
                 } else {

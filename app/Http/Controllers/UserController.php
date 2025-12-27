@@ -30,9 +30,9 @@ class UserController extends Controller
         // Tentukan role yang diperbolehkan berdasarkan user yang login
         $allowedRoles = array_keys(User::getAvailableRoles());
 
-        // Gudang wajib untuk role admin dan user
+        // Gudang wajib untuk role admin, user, dan spectator
         $gudangValidation = ['nullable', 'exists:gudangs,id'];
-        if (in_array($request->role, ['admin', 'user'])) {
+        if (in_array($request->role, ['admin', 'user', 'spectator'])) {
             $gudangValidation = ['required', 'exists:gudangs,id'];
         }
 
@@ -45,7 +45,7 @@ class UserController extends Controller
             'no_telp' => ['nullable', 'string', 'max:20'],
             'gudang_id' => $gudangValidation,
         ], [
-            'gudang_id.required' => 'Gudang wajib dipilih untuk role Admin dan User.',
+            'gudang_id.required' => 'Gudang wajib dipilih untuk role Admin, User, dan Spectator.',
         ]);
 
         $user = User::create([
@@ -58,8 +58,8 @@ class UserController extends Controller
             'gudang_id' => $request->gudang_id,
         ]);
 
-        // Jika role admin, sync gudang ke pivot table admin_gudang
-        if ($request->role === 'admin' && $request->gudang_id) {
+        // Jika role admin atau spectator, sync gudang ke pivot table admin_gudang
+        if (in_array($request->role, ['admin', 'spectator']) && $request->gudang_id) {
             $user->gudangs()->sync([$request->gudang_id]);
         }
 
@@ -91,9 +91,9 @@ class UserController extends Controller
         // Jika bukan super_admin dan mencoba mengubah role super_admin, pertahankan role asli
         $roleValidation = ['required', Rule::in($allowedRoles)];
 
-        // Gudang wajib untuk role admin dan user
+        // Gudang wajib untuk role admin, user, dan spectator
         $gudangValidation = ['nullable', 'exists:gudangs,id'];
-        if (in_array($request->role, ['admin', 'user'])) {
+        if (in_array($request->role, ['admin', 'user', 'spectator'])) {
             $gudangValidation = ['required', 'exists:gudangs,id'];
         }
 
@@ -106,7 +106,7 @@ class UserController extends Controller
             'gudang_id' => $gudangValidation,
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ], [
-            'gudang_id.required' => 'Gudang wajib dipilih untuk role Admin dan User.',
+            'gudang_id.required' => 'Gudang wajib dipilih untuk role Admin, User, dan Spectator.',
         ]);
 
         $data = $request->only('name', 'email', 'alamat', 'no_telp', 'gudang_id');
@@ -122,9 +122,9 @@ class UserController extends Controller
 
         $user->update($data);
 
-        // Jika role admin, sync gudang ke pivot table admin_gudang
-        // Jika role berubah dari admin ke user, atau user tetap user, tidak perlu sync
-        if ($request->role === 'admin' && $request->gudang_id) {
+        // Jika role admin atau spectator, sync gudang ke pivot table admin_gudang
+        // Jika role berubah dari admin/spectator ke user, tidak perlu sync
+        if (in_array($request->role, ['admin', 'spectator']) && $request->gudang_id) {
             // Cek apakah gudang sudah ada di pivot, jika belum tambahkan (tanpa menghapus yang lain)
             if (!$user->gudangs()->where('gudang_id', $request->gudang_id)->exists()) {
                 $user->gudangs()->attach($request->gudang_id);

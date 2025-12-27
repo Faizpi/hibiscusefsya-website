@@ -88,11 +88,19 @@ class User extends Authenticatable
             return true;
         }
 
-        if ($this->role === 'admin') {
+        if (in_array($this->role, ['admin', 'spectator'])) {
             return $this->gudangs()->where('gudangs.id', $gudangId)->exists();
         }
 
         return $this->gudang_id == $gudangId;
+    }
+
+    /**
+     * Check if user is spectator (read-only role)
+     */
+    public function isSpectator()
+    {
+        return $this->role === 'spectator';
     }
 
     public function penjualans()
@@ -133,13 +141,14 @@ class User extends Authenticatable
     {
         if (auth()->user()->isSuperAdmin()) {
             return [
-                'user' => 'User',
+                'user' => 'User (Sales)',
                 'admin' => 'Admin',
+                'spectator' => 'Spectator (Read-Only)',
                 'super_admin' => 'Super Admin',
             ];
         }
         return [
-            'user' => 'User',
+            'user' => 'User (Sales)',
             'admin' => 'Admin',
         ];
     }

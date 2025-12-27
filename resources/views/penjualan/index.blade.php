@@ -4,9 +4,11 @@
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-2 mb-sm-0 text-gray-800">Penjualan</h1>
-        <a href="{{ route('penjualan.create') }}" class="btn btn-primary shadow-sm">
-            <i class="fas fa-plus fa-sm text-white-50"></i> Buat Penagihan Baru
-        </a>
+        @if(auth()->user()->role !== 'spectator')
+            <a href="{{ route('penjualan.create') }}" class="btn btn-primary shadow-sm">
+                <i class="fas fa-plus fa-sm text-white-50"></i> Buat Penagihan Baru
+            </a>
+        @endif
     </div>
 
     {{-- Notifikasi --}}

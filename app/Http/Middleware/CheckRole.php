@@ -33,7 +33,12 @@ class CheckRole
             return $next($request);
         }
 
-        // 3. Jika role cocok persis
+        // 3. Jika user adalah SPECTATOR, izinkan akses ke rute 'admin' (read-only)
+        if ($userRole == 'spectator' && $role == 'admin') {
+            return $next($request);
+        }
+
+        // 4. Jika role cocok persis
         if ($userRole == $role) {
             return $next($request);
         }

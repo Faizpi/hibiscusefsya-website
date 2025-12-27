@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Kontak;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use PDF;
 
 class KontakController extends Controller
 {
-    // Pastikan hanya admin yang bisa akses
+    // Pastikan hanya admin dan spectator yang bisa akses
     public function __construct()
     {
         $this->middleware('role:admin');
@@ -33,17 +34,26 @@ class KontakController extends Controller
     public function downloadPdf(Kontak $kontak)
     {
         $pdf = PDF::loadView('kontak.print', compact('kontak'));
-        $pdf->setPaper([0, 0, 164.409, 400], 'portrait'); // 58mm width
+        $pdf->setPaper('a4', 'portrait');
         return $pdf->download('kontak-' . $kontak->kode_kontak . '.pdf');
     }
 
     public function create()
     {
+        // Spectator tidak bisa membuat kontak baru
+        if (Auth::user()->role === 'spectator') {
+            return redirect()->route('kontak.index')->with('error', 'Spectator tidak memiliki akses untuk membuat data.');
+        }
         return view('kontak.create');
     }
 
     public function store(Request $request)
     {
+        // Spectator tidak bisa menyimpan kontak baru
+        if (Auth::user()->role === 'spectator') {
+            return redirect()->route('kontak.index')->with('error', 'Spectator tidak memiliki akses untuk membuat data.');
+        }
+
         $request->validate([
             'nama' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:kontaks',
@@ -59,11 +69,20 @@ class KontakController extends Controller
 
     public function edit(Kontak $kontak)
     {
+        // Spectator tidak bisa edit kontak
+        if (Auth::user()->role === 'spectator') {
+            return redirect()->route('kontak.index')->with('error', 'Spectator tidak memiliki akses untuk mengubah data.');
+        }
         return view('kontak.edit', compact('kontak'));
     }
 
     public function update(Request $request, Kontak $kontak)
     {
+        // Spectator tidak bisa update kontak
+        if (Auth::user()->role === 'spectator') {
+            return redirect()->route('kontak.index')->with('error', 'Spectator tidak memiliki akses untuk mengubah data.');
+        }
+
         $request->validate([
             'nama' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:kontaks,email,' . $kontak->id,
@@ -79,6 +98,11 @@ class KontakController extends Controller
 
     public function destroy(Kontak $kontak)
     {
+        // Spectator tidak bisa hapus kontak
+        if (Auth::user()->role === 'spectator') {
+            return redirect()->route('kontak.index')->with('error', 'Spectator tidak memiliki akses untuk menghapus data.');
+        }
+
         // TODO: Cek dulu apakah kontak ini dipakai di transaksi
         $kontak->delete();
         return redirect()->route('kontak.index')->with('success', 'Kontak berhasil dihapus.');

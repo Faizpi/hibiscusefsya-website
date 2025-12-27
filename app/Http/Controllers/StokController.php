@@ -14,7 +14,7 @@ class StokController extends Controller
 {
     public function index()
     {
-        if (!in_array(Auth::user()->role, ['admin', 'super_admin'])) {
+        if (!in_array(Auth::user()->role, ['admin', 'super_admin', 'spectator'])) {
             return redirect()->route('dashboard')->with('error', 'Akses ditolak.');
         }
 
@@ -25,7 +25,7 @@ class StokController extends Controller
             $gudangs = Gudang::all();
             $gudangsWithStok = Gudang::with('produkStok.produk')->get();
         } else {
-            // Admin: hanya gudang yang dia punya akses (pivot admin_gudang)
+            // Admin/Spectator: hanya gudang yang dia punya akses (pivot admin_gudang)
             $gudangs = $user->gudangs()->with('produkStok.produk')->get();
             $gudangsWithStok = $gudangs;
         }

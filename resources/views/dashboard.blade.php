@@ -220,8 +220,8 @@
         </div>
     </div>
 
-    {{-- CHARTS SECTION (untuk Super Admin & Admin) --}}
-    @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
+    {{-- CHARTS SECTION (untuk Super Admin, Admin & Spectator) --}}
+    @if(in_array(auth()->user()->role, ['super_admin', 'admin', 'spectator']))
         <div class="row">
             <div class="col-12 mb-3">
                 <form class="form-inline" method="GET" action="{{ route('dashboard') }}">
@@ -311,10 +311,54 @@
                 </div>
             </div>
         </div>
+
+        {{-- SALES QUANTITY CHART (Super Admin & Spectator Only) --}}
+        @if(in_array(auth()->user()->role, ['super_admin', 'spectator']))
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card shadow h-100">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-chart-bar mr-2"></i>Kuantitas Produk Terjual per Sales
+                            </h6>
+                            <div class="d-flex align-items-center">
+                                <form method="GET" class="d-flex align-items-center">
+                                    @if(isset($selectedGudangId))
+                                        <input type="hidden" name="gudang_filter" value="{{ $selectedGudangId }}">
+                                    @endif
+                                    <select name="produk_filter" class="form-control form-control-sm mr-2"
+                                        onchange="this.form.submit()" style="width: 200px;">
+                                        <option value="">-- Semua Produk --</option>
+                                        @if(isset($allProduks))
+                                            @foreach($allProduks as $produk)
+                                                <option value="{{ $produk->id }}"
+                                                    {{ (isset($selectedProdukId) && $selectedProdukId == $produk->id) ? 'selected' : '' }}>
+                                                    {{ $produk->nama_produk }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-bar">
+                                <canvas id="salesQuantityChart"></canvas>
+                            </div>
+                            <div class="mt-3 text-center small">
+                                <span class="mr-3">
+                                    <i class="fas fa-square" style="color: #36b9cc;"></i> Kuantitas Terjual
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
     @endif
 
     <div class="row">
-        @if(auth()->user()->role == 'super_admin')
+        @if(in_array(auth()->user()->role, ['super_admin', 'spectator']))
             {{-- SUPER ADMIN: Lihat semua aktivitas --}}
             <div class="col-12">
                 <div class="card shadow mb-4">
@@ -412,7 +456,7 @@
                 </div>
             </div>
 
-        @elseif(auth()->user()->role == 'admin')
+        @elseif(in_array(auth()->user()->role, ['admin', 'spectator']))
             {{-- ADMIN: Hanya lihat transaksi yang perlu approval --}}
             <div class="col-12">
                 <div class="card shadow mb-4">
@@ -642,7 +686,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     {{-- Chart Scripts --}}
-    @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
+    @if(in_array(auth()->user()->role, ['super_admin', 'admin', 'spectator']))
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // Toggle Jenis Biaya dropdown based on transaction type
@@ -845,6 +889,56 @@
                         }
                     });
                 }
+
+                // ==================== SALES QUANTITY CHART ====================
+                @if(in_array(auth()->user()->role, ['super_admin', 'spectator']) && isset($salesQuantityLabels))
+                    var salesCtx = document.getElementById('salesQuantityChart');
+                    if (salesCtx) {
+                        var salesQuantityLabels = @json($salesQuantityLabels ?? []);
+                        var salesQuantityData = @json($salesQuantityData ?? []);
+
+                        new Chart(salesCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: salesQuantityLabels,
+                                datasets: [
+                                    {
+                                        label: 'Kuantitas Terjual',
+                                        data: salesQuantityData,
+                                        backgroundColor: 'rgba(54, 185, 204, 0.8)',
+                                        borderColor: 'rgb(54, 185, 204)',
+                                        borderWidth: 1
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function (context) {
+                                                return context.dataset.label + ': ' + context.parsed.y + ' unit';
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            precision: 0
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                @endif
+                // ==================== END SALES QUANTITY CHART ====================
             });
         </script>
     @endif

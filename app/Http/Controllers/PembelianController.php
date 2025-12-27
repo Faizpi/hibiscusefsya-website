@@ -24,14 +24,13 @@ class PembelianController extends Controller
         $query = Pembelian::with(['user', 'gudang', 'approver']);
 
         if ($user->role == 'super_admin') {
-        } elseif ($user->role == 'admin') {
-            // Admin hanya lihat transaksi di gudang yang sedang aktif (current_gudang_id)
+        } elseif (in_array($user->role, ['admin', 'spectator'])) {
+            // Admin/Spectator hanya lihat transaksi di gudang yang sedang aktif (current_gudang_id)
             $currentGudang = $user->getCurrentGudang();
             if ($currentGudang) {
                 $query->where('gudang_id', $currentGudang->id);
             } else {
-                // Jika admin tidak punya gudang, tidak bisa lihat apapun
-                // Return empty paginator agar view tidak error
+                // Jika tidak punya gudang, tidak bisa lihat apapun
                 $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20);
                 return view('pembelian.index', [
                     'pembelians' => $emptyPaginator,
@@ -81,6 +80,11 @@ class PembelianController extends Controller
     {
         $user = Auth::user();
 
+        // Spectator tidak bisa membuat transaksi
+        if ($user->role === 'spectator') {
+            return redirect()->route('pembelian.index')->with('error', 'Spectator tidak memiliki akses untuk membuat transaksi.');
+        }
+
         // Untuk user biasa, hanya tampilkan produk yang ada di gudang mereka
         if ($user->role == 'user' && $user->gudang_id) {
             // Ambil produk yang ada di gudang user (via tabel gudang_produk)
@@ -119,6 +123,11 @@ class PembelianController extends Controller
     {
         \Log::info('PembelianController@store - START', ['user_id' => Auth::id(), 'request_data' => $request->all()]);
 
+        // Spectator tidak bisa membuat transaksi
+        if (Auth::user()->role === 'spectator') {
+            return redirect()->route('pembelian.index')->with('error', 'Spectator tidak memiliki akses untuk membuat transaksi.');
+        }
+
         if (Auth::user()->role == 'user' && !Auth::user()->gudang_id) {
             \Log::warning('PembelianController@store - User tanpa gudang', ['user_id' => Auth::id()]);
             return back()->with('error', 'Gagal: Akun Anda belum terhubung ke Gudang manapun. Hubungi Super Admin.')->withInput();
@@ -139,20 +148,6 @@ class PembelianController extends Controller
             'harga_satuan' => 'required|array|min:1',
             'harga_satuan.*' => 'required|numeric|min:0',
         ]);
-
-        $path = null;
-        $publicFolder = public_path('storage/lampiran_pembelian');
-        if (!File::exists($publicFolder)) {
-            File::makeDirectory($publicFolder, 0755, true);
-        }
-
-        if ($request->hasFile('lampiran')) {
-            $file = $request->file('lampiran');
-            $extension = $file->getClientOriginalExtension();
-            $filename = time() . '_' . uniqid() . '.' . $extension;
-            $file->move($publicFolder, $filename);
-            $path = 'lampiran_pembelian/' . $filename;
-        }
 
         // Hitung jatuh tempo dan tentukan status berdasarkan metode pembayaran
         $term = $request->syarat_pembayaran;
@@ -198,6 +193,22 @@ class PembelianController extends Controller
 
         // Generate nomor transaksi
         $nomor = Pembelian::generateNomor(Auth::id(), $noUrut, Carbon::now());
+
+        // Upload lampiran dengan nama sesuai kode invoice
+        $path = null;
+        $publicFolder = public_path('storage/lampiran_pembelian');
+        if (!File::exists($publicFolder)) {
+            File::makeDirectory($publicFolder, 0755, true);
+        }
+
+        if ($request->hasFile('lampiran')) {
+            $file = $request->file('lampiran');
+            $extension = $file->getClientOriginalExtension();
+            // Gunakan nomor invoice sebagai nama file
+            $filename = $nomor . '.' . $extension;
+            $file->move($publicFolder, $filename);
+            $path = 'lampiran_pembelian/' . $filename;
+        }
 
         // Tentukan approver berdasarkan gudang (sama seperti penjualan)
         $user = Auth::user();
@@ -487,7 +498,7 @@ class PembelianController extends Controller
     public function approve(Pembelian $pembelian)
     {
         $user = Auth::user();
-        if ($user->role == 'user')
+        if (!in_array($user->role, ['admin', 'super_admin']))
             return back()->with('error', 'Akses ditolak.');
 
         if ($pembelian->status === 'Canceled') {
