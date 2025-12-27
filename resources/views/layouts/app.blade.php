@@ -1752,8 +1752,8 @@
                                         src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3b82f6&color=fff&size=128">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                                    {{-- Profile untuk Admin --}}
-                                    @if(Auth::user()->role === 'admin')
+                                    {{-- Profile untuk Admin / Spectator --}}
+                                    @if(in_array(Auth::user()->role, ['admin', 'spectator']))
                                         <div class="dropdown-divider"></div>
                                         <h6 class="dropdown-header">{{ Auth::user()->name }}</h6>
                                         

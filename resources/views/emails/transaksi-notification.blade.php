@@ -176,7 +176,8 @@
         $typeLabels = [
             'penjualan' => 'Penjualan',
             'pembelian' => 'Pembelian',
-            'biaya' => 'Biaya'
+            'biaya' => 'Biaya',
+            'kunjungan' => 'Kunjungan'
         ];
 
         $notificationTitles = [
@@ -219,6 +220,8 @@
                         {{ \Carbon\Carbon::parse($transaksi->tanggal_penjualan)->format('d M Y') }}
                     @elseif($type == 'pembelian')
                         {{ \Carbon\Carbon::parse($transaksi->tanggal_pembelian)->format('d M Y') }}
+                    @elseif($type == 'kunjungan')
+                        {{ \Carbon\Carbon::parse($transaksi->tgl_kunjungan)->format('d M Y') }}
                     @else
                         {{ \Carbon\Carbon::parse($transaksi->tanggal_biaya)->format('d M Y') }}
                     @endif
@@ -233,6 +236,15 @@
                 <div class="info-row">
                     <span class="label">Supplier</span>
                     <span class="value">{{ $transaksi->supplier->nama ?? '-' }}</span>
+                </div>
+            @elseif($type == 'kunjungan' && $transaksi->kontak)
+                <div class="info-row">
+                    <span class="label">Kontak</span>
+                    <span class="value">{{ $transaksi->kontak->nama ?? '-' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Tujuan Kunjungan</span>
+                    <span class="value">{{ $transaksi->tujuan ?? '-' }}</span>
                 </div>
             @endif
             @if($transaksi->gudang)
@@ -261,10 +273,12 @@
             </div>
         </div>
 
+        @if($type != 'kunjungan')
         <div class="total-box total-{{ $notificationType }}">
             <div style="font-size: 14px; opacity: 0.9;">Total {{ $label }}</div>
             <div class="amount">Rp {{ number_format($transaksi->total ?? 0, 0, ',', '.') }}</div>
         </div>
+        @endif
 
         @if($notificationType == 'needs_approval')
             <div class="action-note">
@@ -278,6 +292,8 @@
                     Stok produk telah dikurangi dari gudang.
                 @elseif($type == 'pembelian')
                     Stok produk telah ditambahkan ke gudang.
+                @elseif($type == 'kunjungan')
+                    Kunjungan telah disetujui dan dicatat dalam sistem.
                 @else
                     Biaya telah dicatat dalam sistem.
                 @endif

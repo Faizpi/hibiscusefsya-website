@@ -122,6 +122,43 @@ class InvoiceEmailService
     }
 
     /**
+     * Kirim email invoice kunjungan
+     *
+     * @param \App\Kunjungan $kunjungan
+     * @param string|null $toEmail - Email tujuan, jika null akan pakai email user creator
+     * @return bool
+     */
+    public static function sendKunjunganInvoice($kunjungan, $toEmail = null)
+    {
+        try {
+            // Load relasi yang dibutuhkan
+            $kunjungan->load(['items.produk', 'user', 'gudang', 'approver', 'kontak']);
+
+            // Generate PDF
+            $pdf = Pdf::loadView('pdf.invoice-kunjungan', ['kunjungan' => $kunjungan]);
+            $pdfContent = $pdf->output();
+
+            // Tentukan email tujuan
+            $email = $toEmail ?? $kunjungan->user->email ?? null;
+
+            if (!$email) {
+                \Log::warning("Invoice kunjungan #{$kunjungan->id}: Email tidak tersedia");
+                return false;
+            }
+
+            // Kirim email
+            Mail::to($email)->send(new TransaksiInvoiceMail($kunjungan, 'kunjungan', $pdfContent));
+
+            \Log::info("Invoice kunjungan #{$kunjungan->id} berhasil dikirim ke {$email}");
+            return true;
+
+        } catch (\Exception $e) {
+            \Log::error("Gagal mengirim invoice kunjungan #{$kunjungan->id}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Dapatkan semua email admin gudang tertentu + super_admin
      *
      * @param int|null $gudangId
@@ -151,7 +188,7 @@ class InvoiceEmailService
      * Kirim notifikasi saat transaksi DIBUAT (ke pembuat + approvers)
      *
      * @param mixed $transaksi
-     * @param string $type - penjualan, pembelian, biaya
+     * @param string $type - penjualan, pembelian, biaya, kunjungan
      * @return void
      */
     public static function sendCreatedNotification($transaksi, $type)
@@ -162,6 +199,8 @@ class InvoiceEmailService
                 $transaksi->load(['items.produk', 'user', 'gudang', 'pelanggan']);
             } elseif ($type == 'pembelian') {
                 $transaksi->load(['items.produk', 'user', 'gudang', 'supplier']);
+            } elseif ($type == 'kunjungan') {
+                $transaksi->load(['items.produk', 'user', 'gudang', 'kontak']);
             } else {
                 $transaksi->load(['items', 'user']);
             }
@@ -198,7 +237,7 @@ class InvoiceEmailService
      * Kirim notifikasi saat transaksi DI-APPROVE (ke pembuat)
      *
      * @param mixed $transaksi
-     * @param string $type - penjualan, pembelian, biaya
+     * @param string $type - penjualan, pembelian, biaya, kunjungan
      * @return void
      */
     public static function sendApprovedNotification($transaksi, $type)
@@ -209,6 +248,8 @@ class InvoiceEmailService
                 $transaksi->load(['items.produk', 'user', 'gudang', 'pelanggan', 'approver']);
             } elseif ($type == 'pembelian') {
                 $transaksi->load(['items.produk', 'user', 'gudang', 'supplier', 'approver']);
+            } elseif ($type == 'kunjungan') {
+                $transaksi->load(['items.produk', 'user', 'gudang', 'kontak', 'approver']);
             } else {
                 $transaksi->load(['items', 'user', 'approver']);
             }

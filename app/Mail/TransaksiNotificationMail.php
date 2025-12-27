@@ -38,7 +38,8 @@ class TransaksiNotificationMail extends Mailable
         $typeLabels = [
             'penjualan' => 'Penjualan',
             'pembelian' => 'Pembelian',
-            'biaya' => 'Biaya'
+            'biaya' => 'Biaya',
+            'kunjungan' => 'Kunjungan'
         ];
 
         $notificationLabels = [

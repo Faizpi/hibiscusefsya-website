@@ -36,7 +36,8 @@ class TransaksiInvoiceMail extends Mailable
         $typeLabels = [
             'penjualan' => 'Penjualan',
             'pembelian' => 'Pembelian',
-            'biaya' => 'Biaya'
+            'biaya' => 'Biaya',
+            'kunjungan' => 'Kunjungan'
         ];
 
         $label = $typeLabels[$this->type] ?? 'Transaksi';

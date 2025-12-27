@@ -107,14 +107,14 @@ class AdminGudangController extends Controller
     }
 
     /**
-     * Admin switch gudang (via profile dropdown)
+     * Admin/Spectator switch gudang (via profile dropdown)
      */
     public function switchGudang(Request $request)
     {
         $user = Auth::user();
 
-        if ($user->role !== 'admin') {
-            return back()->with('error', 'Hanya admin yang bisa switch gudang.');
+        if (!in_array($user->role, ['admin', 'spectator'])) {
+            return back()->with('error', 'Hanya admin dan spectator yang bisa switch gudang.');
         }
 
         $request->validate([
