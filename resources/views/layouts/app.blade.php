@@ -1620,20 +1620,6 @@
                     <hr class="sidebar-divider">
                     <div class="sidebar-heading">Pengaturan</div>
 
-                    <li class="nav-item {{ Route::is('admin-gudang.*') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('admin-gudang.index') }}" title="Admin Gudang">
-                            <i class="fas fa-user-tie"></i>
-                            <span>Admin Gudang</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item {{ Route::is('spectator-gudang.*') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('spectator-gudang.index') }}" title="Spectator Gudang">
-                            <i class="fas fa-eye"></i>
-                            <span>Spectator Gudang</span>
-                        </a>
-                    </li>
-
                     <li class="nav-item {{ Route::is('users.*') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('users.index') }}" title="Pengguna">
                             <i class="fas fa-users"></i>
@@ -1767,19 +1753,24 @@
                                         {{-- Show current gudang --}}
                                         @php
                                             $currentGudang = Auth::user()->getCurrentGudang();
-                                            $adminGudangs = Auth::user()->gudangs()->get();
+                                            // Get gudangs based on role
+                                            if (Auth::user()->role === 'admin') {
+                                                $userGudangs = Auth::user()->gudangs()->get();
+                                            } else {
+                                                $userGudangs = Auth::user()->spectatorGudangs()->get();
+                                            }
                                         @endphp
                                         
-                                        @if($adminGudangs->count() > 1)
+                                        @if($userGudangs->count() > 1)
                                             <div class="dropdown-divider"></div>
-                                            <form method="POST" action="{{ route('admin.switchGudang') }}" id="switchGudangForm">
+                                            <form method="POST" action="{{ route('switch-gudang') }}" id="switchGudangForm">
                                                 @csrf
                                                 <div class="px-3 py-2">
                                                     <small class="text-muted d-block mb-2">
                                                         <i class="fas fa-warehouse mr-1"></i> <strong>Pilih Gudang Aktif</strong>
                                                     </small>
                                                     <select name="gudang_id" class="custom-select custom-select-sm" onchange="document.getElementById('switchGudangForm').submit();">
-                                                        @foreach($adminGudangs as $gudang)
+                                                        @foreach($userGudangs as $gudang)
                                                             <option value="{{ $gudang->id }}" 
                                                                 {{ $currentGudang && $currentGudang->id === $gudang->id ? 'selected' : '' }}>
                                                                 {{ $gudang->nama_gudang }}

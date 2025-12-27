@@ -30,8 +30,8 @@ class UserController extends Controller
         // Tentukan role yang diperbolehkan berdasarkan user yang login
         $allowedRoles = array_keys(User::getAvailableRoles());
 
-        // For spectator: gudangs array is required, for admin/user: gudang_id is required
-        if ($request->role === 'spectator') {
+        // For admin/spectator: gudangs array is required, for user: gudang_id is required
+        if ($request->role === 'admin' || $request->role === 'spectator') {
             $validationRules = [
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -43,10 +43,10 @@ class UserController extends Controller
                 'gudangs.*' => ['exists:gudangs,id'],
             ];
             $messages = [
-                'gudangs.required' => 'Pilih minimal satu gudang untuk spectator.',
-                'gudangs.min' => 'Pilih minimal satu gudang untuk spectator.',
+                'gudangs.required' => 'Pilih minimal satu gudang untuk ' . ucfirst($request->role) . '.',
+                'gudangs.min' => 'Pilih minimal satu gudang untuk ' . ucfirst($request->role) . '.',
             ];
-        } else {
+        } elseif ($request->role === 'user') {
             $validationRules = [
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -54,11 +54,23 @@ class UserController extends Controller
                 'role' => ['required', Rule::in($allowedRoles)],
                 'alamat' => ['nullable', 'string'],
                 'no_telp' => ['nullable', 'string', 'max:20'],
-                'gudang_id' => in_array($request->role, ['admin', 'user']) ? ['required', 'exists:gudangs,id'] : ['nullable', 'exists:gudangs,id'],
+                'gudang_id' => ['required', 'exists:gudangs,id'],
             ];
             $messages = [
-                'gudang_id.required' => 'Gudang wajib dipilih untuk role Admin dan User.',
+                'gudang_id.required' => 'Gudang wajib dipilih untuk role User.',
             ];
+        } else {
+            // Super admin - no gudang required
+            $validationRules = [
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password' => ['required', 'string', 'min:8', 'confirmed'],
+                'role' => ['required', Rule::in($allowedRoles)],
+                'alamat' => ['nullable', 'string'],
+                'no_telp' => ['nullable', 'string', 'max:20'],
+                'gudang_id' => ['nullable', 'exists:gudangs,id'],
+            ];
+            $messages = [];
         }
 
         $request->validate($validationRules, $messages);
@@ -70,23 +82,22 @@ class UserController extends Controller
             'role' => $request->role,
             'alamat' => $request->alamat,
             'no_telp' => $request->no_telp,
-            'gudang_id' => $request->gudang_id ?? null,
+            'gudang_id' => ($request->role === 'user') ? $request->gudang_id : null,
         ]);
 
         // Jika role admin, sync gudang ke pivot table admin_gudang
-        if ($request->role === 'admin' && $request->gudang_id) {
-            $user->gudangs()->sync([$request->gudang_id]);
-            $user->current_gudang_id = $request->gudang_id;
+        if ($request->role === 'admin' && $request->gudangs) {
+            $user->gudangs()->sync($request->gudangs);
+            // Set current_gudang_id ke gudang pertama
+            $user->current_gudang_id = $request->gudangs[0];
             $user->save();
         }
         // Jika role spectator, sync gudang ke pivot table spectator_gudang
         elseif ($request->role === 'spectator' && $request->gudangs) {
             $user->spectatorGudangs()->sync($request->gudangs);
             // Set current_gudang_id ke gudang pertama
-            if (count($request->gudangs) > 0) {
-                $user->current_gudang_id = $request->gudangs[0];
-                $user->save();
-            }
+            $user->current_gudang_id = $request->gudangs[0];
+            $user->save();
         }
 
         return redirect()->route('users.index')->with('success', 'User baru berhasil ditambahkan.');
@@ -117,25 +128,61 @@ class UserController extends Controller
         // Jika bukan super_admin dan mencoba mengubah role super_admin, pertahankan role asli
         $roleValidation = ['required', Rule::in($allowedRoles)];
 
-        // Gudang wajib untuk role admin, user, dan spectator
-        $gudangValidation = ['nullable', 'exists:gudangs,id'];
-        if (in_array($request->role, ['admin', 'user', 'spectator'])) {
-            $gudangValidation = ['required', 'exists:gudangs,id'];
+        // Validation rules based on role
+        if ($request->role === 'admin' || $request->role === 'spectator') {
+            // Multi-gudang validation
+            $validationRules = [
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+                'role' => $roleValidation,
+                'alamat' => ['nullable', 'string'],
+                'no_telp' => ['nullable', 'string', 'max:20'],
+                'gudangs' => ['required', 'array', 'min:1'],
+                'gudangs.*' => ['exists:gudangs,id'],
+                'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            ];
+            $messages = [
+                'gudangs.required' => 'Pilih minimal satu gudang untuk role ' . ucfirst($request->role) . '.',
+                'gudangs.min' => 'Pilih minimal satu gudang untuk role ' . ucfirst($request->role) . '.',
+            ];
+        } elseif ($request->role === 'user') {
+            // Single gudang validation for user
+            $validationRules = [
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+                'role' => $roleValidation,
+                'alamat' => ['nullable', 'string'],
+                'no_telp' => ['nullable', 'string', 'max:20'],
+                'gudang_id' => ['required', 'exists:gudangs,id'],
+                'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            ];
+            $messages = [
+                'gudang_id.required' => 'Gudang wajib dipilih untuk role User.',
+            ];
+        } else {
+            // Super admin - no gudang required
+            $validationRules = [
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+                'role' => $roleValidation,
+                'alamat' => ['nullable', 'string'],
+                'no_telp' => ['nullable', 'string', 'max:20'],
+                'gudang_id' => ['nullable', 'exists:gudangs,id'],
+                'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            ];
+            $messages = [];
         }
 
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'role' => $roleValidation,
-            'alamat' => ['nullable', 'string'],
-            'no_telp' => ['nullable', 'string', 'max:20'],
-            'gudang_id' => $gudangValidation,
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-        ], [
-            'gudang_id.required' => 'Gudang wajib dipilih untuk role Admin, User, dan Spectator.',
-        ]);
+        $request->validate($validationRules, $messages);
 
-        $data = $request->only('name', 'email', 'alamat', 'no_telp', 'gudang_id');
+        $data = $request->only('name', 'email', 'alamat', 'no_telp');
+        
+        // Set gudang_id for user role, null for admin/spectator (they use pivot tables)
+        if ($request->role === 'user') {
+            $data['gudang_id'] = $request->gudang_id;
+        } elseif ($request->role === 'admin' || $request->role === 'spectator') {
+            $data['gudang_id'] = null;
+        }
 
         // Hanya update role jika user punya izin
         if (in_array($request->role, $allowedRoles)) {
@@ -148,25 +195,40 @@ class UserController extends Controller
 
         $user->update($data);
 
-        // Jika role admin, sync gudang ke pivot table admin_gudang
-        if ($request->role === 'admin' && $request->gudang_id) {
-            if (!$user->gudangs()->where('gudang_id', $request->gudang_id)->exists()) {
-                $user->gudangs()->attach($request->gudang_id);
-            }
-            if (!$user->current_gudang_id || !$user->gudangs()->where('gudang_id', $user->current_gudang_id)->exists()) {
-                $user->current_gudang_id = $request->gudang_id;
-                $user->save();
+        // Handle pivot table sync based on role change
+        $oldRole = $user->getOriginal('role') ?? $user->role;
+        $newRole = $request->role;
+
+        // Clear old pivot tables if role changed
+        if ($oldRole !== $newRole) {
+            if ($oldRole === 'admin') {
+                $user->gudangs()->detach();
+            } elseif ($oldRole === 'spectator') {
+                $user->spectatorGudangs()->detach();
             }
         }
-        // Jika role spectator, sync gudang ke pivot table spectator_gudang
-        elseif ($request->role === 'spectator' && $request->gudang_id) {
-            if (!$user->spectatorGudangs()->where('gudang_id', $request->gudang_id)->exists()) {
-                $user->spectatorGudangs()->attach($request->gudang_id);
-            }
-            if (!$user->current_gudang_id || !$user->spectatorGudangs()->where('gudang_id', $user->current_gudang_id)->exists()) {
-                $user->current_gudang_id = $request->gudang_id;
+
+        // Sync new gudang assignment
+        if ($newRole === 'admin' && $request->gudangs) {
+            $user->gudangs()->sync($request->gudangs);
+            // Set current_gudang_id if not set or not valid
+            if (!$user->current_gudang_id || !in_array($user->current_gudang_id, $request->gudangs)) {
+                $user->current_gudang_id = $request->gudangs[0];
                 $user->save();
             }
+        } elseif ($newRole === 'spectator' && $request->gudangs) {
+            $user->spectatorGudangs()->sync($request->gudangs);
+            // Set current_gudang_id if not set or not valid
+            if (!$user->current_gudang_id || !in_array($user->current_gudang_id, $request->gudangs)) {
+                $user->current_gudang_id = $request->gudangs[0];
+                $user->save();
+            }
+        } elseif ($newRole === 'user' && $request->gudang_id) {
+            // Clear any pivot table entries
+            $user->gudangs()->detach();
+            $user->spectatorGudangs()->detach();
+            $user->current_gudang_id = null;
+            $user->save();
         }
 
         return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');

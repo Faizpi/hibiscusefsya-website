@@ -93,9 +93,12 @@ Route::middleware(['auth'])->group(function () {
 
 
     // ====================================================================
-    // GRUP 2: Area Admin & Super Admin
+    // GRUP 2: Area Admin, Spectator & Super Admin
     // ====================================================================
     Route::middleware(['role:admin'])->group(function () {
+
+        // Switch gudang untuk admin dan spectator (multi-gudang)
+        Route::post('switch-gudang', 'AdminGudangController@switchGudang')->name('switch-gudang');
 
         // Master Kontak
         Route::get('kontak/{kontak}/print', 'KontakController@print')->name('kontak.print');
@@ -109,9 +112,6 @@ Route::middleware(['auth'])->group(function () {
 
         // Export Excel
         Route::get('/report/export', 'DashboardController@export')->name('report.export');
-
-        // Switch gudang (admin dapat akses multiple gudang)
-        Route::post('admin/switch-gudang', 'AdminGudangController@switchGudang')->name('admin.switchGudang');
     });
 
 
@@ -122,12 +122,6 @@ Route::middleware(['auth'])->group(function () {
 
         // Manajemen User & Role
         Route::resource('users', 'UserController');
-
-        // Manage gudang per admin
-        Route::resource('admin-gudang', 'AdminGudangController');
-
-        // Manage gudang per spectator
-        Route::resource('spectator-gudang', 'SpectatorGudangController');
 
         // Master Data Inti
         Route::resource('gudang', 'GudangController');

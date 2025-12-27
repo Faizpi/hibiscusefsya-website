@@ -39,8 +39,15 @@ class DashboardController extends Controller
             if ($selectedGudangId && !$availableGudangs->pluck('id')->contains((int) $selectedGudangId)) {
                 $selectedGudangId = null;
             }
-        } elseif (in_array($role, ['admin', 'spectator'])) {
+        } elseif ($role === 'admin') {
             $availableGudangs = $user->gudangs()->get();
+            $currentGudang = $user->getCurrentGudang();
+
+            if (!$selectedGudangId || !$user->canAccessGudang($selectedGudangId)) {
+                $selectedGudangId = $currentGudang ? $currentGudang->id : null;
+            }
+        } elseif ($role === 'spectator') {
+            $availableGudangs = $user->spectatorGudangs()->get();
             $currentGudang = $user->getCurrentGudang();
 
             if (!$selectedGudangId || !$user->canAccessGudang($selectedGudangId)) {
