@@ -13,7 +13,10 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = User::with('gudang', 'gudangs', 'spectatorGudangs')->get();
+        $users = User::with('gudang', 'gudangs', 'spectatorGudangs')
+            ->orderByRaw("FIELD(role, 'super_admin','spectator','admin','user')")
+            ->orderBy('name')
+            ->get();
         return view('users.index', compact('users'));
     }
 
