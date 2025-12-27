@@ -59,6 +59,7 @@ class BiayaController extends Controller
             ->whereIn('status', ['Approved'])->sum('grand_total');
 
         // Paginated data untuk table display
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $biayas */
         $biayas = $query->latest()->paginate(20);
         $biayas->getCollection()->transform(function ($item) {
             $dateCode = $item->created_at->format('Ymd');

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Kontak;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class KontakController extends Controller
 {

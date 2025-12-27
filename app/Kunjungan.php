@@ -5,6 +5,32 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property int $user_id
+ * @property int|null $approver_id
+ * @property int|null $gudang_id
+ * @property int|null $kontak_id
+ * @property int|null $no_urut_harian
+ * @property string|null $nomor
+ * @property string|null $sales_nama
+ * @property string|null $sales_email
+ * @property string|null $sales_alamat
+ * @property \Carbon\Carbon|null $tgl_kunjungan
+ * @property string|null $tujuan
+ * @property string|null $koordinat
+ * @property string|null $memo
+ * @property string|null $lampiran_path
+ * @property string $status
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property-read \App\User|null $user
+ * @property-read \App\User|null $approver
+ * @property-read \App\Gudang|null $gudang
+ * @property-read \App\Kontak|null $kontak
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\KunjunganItem[] $items
+ */
 class Kunjungan extends Model
 {
     protected $fillable = [

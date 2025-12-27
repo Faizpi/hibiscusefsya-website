@@ -5,6 +5,32 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property int $user_id
+ * @property int|null $approver_id
+ * @property int|null $no_urut_harian
+ * @property string $jenis_biaya
+ * @property string|null $nomor
+ * @property string|null $bayar_dari
+ * @property string|null $penerima
+ * @property string|null $alamat_penagihan
+ * @property \Carbon\Carbon|null $tgl_transaksi
+ * @property string|null $cara_pembayaran
+ * @property string|null $tag
+ * @property string|null $koordinat
+ * @property string|null $memo
+ * @property string|null $lampiran_path
+ * @property string $status
+ * @property float|null $tax_percentage
+ * @property float|null $grand_total
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property-read \App\User|null $user
+ * @property-read \App\User|null $approver
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\BiayaItem[] $items
+ */
 class Biaya extends Model
 {
     protected $fillable = [

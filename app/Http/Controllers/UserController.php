@@ -176,7 +176,7 @@ class UserController extends Controller
         $request->validate($validationRules, $messages);
 
         $data = $request->only('name', 'email', 'alamat', 'no_telp');
-        
+
         // Set gudang_id for user role, null for admin/spectator (they use pivot tables)
         if ($request->role === 'user') {
             $data['gudang_id'] = $request->gudang_id;

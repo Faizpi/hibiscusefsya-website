@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use App\Penjualan;
 use App\Pembelian;
 use App\Biaya;
+use App\Kunjungan;
 use Illuminate\Http\Request;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 /**
  * Controller untuk Public Invoice

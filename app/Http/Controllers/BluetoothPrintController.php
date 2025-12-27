@@ -18,9 +18,13 @@ class BluetoothPrintController extends Controller
 {
     /**
      * Get Penjualan data as JSON for Bluetooth printing
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function penjualanJson($id)
     {
+        /** @var Penjualan $data */
         $data = Penjualan::with(['items.produk', 'user', 'gudang', 'approver'])->findOrFail($id);
 
         $dateCode = $data->created_at->format('Ymd');
@@ -74,9 +78,13 @@ class BluetoothPrintController extends Controller
 
     /**
      * Get Pembelian data as JSON for Bluetooth printing
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function pembelianJson($id)
     {
+        /** @var Pembelian $data */
         $data = Pembelian::with(['items.produk', 'user', 'gudang', 'approver'])->findOrFail($id);
 
         $dateCode = $data->created_at->format('Ymd');
@@ -120,9 +128,13 @@ class BluetoothPrintController extends Controller
 
     /**
      * Get Biaya data as JSON for Bluetooth printing
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function biayaJson($id)
     {
+        /** @var Biaya $data */
         $data = Biaya::with(['items', 'user', 'approver'])->findOrFail($id);
 
         $dateCode = $data->created_at->format('Ymd');

@@ -4,6 +4,18 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string|null $kode_kontak
+ * @property string $nama
+ * @property string|null $email
+ * @property string|null $no_telp
+ * @property string|null $alamat
+ * @property float|null $diskon_persen
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Kunjungan[] $kunjungans
+ */
 class Kontak extends Model
 {
     protected $table = 'kontaks';

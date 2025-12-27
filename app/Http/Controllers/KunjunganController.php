@@ -62,6 +62,7 @@ class KunjunganController extends Controller
         $totalCanceled = $allForSummary->where('status', 'Canceled')->count();
 
         // Paginated data untuk table display
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $kunjungans */
         $kunjungans = $query->latest()->paginate(20);
         $kunjungans->getCollection()->transform(function ($item) {
             $dateCode = $item->created_at->format('Ymd');

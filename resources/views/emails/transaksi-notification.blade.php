@@ -173,6 +173,10 @@
 
 <body>
     @php
+        /** @var string $type */
+        /** @var string $notificationType */
+        /** @var \Illuminate\Database\Eloquent\Model $transaksi */
+
         $typeLabels = [
             'penjualan' => 'Penjualan',
             'pembelian' => 'Pembelian',

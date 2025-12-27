@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Produk;
 use App\GudangProduk;
 use Illuminate\Http\Request;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class ProdukController extends Controller
 {

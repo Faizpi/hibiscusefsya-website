@@ -5,6 +5,36 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property int|null $approver_id
+ * @property int|null $no_urut_harian
+ * @property string|null $nomor
+ * @property string $uuid
+ * @property int|null $gudang_id
+ * @property string|null $pelanggan
+ * @property string|null $email
+ * @property string|null $alamat_penagihan
+ * @property string|null $koordinat
+ * @property \Carbon\Carbon|null $tgl_transaksi
+ * @property \Carbon\Carbon|null $tgl_jatuh_tempo
+ * @property string|null $syarat_pembayaran
+ * @property string|null $no_referensi
+ * @property string|null $tag
+ * @property string|null $memo
+ * @property string|null $lampiran_path
+ * @property string $status
+ * @property float|null $diskon_akhir
+ * @property float|null $tax_percentage
+ * @property float|null $grand_total
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property-read \App\User|null $user
+ * @property-read \App\User|null $approver
+ * @property-read \App\Gudang|null $gudang
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\PenjualanItem[] $items
+ */
 class Penjualan extends Model
 {
     protected $fillable = [

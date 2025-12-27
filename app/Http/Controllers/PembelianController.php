@@ -59,6 +59,7 @@ class PembelianController extends Controller
             ->sum('grand_total');
 
         // Paginated data untuk table display
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $pembelians */
         $pembelians = $query->latest()->paginate(20);
         $pembelians->getCollection()->transform(function ($item) {
             $dateCode = $item->created_at->format('Ymd');

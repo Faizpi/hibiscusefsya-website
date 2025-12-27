@@ -6,6 +6,24 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property string $password
+ * @property string $role
+ * @property string|null $alamat
+ * @property string|null $no_telp
+ * @property int|null $gudang_id
+ * @property int|null $current_gudang_id
+ * @property \Carbon\Carbon|null $email_verified_at
+ * @property string|null $remember_token
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property-read \App\Gudang|null $gudang
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Gudang[] $gudangs
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Gudang[] $spectatorGudangs
+ */
 class User extends Authenticatable
 {
     use Notifiable;

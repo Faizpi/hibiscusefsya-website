@@ -52,7 +52,8 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('spectator-gudang.edit', $spectator->id) }}" class="btn btn-sm btn-info">
+                                        <a href="{{ route('spectator-gudang.edit', $spectator->id) }}"
+                                            class="btn btn-sm btn-info">
                                             <i class="fas fa-edit"></i> Edit
                                         </a>
                                     </td>

@@ -257,6 +257,9 @@
 
 <body>
     @php
+        /** @var \App\Penjualan $transaksi */
+        /** @var string $notificationType */
+
         $dateCode = $transaksi->created_at->format('Ymd');
         $noUrut = str_pad($transaksi->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $nomorInvoice = "INV-{$transaksi->user_id}-{$dateCode}-{$noUrut}";
