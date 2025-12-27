@@ -49,11 +49,24 @@
             margin-top: 12px;
         }
 
-        .badge-created { background: rgba(255,255,255,0.2); color: white; }
-        .badge-needs-approval { background: #fef3c7; color: #92400e; }
-        .badge-approved { background: #dcfce7; color: #166534; }
+        .badge-created {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
 
-        .invoice-body { padding: 24px; }
+        .badge-needs-approval {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .invoice-body {
+            padding: 24px;
+        }
 
         .info-card {
             background: #f9fafb;
@@ -79,9 +92,18 @@
             font-size: 13px;
         }
 
-        .info-row:last-child { border-bottom: none; }
-        .info-row .label { color: #6b7280; }
-        .info-row .value { font-weight: 600; color: #1f2937; }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .label {
+            color: #6b7280;
+        }
+
+        .info-row .value {
+            font-weight: 600;
+            color: #1f2937;
+        }
 
         .status-badge {
             display: inline-block;
@@ -91,11 +113,24 @@
             font-weight: 600;
         }
 
-        .status-approved { background: #dcfce7; color: #166534; }
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-canceled { background: #fee2e2; color: #991b1b; }
+        .status-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
 
-        .items-section { margin-bottom: 16px; }
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-canceled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .items-section {
+            margin-bottom: 16px;
+        }
 
         .items-title {
             font-size: 11px;
@@ -120,8 +155,16 @@
             margin-bottom: 8px;
         }
 
-        .item-code { font-size: 11px; color: #9ca3af; }
-        .item-meta { font-size: 12px; color: #6b7280; margin-bottom: 10px; }
+        .item-code {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .item-meta {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
 
         .item-total {
             display: flex;
@@ -147,7 +190,9 @@
             color: #6b7280;
         }
 
-        .total-row.discount { color: #ef4444; }
+        .total-row.discount {
+            color: #ef4444;
+        }
 
         .total-row.grand {
             background: #f59e0b;
@@ -216,8 +261,10 @@
         $pajakNominal = $kenaPajak * (($transaksi->tax_percentage ?? 0) / 100);
 
         $statusClass = 'pending';
-        if ($transaksi->status == 'Approved') $statusClass = 'approved';
-        elseif ($transaksi->status == 'Canceled') $statusClass = 'canceled';
+        if ($transaksi->status == 'Approved')
+            $statusClass = 'approved';
+        elseif ($transaksi->status == 'Canceled')
+            $statusClass = 'canceled';
 
         $notificationTitles = [
             'created' => 'Permintaan Baru Dibuat',
@@ -273,31 +320,32 @@
                     <span class="value">{{ $transaksi->gudang->nama_gudang ?? '-' }}</span>
                 </div>
                 @if($notificationType == 'approved' && $transaksi->approver)
-                <div class="info-row">
-                    <span class="label">Disetujui oleh</span>
-                    <span class="value">{{ $transaksi->approver->name }}</span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">Disetujui oleh</span>
+                        <span class="value">{{ $transaksi->approver->name }}</span>
+                    </div>
                 @endif
             </div>
 
             <div class="items-section">
                 <div class="items-title">📦 Daftar Item</div>
                 @foreach($transaksi->items as $item)
-                <div class="item-card">
-                    <div class="item-name">
-                        {{ $item->produk->nama_produk ?? 'Produk' }}
-                        @if($item->produk && $item->produk->item_code)
-                        <span class="item-code">({{ $item->produk->item_code }})</span>
-                        @endif
+                    <div class="item-card">
+                        <div class="item-name">
+                            {{ $item->produk->nama_produk ?? 'Produk' }}
+                            @if($item->produk && $item->produk->item_code)
+                                <span class="item-code">({{ $item->produk->item_code }})</span>
+                            @endif
+                        </div>
+                        <div class="item-meta">
+                            {{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × Rp
+                            {{ number_format($item->harga_satuan, 0, ',', '.') }}
+                        </div>
+                        <div class="item-total">
+                            <span>Subtotal</span>
+                            <span>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</span>
+                        </div>
                     </div>
-                    <div class="item-meta">
-                        {{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}
-                    </div>
-                    <div class="item-total">
-                        <span>Subtotal</span>
-                        <span>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</span>
-                    </div>
-                </div>
                 @endforeach
             </div>
 
@@ -307,16 +355,16 @@
                     <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                 </div>
                 @if(($transaksi->diskon_akhir ?? 0) > 0)
-                <div class="total-row discount">
-                    <span>Diskon</span>
-                    <span>- Rp {{ number_format($transaksi->diskon_akhir, 0, ',', '.') }}</span>
-                </div>
+                    <div class="total-row discount">
+                        <span>Diskon</span>
+                        <span>- Rp {{ number_format($transaksi->diskon_akhir, 0, ',', '.') }}</span>
+                    </div>
                 @endif
                 @if(($transaksi->tax_percentage ?? 0) > 0)
-                <div class="total-row">
-                    <span>Pajak ({{ $transaksi->tax_percentage }}%)</span>
-                    <span>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
-                </div>
+                    <div class="total-row">
+                        <span>Pajak ({{ $transaksi->tax_percentage }}%)</span>
+                        <span>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
+                    </div>
                 @endif
                 <div class="total-row grand">
                     <span>Grand Total</span>
@@ -325,20 +373,20 @@
             </div>
 
             @if($notificationType == 'needs_approval')
-            <div class="action-note">
-                <strong>⚠️ Tindakan Diperlukan:</strong><br>
-                Silakan login ke sistem untuk menyetujui atau menolak permintaan pembelian ini.
-            </div>
+                <div class="action-note">
+                    <strong>⚠️ Tindakan Diperlukan:</strong><br>
+                    Silakan login ke sistem untuk menyetujui atau menolak permintaan pembelian ini.
+                </div>
             @elseif($notificationType == 'approved')
-            <div class="success-note">
-                <strong>✅ Permintaan Disetujui</strong><br>
-                Stok produk telah ditambahkan ke gudang. Invoice terlampir dalam email ini.
-            </div>
+                <div class="success-note">
+                    <strong>✅ Permintaan Disetujui</strong><br>
+                    Stok produk telah ditambahkan ke gudang. Invoice terlampir dalam email ini.
+                </div>
             @else
-            <div class="info-note">
-                <strong>📝 Info:</strong><br>
-                Permintaan ini menunggu persetujuan dari admin. Anda akan menerima notifikasi setelah disetujui.
-            </div>
+                <div class="info-note">
+                    <strong>📝 Info:</strong><br>
+                    Permintaan ini menunggu persetujuan dari admin. Anda akan menerima notifikasi setelah disetujui.
+                </div>
             @endif
         </div>
 

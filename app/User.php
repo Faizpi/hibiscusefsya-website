@@ -52,7 +52,7 @@ class User extends Authenticatable
 
     /**
      * Relationship: admin dapat handle multiple gudang
-     * Hanya untuk admin/super_admin
+     * Hanya untuk admin
      */
     public function gudangs()
     {
@@ -61,8 +61,19 @@ class User extends Authenticatable
     }
 
     /**
+     * Relationship: spectator dapat handle multiple gudang
+     * Hanya untuk spectator
+     */
+    public function spectatorGudangs()
+    {
+        return $this->belongsToMany(Gudang::class, 'spectator_gudang')
+            ->withTimestamps();
+    }
+
+    /**
      * Get current active gudang
      * For admin: return current_gudang_id jika ada, else first assigned gudang
+     * For spectator: return current_gudang_id jika ada, else first assigned gudang
      * For user: return single gudang
      */
     public function getCurrentGudang()
@@ -76,11 +87,17 @@ class User extends Authenticatable
         }
 
         // Fallback: return first assigned gudang
-        return $this->gudangs()->first();
+        if ($this->role === 'admin') {
+            return $this->gudangs()->first();
+        } elseif ($this->role === 'spectator') {
+            return $this->spectatorGudangs()->first();
+        }
+
+        return null;
     }
 
     /**
-     * Check if admin can access specific gudang
+     * Check if admin/spectator can access specific gudang
      */
     public function canAccessGudang($gudangId)
     {
@@ -88,8 +105,12 @@ class User extends Authenticatable
             return true;
         }
 
-        if (in_array($this->role, ['admin', 'spectator'])) {
+        if ($this->role === 'admin') {
             return $this->gudangs()->where('gudangs.id', $gudangId)->exists();
+        }
+
+        if ($this->role === 'spectator') {
+            return $this->spectatorGudangs()->where('gudangs.id', $gudangId)->exists();
         }
 
         return $this->gudang_id == $gudangId;

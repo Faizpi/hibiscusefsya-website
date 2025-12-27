@@ -50,7 +50,7 @@
         }
 
         .badge-created {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
         }
 
@@ -113,10 +113,25 @@
             font-weight: 600;
         }
 
-        .status-lunas { background: #dcfce7; color: #166534; }
-        .status-approved { background: #dbeafe; color: #1e40af; }
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-canceled { background: #fee2e2; color: #991b1b; }
+        .status-lunas {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-approved {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-canceled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
 
         .items-section {
             margin-bottom: 16px;
@@ -294,7 +309,8 @@
                 </div>
                 <div class="info-row">
                     <span class="label">Jatuh Tempo</span>
-                    <span class="value">{{ $transaksi->tgl_jatuh_tempo ? $transaksi->tgl_jatuh_tempo->format('d M Y') : '-' }}</span>
+                    <span
+                        class="value">{{ $transaksi->tgl_jatuh_tempo ? $transaksi->tgl_jatuh_tempo->format('d M Y') : '-' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Pembayaran</span>
@@ -323,34 +339,35 @@
                     <span class="value">{{ $transaksi->gudang->nama_gudang ?? '-' }}</span>
                 </div>
                 @if($notificationType == 'approved' && $transaksi->approver)
-                <div class="info-row">
-                    <span class="label">Disetujui oleh</span>
-                    <span class="value">{{ $transaksi->approver->name }}</span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">Disetujui oleh</span>
+                        <span class="value">{{ $transaksi->approver->name }}</span>
+                    </div>
                 @endif
             </div>
 
             <div class="items-section">
                 <div class="items-title">📦 Daftar Item</div>
                 @foreach($transaksi->items as $item)
-                <div class="item-card">
-                    <div class="item-name">
-                        {{ $item->produk->nama_produk ?? 'Produk' }}
-                        @if($item->produk && $item->produk->item_code)
-                        <span class="item-code">({{ $item->produk->item_code }})</span>
-                        @endif
+                    <div class="item-card">
+                        <div class="item-name">
+                            {{ $item->produk->nama_produk ?? 'Produk' }}
+                            @if($item->produk && $item->produk->item_code)
+                                <span class="item-code">({{ $item->produk->item_code }})</span>
+                            @endif
+                        </div>
+                        <div class="item-meta">
+                            {{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × Rp
+                            {{ number_format($item->harga_satuan, 0, ',', '.') }}
+                            @if($item->diskon > 0)
+                                <span style="color: #ef4444;"> -{{ $item->diskon }}%</span>
+                            @endif
+                        </div>
+                        <div class="item-total">
+                            <span>Subtotal</span>
+                            <span>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</span>
+                        </div>
                     </div>
-                    <div class="item-meta">
-                        {{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}
-                        @if($item->diskon > 0)
-                        <span style="color: #ef4444;"> -{{ $item->diskon }}%</span>
-                        @endif
-                    </div>
-                    <div class="item-total">
-                        <span>Subtotal</span>
-                        <span>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</span>
-                    </div>
-                </div>
                 @endforeach
             </div>
 
@@ -360,16 +377,16 @@
                     <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                 </div>
                 @if($transaksi->diskon_akhir > 0)
-                <div class="total-row discount">
-                    <span>Diskon</span>
-                    <span>- Rp {{ number_format($transaksi->diskon_akhir, 0, ',', '.') }}</span>
-                </div>
+                    <div class="total-row discount">
+                        <span>Diskon</span>
+                        <span>- Rp {{ number_format($transaksi->diskon_akhir, 0, ',', '.') }}</span>
+                    </div>
                 @endif
                 @if($transaksi->tax_percentage > 0)
-                <div class="total-row">
-                    <span>Pajak ({{ $transaksi->tax_percentage }}%)</span>
-                    <span>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
-                </div>
+                    <div class="total-row">
+                        <span>Pajak ({{ $transaksi->tax_percentage }}%)</span>
+                        <span>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
+                    </div>
                 @endif
                 <div class="total-row grand">
                     <span>Grand Total</span>
@@ -378,20 +395,20 @@
             </div>
 
             @if($notificationType == 'needs_approval')
-            <div class="action-note">
-                <strong>⚠️ Tindakan Diperlukan:</strong><br>
-                Silakan login ke sistem untuk menyetujui atau menolak transaksi ini.
-            </div>
+                <div class="action-note">
+                    <strong>⚠️ Tindakan Diperlukan:</strong><br>
+                    Silakan login ke sistem untuk menyetujui atau menolak transaksi ini.
+                </div>
             @elseif($notificationType == 'approved')
-            <div class="success-note">
-                <strong>✅ Transaksi Berhasil Disetujui</strong><br>
-                Stok produk telah dikurangi dari gudang. Invoice terlampir dalam email ini.
-            </div>
+                <div class="success-note">
+                    <strong>✅ Transaksi Berhasil Disetujui</strong><br>
+                    Stok produk telah dikurangi dari gudang. Invoice terlampir dalam email ini.
+                </div>
             @else
-            <div class="info-note">
-                <strong>📝 Info:</strong><br>
-                Transaksi ini menunggu persetujuan dari admin. Anda akan menerima notifikasi setelah disetujui.
-            </div>
+                <div class="info-note">
+                    <strong>📝 Info:</strong><br>
+                    Transaksi ini menunggu persetujuan dari admin. Anda akan menerima notifikasi setelah disetujui.
+                </div>
             @endif
         </div>
 

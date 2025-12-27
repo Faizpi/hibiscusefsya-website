@@ -49,11 +49,24 @@
             margin-top: 12px;
         }
 
-        .badge-created { background: rgba(255,255,255,0.2); color: white; }
-        .badge-needs-approval { background: #fef3c7; color: #92400e; }
-        .badge-approved { background: #dcfce7; color: #166534; }
+        .badge-created {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
 
-        .invoice-body { padding: 24px; }
+        .badge-needs-approval {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .invoice-body {
+            padding: 24px;
+        }
 
         .info-card {
             background: #f9fafb;
@@ -79,9 +92,18 @@
             font-size: 13px;
         }
 
-        .info-row:last-child { border-bottom: none; }
-        .info-row .label { color: #6b7280; }
-        .info-row .value { font-weight: 600; color: #1f2937; }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .label {
+            color: #6b7280;
+        }
+
+        .info-row .value {
+            font-weight: 600;
+            color: #1f2937;
+        }
 
         .status-badge {
             display: inline-block;
@@ -91,9 +113,20 @@
             font-weight: 600;
         }
 
-        .status-approved { background: #dcfce7; color: #166534; }
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-canceled { background: #fee2e2; color: #991b1b; }
+        .status-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-canceled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
 
         .tujuan-badge {
             display: inline-block;
@@ -105,7 +138,9 @@
             color: #7c3aed;
         }
 
-        .items-section { margin-bottom: 16px; }
+        .items-section {
+            margin-bottom: 16px;
+        }
 
         .items-title {
             font-size: 11px;
@@ -210,8 +245,10 @@
         $nomorInvoice = "VST-{$transaksi->user_id}-{$dateCode}-{$noUrut}";
 
         $statusClass = 'pending';
-        if ($transaksi->status == 'Approved') $statusClass = 'approved';
-        elseif ($transaksi->status == 'Canceled') $statusClass = 'canceled';
+        if ($transaksi->status == 'Approved')
+            $statusClass = 'approved';
+        elseif ($transaksi->status == 'Canceled')
+            $statusClass = 'canceled';
 
         $notificationTitles = [
             'created' => 'Kunjungan Baru Dicatat',
@@ -269,52 +306,52 @@
                     <span class="value">{{ $transaksi->gudang->nama_gudang ?? '-' }}</span>
                 </div>
                 @if($notificationType == 'approved' && $transaksi->approver)
-                <div class="info-row">
-                    <span class="label">Disetujui oleh</span>
-                    <span class="value">{{ $transaksi->approver->name }}</span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">Disetujui oleh</span>
+                        <span class="value">{{ $transaksi->approver->name }}</span>
+                    </div>
                 @endif
             </div>
 
             @if($transaksi->items && $transaksi->items->count() > 0)
-            <div class="items-section">
-                <div class="items-title">📦 Produk Ditawarkan</div>
-                @foreach($transaksi->items as $item)
-                <div class="item-card">
-                    <div class="item-name">{{ $item->produk->nama_produk ?? 'Produk' }}</div>
-                    <div class="item-meta">
-                        Qty: {{ $item->jumlah }} {{ $item->produk->satuan ?? 'Pcs' }}
-                        @if($item->keterangan)
-                        • {{ $item->keterangan }}
-                        @endif
-                    </div>
+                <div class="items-section">
+                    <div class="items-title">📦 Produk Ditawarkan</div>
+                    @foreach($transaksi->items as $item)
+                        <div class="item-card">
+                            <div class="item-name">{{ $item->produk->nama_produk ?? 'Produk' }}</div>
+                            <div class="item-meta">
+                                Qty: {{ $item->jumlah }} {{ $item->produk->satuan ?? 'Pcs' }}
+                                @if($item->keterangan)
+                                    • {{ $item->keterangan }}
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-                @endforeach
-            </div>
             @endif
 
             @if($transaksi->memo)
-            <div class="memo-card">
-                <div class="memo-title">📝 Catatan</div>
-                <div class="memo-content">{{ $transaksi->memo }}</div>
-            </div>
+                <div class="memo-card">
+                    <div class="memo-title">📝 Catatan</div>
+                    <div class="memo-content">{{ $transaksi->memo }}</div>
+                </div>
             @endif
 
             @if($notificationType == 'needs_approval')
-            <div class="action-note">
-                <strong>⚠️ Tindakan Diperlukan:</strong><br>
-                Silakan login ke sistem untuk menyetujui atau menolak laporan kunjungan ini.
-            </div>
+                <div class="action-note">
+                    <strong>⚠️ Tindakan Diperlukan:</strong><br>
+                    Silakan login ke sistem untuk menyetujui atau menolak laporan kunjungan ini.
+                </div>
             @elseif($notificationType == 'approved')
-            <div class="success-note">
-                <strong>✅ Kunjungan Disetujui</strong><br>
-                Laporan kunjungan telah dicatat dalam sistem. Dokumen terlampir dalam email ini.
-            </div>
+                <div class="success-note">
+                    <strong>✅ Kunjungan Disetujui</strong><br>
+                    Laporan kunjungan telah dicatat dalam sistem. Dokumen terlampir dalam email ini.
+                </div>
             @else
-            <div class="info-note">
-                <strong>📝 Info:</strong><br>
-                Kunjungan ini menunggu persetujuan dari admin. Anda akan menerima notifikasi setelah disetujui.
-            </div>
+                <div class="info-note">
+                    <strong>📝 Info:</strong><br>
+                    Kunjungan ini menunggu persetujuan dari admin. Anda akan menerima notifikasi setelah disetujui.
+                </div>
             @endif
         </div>
 

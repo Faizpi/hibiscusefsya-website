@@ -126,6 +126,9 @@ Route::middleware(['auth'])->group(function () {
         // Manage gudang per admin
         Route::resource('admin-gudang', 'AdminGudangController');
 
+        // Manage gudang per spectator
+        Route::resource('spectator-gudang', 'SpectatorGudangController');
+
         // Master Data Inti
         Route::resource('gudang', 'GudangController');
         Route::get('produk/{produk}/print', 'ProdukController@print')->name('produk.print');

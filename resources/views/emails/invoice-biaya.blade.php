@@ -56,11 +56,24 @@
             margin-top: 12px;
         }
 
-        .badge-created { background: rgba(255,255,255,0.2); color: white; }
-        .badge-needs-approval { background: #fef3c7; color: #92400e; }
-        .badge-approved { background: #dcfce7; color: #166534; }
+        .badge-created {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
 
-        .invoice-body { padding: 24px; }
+        .badge-needs-approval {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .invoice-body {
+            padding: 24px;
+        }
 
         .info-card {
             background: #f9fafb;
@@ -86,9 +99,18 @@
             font-size: 13px;
         }
 
-        .info-row:last-child { border-bottom: none; }
-        .info-row .label { color: #6b7280; }
-        .info-row .value { font-weight: 600; color: #1f2937; }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .label {
+            color: #6b7280;
+        }
+
+        .info-row .value {
+            font-weight: 600;
+            color: #1f2937;
+        }
 
         .status-badge {
             display: inline-block;
@@ -98,11 +120,24 @@
             font-weight: 600;
         }
 
-        .status-approved { background: #dcfce7; color: #166534; }
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-canceled { background: #fee2e2; color: #991b1b; }
+        .status-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
 
-        .items-section { margin-bottom: 16px; }
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-canceled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .items-section {
+            margin-bottom: 16px;
+        }
 
         .items-title {
             font-size: 11px;
@@ -160,8 +195,13 @@
             font-weight: 700;
         }
 
-        .total-row.grand.masuk { background: #10b981; }
-        .total-row.grand.keluar { background: #ef4444; }
+        .total-row.grand.masuk {
+            background: #10b981;
+        }
+
+        .total-row.grand.keluar {
+            background: #ef4444;
+        }
 
         .action-note {
             background: #fef3c7;
@@ -219,8 +259,10 @@
         $pajakNominal = $subtotal * (($transaksi->tax_percentage ?? 0) / 100);
 
         $statusClass = 'pending';
-        if ($transaksi->status == 'Approved') $statusClass = 'approved';
-        elseif ($transaksi->status == 'Canceled') $statusClass = 'canceled';
+        if ($transaksi->status == 'Approved')
+            $statusClass = 'approved';
+        elseif ($transaksi->status == 'Canceled')
+            $statusClass = 'canceled';
 
         $jenisBiaya = $transaksi->jenis_biaya ?? 'keluar';
         $judulInvoice = $jenisBiaya == 'masuk' ? 'Bukti Pemasukan' : 'Bukti Pengeluaran';
@@ -279,23 +321,23 @@
                     <span class="value">{{ $transaksi->user->name ?? '-' }}</span>
                 </div>
                 @if($notificationType == 'approved' && $transaksi->approver)
-                <div class="info-row">
-                    <span class="label">Disetujui oleh</span>
-                    <span class="value">{{ $transaksi->approver->name }}</span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">Disetujui oleh</span>
+                        <span class="value">{{ $transaksi->approver->name }}</span>
+                    </div>
                 @endif
             </div>
 
             <div class="items-section">
                 <div class="items-title">📝 Rincian Biaya</div>
                 @foreach($transaksi->items as $item)
-                <div class="item-card">
-                    <div class="item-name">{{ $item->nama_biaya ?? 'Item Biaya' }}</div>
-                    <div class="item-total">
-                        <span>Nominal</span>
-                        <span>Rp {{ number_format($item->nominal, 0, ',', '.') }}</span>
+                    <div class="item-card">
+                        <div class="item-name">{{ $item->nama_biaya ?? 'Item Biaya' }}</div>
+                        <div class="item-total">
+                            <span>Nominal</span>
+                            <span>Rp {{ number_format($item->nominal, 0, ',', '.') }}</span>
+                        </div>
                     </div>
-                </div>
                 @endforeach
             </div>
 
@@ -305,10 +347,10 @@
                     <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                 </div>
                 @if(($transaksi->tax_percentage ?? 0) > 0)
-                <div class="total-row">
-                    <span>Pajak ({{ $transaksi->tax_percentage }}%)</span>
-                    <span>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
-                </div>
+                    <div class="total-row">
+                        <span>Pajak ({{ $transaksi->tax_percentage }}%)</span>
+                        <span>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
+                    </div>
                 @endif
                 <div class="total-row grand {{ $jenisBiaya }}">
                     <span>Grand Total</span>
@@ -317,20 +359,20 @@
             </div>
 
             @if($notificationType == 'needs_approval')
-            <div class="action-note">
-                <strong>⚠️ Tindakan Diperlukan:</strong><br>
-                Silakan login ke sistem untuk menyetujui atau menolak biaya ini.
-            </div>
+                <div class="action-note">
+                    <strong>⚠️ Tindakan Diperlukan:</strong><br>
+                    Silakan login ke sistem untuk menyetujui atau menolak biaya ini.
+                </div>
             @elseif($notificationType == 'approved')
-            <div class="success-note">
-                <strong>✅ Biaya Disetujui</strong><br>
-                Biaya telah dicatat dalam sistem. Invoice terlampir dalam email ini.
-            </div>
+                <div class="success-note">
+                    <strong>✅ Biaya Disetujui</strong><br>
+                    Biaya telah dicatat dalam sistem. Invoice terlampir dalam email ini.
+                </div>
             @else
-            <div class="info-note">
-                <strong>📝 Info:</strong><br>
-                Biaya ini menunggu persetujuan dari admin. Anda akan menerima notifikasi setelah disetujui.
-            </div>
+                <div class="info-note">
+                    <strong>📝 Info:</strong><br>
+                    Biaya ini menunggu persetujuan dari admin. Anda akan menerima notifikasi setelah disetujui.
+                </div>
             @endif
         </div>
 

@@ -1627,6 +1627,13 @@
                         </a>
                     </li>
 
+                    <li class="nav-item {{ Route::is('spectator-gudang.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('spectator-gudang.index') }}" title="Spectator Gudang">
+                            <i class="fas fa-eye"></i>
+                            <span>Spectator Gudang</span>
+                        </a>
+                    </li>
+
                     <li class="nav-item {{ Route::is('users.*') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('users.index') }}" title="Pengguna">
                             <i class="fas fa-users"></i>

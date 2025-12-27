@@ -54,7 +54,7 @@ class TransaksiNotificationMail extends Mailable
 
         // Use type-specific email template (styled like public invoice)
         $viewName = "emails.invoice-{$this->type}";
-        
+
         // Fallback to generic template if specific one doesn't exist
         if (!view()->exists($viewName)) {
             $viewName = 'emails.transaksi-notification';
