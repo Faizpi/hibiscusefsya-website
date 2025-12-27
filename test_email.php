@@ -1,5 +1,10 @@
 <?php
-
+// Fix APP_NAME di .env
+$envFile = __DIR__ . '/.env';
+$content = file_get_contents($envFile);
+$content = preg_replace('/^APP_NAME=.*/m', 'APP_NAME="Hibiscus Efsya"', $content);
+file_put_contents($envFile, $content);
+echo "APP_NAME fixed!\n";
 require __DIR__ . '/vendor/autoload.php';
 $app = require_once __DIR__ . '/bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
