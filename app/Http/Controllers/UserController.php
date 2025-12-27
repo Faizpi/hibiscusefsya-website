@@ -151,7 +151,8 @@ class UserController extends Controller
         $kunjunganCount = \App\Kunjungan::where('user_id', $user->id)->count();
 
         if ($penjualanCount > 0 || $pembelianCount > 0 || $kunjunganCount > 0) {
-            return redirect()->route('users.index')->with('error', 
+            return redirect()->route('users.index')->with(
+                'error',
                 'Tidak dapat menghapus user karena masih memiliki transaksi. ' .
                 'Penjualan: ' . $penjualanCount . ', Pembelian: ' . $pembelianCount . ', Kunjungan: ' . $kunjunganCount
             );

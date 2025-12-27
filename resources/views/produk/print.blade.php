@@ -151,8 +151,8 @@
 <body onload="window.print()">
     <div class="receipt">
         <div class="header">
+            <img src="{{ asset('assets/img/logoHE1.png') }}" class="logo">
             <div class="title">LABEL PRODUK</div>
-            <div style="font-size: 9pt;">{{ config('app.name') }}</div>
         </div>
 
         <div class="barcode-section">

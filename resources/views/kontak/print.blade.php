@@ -50,6 +50,11 @@
             padding-bottom: 8px;
         }
 
+        .header .logo {
+            max-width: 45mm;
+            margin-bottom: 4px;
+        }
+
         .header .title {
             font-size: 12pt;
             font-weight: bold;
@@ -143,8 +148,8 @@
         @endphp
 
         <div class="header">
+            <img src="{{ asset('assets/img/logoHE1.png') }}" class="logo">
             <div class="title">KARTU KONTAK</div>
-            <div style="font-size: 9pt;">{{ config('app.name') }}</div>
         </div>
 
         <div class="barcode-section">
