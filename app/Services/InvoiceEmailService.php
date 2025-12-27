@@ -197,13 +197,14 @@ class InvoiceEmailService
         // Clone data yang dibutuhkan untuk menghindari issues setelah response
         $transaksiId = $transaksi->id;
         $transaksiClass = get_class($transaksi);
-        
+
         dispatch(function () use ($transaksiId, $transaksiClass, $type) {
             try {
                 // Reload transaksi dari database
                 $transaksi = $transaksiClass::find($transaksiId);
-                if (!$transaksi) return;
-                
+                if (!$transaksi)
+                    return;
+
                 // Load relasi yang dibutuhkan
                 if (in_array($type, ['penjualan', 'pembelian'])) {
                     $transaksi->load(['items.produk', 'user', 'gudang']);
@@ -213,8 +214,9 @@ class InvoiceEmailService
                     $transaksi->load(['items', 'user']);
                 }
 
-                // Generate PDF
-                $pdf = Pdf::loadView("pdf.invoice-{$type}", [$type => $transaksi]);
+                // Generate PDF - gunakan template yang sama dengan download di public invoice
+                $pdf = Pdf::loadView("public.invoice-{$type}-pdf", [$type => $transaksi]);
+                $pdf->setPaper('a4', 'portrait');
                 $pdfContent = $pdf->output();
 
                 $nomor = $transaksi->nomor ?? $transaksi->custom_number ?? $transaksi->id;
@@ -255,13 +257,14 @@ class InvoiceEmailService
         // Clone data yang dibutuhkan untuk menghindari issues setelah response
         $transaksiId = $transaksi->id;
         $transaksiClass = get_class($transaksi);
-        
+
         dispatch(function () use ($transaksiId, $transaksiClass, $type) {
             try {
                 // Reload transaksi dari database
                 $transaksi = $transaksiClass::find($transaksiId);
-                if (!$transaksi) return;
-                
+                if (!$transaksi)
+                    return;
+
                 // Load relasi yang dibutuhkan
                 if (in_array($type, ['penjualan', 'pembelian'])) {
                     $transaksi->load(['items.produk', 'user', 'gudang', 'approver']);
@@ -271,8 +274,9 @@ class InvoiceEmailService
                     $transaksi->load(['items', 'user', 'approver']);
                 }
 
-                // Generate PDF invoice final
-                $pdf = Pdf::loadView("pdf.invoice-{$type}", [$type => $transaksi]);
+                // Generate PDF invoice final - gunakan template yang sama dengan download di public invoice
+                $pdf = Pdf::loadView("public.invoice-{$type}-pdf", [$type => $transaksi]);
+                $pdf->setPaper('a4', 'portrait');
                 $pdfContent = $pdf->output();
 
                 $nomor = $transaksi->nomor ?? $transaksi->custom_number ?? $transaksi->id;

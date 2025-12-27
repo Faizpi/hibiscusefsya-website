@@ -5,6 +5,7 @@
     $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
     $nomorInvoice = "INV-{$penjualan->user_id}-{$dateCode}-{$noUrut}";
 @endphp
+
 <head>
     <meta charset="UTF-8">
     <title>Invoice Penjualan - {{ $nomorInvoice }}</title>
@@ -219,7 +220,8 @@
                 <tr>
                     <td class="label">Jatuh Tempo</td>
                     <td class="value">:
-                        {{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
+                        {{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}
+                    </td>
                 </tr>
                 <tr>
                     <td class="label">Syarat Pembayaran</td>

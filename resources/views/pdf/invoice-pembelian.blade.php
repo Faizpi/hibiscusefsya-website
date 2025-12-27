@@ -5,6 +5,7 @@
     $noUrut = str_pad($pembelian->no_urut_harian, 3, '0', STR_PAD_LEFT);
     $nomorPembelian = "REQ-{$pembelian->user_id}-{$dateCode}-{$noUrut}";
 @endphp
+
 <head>
     <meta charset="UTF-8">
     <title>Invoice Pembelian - {{ $nomorPembelian }}</title>
@@ -219,7 +220,8 @@
                 <tr>
                     <td class="label">Jatuh Tempo</td>
                     <td class="value">:
-                        {{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
+                        {{ $pembelian->tgl_jatuh_tempo ? $pembelian->tgl_jatuh_tempo->format('d/m/Y') : '-' }}
+                    </td>
                 </tr>
                 <tr>
                     <td class="label">Syarat Pembayaran</td>

@@ -52,8 +52,16 @@ class TransaksiNotificationMail extends Mailable
         $notifLabel = $notificationLabels[$this->notificationType] ?? 'Notifikasi';
         $nomor = $this->transaksi->nomor ?? $this->transaksi->custom_number ?? $this->transaksi->id;
 
+        // Use type-specific email template (styled like public invoice)
+        $viewName = "emails.invoice-{$this->type}";
+        
+        // Fallback to generic template if specific one doesn't exist
+        if (!view()->exists($viewName)) {
+            $viewName = 'emails.transaksi-notification';
+        }
+
         $mail = $this->subject("[{$notifLabel}] {$label} #{$nomor} - Hibiscus Efsya")
-            ->view('emails.transaksi-notification');
+            ->view($viewName);
 
         // Attach PDF jika ada
         if ($this->pdfContent) {
