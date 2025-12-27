@@ -43,8 +43,31 @@
                                             <span class="badge badge-info">{{ $user->role }}</span>
                                         @endif
                                     </td>
-                                    {{-- Tampilkan nama gudang, jika ada --}}
-                                    <td>{{ $user->gudang->nama_gudang ?? '-' }}</td>
+                                    <td>
+                                        @if($user->role == 'admin')
+                                            @if($user->gudangs->count() > 0)
+                                                <div class="d-flex flex-wrap align-items-center">
+                                                    @foreach($user->gudangs as $gudang)
+                                                        <span class="badge badge-primary mr-1 mb-1">{{ $gudang->nama_gudang }}</span>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        @elseif($user->role == 'spectator')
+                                            @if($user->spectatorGudangs->count() > 0)
+                                                <div class="d-flex flex-wrap align-items-center">
+                                                    @foreach($user->spectatorGudangs as $gudang)
+                                                        <span class="badge badge-info mr-1 mb-1">{{ $gudang->nama_gudang }}</span>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        @else
+                                            {{ $user->gudang->nama_gudang ?? '-' }}
+                                        @endif
+                                    </td>
                                     <td class="text-center">
                                         <div class="dropdown">
                                             <button class="btn btn-sm dropdown-toggle no-caret" type="button"
