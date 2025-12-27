@@ -186,6 +186,7 @@ class InvoiceEmailService
 
     /**
      * Kirim notifikasi saat transaksi DIBUAT (ke pembuat + approvers)
+     * Menggunakan dispatch afterResponse agar tidak blocking request
      *
      * @param mixed $transaksi
      * @param string $type - penjualan, pembelian, biaya, kunjungan
@@ -193,46 +194,57 @@ class InvoiceEmailService
      */
     public static function sendCreatedNotification($transaksi, $type)
     {
-        try {
-            // Load relasi yang dibutuhkan
-            if (in_array($type, ['penjualan', 'pembelian'])) {
-                $transaksi->load(['items.produk', 'user', 'gudang']);
-            } elseif ($type == 'kunjungan') {
-                $transaksi->load(['items.produk', 'user', 'gudang', 'kontak']);
-            } else {
-                $transaksi->load(['items', 'user']);
-            }
-
-            // Generate PDF
-            $pdf = Pdf::loadView("pdf.invoice-{$type}", [$type => $transaksi]);
-            $pdfContent = $pdf->output();
-
-            $nomor = $transaksi->nomor ?? $transaksi->custom_number ?? $transaksi->id;
-            $gudangId = $transaksi->gudang_id ?? null;
-
-            // 1. Kirim ke pembuat transaksi
-            $creatorEmail = $transaksi->user->email ?? null;
-            if ($creatorEmail) {
-                Mail::to($creatorEmail)->send(new TransaksiNotificationMail($transaksi, $type, 'created', $pdfContent));
-                \Log::info("Notifikasi created {$type} #{$nomor} dikirim ke pembuat: {$creatorEmail}");
-            }
-
-            // 2. Kirim ke semua approvers (admin gudang + super_admin) - needs_approval
-            $approverEmails = self::getApproverEmails($gudangId);
-            foreach ($approverEmails as $email) {
-                if ($email !== $creatorEmail) { // Jangan kirim double ke pembuat
-                    Mail::to($email)->send(new TransaksiNotificationMail($transaksi, $type, 'needs_approval', $pdfContent));
-                    \Log::info("Notifikasi needs_approval {$type} #{$nomor} dikirim ke approver: {$email}");
+        // Clone data yang dibutuhkan untuk menghindari issues setelah response
+        $transaksiId = $transaksi->id;
+        $transaksiClass = get_class($transaksi);
+        
+        dispatch(function () use ($transaksiId, $transaksiClass, $type) {
+            try {
+                // Reload transaksi dari database
+                $transaksi = $transaksiClass::find($transaksiId);
+                if (!$transaksi) return;
+                
+                // Load relasi yang dibutuhkan
+                if (in_array($type, ['penjualan', 'pembelian'])) {
+                    $transaksi->load(['items.produk', 'user', 'gudang']);
+                } elseif ($type == 'kunjungan') {
+                    $transaksi->load(['items.produk', 'user', 'gudang', 'kontak']);
+                } else {
+                    $transaksi->load(['items', 'user']);
                 }
-            }
 
-        } catch (\Exception $e) {
-            \Log::error("Gagal mengirim notifikasi created {$type}: " . $e->getMessage());
-        }
+                // Generate PDF
+                $pdf = Pdf::loadView("pdf.invoice-{$type}", [$type => $transaksi]);
+                $pdfContent = $pdf->output();
+
+                $nomor = $transaksi->nomor ?? $transaksi->custom_number ?? $transaksi->id;
+                $gudangId = $transaksi->gudang_id ?? null;
+
+                // 1. Kirim ke pembuat transaksi
+                $creatorEmail = $transaksi->user->email ?? null;
+                if ($creatorEmail) {
+                    Mail::to($creatorEmail)->send(new TransaksiNotificationMail($transaksi, $type, 'created', $pdfContent));
+                    \Log::info("Notifikasi created {$type} #{$nomor} dikirim ke pembuat: {$creatorEmail}");
+                }
+
+                // 2. Kirim ke semua approvers (admin gudang + super_admin) - needs_approval
+                $approverEmails = self::getApproverEmails($gudangId);
+                foreach ($approverEmails as $email) {
+                    if ($email !== $creatorEmail) { // Jangan kirim double ke pembuat
+                        Mail::to($email)->send(new TransaksiNotificationMail($transaksi, $type, 'needs_approval', $pdfContent));
+                        \Log::info("Notifikasi needs_approval {$type} #{$nomor} dikirim ke approver: {$email}");
+                    }
+                }
+
+            } catch (\Exception $e) {
+                \Log::error("Gagal mengirim notifikasi created {$type}: " . $e->getMessage());
+            }
+        })->afterResponse();
     }
 
     /**
      * Kirim notifikasi saat transaksi DI-APPROVE (ke pembuat)
+     * Menggunakan dispatch afterResponse agar tidak blocking request
      *
      * @param mixed $transaksi
      * @param string $type - penjualan, pembelian, biaya, kunjungan
@@ -240,31 +252,41 @@ class InvoiceEmailService
      */
     public static function sendApprovedNotification($transaksi, $type)
     {
-        try {
-            // Load relasi yang dibutuhkan
-            if (in_array($type, ['penjualan', 'pembelian'])) {
-                $transaksi->load(['items.produk', 'user', 'gudang', 'approver']);
-            } elseif ($type == 'kunjungan') {
-                $transaksi->load(['items.produk', 'user', 'gudang', 'kontak', 'approver']);
-            } else {
-                $transaksi->load(['items', 'user', 'approver']);
+        // Clone data yang dibutuhkan untuk menghindari issues setelah response
+        $transaksiId = $transaksi->id;
+        $transaksiClass = get_class($transaksi);
+        
+        dispatch(function () use ($transaksiId, $transaksiClass, $type) {
+            try {
+                // Reload transaksi dari database
+                $transaksi = $transaksiClass::find($transaksiId);
+                if (!$transaksi) return;
+                
+                // Load relasi yang dibutuhkan
+                if (in_array($type, ['penjualan', 'pembelian'])) {
+                    $transaksi->load(['items.produk', 'user', 'gudang', 'approver']);
+                } elseif ($type == 'kunjungan') {
+                    $transaksi->load(['items.produk', 'user', 'gudang', 'kontak', 'approver']);
+                } else {
+                    $transaksi->load(['items', 'user', 'approver']);
+                }
+
+                // Generate PDF invoice final
+                $pdf = Pdf::loadView("pdf.invoice-{$type}", [$type => $transaksi]);
+                $pdfContent = $pdf->output();
+
+                $nomor = $transaksi->nomor ?? $transaksi->custom_number ?? $transaksi->id;
+
+                // Kirim ke pembuat transaksi
+                $creatorEmail = $transaksi->user->email ?? null;
+                if ($creatorEmail) {
+                    Mail::to($creatorEmail)->send(new TransaksiNotificationMail($transaksi, $type, 'approved', $pdfContent));
+                    \Log::info("Notifikasi approved {$type} #{$nomor} dikirim ke pembuat: {$creatorEmail}");
+                }
+
+            } catch (\Exception $e) {
+                \Log::error("Gagal mengirim notifikasi approved {$type}: " . $e->getMessage());
             }
-
-            // Generate PDF invoice final
-            $pdf = Pdf::loadView("pdf.invoice-{$type}", [$type => $transaksi]);
-            $pdfContent = $pdf->output();
-
-            $nomor = $transaksi->nomor ?? $transaksi->custom_number ?? $transaksi->id;
-
-            // Kirim ke pembuat transaksi
-            $creatorEmail = $transaksi->user->email ?? null;
-            if ($creatorEmail) {
-                Mail::to($creatorEmail)->send(new TransaksiNotificationMail($transaksi, $type, 'approved', $pdfContent));
-                \Log::info("Notifikasi approved {$type} #{$nomor} dikirim ke pembuat: {$creatorEmail}");
-            }
-
-        } catch (\Exception $e) {
-            \Log::error("Gagal mengirim notifikasi approved {$type}: " . $e->getMessage());
-        }
+        })->afterResponse();
     }
 }

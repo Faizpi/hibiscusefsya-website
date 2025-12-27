@@ -216,26 +216,22 @@
             <div class="info-row">
                 <span class="label">Tanggal</span>
                 <span class="value">
-                    @if($type == 'penjualan')
-                        {{ \Carbon\Carbon::parse($transaksi->tanggal_penjualan)->format('d M Y') }}
-                    @elseif($type == 'pembelian')
-                        {{ \Carbon\Carbon::parse($transaksi->tanggal_pembelian)->format('d M Y') }}
-                    @elseif($type == 'kunjungan')
+                    @if($type == 'kunjungan')
                         {{ \Carbon\Carbon::parse($transaksi->tgl_kunjungan)->format('d M Y') }}
                     @else
-                        {{ \Carbon\Carbon::parse($transaksi->tanggal_biaya)->format('d M Y') }}
+                        {{ \Carbon\Carbon::parse($transaksi->tgl_transaksi)->format('d M Y') }}
                     @endif
                 </span>
             </div>
             @if($type == 'penjualan' && $transaksi->pelanggan)
                 <div class="info-row">
                     <span class="label">Pelanggan</span>
-                    <span class="value">{{ $transaksi->pelanggan->nama ?? '-' }}</span>
+                    <span class="value">{{ $transaksi->pelanggan }}</span>
                 </div>
-            @elseif($type == 'pembelian' && $transaksi->supplier)
+            @elseif($type == 'pembelian' && $transaksi->staf_penyetuju)
                 <div class="info-row">
-                    <span class="label">Supplier</span>
-                    <span class="value">{{ $transaksi->supplier->nama ?? '-' }}</span>
+                    <span class="label">Staff Penyetuju</span>
+                    <span class="value">{{ $transaksi->staf_penyetuju }}</span>
                 </div>
             @elseif($type == 'kunjungan' && $transaksi->kontak)
                 <div class="info-row">
@@ -276,7 +272,7 @@
         @if($type != 'kunjungan')
             <div class="total-box total-{{ $notificationType }}">
                 <div style="font-size: 14px; opacity: 0.9;">Total {{ $label }}</div>
-                <div class="amount">Rp {{ number_format($transaksi->total ?? 0, 0, ',', '.') }}</div>
+                <div class="amount">Rp {{ number_format($transaksi->grand_total ?? 0, 0, ',', '.') }}</div>
             </div>
         @endif
 
