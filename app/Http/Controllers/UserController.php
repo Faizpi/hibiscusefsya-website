@@ -145,6 +145,18 @@ class UserController extends Controller
             return redirect()->route('users.index')->with('error', 'Anda tidak memiliki izin untuk menghapus Super Admin.');
         }
 
+        // Cek apakah user punya transaksi (penjualan, pembelian, kunjungan)
+        $penjualanCount = \App\Penjualan::where('user_id', $user->id)->count();
+        $pembelianCount = \App\Pembelian::where('user_id', $user->id)->count();
+        $kunjunganCount = \App\Kunjungan::where('user_id', $user->id)->count();
+
+        if ($penjualanCount > 0 || $pembelianCount > 0 || $kunjunganCount > 0) {
+            return redirect()->route('users.index')->with('error', 
+                'Tidak dapat menghapus user karena masih memiliki transaksi. ' .
+                'Penjualan: ' . $penjualanCount . ', Pembelian: ' . $pembelianCount . ', Kunjungan: ' . $kunjunganCount
+            );
+        }
+
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
