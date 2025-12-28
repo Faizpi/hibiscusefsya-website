@@ -713,6 +713,100 @@ class BluetoothThermalPrinter {
         return parts;
     }
 
+    // Build receipt content for Kunjungan
+    async buildKunjunganReceipt(data, options = {}) {
+        const printLogo = options.printLogo !== false;
+        const printQR = options.printQR !== false;
+        // Use absolute URL for logo to ensure it loads correctly
+        const baseUrl = window.location.origin;
+        const logoUrl = options.logoUrl || (baseUrl + '/assets/img/logoHE1.png');
+        const qrData = options.qrUrl || data.invoice_url || '';
+        
+        let parts = [];
+        
+        // Reset printer
+        parts.push({ type: 'text', data: this.COMMANDS.RESET });
+        
+        // Logo - ALIGN_CENTER langsung sebelum image!
+        if (printLogo) {
+            try {
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
+                const logoData = await this.loadImageAsBitmap(logoUrl, 200);
+                parts.push({ type: 'image', data: logoData });
+                parts.push({ type: 'text', data: '\n' });
+            } catch (e) {
+                console.warn('Could not load logo:', e);
+            }
+        }
+        
+        let header = this.COMMANDS.ALIGN_CENTER;
+        header += this.COMMANDS.BOLD_ON + 'HIBISCUS EFSYA\n' + this.COMMANDS.BOLD_OFF;
+        header += 'LAPORAN KUNJUNGAN\n';
+        header += this.COMMANDS.ALIGN_LEFT + '\n';
+        
+        let body = '';
+        body += this.formatInfoRow('Nomor', data.nomor);
+        body += this.formatInfoRow('Tanggal', data.tanggal);
+        body += this.formatInfoRow('Waktu', data.waktu);
+        body += this.formatInfoRow('Tujuan', data.tujuan);
+        
+        body += this.divider();
+        
+        body += this.COMMANDS.BOLD_ON + 'DATA KONTAK\n' + this.COMMANDS.BOLD_OFF;
+        body += this.formatInfoRow('Nama', data.sales_nama);
+        body += this.formatInfoRow('Email', data.sales_email);
+        body += this.formatInfoRow('Alamat', data.sales_alamat);
+        
+        body += this.divider();
+        
+        body += this.formatInfoRow('Pembuat', data.pembuat);
+        body += this.formatInfoRow('Disetujui', data.approver);
+        body += this.formatInfoRow('Gudang', data.gudang);
+        body += this.formatInfoRow('Status', data.status);
+        
+        if (data.koordinat && data.koordinat !== '-') {
+            body += this.formatInfoRow('Koordinat', data.koordinat);
+        }
+        
+        if (data.memo && data.memo !== '-') {
+            body += this.divider();
+            body += this.COMMANDS.BOLD_ON + 'MEMO:\n' + this.COMMANDS.BOLD_OFF;
+            body += data.memo + '\n';
+        }
+        
+        let footer = '\n' + this.divider('=');
+        
+        parts.push({ type: 'text', data: header + body + footer });
+        
+        // Print QR Code as IMAGE - ALIGN_CENTER langsung sebelum image!
+        if (printQR && qrData) {
+            try {
+                parts.push({ type: 'text', data: '\nScan untuk lihat laporan:\n' });
+                
+                // PENTING: ALIGN_CENTER langsung sebelum QR image
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
+                
+                const qrImage = await this.generateQRCode(qrData, 150);
+                parts.push({ type: 'image', data: qrImage });
+                
+                const shortCode = this.extractShortCode(qrData);
+                parts.push({ type: 'text', data: '\nID: ' + shortCode + '\n' });
+            } catch (e) {
+                console.warn('QR image failed:', e);
+                parts.push({ type: 'text', data: '\n' + qrData + '\n' });
+            }
+        }
+        
+        let finalFooter = '\n' + this.COMMANDS.ALIGN_CENTER;
+        finalFooter += 'marketing@hibiscusefsya.com\n';
+        finalFooter += '-- Dokumen Internal --\n';
+        finalFooter += '\n\n\n\n';
+        
+        parts.push({ type: 'text', data: finalFooter });
+        
+        return parts;
+    }
+
     // Connect to Bluetooth printer
     async connect() {
         if (!navigator.bluetooth) {
@@ -909,6 +1003,9 @@ async function printViaBluetooth(button, type, jsonUrl, options = {}) {
                 break;
             case 'biaya':
                 parts = await window.BluetoothPrinter.buildBiayaReceipt(data, options);
+                break;
+            case 'kunjungan':
+                parts = await window.BluetoothPrinter.buildKunjunganReceipt(data, options);
                 break;
             default:
                 throw new Error('Tipe tidak dikenali: ' + type);
