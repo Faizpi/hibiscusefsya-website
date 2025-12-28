@@ -294,6 +294,8 @@
 @endsection
 
 @push('scripts')
+    <!-- Include Bluetooth Print JS -->
+    <script src="{{ asset('js/bluetooth-print.js') }}"></script>
     <script>
         function copyPublicUrl() {
             var copyText = document.getElementById("publicUrlInput");
@@ -302,5 +304,13 @@
             document.execCommand("copy");
             alert("Link berhasil disalin!");
         }
+
+        // Bluetooth Print Function (using new client-side solution)
+        document.getElementById('printBluetooth')?.addEventListener('click', function () {
+            const type = this.dataset.type;
+            const jsonUrl = this.dataset.url;
+            // Disable QR & Logo - printer BLE sering glitch dengan image
+            printViaBluetooth(this, type, jsonUrl, { printLogo: false, printQR: false });
+        });
     </script>
 @endpush
