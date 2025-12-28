@@ -295,7 +295,7 @@
 
 @push('scripts')
     <!-- Include Bluetooth Print JS -->
-    <script src="{{ asset('js/bluetooth-print.js') }}"></script>
+    <script src="{{ asset('js/bluetooth-print.js') }}?v={{ time() }}"></script>
     <script>
         function copyPublicUrl() {
             var copyText = document.getElementById("publicUrlInput");
