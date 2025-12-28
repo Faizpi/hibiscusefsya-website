@@ -88,6 +88,11 @@
 
                         <div class="col-md-4">
                             <div class="form-group">
+                                <label for="no_transaksi">No Transaksi (Preview)</label>
+                                <input type="text" class="form-control bg-light text-primary font-weight-bold" id="no_transaksi" value="{{ $previewNomor ?? '[Auto]' }}" readonly>
+                                <small class="text-muted">Nomor invoice yang akan digenerate</small>
+                            </div>
+                            <div class="form-group">
                                 <label for="urgensi">Urgensi *</label>
                                 <select class="form-control @error('urgensi') is-invalid @enderror" id="urgensi"
                                     name="urgensi" required>
@@ -296,8 +301,14 @@
                                 <label for="lampiran">Lampiran</label>
                                 <div class="custom-file">
                                     <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror"
-                                        id="lampiran" name="lampiran">
+                                        id="lampiran" name="lampiran" data-preview-nomor="{{ $previewNomor ?? '' }}">
                                     <label class="custom-file-label" for="lampiran">Pilih file...</label>
+                                </div>
+                                <div id="lampiran-feedback" class="mt-2" style="display: none;">
+                                    <div class="alert alert-info py-2 mb-0">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        <small>File akan disimpan sebagai: <strong id="lampiran-preview-name"></strong></small>
+                                    </div>
                                 </div>
                                 @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
@@ -794,6 +805,33 @@
             // Auto-get location saat halaman load
             if (!koordinatInput.value) {
                 getLocation();
+            }
+
+            // Lampiran upload feedback
+            const lampiranInput = document.getElementById('lampiran');
+            const lampiranFeedback = document.getElementById('lampiran-feedback');
+            const lampiranPreviewName = document.getElementById('lampiran-preview-name');
+            const previewNomor = lampiranInput ? lampiranInput.dataset.previewNomor : '';
+
+            if (lampiranInput) {
+                lampiranInput.addEventListener('change', function() {
+                    if (this.files && this.files.length > 0) {
+                        const file = this.files[0];
+                        const extension = file.name.split('.').pop().toLowerCase();
+                        const expectedFilename = previewNomor + '.' + extension;
+                        
+                        lampiranPreviewName.textContent = expectedFilename;
+                        lampiranFeedback.style.display = 'block';
+                        
+                        // Update custom file label
+                        const label = this.nextElementSibling;
+                        if (label) {
+                            label.textContent = file.name;
+                        }
+                    } else {
+                        lampiranFeedback.style.display = 'none';
+                    }
+                });
             }
         });
     </script>

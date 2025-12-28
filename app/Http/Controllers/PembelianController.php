@@ -117,7 +117,14 @@ class PembelianController extends Controller
                 });
         }
 
-        return view('pembelian.create', compact('produks', 'gudangs', 'gudangProduks'));
+        // Generate preview nomor invoice
+        $countToday = Pembelian::where('user_id', Auth::id())
+            ->whereDate('created_at', Carbon::today())
+            ->count();
+        $noUrut = $countToday + 1;
+        $previewNomor = Pembelian::generateNomor(Auth::id(), $noUrut, Carbon::now());
+
+        return view('pembelian.create', compact('produks', 'gudangs', 'gudangProduks', 'previewNomor'));
     }
 
     public function store(Request $request)

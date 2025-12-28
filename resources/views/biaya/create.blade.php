@@ -141,8 +141,9 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>No Biaya</label>
-                                        <input type="text" class="form-control" placeholder="[Auto Generated]" disabled>
+                                        <label>No Biaya (Preview)</label>
+                                        <input type="text" class="form-control bg-light text-primary font-weight-bold" value="{{ $previewNomor ?? '[Auto]' }}" readonly>
+                                        <small class="text-muted">Nomor yang akan digenerate</small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -240,8 +241,14 @@
                                 <label for="lampiran">Lampiran</label>
                                 <div class="custom-file">
                                     <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror"
-                                        id="lampiran" name="lampiran">
+                                        id="lampiran" name="lampiran" data-preview-nomor="{{ $previewNomor ?? '' }}">
                                     <label class="custom-file-label" for="lampiran">Pilih file...</label>
+                                </div>
+                                <div id="lampiran-feedback" class="mt-2" style="display: none;">
+                                    <div class="alert alert-info py-2 mb-0">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        <small>File akan disimpan sebagai: <strong id="lampiran-preview-name"></strong></small>
+                                    </div>
                                 </div>
                                 @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
@@ -501,6 +508,33 @@
             // Auto-get location saat halaman load
             if (!koordinatInput.value) {
                 getLocation();
+            }
+
+            // Lampiran upload feedback
+            const lampiranInput = document.getElementById('lampiran');
+            const lampiranFeedback = document.getElementById('lampiran-feedback');
+            const lampiranPreviewName = document.getElementById('lampiran-preview-name');
+            const previewNomor = lampiranInput ? lampiranInput.dataset.previewNomor : '';
+
+            if (lampiranInput) {
+                lampiranInput.addEventListener('change', function() {
+                    if (this.files && this.files.length > 0) {
+                        const file = this.files[0];
+                        const extension = file.name.split('.').pop().toLowerCase();
+                        const expectedFilename = previewNomor + '.' + extension;
+                        
+                        lampiranPreviewName.textContent = expectedFilename;
+                        lampiranFeedback.style.display = 'block';
+                        
+                        // Update custom file label
+                        const label = this.nextElementSibling;
+                        if (label) {
+                            label.textContent = file.name;
+                        }
+                    } else {
+                        lampiranFeedback.style.display = 'none';
+                    }
+                });
             }
         });
     </script>

@@ -127,7 +127,14 @@ class PenjualanController extends Controller
 
         $kontaks = Kontak::all();
 
-        return view('penjualan.create', compact('produks', 'gudangs', 'kontaks', 'gudangProduks'));
+        // Generate preview nomor invoice
+        $countToday = Penjualan::where('user_id', Auth::id())
+            ->whereDate('created_at', Carbon::today())
+            ->count();
+        $noUrut = $countToday + 1;
+        $previewNomor = Penjualan::generateNomor(Auth::id(), $noUrut, Carbon::now());
+
+        return view('penjualan.create', compact('produks', 'gudangs', 'kontaks', 'gudangProduks', 'previewNomor'));
     }
 
     public function store(Request $request)

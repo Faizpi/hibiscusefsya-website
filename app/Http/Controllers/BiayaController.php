@@ -94,7 +94,14 @@ class BiayaController extends Controller
         // Tidak perlu lagi, approver otomatis ditentukan di backend
         // $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
 
-        return view('biaya.create', compact('kontaks'));
+        // Generate preview nomor invoice
+        $countToday = Biaya::where('user_id', Auth::id())
+            ->whereDate('created_at', Carbon::today())
+            ->count();
+        $noUrut = $countToday + 1;
+        $previewNomor = Biaya::generateNomor(Auth::id(), $noUrut, Carbon::now());
+
+        return view('biaya.create', compact('kontaks', 'previewNomor'));
     }
 
     public function store(Request $request)

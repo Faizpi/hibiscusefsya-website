@@ -106,7 +106,14 @@ class KunjunganController extends Controller
             })->get();
         }
 
-        return view('kunjungan.create', compact('kontaks', 'gudang', 'produks'));
+        // Generate preview nomor kunjungan
+        $countToday = Kunjungan::where('user_id', Auth::id())
+            ->whereDate('created_at', Carbon::today())
+            ->count();
+        $noUrut = $countToday + 1;
+        $previewNomor = Kunjungan::generateNomor(Auth::id(), $noUrut, Carbon::now());
+
+        return view('kunjungan.create', compact('kontaks', 'gudang', 'produks', 'previewNomor'));
     }
 
     /**
