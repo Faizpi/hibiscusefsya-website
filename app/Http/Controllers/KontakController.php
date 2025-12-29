@@ -69,18 +69,18 @@ class KontakController extends Controller
 
     public function edit(Kontak $kontak)
     {
-        // Spectator tidak bisa edit kontak
-        if (Auth::user()->role === 'spectator') {
-            return redirect()->route('kontak.index')->with('error', 'Spectator tidak memiliki akses untuk mengubah data.');
+        // Hanya super_admin yang bisa edit kontak
+        if (Auth::user()->role !== 'super_admin') {
+            return redirect()->route('kontak.index')->with('error', 'Hanya Super Admin yang dapat mengubah data kontak.');
         }
         return view('kontak.edit', compact('kontak'));
     }
 
     public function update(Request $request, Kontak $kontak)
     {
-        // Spectator tidak bisa update kontak
-        if (Auth::user()->role === 'spectator') {
-            return redirect()->route('kontak.index')->with('error', 'Spectator tidak memiliki akses untuk mengubah data.');
+        // Hanya super_admin yang bisa update kontak
+        if (Auth::user()->role !== 'super_admin') {
+            return redirect()->route('kontak.index')->with('error', 'Hanya Super Admin yang dapat mengubah data kontak.');
         }
 
         $request->validate([
@@ -98,9 +98,9 @@ class KontakController extends Controller
 
     public function destroy(Kontak $kontak)
     {
-        // Spectator tidak bisa hapus kontak
-        if (Auth::user()->role === 'spectator') {
-            return redirect()->route('kontak.index')->with('error', 'Spectator tidak memiliki akses untuk menghapus data.');
+        // Hanya super_admin yang bisa hapus kontak
+        if (Auth::user()->role !== 'super_admin') {
+            return redirect()->route('kontak.index')->with('error', 'Hanya Super Admin yang dapat menghapus data kontak.');
         }
 
         // TODO: Cek dulu apakah kontak ini dipakai di transaksi
