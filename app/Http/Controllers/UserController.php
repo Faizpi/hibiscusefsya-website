@@ -11,12 +11,29 @@ use Illuminate\Validation\Rule;
 class UserController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('gudang', 'gudangs', 'spectatorGudangs')
-            ->orderByRaw("FIELD(role, 'super_admin','spectator','admin','user')")
+        $query = User::with('gudang', 'gudangs', 'spectatorGudangs');
+
+        // Filter by role
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        // Search by name or email
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $users */
+        $users = $query->orderByRaw("FIELD(role, 'super_admin','spectator','admin','user')")
             ->orderBy('name')
-            ->get();
+            ->paginate(12);
+
         return view('users.index', compact('users'));
     }
 

@@ -15,9 +15,24 @@ class KontakController extends Controller
         $this->middleware('role:admin');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $kontaks = Kontak::all();
+        $query = Kontak::query();
+
+        // Search by kode_kontak, nama, email, or no_telp
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('kode_kontak', 'like', "%{$search}%")
+                    ->orWhere('nama', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('no_telp', 'like', "%{$search}%");
+            });
+        }
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $kontaks */
+        $kontaks = $query->orderBy('nama')->paginate(12);
+
         return view('kontak.index', compact('kontaks'));
     }
 

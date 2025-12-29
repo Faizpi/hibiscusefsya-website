@@ -16,8 +16,20 @@
         @endif
 
         <div class="card shadow mb-4">
-            <div class="card-header py-3">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Daftar Kontak</h6>
+                <form method="GET" class="d-flex">
+                    <input type="text" name="search" class="form-control form-control-sm mr-2" 
+                           placeholder="Cari kode/nama/email/telp..." value="{{ request('search') }}" style="width: 220px;">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    @if(request('search'))
+                        <a href="{{ route('kontak.index') }}" class="btn btn-sm btn-outline-secondary ml-1" title="Reset">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    @endif
+                </form>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -80,6 +92,11 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                {{-- Pagination --}}
+                <div class="d-flex justify-content-center mt-3">
+                    {{ $kontaks->appends(request()->query())->links() }}
                 </div>
             </div>
         </div>

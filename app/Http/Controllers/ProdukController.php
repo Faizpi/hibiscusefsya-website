@@ -15,9 +15,22 @@ class ProdukController extends Controller
         $this->middleware('role:admin');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $produks = Produk::all();
+        $query = Produk::query();
+
+        // Search by item_code or nama_produk
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('item_code', 'like', "%{$search}%")
+                    ->orWhere('nama_produk', 'like', "%{$search}%");
+            });
+        }
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $produks */
+        $produks = $query->orderBy('nama_produk')->paginate(12);
+
         return view('produk.index', compact('produks'));
     }
 

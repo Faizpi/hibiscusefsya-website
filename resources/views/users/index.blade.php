@@ -27,28 +27,37 @@
                 <h6 class="m-0 font-weight-bold text-primary">Daftar User</h6>
             </div>
             <div class="card-body">
-                {{-- Filter & Search --}}
-                <div class="row mb-3">
+                {{-- Filter & Search (Server-side) --}}
+                <form method="GET" class="row mb-3">
                     <div class="col-md-4 mb-2">
                         <label class="small text-muted mb-1">Filter Role</label>
-                        <select class="form-control form-control-sm" id="roleFilter">
+                        <select name="role" class="form-control form-control-sm" onchange="this.form.submit()">
                             <option value="">Semua Role</option>
-                            <option value="super_admin">Super Admin</option>
-                            <option value="admin">Admin</option>
-                            <option value="spectator">Spectator</option>
-                            <option value="user">User</option>
+                            <option value="super_admin" {{ request('role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                            <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="spectator" {{ request('role') == 'spectator' ? 'selected' : '' }}>Spectator</option>
+                            <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>User</option>
                         </select>
                     </div>
                     <div class="col-md-4 mb-2">
                         <label class="small text-muted mb-1">Cari</label>
-                        <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Cari nama atau email...">
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="search" class="form-control" placeholder="Cari nama atau email..." value="{{ request('search') }}">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-4 mb-2 d-flex align-items-end">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" id="resetFilter">
-                            <i class="fas fa-sync-alt mr-1"></i> Reset Filter
-                        </button>
+                        @if(request('role') || request('search'))
+                            <a href="{{ route('users.index') }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-times mr-1"></i> Reset Filter
+                            </a>
+                        @endif
                     </div>
-                </div>
+                </form>
 
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover" id="userTable" width="100%" cellspacing="0">
@@ -168,12 +177,16 @@
                 
                 {{-- Summary --}}
                 <div class="row mt-3">
-                    <div class="col-12">
+                    <div class="col-12 d-flex justify-content-between align-items-center">
                         <small class="text-muted">
-                            Total: <strong id="totalCount">{{ $users->count() }}</strong> user
-                            <span id="filteredInfo"></span>
+                            Menampilkan {{ $users->firstItem() ?? 0 }} - {{ $users->lastItem() ?? 0 }} dari {{ $users->total() }} user
                         </small>
                     </div>
+                </div>
+
+                {{-- Pagination --}}
+                <div class="d-flex justify-content-center mt-3">
+                    {{ $users->appends(request()->query())->links() }}
                 </div>
             </div>
         </div>
@@ -217,47 +230,6 @@
                 var modal = $(this);
                 modal.find('#deleteForm').attr('action', action);
                 modal.find('#deleteUserName').text(name);
-            });
-
-            // Filter and Search
-            function filterTable() {
-                var roleFilter = $('#roleFilter').val().toLowerCase();
-                var searchText = $('#searchInput').val().toLowerCase();
-                var visibleCount = 0;
-                var totalCount = $('#userTable tbody tr').length;
-
-                $('#userTable tbody tr').each(function() {
-                    var row = $(this);
-                    var role = row.data('role') ? row.data('role').toLowerCase() : '';
-                    var name = row.find('td:eq(0)').text().toLowerCase();
-                    var email = row.find('td:eq(1)').text().toLowerCase();
-
-                    var roleMatch = !roleFilter || role === roleFilter;
-                    var searchMatch = !searchText || name.indexOf(searchText) > -1 || email.indexOf(searchText) > -1;
-
-                    if (roleMatch && searchMatch) {
-                        row.show();
-                        visibleCount++;
-                    } else {
-                        row.hide();
-                    }
-                });
-
-                // Update count
-                if (roleFilter || searchText) {
-                    $('#filteredInfo').text(' (menampilkan ' + visibleCount + ' dari ' + totalCount + ')');
-                } else {
-                    $('#filteredInfo').text('');
-                }
-            }
-
-            $('#roleFilter').on('change', filterTable);
-            $('#searchInput').on('keyup', filterTable);
-            
-            $('#resetFilter').on('click', function() {
-                $('#roleFilter').val('');
-                $('#searchInput').val('');
-                filterTable();
             });
         });
     </script>
