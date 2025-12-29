@@ -142,7 +142,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>No Biaya (Preview)</label>
-                                        <input type="text" class="form-control bg-light text-primary font-weight-bold" value="{{ $previewNomor ?? '[Auto]' }}" readonly>
+                                        <input type="text" class="form-control bg-light text-primary font-weight-bold"
+                                            value="{{ $previewNomor ?? '[Auto]' }}" readonly>
                                         <small class="text-muted">Nomor yang akan digenerate</small>
                                     </div>
                                 </div>
@@ -247,7 +248,8 @@
                                 <div id="lampiran-feedback" class="mt-2" style="display: none;">
                                     <div class="alert alert-info py-2 mb-0">
                                         <i class="fas fa-info-circle mr-1"></i>
-                                        <small>File akan disimpan sebagai: <strong id="lampiran-preview-name"></strong></small>
+                                        <small>File akan disimpan sebagai: <strong
+                                                id="lampiran-preview-name"></strong></small>
                                     </div>
                                 </div>
                                 @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
@@ -362,29 +364,29 @@
                     card.className = 'product-card-mobile';
                     card.dataset.rowIndex = index;
                     card.innerHTML = `
-                            <div class="card-header-mobile">
-                                <span class="item-number">Item ${index + 1}</span>
-                                ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
-                            </div>
-                            <div class="card-body-mobile">
-                                <div class="field-group full-width">
-                                    <span class="field-label">Akun Biaya</span>
-                                    <input type="text" class="form-control kategori-mobile" data-row="${index}" value="${kategori}" placeholder="Contoh: Biaya Listrik">
+                                <div class="card-header-mobile">
+                                    <span class="item-number">Item ${index + 1}</span>
+                                    ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
                                 </div>
-                                <div class="field-group full-width">
-                                    <span class="field-label">Deskripsi</span>
-                                    <input type="text" class="form-control deskripsi-mobile" data-row="${index}" value="${deskripsi}" placeholder="Deskripsi">
+                                <div class="card-body-mobile">
+                                    <div class="field-group full-width">
+                                        <span class="field-label">Akun Biaya</span>
+                                        <input type="text" class="form-control kategori-mobile" data-row="${index}" value="${kategori}" placeholder="Contoh: Biaya Listrik">
+                                    </div>
+                                    <div class="field-group full-width">
+                                        <span class="field-label">Deskripsi</span>
+                                        <input type="text" class="form-control deskripsi-mobile" data-row="${index}" value="${deskripsi}" placeholder="Deskripsi">
+                                    </div>
+                                    <div class="field-group full-width">
+                                        <span class="field-label">Jumlah</span>
+                                        <input type="number" class="form-control text-right jumlah-mobile" data-row="${index}" value="${jumlah}">
+                                    </div>
                                 </div>
-                                <div class="field-group full-width">
-                                    <span class="field-label">Jumlah</span>
-                                    <input type="number" class="form-control text-right jumlah-mobile" data-row="${index}" value="${jumlah}">
+                                <div class="total-row">
+                                    <span class="total-label">Jumlah</span>
+                                    <span class="total-value">${formatRupiah(jumlah)}</span>
                                 </div>
-                            </div>
-                            <div class="total-row">
-                                <span class="total-label">Jumlah</span>
-                                <span class="total-value">${formatRupiah(jumlah)}</span>
-                            </div>
-                        `;
+                            `;
                     mobileCardsContainer.appendChild(card);
                 });
             }
@@ -432,11 +434,11 @@
             addRowBtn.addEventListener('click', function () {
                 const newRow = tableBody.insertRow();
                 newRow.innerHTML = `
-                        <td><input type="text" class="form-control" name="kategori[]" placeholder="Contoh: Biaya Listrik"></td>
-                        <td><input type="text" class="form-control" name="deskripsi_akun[]"></td>
-                        <td><input type="number" class="form-control text-right expense-amount" name="total[]" value="0" required></td>
-                        <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
-                    `;
+                            <td><input type="text" class="form-control" name="kategori[]" placeholder="Contoh: Biaya Listrik"></td>
+                            <td><input type="text" class="form-control" name="deskripsi_akun[]"></td>
+                            <td><input type="number" class="form-control text-right expense-amount" name="total[]" value="0" required></td>
+                            <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
+                        `;
                 syncMobileCards();
             });
 
@@ -517,15 +519,15 @@
             const previewNomor = lampiranInput ? lampiranInput.dataset.previewNomor : '';
 
             if (lampiranInput) {
-                lampiranInput.addEventListener('change', function() {
+                lampiranInput.addEventListener('change', function () {
                     if (this.files && this.files.length > 0) {
                         const file = this.files[0];
                         const extension = file.name.split('.').pop().toLowerCase();
                         const expectedFilename = previewNomor + '.' + extension;
-                        
+
                         lampiranPreviewName.textContent = expectedFilename;
                         lampiranFeedback.style.display = 'block';
-                        
+
                         // Update custom file label
                         const label = this.nextElementSibling;
                         if (label) {

@@ -4,9 +4,14 @@
 <head>
     <meta charset="UTF-8">
     @php
+        use Milon\Barcode\DNS1D;
         $itemKode = $produk->item_kode ?? $produk->item_code ?? 'PRD' . $produk->id;
         $itemNama = $produk->item_nama ?? $produk->nama_produk;
-        $barcodeUrl = 'https://barcodeapi.org/api/128/' . urlencode($itemKode);
+        $eanData = preg_replace('/\D/', '', $itemKode);
+        $dns1d = new DNS1D();
+        $barcodeSvg = (strlen($eanData) === 12 || strlen($eanData) === 13)
+            ? $dns1d->getBarcodeSVG($eanData, 'EAN13', 2, 80, 'black', false)
+            : null;
         $qrData = "PRODUK\nKode: {$itemKode}\nNama: {$itemNama}\nHarga: Rp " . number_format($produk->harga ?? 0, 0, ',', '.');
         $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . urlencode($qrData);
     @endphp
@@ -74,7 +79,7 @@
             padding: 20px 0;
         }
 
-        .barcode-section img {
+        .barcode-section svg {
             max-width: 80%;
             height: auto;
             max-height: 80px;
@@ -163,7 +168,15 @@
         </div>
 
         <div class="barcode-section">
-            <img src="{{ $barcodeUrl }}" alt="Barcode">
+            @if($barcodeSvg)
+                <div style="background:#fff;padding:10px;display:inline-block;">
+                    {!! $barcodeSvg !!}
+                </div>
+            @else
+                <div class="alert alert-warning" style="display:inline-block;">
+                    Barcode EAN-13 hanya untuk kode numerik 12/13 digit.
+                </div>
+            @endif
             <div class="code">{{ $itemKode }}</div>
             <div class="nama">{{ $itemNama }}</div>
             <div class="harga">Rp {{ number_format($produk->harga ?? 0, 0, ',', '.') }}</div>

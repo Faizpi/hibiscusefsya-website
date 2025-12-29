@@ -132,11 +132,27 @@
                     </div>
                     <div class="card-body text-center">
                         @php
+                            use Milon\Barcode\DNS1D;
                             $itemKode = $produk->item_kode ?? $produk->item_code ?? 'PRD' . $produk->id;
-                            $barcodeUrl = 'https://barcodeapi.org/api/128/' . urlencode($itemKode);
+                            // Normalisasi hanya digit untuk EAN-13
+                            $eanData = preg_replace('/\D/', '', $itemKode);
+                            // Library EAN13 menerima 12 atau 13 digit (12 = auto checksum)
+                            $barcodeSvg = null;
+                            if (strlen($eanData) === 12 || strlen($eanData) === 13) {
+                                // Scale minimal 2, tinggi 80 untuk keterbacaan; showCode=false (kita tampilkan teks terpisah)
+                                $dns1d = new DNS1D();
+                                $barcodeSvg = $dns1d->getBarcodeSVG($eanData, 'EAN13', 2, 80, 'black', false);
+                            }
                         @endphp
-                        <img src="{{ $barcodeUrl }}" alt="Barcode {{ $itemKode }}" class="img-fluid mb-3"
-                            style="max-width: 250px;">
+                        @if($barcodeSvg)
+                            <div class="d-inline-block bg-white" style="padding:10px;">
+                                {!! $barcodeSvg !!}
+                            </div>
+                        @else
+                            <div class="alert alert-warning p-2">
+                                <small>Barcode EAN-13 hanya untuk kode numerik 12/13 digit. Kode saat ini: {{ $itemKode }}</small>
+                            </div>
+                        @endif
                         <p class="font-weight-bold mb-1">{{ $itemKode }}</p>
                         <small class="text-muted">{{ $produk->item_nama ?? $produk->nama_produk }}</small>
 
