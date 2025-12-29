@@ -36,8 +36,8 @@
     </div>
 </div>
 
-{{-- Libraries: ZXing for EAN-13, HTML5-QR for QR fallback --}}
-<script src="https://unpkg.com/@zxing/library@0.20.0"></script>
+{{-- Libraries: ZXing (UMD) for EAN-13, HTML5-QR for QR fallback --}}
+<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <script>
@@ -123,14 +123,28 @@
 
     let zxingReader = null;
     function startZxingScanner() {
-        // Inisialisasi ZXing untuk EAN-13
+        // Inisialisasi ZXing untuk EAN-13 dengan pengecekan lingkungan
         try {
-            zxingReader = new ZXing.BrowserMultiFormatReader();
+            if (!window.isSecureContext) {
+                document.getElementById('error-text').textContent = 'Scanner membutuhkan HTTPS. Buka halaman ini via https:// dan beri izin kamera.';
+                document.getElementById('scanner-error').style.display = 'block';
+                return;
+            }
+
+            if (!window.ZXing || !ZXing.BrowserMultiFormatReader) {
+                document.getElementById('error-text').textContent = 'Library ZXing tidak termuat. Periksa koneksi internet atau blokir CSP.';
+                document.getElementById('scanner-error').style.display = 'block';
+                return;
+            }
+
+            // Batasi ke format EAN-13 saja untuk akurasi
+            const hints = new Map();
+            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.EAN_13]);
+
+            zxingReader = new ZXing.BrowserMultiFormatReader(hints);
+
             zxingReader.listVideoInputDevices().then(devices => {
-                const camera = devices[0] ? devices[0].deviceId : undefined;
-                // Hints: fokus ke EAN_13
-                const hints = new ZXing.Hints();
-                hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.EAN_13]);
+                const camera = devices && devices.length > 0 ? devices[0].deviceId : undefined; // default camera
                 zxingReader.decodeFromVideoDevice(camera, 'reader', (result, err) => {
                     if (result) {
                         onScanSuccess(result.getText(), result);
@@ -138,12 +152,12 @@
                 });
             }).catch(err => {
                 console.error('ZXing init error', err);
-                document.getElementById('error-text').textContent = 'Tidak dapat memulai scanner EAN-13.';
+                document.getElementById('error-text').textContent = 'Tidak dapat memulai scanner EAN-13. Pastikan izin kamera diberikan.';
                 document.getElementById('scanner-error').style.display = 'block';
             });
         } catch (e) {
             console.error('ZXing error', e);
-            document.getElementById('error-text').textContent = 'Scanner EAN-13 tidak tersedia di browser ini.';
+            document.getElementById('error-text').textContent = 'Scanner EAN-13 tidak tersedia atau gagal diinisialisasi di browser ini.';
             document.getElementById('scanner-error').style.display = 'block';
         }
     }
