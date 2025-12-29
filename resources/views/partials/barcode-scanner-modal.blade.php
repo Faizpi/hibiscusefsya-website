@@ -16,10 +16,8 @@
                     <small class="text-muted">Arahkan kamera ke barcode atau QR code</small>
                 </div>
                 <div id="scanner-container">
-                    {{-- Untuk HTML5-QRCode (kontak) --}}
-                    <div id="reader" style="width: 100%; display: none;"></div>
-                    {{-- Untuk ZXing (produk EAN-13) --}}
-                    <video id="zxing-video" style="width: 100%; border-radius: 8px; display: none;"></video>
+                    {{-- Untuk HTML5-QRCode (semua jenis barcode) --}}
+                    <div id="reader" style="width: 100%;"></div>
                 </div>
                 <div id="scanner-loading" class="text-center py-4" style="display: none;">
                     <div class="spinner-border text-primary" role="status">
@@ -45,8 +43,7 @@
     </div>
 </div>
 
-{{-- Libraries: ZXing (UMD) for EAN-13, HTML5-QR for QR fallback --}}
-<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+{{-- Libraries: HTML5-QRCode supports both QR and 1D barcodes including EAN-13 --}}
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <script>
@@ -104,140 +101,82 @@
 
     function startScanner() {
         // Reset tampilan
-        document.getElementById('reader').style.display = 'none';
-        document.getElementById('zxing-video').style.display = 'none';
         document.getElementById('scanner-loading').style.display = 'block';
         document.getElementById('scanner-error').style.display = 'none';
         document.getElementById('scanner-result').style.display = 'none';
 
-        // Produk: gunakan ZXing untuk EAN-13
-        if (currentScanTarget === 'produk') {
-            startZxingScanner();
-        } else {
-            // Kontak: tetap gunakan QR scanner
-            startQrScanner();
-        }
-    }
-
-    function startQrScanner() {
+        // Stop scanner lama jika ada
         if (html5QrCode) {
             stopScanner();
         }
 
-        // Tampilkan reader div untuk HTML5-QRCode
-        document.getElementById('reader').style.display = 'block';
-        document.getElementById('scanner-loading').style.display = 'none';
-
+        // Gunakan HTML5-QRCode untuk semua jenis barcode
+        // Library ini mendukung QR Code dan 1D barcodes (EAN-13, EAN-8, UPC-A, Code128, dll)
         html5QrCode = new Html5Qrcode("reader");
-        const config = { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
+
+        // Konfigurasi berbeda untuk produk (barcode 1D) vs kontak (QR)
+        let config;
+        if (currentScanTarget === 'produk') {
+            // Untuk barcode 1D: area scan lebih lebar horizontal
+            config = {
+                fps: 10,
+                qrbox: { width: 300, height: 100 },
+                aspectRatio: 1.5,
+                formatsToSupport: [
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.UPC_A,
+                    Html5QrcodeSupportedFormats.UPC_E,
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.CODE_39
+                ]
+            };
+        } else {
+            // Untuk QR Code: area scan kotak
+            config = {
+                fps: 10,
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0,
+                formatsToSupport: [
+                    Html5QrcodeSupportedFormats.QR_CODE
+                ]
+            };
+        }
+
         html5QrCode.start(
             { facingMode: "environment" },
             config,
             onScanSuccess,
             onScanFailure
-        ).catch(err => {
+        ).then(() => {
+            document.getElementById('scanner-loading').style.display = 'none';
+        }).catch(err => {
             console.error("Scanner error:", err);
-            document.getElementById('error-text').textContent = 'Tidak dapat mengakses kamera. Pastikan browser memiliki izin kamera.';
+            document.getElementById('scanner-loading').style.display = 'none';
+            let msg = 'Tidak dapat mengakses kamera.';
+            if (err.name === 'NotAllowedError' || err.message.includes('Permission')) {
+                msg = 'Izin kamera ditolak. Silakan izinkan akses kamera di browser.';
+            } else if (err.name === 'NotFoundError') {
+                msg = 'Kamera tidak ditemukan di perangkat ini.';
+            } else if (err.name === 'NotReadableError') {
+                msg = 'Kamera sedang digunakan aplikasi lain.';
+            }
+            document.getElementById('error-text').textContent = msg;
             document.getElementById('scanner-error').style.display = 'block';
         });
     }
 
-    let zxingReader = null;
-    let zxingControls = null;
-    function startZxingScanner() {
-        // Inisialisasi ZXing untuk EAN-13 dengan pengecekan lingkungan
-        const videoElem = document.getElementById('zxing-video');
-
-        try {
-            // Cek secure context (HTTPS atau localhost)
-            if (!window.isSecureContext) {
-                document.getElementById('scanner-loading').style.display = 'none';
-                document.getElementById('error-text').textContent = 'Scanner membutuhkan HTTPS. Buka halaman ini via https:// dan beri izin kamera.';
-                document.getElementById('scanner-error').style.display = 'block';
-                return;
-            }
-
-            // Cek library ZXing termuat
-            if (typeof ZXing === 'undefined' || !ZXing.BrowserMultiFormatReader) {
-                document.getElementById('scanner-loading').style.display = 'none';
-                document.getElementById('error-text').textContent = 'Library ZXing tidak termuat. Periksa koneksi internet.';
-                document.getElementById('scanner-error').style.display = 'block';
-                return;
-            }
-
-            // Batasi ke format barcode retail (EAN-13, EAN-8, UPC-A, UPC-E, Code128)
-            const hints = new Map();
-            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-                ZXing.BarcodeFormat.EAN_13,
-                ZXing.BarcodeFormat.EAN_8,
-                ZXing.BarcodeFormat.UPC_A,
-                ZXing.BarcodeFormat.UPC_E,
-                ZXing.BarcodeFormat.CODE_128
-            ]);
-            hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-
-            zxingReader = new ZXing.BrowserMultiFormatReader(hints);
-
-            // Langsung minta akses kamera dan mulai decode
-            zxingReader.decodeFromConstraints(
-                { video: { facingMode: 'environment' } },
-                videoElem,
-                (result, err) => {
-                    if (result) {
-                        onScanSuccess(result.getText(), result);
-                    }
-                    // err biasa terjadi saat tidak ada barcode, abaikan
-                }
-            ).then(controls => {
-                zxingControls = controls;
-                // Kamera berhasil dibuka
-                document.getElementById('scanner-loading').style.display = 'none';
-                videoElem.style.display = 'block';
-            }).catch(err => {
-                console.error('ZXing camera error', err);
-                document.getElementById('scanner-loading').style.display = 'none';
-                let msg = 'Tidak dapat mengakses kamera.';
-                if (err.name === 'NotAllowedError') {
-                    msg = 'Izin kamera ditolak. Silakan izinkan akses kamera di browser.';
-                } else if (err.name === 'NotFoundError') {
-                    msg = 'Kamera tidak ditemukan di perangkat ini.';
-                } else if (err.name === 'NotReadableError') {
-                    msg = 'Kamera sedang digunakan aplikasi lain.';
-                }
-                document.getElementById('error-text').textContent = msg;
-                document.getElementById('scanner-error').style.display = 'block';
-            });
-        } catch (e) {
-            console.error('ZXing init error', e);
-            document.getElementById('scanner-loading').style.display = 'none';
-            document.getElementById('error-text').textContent = 'Scanner barcode tidak tersedia di browser ini.';
-            document.getElementById('scanner-error').style.display = 'block';
-        }
-    }
-
     function stopScanner() {
         // Stop HTML5-QRCode
-        if (html5QrCode && html5QrCode.isScanning) {
-            html5QrCode.stop().then(() => { html5QrCode = null; }).catch(err => {
-                console.error("Error stopping QR scanner:", err);
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                html5QrCode.clear();
+                html5QrCode = null;
+            }).catch(err => {
+                console.error("Error stopping scanner:", err);
+                html5QrCode = null;
             });
         }
-        // Stop ZXing
-        if (zxingControls) {
-            try { zxingControls.stop(); } catch (e) {}
-            zxingControls = null;
-        }
-        if (zxingReader) {
-            try { zxingReader.reset(); } catch (e) {}
-            zxingReader = null;
-        }
-        // Reset video
-        const videoElem = document.getElementById('zxing-video');
-        if (videoElem) {
-            videoElem.srcObject = null;
-            videoElem.style.display = 'none';
-        }
-        document.getElementById('reader').style.display = 'none';
     }
 
     function onScanSuccess(decodedText, decodedResult) {
@@ -396,10 +335,9 @@
         border-radius: 6px;
     }
 
-    #zxing-video {
-        border: 2px solid #ddd;
-        border-radius: 8px;
-        background: #000;
+    /* Scanning region box */
+    #reader__scan_region {
+        background: transparent !important;
     }
 
     .btn-scan-barcode {
