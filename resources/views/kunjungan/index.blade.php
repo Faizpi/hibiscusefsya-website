@@ -116,8 +116,8 @@
                 <table class="table table-bordered" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th>No Kunjungan</th>
                             <th>Tanggal</th>
+                            <th>No Kunjungan</th>
                             <th>Sales/Kontak</th>
                             <th>Tujuan</th>
                             <th>Gudang</th>
@@ -129,13 +129,13 @@
                         @php $role = auth()->user()->role; @endphp
                         @forelse($kunjungans as $item)
                             <tr>
+                                <td>{{ $item->tgl_kunjungan->format('d M Y') }}<br><small
+                                        class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
                                 <td>
                                     <a href="{{ route('kunjungan.show', $item->id) }}">
                                         <strong>{{ $item->custom_number }}</strong>
                                     </a>
                                 </td>
-                                <td>{{ $item->tgl_kunjungan->format('d M Y') }}<br><small
-                                        class="text-muted">{{ $item->created_at->format('H:i') }}</small></td>
                                 <td>
                                     <strong>{{ $item->sales_nama }}</strong>
                                     @if($item->sales_email)
