@@ -150,7 +150,8 @@
                             </div>
                         @else
                             <div class="alert alert-warning p-2">
-                                <small>Barcode EAN-13 hanya untuk kode numerik 12/13 digit. Kode saat ini: {{ $itemKode }}</small>
+                                <small>Barcode EAN-13 hanya untuk kode numerik 12/13 digit. Kode saat ini:
+                                    {{ $itemKode }}</small>
                             </div>
                         @endif
                         <p class="font-weight-bold mb-1">{{ $itemKode }}</p>

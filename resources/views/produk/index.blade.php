@@ -20,8 +20,8 @@
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Daftar Produk</h6>
                 <form method="GET" class="d-flex">
-                    <input type="text" name="search" class="form-control form-control-sm mr-2" 
-                           placeholder="Cari kode/nama produk..." value="{{ request('search') }}" style="width: 220px;">
+                    <input type="text" name="search" class="form-control form-control-sm mr-2"
+                        placeholder="Cari kode/nama produk..." value="{{ request('search') }}" style="width: 220px;">
                     <button type="submit" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-search"></i>
                     </button>
