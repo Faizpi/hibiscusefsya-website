@@ -479,10 +479,9 @@
                     allowClear: true,
                     width: '100%'
                 }).on('select2:select', function (e) {
-                    // Gunakan e.params.data.element untuk akses dataset dengan benar di Select2
-                    let option = e.params.data.element;
+                    let option = this.options[this.selectedIndex];
                     let row = this.closest('tr');
-                    if (row && option) {
+                    if (row) {
                         row.querySelector('.product-price').value = option.dataset.harga || 0;
                         row.querySelector('.product-desc').value = option.dataset.deskripsi || '';
                         calculateTotal();

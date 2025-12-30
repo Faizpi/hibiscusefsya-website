@@ -480,10 +480,9 @@ document.addEventListener('DOMContentLoaded', function () {
             width: '100%'
         }).on('select2:select', function(e) {
             // Trigger change event untuk autofill harga & deskripsi
-            // Gunakan e.params.data.element untuk akses dataset dengan benar di Select2
-            let option = e.params.data.element;
+            let option = this.options[this.selectedIndex];
             let row = this.closest('tr');
-            if(row && option) {
+            if(row) {
                 row.querySelector('.product-price').value = option.dataset.harga || 0;
                 row.querySelector('.product-desc').value = option.dataset.deskripsi || '';
                 
@@ -511,16 +510,14 @@ document.addEventListener('DOMContentLoaded', function () {
         width: '100%'
     }).on('select2:select', function(e) {
         // Trigger autofill email & alamat
-        // Gunakan e.params.data.element untuk akses dataset dengan benar di Select2
-        const selectedOption = e.params.data.element;
-        if(selectedOption) {
-            emailInput.value = selectedOption.dataset.email || '';
-            alamatInput.value = selectedOption.dataset.alamat || '';
-            
-            const disc = selectedOption.dataset.diskon || 0;
-            tableBody.querySelectorAll('.product-disc').forEach(input => {
-                input.value = disc;
-            });
+        const selectedOption = this.options[this.selectedIndex];
+        emailInput.value = selectedOption.dataset.email || '';
+        alamatInput.value = selectedOption.dataset.alamat || '';
+        
+        const disc = selectedOption.dataset.diskon || 0;
+        tableBody.querySelectorAll('.product-disc').forEach(input => {
+            input.value = disc;
+        });
         // Hitung ulang baris karena diskon berubah
         Array.from(tableBody.rows).forEach(row => calculateRow(row));
     }).on('select2:clear', function(e) {
