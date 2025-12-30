@@ -202,9 +202,9 @@
             <table>
                 @foreach($kunjungan->items as $item)
                     <tr>
-                        <td colspan="3" style="font-size: 8pt;">
-                            {{ optional($item->produk)->item_code ?? '-' }} - {{ optional($item->produk)->nama_produk ?? '-' }}
-                            <br>Qty: {{ $item->jumlah }}{{ $item->keterangan ? ' | ' . $item->keterangan : '' }}
+                        <td colspan="3" style="font-size: 10pt; line-height: 1.4;">
+                            <strong>{{ optional($item->produk)->item_code ?? '-' }} - {{ optional($item->produk)->nama_produk ?? '-' }}</strong>
+                            <br><span style="font-size: 8pt;">Qty: {{ $item->jumlah }}{{ $item->keterangan ? ' | ' . $item->keterangan : '' }}</span>
                         </td>
                     </tr>
                 @endforeach
