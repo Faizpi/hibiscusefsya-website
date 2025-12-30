@@ -228,11 +228,21 @@ document.addEventListener('DOMContentLoaded', function () {
     const kontakSelect = document.getElementById('kontak-select');
     const alamatInput = document.getElementById('alamat-input');
 
-    // Autofill Kontak
+    // Autofill Kontak dengan Select2
     if(kontakSelect){
-        kontakSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            alamatInput.value = selectedOption.dataset.alamat || '';
+        // Inisialisasi Select2 untuk dropdown Penerima (Kontak)
+        $('#kontak-select').select2({
+            placeholder: 'Cari kontak...',
+            allowClear: true,
+            width: '100%'
+        }).on('select2:select', function(e) {
+            // Gunakan e.params.data.element untuk akses dataset dengan benar di Select2
+            const selectedOption = e.params.data.element;
+            if (selectedOption) {
+                alamatInput.value = selectedOption.dataset.alamat || '';
+            }
+        }).on('select2:clear', function(e) {
+            alamatInput.value = '';
         });
     }
 
