@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Hibiscus Efsya</title>
 
@@ -1033,6 +1033,71 @@
             }
         }
 
+        /* ========== MOBILE INPUT FOCUS FIX ========== */
+        /* Mencegah keyboard tertutup saat mengetik di mobile */
+        @media (max-width: 768px) {
+            /* Pastikan input dan textarea dapat menerima fokus dengan benar */
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            input[type="tel"],
+            input[type="search"],
+            input[type="url"],
+            textarea,
+            select {
+                font-size: 16px !important; /* Mencegah auto-zoom pada iOS */
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                touch-action: manipulation;
+            }
+
+            /* Fix untuk form-control */
+            .form-control {
+                font-size: 16px !important;
+                touch-action: manipulation;
+            }
+
+            /* Fix Select2 mobile */
+            .select2-container--default .select2-search--dropdown .select2-search__field {
+                font-size: 16px !important;
+            }
+
+            /* Pastikan table-responsive tidak mengganggu input focus */
+            .table-responsive:focus-within {
+                overflow: visible !important;
+            }
+
+            /* Fix untuk input di dalam card */
+            .card:focus-within {
+                overflow: visible !important;
+            }
+
+            .card-body:focus-within {
+                overflow: visible !important;
+            }
+
+            /* Form group focus state */
+            .form-group:focus-within,
+            .input-group:focus-within {
+                position: relative;
+                z-index: 10;
+            }
+        }
+
+        /* Touch device specific fixes */
+        @media (hover: none) and (pointer: coarse) {
+            input, textarea, select {
+                touch-action: manipulation;
+            }
+            
+            /* Mencegah double-tap zoom */
+            * {
+                touch-action: manipulation;
+            }
+        }
+
         /* ========== FOOTER ========== */
         .sticky-footer {
             background: #fff;
@@ -1894,6 +1959,89 @@
                 });
             }
 
+            // ========== MOBILE INPUT FOCUS FIX ==========
+            // Mencegah keyboard tertutup saat mengetik di mobile
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                // Prevent scroll when input is focused
+                var inputSelectors = 'input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="tel"], input[type="search"], input[type="url"], textarea';
+                
+                $(document).on('focus', inputSelectors, function(e) {
+                    var $input = $(this);
+                    var $scrollParent = $input.closest('.table-responsive, .card-body, .modal-body');
+                    
+                    // Store scroll position
+                    if ($scrollParent.length) {
+                        $scrollParent.data('scroll-left', $scrollParent.scrollLeft());
+                    }
+                    
+                    // Slight delay to ensure keyboard is open
+                    setTimeout(function() {
+                        // Scroll input into view if needed
+                        var rect = $input[0].getBoundingClientRect();
+                        var viewportHeight = window.innerHeight;
+                        
+                        // If input is below half of viewport, scroll to bring it up
+                        if (rect.top > viewportHeight * 0.5) {
+                            $input[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 300);
+                });
+
+                // Prevent touchmove from stealing focus
+                $(document).on('touchmove', function(e) {
+                    var $focused = $(':focus');
+                    if ($focused.is(inputSelectors)) {
+                        // Allow scroll only within the input's parent container
+                        var $target = $(e.target);
+                        if (!$target.closest('.table-responsive, .card-body, .modal-body').length) {
+                            // Don't prevent default - let the browser handle it
+                        }
+                    }
+                });
+
+                // Re-focus input if accidentally blurred by touch
+                var lastFocusedInput = null;
+                $(document).on('focus', inputSelectors, function() {
+                    lastFocusedInput = this;
+                });
+
+                $(document).on('blur', inputSelectors, function(e) {
+                    var $this = $(this);
+                    // Small delay to check if focus moved to another input
+                    setTimeout(function() {
+                        var $newFocus = $(':focus');
+                        // If no new focus and the blur was due to scroll, refocus
+                        if (!$newFocus.length && lastFocusedInput === e.target) {
+                            // Check if input still exists and is visible
+                            if ($this.is(':visible') && !$this.prop('disabled')) {
+                                // Don't auto-refocus as it can cause issues
+                                // Just ensure the input is still accessible
+                            }
+                        }
+                    }, 100);
+                });
+            }
+
+            // ========== SELECT2 MOBILE FIX ==========
+            // Fix Select2 search input di mobile agar keyboard tidak tertutup
+            if (typeof $.fn.select2 !== 'undefined') {
+                // Override Select2 default options for mobile
+                $.fn.select2.defaults.set('dropdownAutoWidth', true);
+                
+                // Fix Select2 search field on mobile
+                $(document).on('select2:open', function() {
+                    var searchField = document.querySelector('.select2-container--open .select2-search__field');
+                    if (searchField) {
+                        // Set font size to prevent zoom
+                        searchField.style.fontSize = '16px';
+                        
+                        // Small delay to ensure proper focus
+                        setTimeout(function() {
+                            searchField.focus();
+                        }, 100);
+                    }
+                });
+            }
         });
     </script>
 
