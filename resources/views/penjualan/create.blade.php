@@ -657,6 +657,28 @@ document.addEventListener('DOMContentLoaded', function () {
                     $(tableRow).find('.product-select').val(e.params.data.id).trigger('change');
                     tableRow.querySelector('.product-price').value = opt?.dataset?.harga || 0;
                     tableRow.querySelector('.product-desc').value = opt?.dataset?.deskripsi || '';
+                    
+                    // Auto-fill harga di mobile card juga
+                    const card = mobileSelect.closest('.product-card-mobile');
+                    if (card) {
+                        const priceMobile = card.querySelector('.product-price-mobile');
+                        const descMobile = card.querySelector('.product-desc-mobile');
+                        if (priceMobile) priceMobile.value = opt?.dataset?.harga || 0;
+                        if (descMobile) descMobile.value = opt?.dataset?.deskripsi || '';
+                    }
+                    
+                    // Check dan apply discount dari kontak
+                    if (kontakSelect && kontakSelect.selectedIndex > 0) {
+                        const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
+                        if (kontakOption && kontakOption.dataset.diskon) {
+                            tableRow.querySelector('.product-disc').value = kontakOption.dataset.diskon;
+                            if (card) {
+                                const discMobile = card.querySelector('.product-disc-mobile');
+                                if (discMobile) discMobile.value = kontakOption.dataset.diskon;
+                            }
+                        }
+                    }
+                    
                     calculateRow(tableRow);
                 }
             });

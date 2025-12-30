@@ -606,6 +606,16 @@
                             $(tableRow).find('.product-select').val(e.params.data.id).trigger('change');
                             tableRow.querySelector('.product-price').value = opt?.dataset?.harga || 0;
                             tableRow.querySelector('.product-desc').value = opt?.dataset?.deskripsi || '';
+                            
+                            // Auto-fill harga di mobile card juga
+                            const card = mobileSelect.closest('.product-card-mobile');
+                            if (card) {
+                                const priceMobile = card.querySelector('.product-price-mobile');
+                                const descMobile = card.querySelector('.product-desc-mobile');
+                                if (priceMobile) priceMobile.value = opt?.dataset?.harga || 0;
+                                if (descMobile) descMobile.value = opt?.dataset?.deskripsi || '';
+                            }
+                            
                             calculateRow(tableRow);
                         }
                     });
