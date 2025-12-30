@@ -530,14 +530,26 @@ document.addEventListener('DOMContentLoaded', function () {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num); 
     }
     
-    function calculateRow(row) {
+    function calculateRow(row, skipMobileSync = false) {
         const qty = parseFloat(row.querySelector('.product-qty').value) || 0;
         const price = parseFloat(row.querySelector('.product-price').value) || 0;
         const disc = parseFloat(row.querySelector('.product-disc').value) || 0;
         const total = (qty * price) * (1 - (disc / 100));
         row.querySelector('.product-total').value = total.toFixed(0);
         calculateGrandTotal();
-        syncMobileCards();
+        
+        // Hanya sync mobile cards jika tidak di-skip (untuk mencegah rebuild saat input)
+        if (!skipMobileSync) {
+            // Update hanya total di mobile card tanpa rebuild
+            const rowIndex = Array.from(tableBody.rows).indexOf(row);
+            const mobileCard = mobileCardsContainer?.querySelector(`.product-card-mobile[data-row-index="${rowIndex}"]`);
+            if (mobileCard) {
+                const totalValue = mobileCard.querySelector('.total-value');
+                if (totalValue) {
+                    totalValue.textContent = formatRupiah(total);
+                }
+            }
+        }
     }
 
     function calculateGrandTotal() {
@@ -679,15 +691,39 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (e.target.classList.contains('product-qty-mobile')) {
                 row.querySelector('.product-qty').value = e.target.value;
-                calculateRow(row);
+                calculateRow(row, true); // Skip mobile sync untuk mencegah rebuild
+                // Update total di card ini saja
+                const card = e.target.closest('.product-card-mobile');
+                if (card) {
+                    const totalValue = card.querySelector('.total-value');
+                    if (totalValue) {
+                        totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-total').value) || 0);
+                    }
+                }
             }
             if (e.target.classList.contains('product-price-mobile')) {
                 row.querySelector('.product-price').value = e.target.value;
-                calculateRow(row);
+                calculateRow(row, true); // Skip mobile sync untuk mencegah rebuild
+                // Update total di card ini saja
+                const card = e.target.closest('.product-card-mobile');
+                if (card) {
+                    const totalValue = card.querySelector('.total-value');
+                    if (totalValue) {
+                        totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-total').value) || 0);
+                    }
+                }
             }
             if (e.target.classList.contains('product-disc-mobile')) {
                 row.querySelector('.product-disc').value = e.target.value;
-                calculateRow(row);
+                calculateRow(row, true); // Skip mobile sync untuk mencegah rebuild
+                // Update total di card ini saja
+                const card = e.target.closest('.product-card-mobile');
+                if (card) {
+                    const totalValue = card.querySelector('.total-value');
+                    if (totalValue) {
+                        totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-total').value) || 0);
+                    }
+                }
             }
         });
 
@@ -718,7 +754,26 @@ document.addEventListener('DOMContentLoaded', function () {
     // Listener untuk Input di Tabel (Qty, Harga, Disc)
     document.addEventListener('input', function(e) {
         if(e.target.matches('.product-qty, .product-price, .product-disc')) {
-            calculateRow(e.target.closest('tr'));
+            calculateRow(e.target.closest('tr'), true); // Skip mobile sync untuk mencegah rebuild
+            // Update mobile card total jika ada
+            const row = e.target.closest('tr');
+            if (row && mobileCardsContainer) {
+                const rowIndex = Array.from(tableBody.rows).indexOf(row);
+                const card = mobileCardsContainer.querySelector(`.product-card-mobile[data-row-index="${rowIndex}"]`);
+                if (card) {
+                    const totalValue = card.querySelector('.total-value');
+                    if (totalValue) {
+                        totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-total').value) || 0);
+                    }
+                    // Sync input values ke mobile card
+                    const qtyMobile = card.querySelector('.product-qty-mobile');
+                    const priceMobile = card.querySelector('.product-price-mobile');
+                    const discMobile = card.querySelector('.product-disc-mobile');
+                    if (qtyMobile && e.target.classList.contains('product-qty')) qtyMobile.value = e.target.value;
+                    if (priceMobile && e.target.classList.contains('product-price')) priceMobile.value = e.target.value;
+                    if (discMobile && e.target.classList.contains('product-disc')) discMobile.value = e.target.value;
+                }
+            }
         }
         // Listener KHUSUS untuk Diskon Akhir & Pajak
         if(e.target.id === 'diskon_akhir_input' || e.target.id === 'tax_percentage_input') {

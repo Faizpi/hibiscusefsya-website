@@ -330,7 +330,7 @@
 
             const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
 
-            const calculateTotalExpense = () => {
+            const calculateTotalExpense = (skipMobileSync = false) => {
                 let subtotal = 0;
                 tableBody.querySelectorAll('.expense-amount').forEach(input => {
                     subtotal += parseFloat(input.value) || 0;
@@ -345,7 +345,10 @@
                 grandTotalBottom.innerText = formatRupiah(total);
                 grandTotalTop.innerText = `Total ${formatRupiah(total)}`;
 
-                syncMobileCards();
+                // Hanya sync mobile cards jika tidak di-skip (untuk mencegah rebuild saat input)
+                if (!skipMobileSync) {
+                    syncMobileCards();
+                }
             };
 
             // --- MOBILE CARDS SYNC ---
@@ -407,7 +410,15 @@
                     }
                     if (e.target.classList.contains('jumlah-mobile')) {
                         row.querySelector('.expense-amount').value = e.target.value;
-                        calculateTotalExpense();
+                        calculateTotalExpense(true); // Skip mobile sync untuk mencegah rebuild
+                        // Update total di card ini saja
+                        const card = e.target.closest('.product-card-mobile');
+                        if (card) {
+                            const totalValue = card.querySelector('.total-value');
+                            if (totalValue) {
+                                totalValue.textContent = formatRupiah(parseFloat(e.target.value) || 0);
+                            }
+                        }
                     }
                 });
 
@@ -423,9 +434,24 @@
                 });
             }
 
-            // Event Listener Input
+            // Event Listener Input - desktop table
             document.addEventListener('input', function (e) {
-                if (e.target.classList.contains('expense-amount') || e.target.id === 'tax_percentage_input') {
+                if (e.target.classList.contains('expense-amount')) {
+                    calculateTotalExpense(true); // Skip mobile sync saat input untuk mencegah rebuild
+                    // Update mobile card total jika ada
+                    const row = e.target.closest('tr');
+                    if (row && mobileCardsContainer) {
+                        const rowIndex = Array.from(tableBody.rows).indexOf(row);
+                        const card = mobileCardsContainer.querySelector(`.product-card-mobile[data-row-index="${rowIndex}"]`);
+                        if (card) {
+                            const jumlahInput = card.querySelector('.jumlah-mobile');
+                            const totalValue = card.querySelector('.total-value');
+                            if (jumlahInput) jumlahInput.value = e.target.value;
+                            if (totalValue) totalValue.textContent = formatRupiah(parseFloat(e.target.value) || 0);
+                        }
+                    }
+                }
+                if (e.target.id === 'tax_percentage_input') {
                     calculateTotalExpense();
                 }
             });
