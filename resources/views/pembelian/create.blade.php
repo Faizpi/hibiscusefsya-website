@@ -616,7 +616,7 @@
                                 if (descMobile) descMobile.value = opt?.dataset?.deskripsi || '';
                             }
                             
-                            calculateRow(tableRow);
+                            calculateTotal();
                         }
                     });
                 });
