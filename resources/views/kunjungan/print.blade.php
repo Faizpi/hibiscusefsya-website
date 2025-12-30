@@ -203,7 +203,7 @@
                 @foreach($kunjungan->items as $item)
                     <tr>
                         <td colspan="3" style="font-size: 8pt;">
-                            {{ $item->produk->item_kode }} - {{ $item->produk->item_nama }}
+                            {{ optional($item->produk)->item_code ?? '-' }} - {{ optional($item->produk)->nama_produk ?? '-' }}
                             <br>Qty: {{ $item->jumlah }}{{ $item->keterangan ? ' | ' . $item->keterangan : '' }}
                         </td>
                     </tr>
