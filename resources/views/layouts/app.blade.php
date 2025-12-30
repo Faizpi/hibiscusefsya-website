@@ -1584,27 +1584,40 @@
                 margin-bottom: 0.5rem;
             }
 
-            /* Make buttons stack on mobile */
-            .d-sm-flex.align-items-center.justify-content-between {
-                flex-direction: column;
-                align-items: flex-start !important;
-                gap: 0.75rem;
+            /* Make page header stack on mobile dengan spacing */
+            .page-header-mobile {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.75rem !important;
             }
 
-            .d-sm-flex.align-items-center.justify-content-between>h3 {
-                align-self: flex-end;
+            .page-header-mobile > h1,
+            .page-header-mobile > .h3 {
+                margin-bottom: 0 !important;
+                font-size: 1.25rem !important;
             }
 
-            /* Show page action buttons */
-            .d-sm-flex>div {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.25rem;
+            .page-header-mobile > a.btn,
+            .page-header-mobile > div {
+                align-self: flex-start;
             }
 
-            .d-sm-flex>div .btn {
-                font-size: 0.75rem;
-                padding: 0.25rem 0.5rem;
+            /* Show page action buttons - wrap dan spacing */
+            .show-action-buttons {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 0.35rem !important;
+                margin-top: 0.5rem;
+            }
+
+            .show-action-buttons .btn {
+                font-size: 0.7rem !important;
+                padding: 0.3rem 0.5rem !important;
+                white-space: nowrap;
+            }
+
+            .show-action-buttons form.d-inline {
+                display: inline-flex !important;
             }
         }
 
@@ -1619,6 +1632,12 @@
 
             .show-product-card .item-details {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            /* Extra small mobile - buttons even smaller */
+            .show-action-buttons .btn {
+                font-size: 0.65rem !important;
+                padding: 0.25rem 0.4rem !important;
             }
         }
     </style>

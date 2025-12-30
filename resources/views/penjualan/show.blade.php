@@ -3,9 +3,9 @@
 @section('content')
     <div class="container-fluid">
 
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-4 page-header-mobile">
             <h1 class="h3 mb-0 text-gray-800">Detail Penjualan #{{ $penjualan->custom_number ?? $penjualan->id }}</h1>
-            <div>
+            <div class="show-action-buttons">
                 @php $user = auth()->user(); @endphp
 
                 {{-- Tombol Approve (Admin) --}}

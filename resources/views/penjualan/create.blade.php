@@ -670,10 +670,52 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!rowIndex) return;
             const row = tableBody.querySelectorAll('tr')[rowIndex];
             if (!row) return;
+            const card = e.target.closest('.product-card-mobile');
 
             if (e.target.classList.contains('product-select-mobile')) {
-                row.querySelector('.product-select').value = e.target.value;
-                row.querySelector('.product-select').dispatchEvent(new Event('change', { bubbles: true }));
+                const tableSelect = row.querySelector('.product-select');
+                tableSelect.value = e.target.value;
+                
+                // Get product data dan auto-fill ke mobile card
+                const selectedOption = e.target.options[e.target.selectedIndex];
+                const harga = selectedOption.dataset.harga || 0;
+                const deskripsi = selectedOption.dataset.deskripsi || '';
+                
+                // Update desktop table
+                row.querySelector('.product-price').value = harga;
+                row.querySelector('.product-desc').value = deskripsi;
+                
+                // Check dan apply discount dari kontak
+                if (kontakSelect && kontakSelect.selectedIndex > 0) {
+                    const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
+                    if (kontakOption && kontakOption.dataset.diskon) {
+                        row.querySelector('.product-disc').value = kontakOption.dataset.diskon;
+                    }
+                }
+                
+                // Update mobile card langsung
+                if (card) {
+                    const priceMobile = card.querySelector('.product-price-mobile');
+                    const descMobile = card.querySelector('.product-desc-mobile');
+                    const discMobile = card.querySelector('.product-disc-mobile');
+                    if (priceMobile) priceMobile.value = harga;
+                    if (descMobile) descMobile.value = deskripsi;
+                    if (discMobile && kontakSelect && kontakSelect.selectedIndex > 0) {
+                        const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
+                        if (kontakOption && kontakOption.dataset.diskon) {
+                            discMobile.value = kontakOption.dataset.diskon;
+                        }
+                    }
+                }
+                
+                // Calculate row dan update total di mobile card
+                calculateRow(row, true);
+                if (card) {
+                    const totalValue = card.querySelector('.total-value');
+                    if (totalValue) {
+                        totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-total').value) || 0);
+                    }
+                }
             }
             if (e.target.classList.contains('product-unit-mobile')) {
                 row.querySelector('select[name="unit[]"]').value = e.target.value;
