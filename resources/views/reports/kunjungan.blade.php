@@ -15,6 +15,7 @@
             <th>Pembuat</th>
             <th>Approver</th>
             <th>Status</th>
+            <th>Produk</th>
             <th>Memo</th>
         </tr>
     </thead>
@@ -35,6 +36,7 @@
                 <td>{{ $item->user->name ?? '-' }}</td>
                 <td>{{ $item->approver->name ?? '-' }}</td>
                 <td>{{ $item->status }}</td>
+                <td>@if($item->items && $item->items->count() > 0){{ $item->items->map(function($i) { return ($i->produk->item_code ?? '-') . ' x' . ($i->jumlah ?? 1); })->implode(', ') }}@else - @endif</td>
                 <td>{{ $item->memo ?? '-' }}</td>
             </tr>
         @endforeach

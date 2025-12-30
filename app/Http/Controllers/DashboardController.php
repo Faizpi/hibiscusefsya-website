@@ -689,7 +689,7 @@ class DashboardController extends Controller
 
         // KUNJUNGAN
         if (in_array($transactionType, ['all', 'kunjungan'])) {
-            $query = Kunjungan::with('user', 'gudang', 'approver')
+            $query = Kunjungan::with('user', 'gudang', 'approver', 'items.produk')
                 ->whereBetween('tgl_kunjungan', [$dateFrom, $dateTo]);
 
             if ($user->role == 'admin') {

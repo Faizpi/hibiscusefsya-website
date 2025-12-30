@@ -167,8 +167,8 @@
                                         <tr>
                                             <th width="5%">#</th>
                                             <th width="15%">Kode Produk</th>
-                                            <th width="20%">Kode Produk</th>
-                                            <th width="60%">Nama Produk</th>
+                                            <th width="50%">Nama Produk</th>
+                                            <th width="10%">Qty</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -177,6 +177,7 @@
                                                 <td>{{ $index + 1 }}</td>
                                                 <td><code>{{ optional($item->produk)->item_code ?? '-' }}</code></td>
                                                 <td>{{ optional($item->produk)->nama_produk ?? '-' }}</td>
+                                                <td>{{ $item->jumlah ?? 1 }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

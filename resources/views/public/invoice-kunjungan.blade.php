@@ -361,6 +361,21 @@
                 @endif
             </div>
 
+            {{-- PRODUK ITEMS --}}
+            @if($kunjungan->items && $kunjungan->items->count() > 0)
+                <div class="info-card">
+                    <div class="info-card-title">
+                        <i class="fas fa-boxes"></i> Produk Terkait
+                    </div>
+                    @foreach($kunjungan->items as $index => $item)
+                        <div class="info-row">
+                            <span class="label">{{ $index + 1 }}. {{ optional($item->produk)->item_code ?? '-' }}</span>
+                            <span class="value">{{ optional($item->produk)->nama_produk ?? '-' }} ({{ $item->jumlah ?? 1 }})</span>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
             {{-- MEMO --}}
             @if($kunjungan->memo)
                 <div class="memo-section">

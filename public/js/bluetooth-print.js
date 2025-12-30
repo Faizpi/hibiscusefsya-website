@@ -767,6 +767,21 @@ class BluetoothThermalPrinter {
         if (data.koordinat && data.koordinat !== '-') {
             body += this.formatInfoRow('Koordinat', data.koordinat);
         }
+
+        // PRODUK ITEMS
+        if (data.items && data.items.length > 0) {
+            body += this.divider();
+            body += this.COMMANDS.BOLD_ON + 'PRODUK:\n' + this.COMMANDS.BOLD_OFF;
+            data.items.forEach((item, index) => {
+                body += (index + 1) + '. ' + item.kode + '\n';
+                body += '   ' + item.nama + '\n';
+                body += '   Qty: ' + item.qty;
+                if (item.keterangan) {
+                    body += ' | ' + item.keterangan;
+                }
+                body += '\n';
+            });
+        }
         
         if (data.memo && data.memo !== '-') {
             body += this.divider();

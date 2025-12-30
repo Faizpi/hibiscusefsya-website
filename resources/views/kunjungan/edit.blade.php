@@ -166,7 +166,7 @@
                     <div id="produk-container">
                         @forelse($kunjungan->items as $index => $item)
                         <div class="row produk-row mb-2 align-items-center">
-                            <div class="col-md-9">
+                            <div class="col-md-7">
                                 <select class="form-control produk-select" name="produk_id[]">
                                     <option value="">Pilih produk...</option>
                                     @foreach($produks as $produk)
@@ -177,6 +177,9 @@
                                         </option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" class="form-control produk-qty" name="jumlah[]" value="{{ $item->jumlah ?? 1 }}" min="1" placeholder="Qty">
                             </div>
                             <div class="col-md-2">
                                 <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
@@ -191,7 +194,7 @@
                         </div>
                         @empty
                         <div class="row produk-row mb-2 align-items-center">
-                            <div class="col-md-9">
+                            <div class="col-md-7">
                                 <select class="form-control produk-select" name="produk_id[]">
                                     <option value="">Pilih produk...</option>
                                     @foreach($produks as $produk)
@@ -200,6 +203,9 @@
                                         </option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
                             </div>
                             <div class="col-md-2">
                                 <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
@@ -277,7 +283,7 @@
         $('#btn-add-produk').on('click', function () {
             const newRow = `
                 <div class="row produk-row mb-2 align-items-center">
-                    <div class="col-md-9">
+                    <div class="col-md-7">
                         <select class="form-control produk-select" name="produk_id[]">
                             <option value="">Pilih produk...</option>
                             @foreach($produks as $produk)
@@ -286,6 +292,9 @@
                                 </option>
                             @endforeach
                         </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
                     </div>
                     <div class="col-md-2">
                         <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">

@@ -176,10 +176,23 @@ class BluetoothPrintController extends Controller
      */
     public function kunjunganJson($id)
     {
-        $data = \App\Kunjungan::with(['user', 'gudang', 'approver'])->findOrFail($id);
+        $data = \App\Kunjungan::with(['user', 'gudang', 'approver', 'items.produk'])->findOrFail($id);
 
         $dateCode = $data->created_at->format('Ymd');
         $noUrut = str_pad($data->no_urut_harian, 3, '0', STR_PAD_LEFT);
+
+        // Map items dengan produk info
+        $items = [];
+        if ($data->items && $data->items->count() > 0) {
+            $items = $data->items->map(function($item) {
+                return [
+                    'kode' => optional($item->produk)->item_code ?? '-',
+                    'nama' => optional($item->produk)->nama_produk ?? '-',
+                    'qty' => $item->jumlah ?? 1,
+                    'keterangan' => $item->keterangan ?? '',
+                ];
+            })->toArray();
+        }
 
         return response()->json([
             'nomor' => "VST-{$data->user_id}-{$dateCode}-{$noUrut}",
@@ -195,6 +208,7 @@ class BluetoothPrintController extends Controller
             'status' => $data->status,
             'koordinat' => $data->koordinat ?? '-',
             'memo' => $data->memo ?? '-',
+            'items' => $items,
             'invoice_url' => url('invoice/kunjungan/' . $data->uuid)
         ]);
     }
