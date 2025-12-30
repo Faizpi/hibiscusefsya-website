@@ -2,9 +2,9 @@
 
 @section('content')
     <div class="container-fluid">
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-4 page-header-mobile">
             <h1 class="h3 mb-0 text-gray-800">Detail Kontak</h1>
-            <div>
+            <div class="show-action-buttons">
                 <a href="{{ route('kontak.edit', $kontak->id) }}" class="btn btn-warning btn-sm shadow-sm">
                     <i class="fas fa-edit fa-sm"></i> Edit
                 </a>
