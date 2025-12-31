@@ -471,7 +471,8 @@
         .container-fluid {
             padding: 1.5rem;
             max-width: 100%;
-            overflow-x: auto;
+            overflow-x: hidden;
+            box-sizing: border-box;
         }
 
         /* Page Title */
@@ -759,6 +760,19 @@
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             width: 100%;
+            max-width: 100%;
+            display: block;
+        }
+
+        /* Cards need overflow control for nested tables */
+        .card {
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+        .card-body {
+            overflow-x: auto;
+            max-width: 100%;
         }
 
         .table thead th {
@@ -1239,6 +1253,13 @@
             overflow-y: hidden !important;
             -webkit-overflow-scrolling: touch;
             position: relative;
+            max-width: 100%;
+        }
+
+        /* Ensure parent containers don't overflow */
+        #content-wrapper, #content, .container-fluid {
+            overflow-x: hidden;
+            max-width: 100%;
         }
 
         /* Mobile: enable horizontal scroll */
@@ -1249,10 +1270,32 @@
                 -webkit-overflow-scrolling: touch;
                 display: block;
                 width: 100%;
+                max-width: calc(100vw - 2rem);
             }
 
             .table-responsive .table {
                 min-width: 700px;
+            }
+            
+            /* Container adjustments for mobile */
+            .container-fluid {
+                padding: 0.75rem !important;
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            /* Card responsive adjustments */
+            .card {
+                width: 100%;
+                max-width: 100%;
+                overflow: hidden;
+            }
+
+            .card-body {
+                overflow-x: auto;
+                max-width: 100%;
+                padding: 0.75rem;
             }
 
             /* Tombol di card-header wrap di mobile */
@@ -1265,6 +1308,28 @@
             .card-header .btn {
                 margin-bottom: 0 !important;
                 margin-right: 0 !important;
+            }
+        }
+
+        /* Tablet specific (768px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .table-responsive {
+                overflow-x: auto !important;
+                max-width: 100%;
+            }
+
+            .table-responsive .table {
+                min-width: 800px;
+            }
+
+            .container-fluid {
+                padding: 1rem;
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            .card-body {
+                overflow-x: auto;
             }
         }
 

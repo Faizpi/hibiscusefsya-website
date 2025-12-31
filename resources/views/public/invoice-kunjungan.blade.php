@@ -370,7 +370,8 @@
                     @foreach($kunjungan->items as $index => $item)
                         <div class="info-row">
                             <span class="label">{{ $index + 1 }}. {{ optional($item->produk)->item_code ?? '-' }}</span>
-                            <span class="value">{{ optional($item->produk)->nama_produk ?? '-' }} ({{ $item->jumlah ?? 1 }})</span>
+                            <span class="value">{{ optional($item->produk)->nama_produk ?? '-' }}
+                                ({{ $item->jumlah ?? 1 }})</span>
                         </div>
                     @endforeach
                 </div>

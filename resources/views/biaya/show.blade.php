@@ -10,7 +10,7 @@
 
                 {{-- Tombol Approve (Super Admin atau Admin yang ditunjuk) --}}
                 @if($biaya->status == 'Pending')
-                    @if($user->role == 'super_admin' || ($user->role == 'admin' && $biaya->approver_id == $user->id))
+                    @if($user->role == 'super_admin' || ($user->role == 'admin' && ($biaya->approver_id == $user->id || ($biaya->gudang_id && method_exists($user, 'canAccessGudang') && $user->canAccessGudang($biaya->gudang_id)))))
                         <form action="{{ route('biaya.approve', $biaya->id) }}" method="POST" class="d-inline"
                             title="Setujui data ini">
                             @csrf

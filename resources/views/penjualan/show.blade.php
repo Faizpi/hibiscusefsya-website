@@ -10,7 +10,7 @@
 
                 {{-- Tombol Approve (Admin) --}}
                 @if($penjualan->status == 'Pending')
-                    @if($user->role == 'super_admin' || ($user->role == 'admin' && $penjualan->approver_id == $user->id))
+                    @if($user->role == 'super_admin' || ($user->role == 'admin' && ($penjualan->approver_id == $user->id || ($penjualan->gudang_id && method_exists($user, 'canAccessGudang') && $user->canAccessGudang($penjualan->gudang_id)))))
                         <form action="{{ route('penjualan.approve', $penjualan->id) }}" method="POST" class="d-inline"
                             title="Setujui data ini">
                             @csrf

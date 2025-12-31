@@ -122,9 +122,6 @@
                                     <option value="Penagihan" {{ old('tujuan') == 'Penagihan' ? 'selected' : '' }}>
                                         Kunjungan Penagihan
                                     </option>
-                                    <option value="Penawaran" {{ old('tujuan') == 'Penawaran' ? 'selected' : '' }}>
-                                        Kunjungan Penawaran
-                                    </option>
                                     <option value="Promo" {{ old('tujuan') == 'Promo' ? 'selected' : '' }}>
                                         Kunjungan Promo
                                     </option>

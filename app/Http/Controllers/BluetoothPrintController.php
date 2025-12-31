@@ -184,7 +184,7 @@ class BluetoothPrintController extends Controller
         // Map items dengan produk info
         $items = [];
         if ($data->items && $data->items->count() > 0) {
-            $items = $data->items->map(function($item) {
+            $items = $data->items->map(function ($item) {
                 return [
                     'kode' => optional($item->produk)->item_code ?? '-',
                     'nama' => optional($item->produk)->nama_produk ?? '-',

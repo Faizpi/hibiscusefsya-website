@@ -288,13 +288,13 @@
             }
 
             const productDropdownHtml = `
-                                <select class="form-control product-select" name="produk_id[]" required>
-                                    <option value="">Pilih...</option>
-                                    @foreach($produks as $produk)
-                                        <option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-deskripsi="{{ $produk->deskripsi }}">{{ $produk->nama_produk }}</option>
-                                    @endforeach
-                                </select>
-                            `;
+                                    <select class="form-control product-select" name="produk_id[]" required>
+                                        <option value="">Pilih...</option>
+                                        @foreach($produks as $produk)
+                                            <option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-deskripsi="{{ $produk->deskripsi }}">{{ $produk->nama_produk }}</option>
+                                        @endforeach
+                                    </select>
+                                `;
 
             // --- INISIALISASI SELECT2 ---
             function initSelect2(selectElement) {
@@ -333,7 +333,7 @@
                 const total = quantity * price * (1 - (discount / 100));
                 row.querySelector('.product-line-total').value = total.toFixed(0);
                 calculateGrandTotal();
-                
+
                 // Hanya sync mobile cards jika tidak di-skip (untuk mencegah rebuild saat input)
                 if (!skipMobileSync) {
                     // Update hanya total di mobile card tanpa rebuild
@@ -386,43 +386,43 @@
                     card.className = 'product-card-mobile';
                     card.dataset.rowIndex = index;
                     card.innerHTML = `
-                                            <div class="card-header-mobile">
-                                                <select class="form-control product-select-mobile" data-row="${index}">
-                                                    <option value="">Pilih...</option>
-                                                    ${productOptionsHtml}
-                                                </select>
-                                                ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
-                                            </div>
-                                            <div class="card-body-mobile">
-                                                <div class="field-group full-width">
-                                                    <span class="field-label">Deskripsi</span>
-                                                    <input type="text" class="form-control product-desc-mobile" data-row="${index}" value="${desc}" placeholder="Deskripsi">
-                                                </div>
-                                                <div class="field-group">
-                                                    <span class="field-label">Qty</span>
-                                                    <input type="number" class="form-control product-qty-mobile" data-row="${index}" value="${qty}" min="1">
-                                                </div>
-                                                <div class="field-group">
-                                                    <span class="field-label">Unit</span>
-                                                    <select class="form-control product-unit-mobile" data-row="${index}">
-                                                        <option value="Pcs" ${unit === 'Pcs' ? 'selected' : ''}>Pcs</option>
-                                                        <option value="Karton" ${unit === 'Karton' ? 'selected' : ''}>Karton</option>
+                                                <div class="card-header-mobile">
+                                                    <select class="form-control product-select-mobile" data-row="${index}">
+                                                        <option value="">Pilih...</option>
+                                                        ${productOptionsHtml}
                                                     </select>
+                                                    ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
                                                 </div>
-                                                <div class="field-group">
-                                                    <span class="field-label">Harga</span>
-                                                    <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
+                                                <div class="card-body-mobile">
+                                                    <div class="field-group full-width">
+                                                        <span class="field-label">Deskripsi</span>
+                                                        <input type="text" class="form-control product-desc-mobile" data-row="${index}" value="${desc}" placeholder="Deskripsi">
+                                                    </div>
+                                                    <div class="field-group">
+                                                        <span class="field-label">Qty</span>
+                                                        <input type="number" class="form-control product-qty-mobile" data-row="${index}" value="${qty}" min="1">
+                                                    </div>
+                                                    <div class="field-group">
+                                                        <span class="field-label">Unit</span>
+                                                        <select class="form-control product-unit-mobile" data-row="${index}">
+                                                            <option value="Pcs" ${unit === 'Pcs' ? 'selected' : ''}>Pcs</option>
+                                                            <option value="Karton" ${unit === 'Karton' ? 'selected' : ''}>Karton</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field-group">
+                                                        <span class="field-label">Harga</span>
+                                                        <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
+                                                    </div>
+                                                    <div class="field-group">
+                                                        <span class="field-label">Disc%</span>
+                                                        <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
+                                                    </div>
                                                 </div>
-                                                <div class="field-group">
-                                                    <span class="field-label">Disc%</span>
-                                                    <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
+                                                <div class="total-row">
+                                                    <span class="total-label">Total</span>
+                                                    <span class="total-value">${formatRupiah(total)}</span>
                                                 </div>
-                                            </div>
-                                            <div class="total-row">
-                                                <span class="total-label">Total</span>
-                                                <span class="total-value">${formatRupiah(total)}</span>
-                                            </div>
-                                        `;
+                                            `;
                     mobileCardsContainer.appendChild(card);
 
                     // Set selected product
@@ -443,16 +443,16 @@
                     if (e.target.classList.contains('product-select-mobile')) {
                         const tableSelect = row.querySelector('.product-select');
                         tableSelect.value = e.target.value;
-                        
+
                         // Get product data dan auto-fill ke mobile card
                         const selectedOption = e.target.options[e.target.selectedIndex];
                         const harga = selectedOption.dataset.harga || 0;
                         const deskripsi = selectedOption.dataset.deskripsi || '';
-                        
+
                         // Update desktop table
                         row.querySelector('.product-price').value = harga;
                         row.querySelector('.product-description').value = deskripsi;
-                        
+
                         // Check dan apply discount dari kontak
                         if (kontakSelect && kontakSelect.selectedIndex > 0) {
                             const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
@@ -460,7 +460,7 @@
                                 row.querySelector('.product-discount').value = kontakOption.dataset.diskon;
                             }
                         }
-                        
+
                         // Update mobile card langsung
                         if (card) {
                             const priceMobile = card.querySelector('.product-price-mobile');
@@ -475,7 +475,7 @@
                                 }
                             }
                         }
-                        
+
                         // Calculate row dan update total di mobile card
                         calculateRow(row, true);
                         if (card) {
@@ -588,15 +588,15 @@
             addRowBtn.addEventListener('click', function () {
                 const newRow = tableBody.insertRow();
                 newRow.innerHTML = `
-                                    <td>${productDropdownHtml}</td>
-                                    <td><input type="text" class="form-control product-description" name="deskripsi[]"></td>
-                                    <td><input type="number" class="form-control product-quantity" name="kuantitas[]" value="1" min="1"></td>
-                                    <td><select class="form-control" name="unit[]"><option>Pcs</option><option>Karton</option></select></td>
-                                    <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]" placeholder="0" required></td>
-                                    <td><input type="number" class="form-control text-right product-discount" name="diskon[]" placeholder="0" min="0" max="100"></td>
-                                    <td><input type="text" class="form-control text-right product-line-total" readonly></td>
-                                    <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
-                                `;
+                                        <td>${productDropdownHtml}</td>
+                                        <td><input type="text" class="form-control product-description" name="deskripsi[]"></td>
+                                        <td><input type="number" class="form-control product-quantity" name="kuantitas[]" value="1" min="1"></td>
+                                        <td><select class="form-control" name="unit[]"><option>Pcs</option><option>Karton</option></select></td>
+                                        <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]" placeholder="0" required></td>
+                                        <td><input type="number" class="form-control text-right product-discount" name="diskon[]" placeholder="0" min="0" max="100"></td>
+                                        <td><input type="text" class="form-control text-right product-line-total" readonly></td>
+                                        <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
+                                    `;
                 const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
                 if (kontakOption) newRow.querySelector('.product-discount').value = kontakOption.dataset.diskon || 0;
                 // Init Select2 untuk dropdown baru

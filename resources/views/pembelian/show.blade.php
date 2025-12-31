@@ -9,7 +9,7 @@
                 @php $user = auth()->user(); @endphp
 
                 {{-- Tombol Approve (Admin) --}}
-                @if($pembelian->status == 'Pending' && ($user->role == 'super_admin' || ($user->role == 'admin' && $pembelian->approver_id == $user->id)))
+                @if($pembelian->status == 'Pending' && ($user->role == 'super_admin' || ($user->role == 'admin' && ($pembelian->approver_id == $user->id || ($pembelian->gudang_id && method_exists($user, 'canAccessGudang') && $user->canAccessGudang($pembelian->gudang_id))))))
                     <form action="{{ route('pembelian.approve', $pembelian->id) }}" method="POST" class="d-inline"
                         title="Setujui data ini">
                         @csrf

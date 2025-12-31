@@ -98,13 +98,8 @@ class KunjunganController extends Controller
         // Get user's gudang
         $gudang = $user->getCurrentGudang();
 
-        // Get produk dari gudang user (tanpa info stok, kunjungan tidak perlu stok)
-        $produks = [];
-        if ($gudang) {
-            $produks = Produk::whereHas('gudangProduks', function ($q) use ($gudang) {
-                $q->where('gudang_id', $gudang->id);
-            })->get();
-        }
+        // Get all products (kunjungan tidak perlu batasan gudang)
+        $produks = Produk::orderBy('nama_produk')->get();
 
         // Generate preview nomor kunjungan
         $countToday = Kunjungan::where('user_id', Auth::id())
@@ -134,7 +129,7 @@ class KunjunganController extends Controller
             'sales_email' => 'nullable|email|max:255',
             'sales_alamat' => 'nullable|string',
             'tgl_kunjungan' => 'required|date',
-            'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Penawaran,Promo',
+            'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Promo',
             'koordinat' => 'nullable|string|max:255',
             'memo' => 'nullable|string',
             'lampiran' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
@@ -286,17 +281,8 @@ class KunjunganController extends Controller
 
         $kontaks = Kontak::all();
 
-        // Get produk dari gudang kunjungan
-        $produks = [];
-        if ($kunjungan->gudang_id) {
-            $produks = Produk::whereHas('gudangProduks', function ($q) use ($kunjungan) {
-                $q->where('gudang_id', $kunjungan->gudang_id);
-            })->with([
-                        'gudangProduks' => function ($q) use ($kunjungan) {
-                            $q->where('gudang_id', $kunjungan->gudang_id);
-                        }
-                    ])->get();
-        }
+        // Get all products (kunjungan tidak perlu batasan gudang)
+        $produks = Produk::orderBy('nama_produk')->get();
 
         $kunjungan->load('items.produk');
 
@@ -320,7 +306,7 @@ class KunjunganController extends Controller
             'sales_nama' => 'required|string|max:255',
             'sales_email' => 'nullable|email|max:255',
             'sales_alamat' => 'nullable|string',
-            'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Penawaran,Promo',
+            'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Promo',
             'memo' => 'nullable|string',
             'lampiran' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
             'produk_id' => 'nullable|array',
