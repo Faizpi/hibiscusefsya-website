@@ -242,6 +242,67 @@
         .koordinat-link:hover {
             text-decoration: underline;
         }
+
+        .items-section {
+            margin-bottom: 16px;
+        }
+
+        .items-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .items-title i {
+            color: var(--primary);
+        }
+
+        .item-card {
+            background: var(--bg-light);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+
+        .item-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .item-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .qr-section {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .qr-section img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+        }
+
+        .qr-section p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 
