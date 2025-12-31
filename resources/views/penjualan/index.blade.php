@@ -165,21 +165,25 @@
                                                     @endphp
 
                                                     @if($canApprove)
-                                                        <button type="button" class="dropdown-item form-submit-btn"
-                                                            data-action="{{ route('penjualan.approve', $item->id) }}"
-                                                            data-method="POST">
-                                                            <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
-                                                        </button>
+                                                        <form action="{{ route('penjualan.approve', $item->id) }}" method="POST"
+                                                            class="d-inline">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item">
+                                                                <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
+                                                            </button>
+                                                        </form>
                                                     @endif
                                                 @endif
 
                                                 {{-- MARK PAID: Hanya jika Approved --}}
                                                 @if($item->status == 'Approved')
-                                                    <button type="button" class="dropdown-item form-submit-btn"
-                                                        data-action="{{ route('penjualan.markAsPaid', $item->id) }}"
-                                                        data-method="POST">
-                                                        <i class="fas fa-dollar-sign fa-fw mr-2 text-primary"></i> Tandai Lunas
-                                                    </button>
+                                                    <form action="{{ route('penjualan.markAsPaid', $item->id) }}" method="POST"
+                                                        class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-dollar-sign fa-fw mr-2 text-primary"></i> Tandai Lunas
+                                                        </button>
+                                                    </form>
                                                 @endif
 
                                                 {{-- CANCEL: Jika belum Canceled, hanya super_admin bisa cancel Approved/Lunas --}}
@@ -388,39 +392,6 @@
                 $('.action-dropdown').removeClass('show');
                 $('.action-dropdown .dropdown-toggle').attr('aria-expanded', 'false');
                 $overlay.hide();
-            });
-
-            // Handle form-submit-btn clicks
-            $(document).on('click', '.form-submit-btn', function (e) {
-                e.preventDefault();
-                var action = $(this).data('action');
-                var method = $(this).data('method') || 'POST';
-
-                // Create a temporary form and submit
-                var form = $('<form>', {
-                    method: 'POST',
-                    action: action,
-                    style: 'display:none'
-                });
-
-                // Add CSRF token
-                form.append($('<input>', {
-                    type: 'hidden',
-                    name: '_token',
-                    value: $('meta[name="csrf-token"]').attr('content')
-                }));
-
-                // Add method override if needed
-                if (method !== 'POST') {
-                    form.append($('<input>', {
-                        type: 'hidden',
-                        name: '_method',
-                        value: method
-                    }));
-                }
-
-                $('body').append(form);
-                form.submit();
             });
         });
     </script>
