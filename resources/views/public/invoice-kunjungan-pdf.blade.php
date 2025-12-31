@@ -3,139 +3,111 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Kunjungan PDF</title>
+    <title>Kunjungan {{ $kunjungan->sales_nama }}</title>
     <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'DejaVu Sans', sans-serif;
-            font-size: 12px;
-            color: #333;
-            margin: 0;
-            padding: 20px;
+            font-size: 11px;
+            color: #000;
+            line-height: 1.4;
+        }
+
+        .receipt {
+            max-width: 80mm;
+            margin: 0 auto;
+            padding: 5mm;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #3b82f6;
-            padding-bottom: 20px;
+            margin-bottom: 10px;
         }
 
-        .header h1 {
-            font-size: 24px;
-            color: #1f2937;
-            margin: 0 0 5px 0;
+        .logo {
+            max-width: 50mm;
+            margin-bottom: 5px;
         }
 
-        .header .number {
-            font-size: 14px;
-            color: #6b7280;
-        }
-
-        .section {
-            margin-bottom: 20px;
-        }
-
-        .section-title {
+        .title {
             font-size: 14px;
             font-weight: bold;
-            color: #3b82f6;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #e5e7eb;
         }
 
-        .info-table {
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 8px 0;
+        }
+
+        table {
             width: 100%;
-            border-collapse: collapse;
+            font-size: 10px;
         }
 
-        .info-table td {
-            padding: 8px 0;
+        td {
+            padding-bottom: 3px;
             vertical-align: top;
         }
 
-        .info-table .label {
+        .label-col {
             width: 35%;
-            color: #6b7280;
         }
 
-        .info-table .value {
-            width: 65%;
-            font-weight: 500;
-            color: #1f2937;
+        .colon-col {
+            width: 5%;
+            text-align: center;
         }
 
-        .tujuan-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
+        .value-col {
+            width: 60%;
         }
 
-        .tujuan-stock {
-            background: #e0f2fe;
-            color: #0369a1;
-        }
-
-        .tujuan-penagihan {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .tujuan-penawaran {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 4px;
+        .item-name {
             font-size: 11px;
             font-weight: bold;
+            margin-bottom: 2px;
         }
 
-        .status-approved {
-            background: #dcfce7;
-            color: #166534;
+        .val {
+            text-align: right;
         }
 
-        .status-pending {
-            background: #fef3c7;
-            color: #92400e;
+        .grand-total {
+            font-weight: bold;
+            font-size: 12px;
+            border-top: 1px dashed #000;
+            padding-top: 5px;
         }
 
-        .status-canceled {
-            background: #fee2e2;
-            color: #991b1b;
+        .qr-section {
+            text-align: center;
+            margin-top: 12px;
         }
 
-        .memo-box {
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
+        .qr-section img {
+            width: 25mm;
+            height: 25mm;
+        }
+
+        .qr-section p {
+            font-size: 8px;
+            margin-top: 3px;
         }
 
         .footer {
-            margin-top: 40px;
             text-align: center;
-            color: #9ca3af;
-            font-size: 11px;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 20px;
-        }
-
-        .two-column {
-            width: 100%;
-        }
-
-        .two-column td {
-            width: 50%;
-            vertical-align: top;
-            padding-right: 20px;
+            margin-top: 10px;
+            font-size: 9px;
         }
     </style>
 </head>
@@ -144,120 +116,110 @@
     @php
         $dateCode = $kunjungan->created_at->format('Ymd');
         $noUrut = str_pad($kunjungan->no_urut_harian, 3, '0', STR_PAD_LEFT);
-        $customNumber = "VST-{$dateCode}-{$kunjungan->user_id}-{$noUrut}";
+        $nomorInvoice = $kunjungan->nomor ?? "VST-{$kunjungan->user_id}-{$dateCode}-{$noUrut}";
+        $invoiceUrl = url('invoice/kunjungan/' . $kunjungan->uuid);
     @endphp
 
-    {{-- HEADER --}}
-    <div class="header">
-        <h1>BUKTI KUNJUNGAN</h1>
-        <div class="number">{{ $customNumber }}</div>
-    </div>
+    <div class="receipt">
+        <div class="header">
+            <img src="{{ public_path('assets/img/logoHE1.png') }}" class="logo" alt="Logo">
+            <div class="title">BUKTI KUNJUNGAN</div>
+        </div>
 
-    {{-- TUJUAN --}}
-    <div style="text-align: center; margin-bottom: 20px;">
-        @if($kunjungan->tujuan == 'Pemeriksaan Stock')
-            <span class="tujuan-badge tujuan-stock">{{ $kunjungan->tujuan }}</span>
-        @elseif($kunjungan->tujuan == 'Penagihan')
-            <span class="tujuan-badge tujuan-penagihan">{{ $kunjungan->tujuan }}</span>
-        @else
-            <span class="tujuan-badge tujuan-penawaran">{{ $kunjungan->tujuan }}</span>
-        @endif
-    </div>
-
-    {{-- INFO KUNJUNGAN --}}
-    <table class="two-column">
-        <tr>
-            <td>
-                <div class="section">
-                    <div class="section-title">Informasi Kunjungan</div>
-                    <table class="info-table">
-                        <tr>
-                            <td class="label">Tanggal</td>
-                            <td class="value">{{ $kunjungan->tgl_kunjungan->format('d F Y') }}</td>
-                        </tr>
-                        <tr>
-                            <td class="label">Waktu Buat</td>
-                            <td class="value">{{ $kunjungan->created_at->format('H:i') }} WIB</td>
-                        </tr>
-                        <tr>
-                            <td class="label">Status</td>
-                            <td class="value">
-                                @if($kunjungan->status == 'Approved')
-                                    <span class="status-badge status-approved">{{ $kunjungan->status }}</span>
-                                @elseif($kunjungan->status == 'Pending')
-                                    <span class="status-badge status-pending">{{ $kunjungan->status }}</span>
-                                @else
-                                    <span class="status-badge status-canceled">{{ $kunjungan->status }}</span>
-                                @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="label">Gudang</td>
-                            <td class="value">{{ optional($kunjungan->gudang)->nama_gudang ?? '-' }}</td>
-                        </tr>
-                    </table>
-                </div>
-            </td>
-            <td>
-                <div class="section">
-                    <div class="section-title">Sales / Kontak</div>
-                    <table class="info-table">
-                        <tr>
-                            <td class="label">Nama</td>
-                            <td class="value">{{ $kunjungan->sales_nama }}</td>
-                        </tr>
-                        <tr>
-                            <td class="label">Email</td>
-                            <td class="value">{{ $kunjungan->sales_email ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td class="label">Alamat</td>
-                            <td class="value">{{ $kunjungan->sales_alamat ?? '-' }}</td>
-                        </tr>
-                    </table>
-                </div>
-            </td>
-        </tr>
-    </table>
-
-    {{-- PETUGAS --}}
-    <div class="section">
-        <div class="section-title">Detail Petugas</div>
-        <table class="info-table">
+        <table>
             <tr>
-                <td class="label" style="width: 20%;">Pembuat</td>
-                <td class="value">{{ $kunjungan->user->name }}</td>
+                <td class="label-col">Nomor</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $nomorInvoice }}</td>
             </tr>
-            @if($kunjungan->status != 'Pending' && $kunjungan->approver)
-                <tr>
-                    <td class="label">Approver</td>
-                    <td class="value">{{ $kunjungan->approver->name }}</td>
-                </tr>
-            @endif
+            <tr>
+                <td class="label-col">Tanggal</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $kunjungan->tgl_kunjungan->format('d/m/Y') }} |
+                    {{ $kunjungan->created_at->format('H:i') }}
+                </td>
+            </tr>
+            <tr>
+                <td class="label-col">Tujuan</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $kunjungan->tujuan }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Sales/Kontak</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $kunjungan->sales_nama }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Pembuat</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $kunjungan->user->name }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Disetujui</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $kunjungan->status == 'Pending' ? '-' : ($kunjungan->approver->name ?? '-') }}
+                </td>
+            </tr>
+            <tr>
+                <td class="label-col">Gudang</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $kunjungan->gudang->nama_gudang ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Status</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ $kunjungan->status }}</td>
+            </tr>
             @if($kunjungan->koordinat)
                 <tr>
-                    <td class="label">Koordinat</td>
-                    <td class="value">{{ $kunjungan->koordinat }}</td>
+                    <td class="label-col">Koordinat</td>
+                    <td class="colon-col">:</td>
+                    <td class="value-col">{{ $kunjungan->koordinat }}</td>
                 </tr>
             @endif
         </table>
-    </div>
 
-    {{-- MEMO --}}
-    @if($kunjungan->memo)
-        <div class="section">
-            <div class="section-title">Memo / Catatan</div>
-            <div class="memo-box">
-                {{ $kunjungan->memo }}
-            </div>
+        @if($kunjungan->memo)
+            <div class="divider"></div>
+            <div style="font-size: 10px; margin-bottom: 5px;"><strong>Catatan / Memo:</strong></div>
+            <div style="font-size: 10px;">{{ $kunjungan->memo }}</div>
+        @endif
+
+        @if($kunjungan->items && $kunjungan->items->count() > 0)
+            <div class="divider"></div>
+            <div style="font-size: 10px; margin-bottom: 5px; font-weight: bold;">Detail Item:</div>
+
+            @foreach($kunjungan->items as $item)
+                <div style="margin-bottom: 8px;">
+                    <div class="item-name">{{ $item->produk->nama_produk ?? 'Item Hapus' }}</div>
+                    <table>
+                        <tr>
+                            <td>Qty</td>
+                            <td class="val">{{ $item->jumlah ?? 0 }}</td>
+                        </tr>
+                        @if($item->keterangan)
+                            <tr>
+                                <td>Ket</td>
+                                <td class="val">{{ $item->keterangan }}</td>
+                            </tr>
+                        @endif
+                    </table>
+                </div>
+            @endforeach
+        @endif
+
+        <div class="divider"></div>
+
+        <div class="qr-section">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
+                alt="QR Code">
+            <p>Scan untuk melihat detail</p>
         </div>
-    @endif
 
-    {{-- FOOTER --}}
-    <div class="footer">
-        <p><strong>Hibiscus Efsya</strong></p>
-        <p>Dokumen ini sah tanpa tanda tangan</p>
-        <p>Dicetak pada: {{ now()->format('d F Y H:i') }} WIB</p>
+        <div class="footer">
+            <p>marketing@hibiscusefsya.com</p>
+            <p>-- Terima Kasih --</p>
+        </div>
     </div>
 </body>
 
