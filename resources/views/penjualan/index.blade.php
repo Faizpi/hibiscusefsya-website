@@ -288,5 +288,111 @@
             var modal = $(this);
             modal.find('#cancelForm').attr('action', action);
         });
+
+        // ============ FIX DROPDOWN DI TABEL ============
+        $(document).ready(function () {
+            // Buat overlay untuk mobile
+            var $overlay = $('<div id="dropdown-overlay"></div>').css({
+                'position': 'fixed',
+                'top': 0,
+                'left': 0,
+                'right': 0,
+                'bottom': 0,
+                'background': 'rgba(0,0,0,0.3)',
+                'z-index': 1050,
+                'display': 'none'
+            });
+            $('body').append($overlay);
+
+            // Click overlay to close
+            $overlay.on('click', function () {
+                $('.action-dropdown .dropdown-menu').removeClass('show').removeAttr('style');
+                $('.action-dropdown').removeClass('show');
+                $('.action-dropdown .dropdown-toggle').attr('aria-expanded', 'false');
+                $overlay.hide();
+            });
+
+            // Override default dropdown behavior untuk action-dropdown di tabel
+            $(document).on('click', '.action-dropdown .dropdown-toggle', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var $toggle = $(this);
+                var $dropdown = $toggle.closest('.action-dropdown');
+                var $menu = $dropdown.find('.dropdown-menu');
+                var isOpen = $menu.hasClass('show');
+
+                // Tutup semua dropdown lain dulu
+                $('.action-dropdown .dropdown-menu').removeClass('show').removeAttr('style');
+                $('.action-dropdown').removeClass('show');
+                $('.action-dropdown .dropdown-toggle').attr('aria-expanded', 'false');
+
+                if (isOpen) {
+                    // Tutup dropdown ini
+                    $overlay.hide();
+                    return;
+                }
+
+                // Buka dropdown ini
+                $dropdown.addClass('show');
+                $toggle.attr('aria-expanded', 'true');
+
+                // Cek jika mobile
+                var isMobile = $(window).width() <= 768;
+
+                if (isMobile) {
+                    // Mobile: tampilkan sebagai bottom sheet
+                    $menu.addClass('show').css({
+                        'position': 'fixed',
+                        'bottom': '0',
+                        'left': '0',
+                        'right': '0',
+                        'top': 'auto',
+                        'width': '100%',
+                        'max-width': '100%',
+                        'border-radius': '16px 16px 0 0',
+                        'padding': '16px',
+                        'margin': '0',
+                        'z-index': 1060,
+                        'box-shadow': '0 -4px 20px rgba(0,0,0,0.15)',
+                        'background': '#fff',
+                        'transform': 'none'
+                    });
+                    $overlay.show();
+                } else {
+                    // Desktop: tampilkan di posisi relatif ke tombol
+                    var offset = $toggle.offset();
+                    var scrollTop = $(window).scrollTop();
+
+                    $menu.addClass('show').css({
+                        'position': 'fixed',
+                        'top': (offset.top - scrollTop + $toggle.outerHeight() + 4) + 'px',
+                        'left': 'auto',
+                        'right': ($(window).width() - offset.left - $toggle.outerWidth()) + 'px',
+                        'bottom': 'auto',
+                        'z-index': 1060,
+                        'transform': 'none'
+                    });
+                }
+            });
+
+            // Tutup dropdown saat klik di luar
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('.action-dropdown').length) {
+                    $('.action-dropdown .dropdown-menu').removeClass('show').removeAttr('style');
+                    $('.action-dropdown').removeClass('show');
+                    $('.action-dropdown .dropdown-toggle').attr('aria-expanded', 'false');
+                    $overlay.hide();
+                }
+            });
+
+            // Tutup dropdown saat scroll tabel
+            $('.table-responsive').on('scroll', function () {
+                $('.action-dropdown .dropdown-menu').removeClass('show').removeAttr('style');
+                $('.action-dropdown').removeClass('show');
+                $('.action-dropdown .dropdown-toggle').attr('aria-expanded', 'false');
+                $overlay.hide();
+            });
+        });
     </script>
 @endpush
