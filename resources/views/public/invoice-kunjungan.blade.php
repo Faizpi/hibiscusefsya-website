@@ -249,7 +249,8 @@
     @php
         $dateCode = $kunjungan->created_at->format('Ymd');
         $noUrut = str_pad($kunjungan->no_urut_harian, 3, '0', STR_PAD_LEFT);
-        $customNumber = "VST-{$dateCode}-{$kunjungan->user_id}-{$noUrut}";
+        $nomorInvoice = $kunjungan->nomor ?? "VST-{$kunjungan->user_id}-{$dateCode}-{$noUrut}";
+        $invoiceUrl = url('invoice/kunjungan/' . $kunjungan->uuid);
     @endphp
 
     <div class="invoice-container">
