@@ -655,6 +655,36 @@
             margin-top: 4px;
         }
 
+        /* Mobile: Fix dropdown keluar dari tabel */
+        @media (max-width: 768px) {
+            .action-dropdown .dropdown-menu {
+                position: fixed !important;
+                top: auto !important;
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) !important;
+                bottom: 20px !important;
+                max-width: calc(100vw - 40px);
+                width: 200px;
+                z-index: 1060 !important;
+            }
+
+            .action-dropdown .dropdown-menu.show {
+                animation: slideUp 0.2s ease-out;
+            }
+
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateX(-50%) translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(-50%) translateY(0);
+                }
+            }
+        }
+
         .action-dropdown .dropdown-item {
             padding: 0.5rem 1rem;
             font-size: 0.875rem;
@@ -1228,7 +1258,7 @@
             }
         }
 
-        /* Mobile: enable horizontal scroll */
+        /* Mobile: enable horizontal scroll tapi fix dropdown */
         @media (max-width: 768px) {
             .table-responsive {
                 overflow-x: auto !important;
@@ -1240,6 +1270,18 @@
 
             .table-responsive .table {
                 min-width: 700px;
+            }
+
+            /* Tombol di card-header wrap di mobile */
+            .card-header .btn-group-mobile,
+            .card-header > div {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .card-header .btn {
+                margin-bottom: 0 !important;
+                margin-right: 0 !important;
             }
         }
 

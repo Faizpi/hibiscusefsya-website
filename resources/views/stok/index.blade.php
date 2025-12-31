@@ -68,10 +68,10 @@
             {{-- Kolom daftar stok: full width untuk Admin, 8 kolom untuk Super Admin --}}
             <div class="{{ auth()->user()->role == 'super_admin' ? 'col-lg-8' : 'col-lg-12' }}">
                 <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <div class="card-header py-3 d-flex flex-wrap justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">Daftar Stok per Gudang</h6>
-                        <div>
-                            <a href="{{ route('stok.log') }}" class="btn btn-sm btn-info mr-2">
+                        <div class="d-flex flex-wrap mt-2 mt-sm-0" style="gap: 0.5rem;">
+                            <a href="{{ route('stok.log') }}" class="btn btn-sm btn-info">
                                 <i class="fas fa-history mr-1"></i> Riwayat Perubahan
                             </a>
                             <button type="button" class="btn btn-sm btn-success" data-toggle="modal"
