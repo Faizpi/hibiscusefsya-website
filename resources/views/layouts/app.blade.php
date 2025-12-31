@@ -1064,18 +1064,57 @@
                 font-size: 16px !important;
             }
 
-            /* Pastikan table-responsive tidak mengganggu input focus */
-            .table-responsive:focus-within {
-                overflow: visible !important;
+            /* Mobile dropdown fix - jangan gunakan overflow visible karena merusak tabel */
+            /* Dropdown akan menggunakan fixed position via JavaScript */
+            
+            /* Overlay backdrop untuk mobile dropdown */
+            .mobile-dropdown-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.3);
+                z-index: 1055;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.2s ease, visibility 0.2s ease;
             }
-
-            /* Fix untuk input di dalam card */
-            .card:focus-within {
-                overflow: visible !important;
+            
+            .mobile-dropdown-backdrop.show {
+                opacity: 1;
+                visibility: visible;
             }
-
-            .card-body:focus-within {
-                overflow: visible !important;
+            
+            /* Mobile dropdown menu styling - bottom sheet style */
+            .dropdown-menu.mobile-dropdown-active {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                top: auto !important;
+                transform: none !important;
+                z-index: 1060 !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                border-radius: 16px 16px 0 0 !important;
+                padding: 1rem !important;
+                box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.15) !important;
+                margin: 0 !important;
+                background: #fff !important;
+                border: none !important;
+            }
+            
+            .dropdown-menu.mobile-dropdown-active .dropdown-item {
+                padding: 0.875rem 1rem !important;
+                font-size: 0.9375rem !important;
+                border-radius: 8px !important;
+                margin-bottom: 4px !important;
+            }
+            
+            .dropdown-menu.mobile-dropdown-active .dropdown-divider {
+                margin: 0.5rem 0 !important;
             }
 
             /* Form group focus state */
@@ -2075,63 +2114,60 @@
             }
 
             // ========== FIX DROPDOWN DI TABEL MOBILE ==========
-            // Pindahkan dropdown menu ke body saat dibuka untuk menghindari overflow tabel
-            if ($(window).width() <= 768) {
-                $(document).on('show.bs.dropdown', '.action-dropdown', function () {
-                    var $dropdown = $(this);
-                    var $menu = $dropdown.find('.dropdown-menu');
-                    
-                    // Clone menu dan pindahkan ke body
-                    $menu.data('original-parent', $dropdown);
-                    $('body').append($menu.detach());
-                    
-                    // Posisikan di tengah bawah layar
-                    $menu.css({
-                        'position': 'fixed',
-                        'bottom': '20px',
-                        'left': '50%',
-                        'top': 'auto',
-                        'right': 'auto',
-                        'transform': 'translateX(-50%)',
-                        'z-index': '1060',
-                        'min-width': '200px'
-                    });
-                });
+            // Menggunakan CSS class untuk bottom sheet style dropdown tanpa memindahkan DOM
+            var isMobile = function() {
+                return $(window).width() <= 768;
+            };
+            
+            // Buat backdrop element sekali saja
+            var $backdrop = $('<div class="mobile-dropdown-backdrop"></div>');
+            $('body').append($backdrop);
+            
+            // Handler untuk menutup dropdown saat backdrop diklik
+            $backdrop.on('click', function() {
+                $('.action-dropdown.show .dropdown-toggle').dropdown('hide');
+            });
 
-                $(document).on('hide.bs.dropdown', '.action-dropdown', function () {
-                    var $dropdown = $(this);
-                    var $menu = $('body > .dropdown-menu');
-                    
-                    // Kembalikan menu ke parent asli
-                    if ($menu.length) {
-                        $menu.css({
-                            'position': '',
-                            'bottom': '',
-                            'left': '',
-                            'top': '',
-                            'right': '',
-                            'transform': '',
-                            'z-index': '',
-                            'min-width': ''
-                        });
-                        $dropdown.append($menu.detach());
-                    }
-                });
+            // Gunakan 'shown' event (setelah dropdown tampil) untuk styling
+            $(document).on('shown.bs.dropdown', '.action-dropdown', function () {
+                if (!isMobile()) return;
+                
+                var $menu = $(this).find('.dropdown-menu');
+                
+                // Tambahkan class untuk styling mobile bottom sheet
+                $menu.addClass('mobile-dropdown-active');
+                
+                // Tampilkan backdrop
+                $backdrop.addClass('show');
+            });
 
-                // Tambahkan overlay saat dropdown terbuka
-                $(document).on('shown.bs.dropdown', '.action-dropdown', function () {
-                    if (!$('#dropdownOverlay').length) {
-                        $('body').append('<div id="dropdownOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:1055;"></div>');
-                    }
-                    $('#dropdownOverlay').on('click', function() {
-                        $('.action-dropdown .dropdown-toggle').dropdown('hide');
-                    });
-                });
-
-                $(document).on('hidden.bs.dropdown', '.action-dropdown', function () {
-                    $('#dropdownOverlay').remove();
-                });
-            }
+            $(document).on('hidden.bs.dropdown', '.action-dropdown', function () {
+                if (!isMobile()) return;
+                
+                var $menu = $(this).find('.dropdown-menu');
+                
+                // Hapus class mobile
+                $menu.removeClass('mobile-dropdown-active');
+                
+                // Sembunyikan backdrop
+                $backdrop.removeClass('show');
+            });
+            
+            // Tutup dropdown saat swipe down (gesture)
+            var touchStartY = 0;
+            $(document).on('touchstart', '.dropdown-menu.mobile-dropdown-active', function(e) {
+                touchStartY = e.originalEvent.touches[0].clientY;
+            });
+            
+            $(document).on('touchmove', '.dropdown-menu.mobile-dropdown-active', function(e) {
+                var touchY = e.originalEvent.touches[0].clientY;
+                var diff = touchY - touchStartY;
+                
+                // Jika swipe ke bawah lebih dari 50px, tutup dropdown
+                if (diff > 50) {
+                    $('.action-dropdown.show .dropdown-toggle').dropdown('hide');
+                }
+            });
         });
     </script>
 
