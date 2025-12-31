@@ -255,9 +255,9 @@
     <div class="invoice-container">
         {{-- HEADER --}}
         <div class="invoice-header">
-            <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo">
+            <img src="{{ asset('assets/img/logoHE1.png') }}" alt="Hibiscus Efsya" onerror="this.style.display='none'">
             <h1>BUKTI KUNJUNGAN</h1>
-            <div class="invoice-number">{{ $customNumber }}</div>
+            <div class="invoice-number">{{ $nomorInvoice }}</div>
         </div>
 
         {{-- BODY --}}
@@ -286,7 +286,7 @@
                 </div>
                 <div class="info-row">
                     <span class="label">Tanggal</span>
-                    <span class="value">{{ $kunjungan->tgl_kunjungan->format('d F Y') }}</span>
+                    <span class="value">{{ $kunjungan->tgl_kunjungan->format('d M Y') }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Waktu Buat</span>
@@ -363,15 +363,22 @@
 
             {{-- PRODUK ITEMS --}}
             @if($kunjungan->items && $kunjungan->items->count() > 0)
-                <div class="info-card">
-                    <div class="info-card-title">
-                        <i class="fas fa-boxes"></i> Produk Terkait
-                    </div>
-                    @foreach($kunjungan->items as $index => $item)
-                        <div class="info-row">
-                            <span class="label">{{ $index + 1 }}. {{ optional($item->produk)->item_code ?? '-' }}</span>
-                            <span class="value">{{ optional($item->produk)->nama_produk ?? '-' }}
-                                ({{ $item->jumlah ?? 1 }})</span>
+                <div class="items-section">
+                    <div class="items-title"><i class="fas fa-box"></i> Daftar Item Kunjungan</div>
+                    @foreach($kunjungan->items as $item)
+                        <div class="item-card">
+                            <div class="item-name">
+                                {{ optional($item->produk)->nama_produk ?? 'Item Hapus' }}
+                                @if(optional($item->produk)->item_code)
+                                    <span style="font-size: 11px; color: var(--text-muted);">({{ $item->produk->item_code }})</span>
+                                @endif
+                            </div>
+                            <div class="item-meta">
+                                <span>Jumlah: {{ $item->jumlah ?? 1 }}</span>
+                                @if($item->keterangan)
+                                    <span style="font-style: italic;">"{{ $item->keterangan }}"</span>
+                                @endif
+                            </div>
                         </div>
                     @endforeach
                 </div>
@@ -384,6 +391,13 @@
                     <p>{{ $kunjungan->memo }}</p>
                 </div>
             @endif
+
+            {{-- QR SECTION --}}
+            <div class="qr-section">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
+                    alt="QR Code">
+                <p>Scan untuk melihat bukti ini</p>
+            </div>
 
             {{-- DOWNLOAD BUTTON --}}
             <a href="{{ route('public.invoice.kunjungan.download', $kunjungan->uuid) }}" class="download-btn">
