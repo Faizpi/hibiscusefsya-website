@@ -150,12 +150,13 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="dropdown no-arrow">
-                                        <button class="btn btn-sm btn-secondary dropdown-toggle no-caret" type="button"
-                                            data-toggle="dropdown">
+                                    <div class="dropdown action-dropdown">
+                                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
+                                        <div class="dropdown-menu dropdown-menu-right shadow-sm">
+                                            {{-- VIEW --}}
                                             <a class="dropdown-item" href="{{ route('kunjungan.show', $item->id) }}">
                                                 <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat Detail
                                             </a>
@@ -221,8 +222,8 @@
     <div class="modal fade" id="cancelModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Konfirmasi Pembatalan</h5>
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle mr-2"></i>Konfirmasi Pembatalan</h5>
                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <form id="cancelForm" method="POST">
@@ -243,9 +244,9 @@
     <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Konfirmasi Hapus</h5>
-                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle mr-2"></i>Konfirmasi Hapus</h5>
+                    <button class="close text-white" type="button" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <form id="deleteForm" method="POST">
                     @csrf
