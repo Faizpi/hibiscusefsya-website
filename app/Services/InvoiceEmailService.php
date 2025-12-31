@@ -172,10 +172,15 @@ class InvoiceEmailService
         $superAdmins = User::where('role', 'super_admin')->pluck('email')->toArray();
         $emails = array_merge($emails, $superAdmins);
 
-        // Admin yang pegang gudang tersebut
+        // Admin yang pegang gudang tersebut (via single relation OR pivot table)
         if ($gudangId) {
             $gudangAdmins = User::where('role', 'admin')
-                ->where('gudang_id', $gudangId)
+                ->where(function ($query) use ($gudangId) {
+                    $query->where('gudang_id', $gudangId)
+                        ->orWhereHas('gudangs', function ($subQuery) use ($gudangId) {
+                            $subQuery->where('gudangs.id', $gudangId);
+                        });
+                })
                 ->pluck('email')
                 ->toArray();
             $emails = array_merge($emails, $gudangAdmins);

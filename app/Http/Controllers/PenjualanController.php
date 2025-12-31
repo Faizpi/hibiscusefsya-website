@@ -257,7 +257,12 @@ class PenjualanController extends Controller
         if ($user->role == 'user') {
             // Sales: cari admin yang handle gudang yang dipilih
             $adminGudang = User::where('role', 'admin')
-                ->where('current_gudang_id', $request->gudang_id)
+                ->where(function ($q) use ($request) {
+                    $q->where('gudang_id', $request->gudang_id)
+                        ->orWhereHas('gudangs', function ($sub) use ($request) {
+                            $sub->where('gudangs.id', $request->gudang_id);
+                        });
+                })
                 ->first();
 
             if ($adminGudang) {
@@ -490,7 +495,12 @@ class PenjualanController extends Controller
             // Re-calculate approver berdasarkan gudang yang dipilih
             if ($user->role == 'user') {
                 $adminGudang = User::where('role', 'admin')
-                    ->where('current_gudang_id', $request->gudang_id)
+                    ->where(function ($q) use ($request) {
+                        $q->where('gudang_id', $request->gudang_id)
+                            ->orWhereHas('gudangs', function ($sub) use ($request) {
+                                $sub->where('gudangs.id', $request->gudang_id);
+                            });
+                    })
                     ->first();
 
                 if ($adminGudang) {

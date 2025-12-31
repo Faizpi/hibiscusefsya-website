@@ -155,7 +155,12 @@ class KunjunganController extends Controller
                 $gudangId = $gudang->id;
                 // Cari admin yang handle gudang ini
                 $adminGudang = User::where('role', 'admin')
-                    ->where('current_gudang_id', $gudang->id)
+                    ->where(function ($q) use ($gudang) {
+                        $q->where('gudang_id', $gudang->id)
+                            ->orWhereHas('gudangs', function ($sub) use ($gudang) {
+                                $sub->where('gudangs.id', $gudang->id);
+                            });
+                    })
                     ->first();
 
                 if ($adminGudang) {
