@@ -655,36 +655,6 @@
             margin-top: 4px;
         }
 
-        /* Mobile: Fix dropdown keluar dari tabel */
-        @media (max-width: 768px) {
-            .action-dropdown .dropdown-menu {
-                position: fixed !important;
-                top: auto !important;
-                left: 50% !important;
-                right: auto !important;
-                transform: translateX(-50%) !important;
-                bottom: 20px !important;
-                max-width: calc(100vw - 40px);
-                width: 200px;
-                z-index: 1060 !important;
-            }
-
-            .action-dropdown .dropdown-menu.show {
-                animation: slideUp 0.2s ease-out;
-            }
-
-            @keyframes slideUp {
-                from {
-                    opacity: 0;
-                    transform: translateX(-50%) translateY(10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(-50%) translateY(0);
-                }
-            }
-        }
-
         .action-dropdown .dropdown-item {
             padding: 0.5rem 1rem;
             font-size: 0.875rem;
@@ -2101,6 +2071,65 @@
                             searchField.focus();
                         }, 100);
                     }
+                });
+            }
+
+            // ========== FIX DROPDOWN DI TABEL MOBILE ==========
+            // Pindahkan dropdown menu ke body saat dibuka untuk menghindari overflow tabel
+            if ($(window).width() <= 768) {
+                $(document).on('show.bs.dropdown', '.action-dropdown', function () {
+                    var $dropdown = $(this);
+                    var $menu = $dropdown.find('.dropdown-menu');
+                    
+                    // Clone menu dan pindahkan ke body
+                    $menu.data('original-parent', $dropdown);
+                    $('body').append($menu.detach());
+                    
+                    // Posisikan di tengah bawah layar
+                    $menu.css({
+                        'position': 'fixed',
+                        'bottom': '20px',
+                        'left': '50%',
+                        'top': 'auto',
+                        'right': 'auto',
+                        'transform': 'translateX(-50%)',
+                        'z-index': '1060',
+                        'min-width': '200px'
+                    });
+                });
+
+                $(document).on('hide.bs.dropdown', '.action-dropdown', function () {
+                    var $dropdown = $(this);
+                    var $menu = $('body > .dropdown-menu');
+                    
+                    // Kembalikan menu ke parent asli
+                    if ($menu.length) {
+                        $menu.css({
+                            'position': '',
+                            'bottom': '',
+                            'left': '',
+                            'top': '',
+                            'right': '',
+                            'transform': '',
+                            'z-index': '',
+                            'min-width': ''
+                        });
+                        $dropdown.append($menu.detach());
+                    }
+                });
+
+                // Tambahkan overlay saat dropdown terbuka
+                $(document).on('shown.bs.dropdown', '.action-dropdown', function () {
+                    if (!$('#dropdownOverlay').length) {
+                        $('body').append('<div id="dropdownOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:1055;"></div>');
+                    }
+                    $('#dropdownOverlay').on('click', function() {
+                        $('.action-dropdown .dropdown-toggle').dropdown('hide');
+                    });
+                });
+
+                $(document).on('hidden.bs.dropdown', '.action-dropdown', function () {
+                    $('#dropdownOverlay').remove();
                 });
             }
         });
