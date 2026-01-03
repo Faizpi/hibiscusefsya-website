@@ -239,20 +239,18 @@
                                     rows="2">{{ old('memo') }}</textarea>
                             </div>
                             <div class="form-group">
-                                <label for="lampiran">Lampiran</label>
+                                <label for="lampiran">Lampiran <small class="text-muted">(dapat memilih banyak file)</small></label>
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror"
-                                        id="lampiran" name="lampiran" data-preview-nomor="{{ $previewNomor ?? '' }}">
+                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror"
+                                        id="lampiran" name="lampiran[]" multiple data-preview-nomor="{{ $previewNomor ?? '' }}" accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx">
                                     <label class="custom-file-label" for="lampiran">Pilih file...</label>
                                 </div>
-                                <div id="lampiran-feedback" class="mt-2" style="display: none;">
-                                    <div class="alert alert-info py-2 mb-0">
-                                        <i class="fas fa-info-circle mr-1"></i>
-                                        <small>File akan disimpan sebagai: <strong
-                                                id="lampiran-preview-name"></strong></small>
-                                    </div>
+                                <div id="lampiran-list" class="mt-2" style="display: none;">
+                                    <small class="text-muted">File terpilih:</small>
+                                    <ul id="lampiran-file-list" class="list-unstyled mb-0 mt-1"></ul>
                                 </div>
                                 @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                @error('lampiran.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -548,29 +546,33 @@
                 getLocation();
             }
 
-            // Lampiran upload feedback
+            // Lampiran upload feedback - multiple files
             const lampiranInput = document.getElementById('lampiran');
-            const lampiranFeedback = document.getElementById('lampiran-feedback');
-            const lampiranPreviewName = document.getElementById('lampiran-preview-name');
-            const previewNomor = lampiranInput ? lampiranInput.dataset.previewNomor : '';
+            const lampiranList = document.getElementById('lampiran-list');
+            const lampiranFileList = document.getElementById('lampiran-file-list');
 
             if (lampiranInput) {
-                lampiranInput.addEventListener('change', function () {
+                lampiranInput.addEventListener('change', function() {
+                    lampiranFileList.innerHTML = '';
                     if (this.files && this.files.length > 0) {
-                        const file = this.files[0];
-                        const extension = file.name.split('.').pop().toLowerCase();
-                        const expectedFilename = previewNomor + '.' + extension;
-
-                        lampiranPreviewName.textContent = expectedFilename;
-                        lampiranFeedback.style.display = 'block';
-
+                        lampiranList.style.display = 'block';
+                        for (let i = 0; i < this.files.length; i++) {
+                            const li = document.createElement('li');
+                            li.innerHTML = '<i class="fas fa-file mr-1 text-primary"></i> ' + this.files[i].name;
+                            lampiranFileList.appendChild(li);
+                        }
+                        
                         // Update custom file label
                         const label = this.nextElementSibling;
                         if (label) {
-                            label.textContent = file.name;
+                            label.textContent = this.files.length + ' file dipilih';
                         }
                     } else {
-                        lampiranFeedback.style.display = 'none';
+                        lampiranList.style.display = 'none';
+                        const label = this.nextElementSibling;
+                        if (label) {
+                            label.textContent = 'Pilih file...';
+                        }
                     }
                 });
             }

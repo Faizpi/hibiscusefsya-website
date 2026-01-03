@@ -148,7 +148,7 @@ class PembelianController extends Controller
             'gudang_id' => 'required|exists:gudangs,id',
             'tax_percentage' => 'required|numeric|min:0',
             'diskon_akhir' => 'nullable|numeric|min:0',
-            'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
+            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
             'produk_id' => 'required|array|min:1',
             'produk_id.*' => 'required|exists:produks,id',
             'kuantitas' => 'required|array|min:1',
@@ -203,19 +203,23 @@ class PembelianController extends Controller
         $nomor = Pembelian::generateNomor(Auth::id(), $noUrut, Carbon::now());
 
         // Upload lampiran dengan nama sesuai kode invoice
-        $path = null;
+        $lampiranPaths = [];
         $publicFolder = public_path('storage/lampiran_pembelian');
         if (!File::exists($publicFolder)) {
             File::makeDirectory($publicFolder, 0755, true);
         }
 
+        // Handle multiple lampiran
         if ($request->hasFile('lampiran')) {
-            $file = $request->file('lampiran');
-            $extension = $file->getClientOriginalExtension();
-            // Gunakan nomor invoice sebagai nama file
-            $filename = $nomor . '.' . $extension;
-            $file->move($publicFolder, $filename);
-            $path = 'lampiran_pembelian/' . $filename;
+            $counter = 1;
+            foreach ($request->file('lampiran') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                // Format: PO-xxx-1.jpg, PO-xxx-2.jpg, etc
+                $filename = $nomor . '-' . $counter . '.' . $extension;
+                $file->move($publicFolder, $filename);
+                $lampiranPaths[] = 'lampiran_pembelian/' . $filename;
+                $counter++;
+            }
         }
 
         // Tentukan approver berdasarkan gudang (sama seperti penjualan)
@@ -272,7 +276,7 @@ class PembelianController extends Controller
                 'koordinat' => $request->koordinat,
                 'memo' => $request->memo,
                 'staf_penyetuju' => $stafPenyetuju,
-                'lampiran_path' => $path,
+                'lampiran_paths' => $lampiranPaths,
                 'diskon_akhir' => $diskonAkhir,
                 'tax_percentage' => $pajakPersen,
                 'grand_total' => $grandTotal,
@@ -302,8 +306,11 @@ class PembelianController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            if ($path && File::exists(public_path('storage/' . $path))) {
-                File::delete(public_path('storage/' . $path));
+            // Hapus semua lampiran jika error
+            foreach ($lampiranPaths as $lampiranPath) {
+                if (File::exists(public_path('storage/' . $lampiranPath))) {
+                    File::delete(public_path('storage/' . $lampiranPath));
+                }
             }
             \Log::error('PembelianController@store - ERROR', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return redirect()->back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage())->withInput();
@@ -365,28 +372,34 @@ class PembelianController extends Controller
             'gudang_id' => 'required|exists:gudangs,id',
             'tax_percentage' => 'required|numeric|min:0',
             'diskon_akhir' => 'nullable|numeric|min:0',
-            'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
+            'lampiran' => 'nullable|array',
+            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
             'produk_id' => 'required|array|min:1',
             'produk_id.*' => 'required|exists:produks,id',
             'kuantitas.*' => 'required|numeric|min:1',
             'harga_satuan.*' => 'required|numeric|min:0',
         ]);
 
-        $path = $pembelian->lampiran_path;
+        // Ambil lampiran_paths yang sudah ada
+        $lampiranPaths = $pembelian->lampiran_paths ?? [];
         $publicFolder = public_path('storage/lampiran_pembelian');
         if (!File::exists($publicFolder)) {
             File::makeDirectory($publicFolder, 0755, true);
         }
 
+        // Handle multiple lampiran baru (append ke existing)
+        $newUploadedPaths = [];
         if ($request->hasFile('lampiran')) {
-            if ($path && File::exists(public_path('storage/' . $path))) {
-                File::delete(public_path('storage/' . $path));
+            $counter = count($lampiranPaths) + 1;
+            foreach ($request->file('lampiran') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $filename = $pembelian->nomor . '-' . $counter . '.' . $extension;
+                $file->move($publicFolder, $filename);
+                $newPath = 'lampiran_pembelian/' . $filename;
+                $lampiranPaths[] = $newPath;
+                $newUploadedPaths[] = $newPath;
+                $counter++;
             }
-            $file = $request->file('lampiran');
-            $extension = $file->getClientOriginalExtension();
-            $filename = time() . '_' . uniqid() . '.' . $extension;
-            $file->move($publicFolder, $filename);
-            $path = 'lampiran_pembelian/' . $filename;
         }
 
         // Hitung jatuh tempo dan tentukan status berdasarkan metode pembayaran
@@ -465,7 +478,7 @@ class PembelianController extends Controller
                 'tag' => $request->tag,
                 'koordinat' => $request->koordinat,
                 'memo' => $request->memo,
-                'lampiran_path' => $path,
+                'lampiran_paths' => $lampiranPaths,
                 'diskon_akhir' => $diskonAkhir,
                 'tax_percentage' => $pajakPersen,
                 'grand_total' => $grandTotal,
@@ -493,8 +506,11 @@ class PembelianController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            if ($path && File::exists(public_path('storage/' . $path))) {
-                File::delete(public_path('storage/' . $path));
+            // Hapus file baru yang diupload jika error
+            foreach ($newUploadedPaths as $newPath) {
+                if (File::exists(public_path('storage/' . $newPath))) {
+                    File::delete(public_path('storage/' . $newPath));
+                }
             }
             return redirect()->back()->with('error', 'Gagal update: ' . $e->getMessage())->withInput();
         }
@@ -634,9 +650,30 @@ class PembelianController extends Controller
             return back()->with('error', 'Transaksi ini tidak dalam status Canceled.');
         }
 
+        // Tentukan approver berdasarkan gudang transaksi
+        $gudangId = $pembelian->gudang_id;
+        $approverId = null;
+
+        // Cari admin yang handle gudang ini
+        $adminGudang = User::where('role', 'admin')
+            ->where(function ($q) use ($gudangId) {
+                $q->where('gudang_id', $gudangId)
+                    ->orWhereHas('gudangs', function ($sub) use ($gudangId) {
+                        $sub->where('gudangs.id', $gudangId);
+                    });
+            })
+            ->first();
+
+        if ($adminGudang) {
+            $approverId = $adminGudang->id;
+        } else {
+            // Fallback ke super admin yang melakukan uncancel
+            $approverId = $user->id;
+        }
+
         // Set status kembali ke Pending agar perlu approve ulang
         $pembelian->status = 'Pending';
-        $pembelian->approver_id = null; // Reset approver
+        $pembelian->approver_id = $approverId;
         $pembelian->save();
 
         return redirect()->route('pembelian.index')

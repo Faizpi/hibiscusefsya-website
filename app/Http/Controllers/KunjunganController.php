@@ -132,7 +132,8 @@ class KunjunganController extends Controller
             'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Promo',
             'koordinat' => 'nullable|string|max:255',
             'memo' => 'nullable|string',
-            'lampiran' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
+            'lampiran' => 'nullable|array',
+            'lampiran.*' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
             'produk_id' => 'nullable|array',
             'produk_id.*' => 'exists:produks,id',
             'jumlah' => 'nullable|array',
@@ -194,19 +195,23 @@ class KunjunganController extends Controller
         $nomor = "VST-{$dateCode}-" . Auth::id() . "-{$noUrutPadded}";
 
         // Upload lampiran dengan nama sesuai kode invoice
-        $path = null;
+        $lampiranPaths = [];
         $publicFolder = public_path('storage/lampiran_kunjungan');
         if (!File::exists($publicFolder)) {
             File::makeDirectory($publicFolder, 0755, true);
         }
 
+        // Handle multiple lampiran
         if ($request->hasFile('lampiran')) {
-            $file = $request->file('lampiran');
-            $extension = $file->getClientOriginalExtension();
-            // Gunakan nomor invoice sebagai nama file
-            $filename = $nomor . '.' . $extension;
-            $file->move($publicFolder, $filename);
-            $path = 'lampiran_kunjungan/' . $filename;
+            $counter = 1;
+            foreach ($request->file('lampiran') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                // Format: VST-xxx-1.jpg, VST-xxx-2.jpg, etc
+                $filename = $nomor . '-' . $counter . '.' . $extension;
+                $file->move($publicFolder, $filename);
+                $lampiranPaths[] = 'lampiran_kunjungan/' . $filename;
+                $counter++;
+            }
         }
 
         DB::beginTransaction();
@@ -226,7 +231,7 @@ class KunjunganController extends Controller
                 'tujuan' => $request->tujuan,
                 'koordinat' => $request->koordinat,
                 'memo' => $request->memo,
-                'lampiran_path' => $path,
+                'lampiran_paths' => $lampiranPaths,
             ]);
 
             // Simpan produk items jika ada
@@ -254,6 +259,12 @@ class KunjunganController extends Controller
                 ->with('success', 'Kunjungan berhasil dibuat dengan nomor ' . $nomor);
         } catch (\Exception $e) {
             DB::rollBack();
+            // Hapus file yang sudah diupload jika error
+            foreach ($lampiranPaths as $lampiranPath) {
+                if (File::exists(public_path('storage/' . $lampiranPath))) {
+                    File::delete(public_path('storage/' . $lampiranPath));
+                }
+            }
             return back()->withInput()->with('error', 'Gagal menyimpan: ' . $e->getMessage());
         }
     }
@@ -308,7 +319,8 @@ class KunjunganController extends Controller
             'sales_alamat' => 'nullable|string',
             'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Promo',
             'memo' => 'nullable|string',
-            'lampiran' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
+            'lampiran' => 'nullable|array',
+            'lampiran.*' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
             'produk_id' => 'nullable|array',
             'produk_id.*' => 'exists:produks,id',
             'jumlah' => 'nullable|array',
@@ -317,23 +329,23 @@ class KunjunganController extends Controller
             'keterangan.*' => 'nullable|string|max:255',
         ]);
 
-        // Handle lampiran upload
-        $path = $kunjungan->lampiran_path;
+        // Handle lampiran upload - append ke existing
+        $lampiranPaths = $kunjungan->lampiran_paths ?? [];
         $publicFolder = public_path('storage/lampiran_kunjungan');
         if (!File::exists($publicFolder)) {
             File::makeDirectory($publicFolder, 0755, true);
         }
 
+        // Handle multiple lampiran baru (append ke existing)
         if ($request->hasFile('lampiran')) {
-            // Delete old file if exists
-            if ($path && File::exists(public_path('storage/' . $path))) {
-                File::delete(public_path('storage/' . $path));
+            $counter = count($lampiranPaths) + 1;
+            foreach ($request->file('lampiran') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $filename = $kunjungan->nomor . '-' . $counter . '.' . $extension;
+                $file->move($publicFolder, $filename);
+                $lampiranPaths[] = 'lampiran_kunjungan/' . $filename;
+                $counter++;
             }
-            $file = $request->file('lampiran');
-            $extension = $file->getClientOriginalExtension();
-            $filename = time() . '_' . uniqid() . '.' . $extension;
-            $file->move($publicFolder, $filename);
-            $path = 'lampiran_kunjungan/' . $filename;
         }
 
         $kunjungan->update([
@@ -344,7 +356,7 @@ class KunjunganController extends Controller
             'tujuan' => $request->tujuan,
             'koordinat' => $request->koordinat,
             'memo' => $request->memo,
-            'lampiran_path' => $path,
+            'lampiran_paths' => $lampiranPaths,
         ]);
 
         // Update items: hapus lama, buat baru
@@ -451,9 +463,35 @@ class KunjunganController extends Controller
             return back()->with('error', 'Kunjungan tidak dalam status dibatalkan.');
         }
 
+        // Tentukan approver berdasarkan gudang transaksi
+        $gudangId = $kunjungan->gudang_id;
+        $approverId = null;
+
+        if ($gudangId) {
+            // Cari admin yang handle gudang ini
+            $adminGudang = User::where('role', 'admin')
+                ->where(function ($q) use ($gudangId) {
+                    $q->where('gudang_id', $gudangId)
+                        ->orWhereHas('gudangs', function ($sub) use ($gudangId) {
+                            $sub->where('gudangs.id', $gudangId);
+                        });
+                })
+                ->first();
+
+            if ($adminGudang) {
+                $approverId = $adminGudang->id;
+            } else {
+                // Fallback ke super admin yang melakukan uncancel
+                $approverId = $user->id;
+            }
+        } else {
+            // Tidak ada gudang, super admin jadi approver
+            $approverId = $user->id;
+        }
+
         // Set status kembali ke Pending agar perlu di-approve ulang
         $kunjungan->status = 'Pending';
-        $kunjungan->approver_id = null; // Reset approver
+        $kunjungan->approver_id = $approverId;
         $kunjungan->save();
 
         return back()->with('success', 'Pembatalan kunjungan dibatalkan. Status kembali ke Pending.');

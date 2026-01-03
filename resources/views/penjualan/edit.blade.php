@@ -189,18 +189,37 @@
                             <div class="form-group"><label>Memo</label><textarea class="form-control" name="memo"
                                     rows="3">{{ old('memo', $penjualan->memo) }}</textarea></div>
                             <div class="form-group">
-                                <label for="lampiran">Lampiran (Kosongkan jika tidak ingin diubah)</label>
-                                @if($penjualan->lampiran_path)
-                                    <div class="mb-2 small">File saat ini: <a
-                                            href="{{ asset('storage/' . $penjualan->lampiran_path) }}"
-                                            target="_blank">{{ basename($penjualan->lampiran_path) }}</a></div>
+                                <label for="lampiran">Lampiran Tambahan <small class="text-muted">(dapat memilih banyak file)</small></label>
+                                @php
+                                    $allLampiran = [];
+                                    if($penjualan->lampiran_path) {
+                                        $allLampiran[] = $penjualan->lampiran_path;
+                                    }
+                                    if($penjualan->lampiran_paths) {
+                                        $allLampiran = array_merge($allLampiran, $penjualan->lampiran_paths);
+                                    }
+                                @endphp
+                                @if(count($allLampiran) > 0)
+                                    <div class="mb-2">
+                                        <small class="text-muted">File saat ini:</small>
+                                        <ul class="list-unstyled mb-0 mt-1">
+                                            @foreach($allLampiran as $lampiran)
+                                                <li><i class="fas fa-file mr-1"></i> <a href="{{ asset('storage/' . $lampiran) }}" target="_blank">{{ basename($lampiran) }}</a></li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
                                 @endif
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror"
-                                        id="lampiran" name="lampiran">
+                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror"
+                                        id="lampiran" name="lampiran[]" multiple accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx">
                                     <label class="custom-file-label" for="lampiran">Pilih file baru...</label>
                                 </div>
+                                <div id="lampiran-list" class="mt-2" style="display: none;">
+                                    <small class="text-muted">File baru terpilih:</small>
+                                    <ul id="lampiran-file-list" class="list-unstyled mb-0 mt-1"></ul>
+                                </div>
                                 @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                @error('lampiran.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
                         <div class="col-md-6">

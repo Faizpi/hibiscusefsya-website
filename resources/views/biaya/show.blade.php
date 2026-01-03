@@ -227,30 +227,49 @@
                         <h6 class="m-0 font-weight-bold text-primary">Lampiran</h6>
                     </div>
                     <div class="card-body">
-                        @if($biaya->lampiran_path)
-                            @php
-                                $path = $biaya->lampiran_path;
-                                $isImage = in_array(pathinfo($path, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-                            @endphp
-                            @if($isImage)
-                                <a href="{{ asset('storage/' . $path) }}" target="_blank">
-                                    <img src="{{ asset('storage/' . $path) }}" alt="Lampiran" class="img-fluid rounded"
-                                        style="max-height: 250px;">
-                                </a>
-                            @else
-                                <div class="alert alert-info d-flex align-items-center">
-                                    <i class="fas fa-file-alt fa-2x mr-3"></i>
-                                    <div>
-                                        <strong>File terlampir:</strong>
-                                        <br>
-                                        <a href="{{ asset('storage/' . $path) }}" target="_blank">
-                                            {{ basename($path) }}
-                                        </a>
+                        @php
+                            $allLampiran = [];
+                            // Backward compatibility: gabungkan lampiran_path lama ke array
+                            if ($biaya->lampiran_path) {
+                                $allLampiran[] = $biaya->lampiran_path;
+                            }
+                            // Tambahkan lampiran_paths
+                            if (is_array($biaya->lampiran_paths)) {
+                                $allLampiran = array_merge($allLampiran, $biaya->lampiran_paths);
+                            }
+                        @endphp
+                        @if(count($allLampiran) > 0)
+                            <div class="row">
+                                @foreach($allLampiran as $index => $path)
+                                    @php
+                                        $isImage = in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                    @endphp
+                                    <div class="col-6 col-md-4 mb-3 text-center lampiran-item" data-path="{{ $path }}">
+                                        @if($isImage)
+                                            <a href="{{ asset('storage/' . $path) }}" target="_blank">
+                                                <img src="{{ asset('storage/' . $path) }}" alt="Lampiran" class="img-fluid rounded" style="max-height: 120px; object-fit: cover;">
+                                            </a>
+                                        @else
+                                            <a href="{{ asset('storage/' . $path) }}" target="_blank" class="d-block p-3 bg-light rounded">
+                                                <i class="fas fa-file-alt fa-3x text-primary"></i>
+                                            </a>
+                                        @endif
+                                        <small class="d-block text-truncate mt-1" title="{{ basename($path) }}">{{ basename($path) }}</small>
+                                        @if(Auth::user()->role === 'super_admin')
+                                            <form action="{{ route('biaya.deleteLampiran', $biaya->id) }}" method="POST" class="mt-1 d-inline delete-lampiran-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <input type="hidden" name="lampiran_path" value="{{ $path }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus lampiran ini?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
-                                </div>
-                            @endif
+                                @endforeach
+                            </div>
                         @else
-                            <p class="text-muted">Tidak ada lampiran.</p>
+                            <p class="text-muted mb-0">Tidak ada lampiran.</p>
                         @endif
                     </div>
                 </div>

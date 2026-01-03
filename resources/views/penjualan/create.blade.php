@@ -286,35 +286,19 @@
                             <textarea class="form-control @error('memo') is-invalid @enderror" id="memo" name="memo" rows="4">{{ old('memo') }}</textarea>
                             @error('memo') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
-                         <div class="form-group">
+                        <div class="form-group">
                             <label for="lampiran">Lampiran</label>
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror" id="lampiran" name="lampiran" data-preview-nomor="{{ $previewNomor ?? '' }}">
-                                <label class="custom-file-label" for="lampiran">Pilih file...</label>
-                            </div>
-                            <div id="lampiran-feedback" class="mt-2" style="display: none;">
-                                <div class="alert alert-info py-2 mb-0">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    <small>File akan disimpan sebagai: <strong id="lampiran-preview-name"></strong></small>
-                                </div>
-                            </div>
-                            @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                        </div>
-
-                        {{-- Multiple Lampiran --}}
-                        <div class="form-group">
-                            <label for="lampiran_multi">Lampiran Tambahan (Multiple)</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input @error('lampiran_multi') is-invalid @enderror @error('lampiran_multi.*') is-invalid @enderror" id="lampiran_multi" name="lampiran_multi[]" multiple accept="image/*,.pdf,.doc,.docx,.zip">
-                                <label class="custom-file-label" for="lampiran_multi">Pilih file (bisa pilih banyak)...</label>
+                                <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror" id="lampiran" name="lampiran[]" multiple accept="image/*,.pdf,.doc,.docx,.zip" data-preview-nomor="{{ $previewNomor ?? '' }}">
+                                <label class="custom-file-label" for="lampiran">Pilih file (bisa pilih banyak)...</label>
                             </div>
                             <small class="form-text text-muted">
                                 <i class="fas fa-info-circle mr-1"></i>
                                 Anda bisa memilih beberapa file sekaligus. File akan disimpan dengan format: <strong>{{ $previewNomor ?? 'INV-xxx' }}-1.jpg, {{ $previewNomor ?? 'INV-xxx' }}-2.jpg</strong>, dst.
                             </small>
-                            <div id="lampiran-multi-list" class="mt-2"></div>
-                            @error('lampiran_multi') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                            @error('lampiran_multi.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            <div id="lampiran-list" class="mt-2"></div>
+                            @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            @error('lampiran.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -1034,40 +1018,14 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     }
 
-    // Lampiran upload feedback
+    // Lampiran upload feedback (multiple files)
     const lampiranInput = document.getElementById('lampiran');
-    const lampiranFeedback = document.getElementById('lampiran-feedback');
-    const lampiranPreviewName = document.getElementById('lampiran-preview-name');
+    const lampiranList = document.getElementById('lampiran-list');
     const previewNomor = lampiranInput ? lampiranInput.dataset.previewNomor : '';
 
     if (lampiranInput) {
         lampiranInput.addEventListener('change', function() {
-            if (this.files && this.files.length > 0) {
-                const file = this.files[0];
-                const extension = file.name.split('.').pop().toLowerCase();
-                const expectedFilename = previewNomor + '.' + extension;
-                
-                lampiranPreviewName.textContent = expectedFilename;
-                lampiranFeedback.style.display = 'block';
-                
-                // Update custom file label
-                const label = this.nextElementSibling;
-                if (label) {
-                    label.textContent = file.name;
-                }
-            } else {
-                lampiranFeedback.style.display = 'none';
-            }
-        });
-    }
-
-    // Multiple Lampiran preview
-    const lampiranMulti = document.getElementById('lampiran_multi');
-    const lampiranMultiList = document.getElementById('lampiran-multi-list');
-
-    if (lampiranMulti) {
-        lampiranMulti.addEventListener('change', function() {
-            lampiranMultiList.innerHTML = '';
+            lampiranList.innerHTML = '';
             
             if (this.files && this.files.length > 0) {
                 // Update label
@@ -1085,7 +1043,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     html += '<li><small>' + file.name + ' → <strong>' + expectedFilename + '</strong></small></li>';
                 }
                 html += '</ul></div>';
-                lampiranMultiList.innerHTML = html;
+                lampiranList.innerHTML = html;
             } else {
                 const label = this.nextElementSibling;
                 if (label) {

@@ -119,7 +119,7 @@ class BiayaController extends Controller
             'tgl_transaksi' => 'required|date',
             'penerima' => 'nullable|string|max:255',
             'tax_percentage' => 'required|numeric|min:0',
-            'lampiran' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
+            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
 
             'kategori' => 'required|array|min:1',
             'total' => 'required|array|min:1',
@@ -189,19 +189,23 @@ class BiayaController extends Controller
         $nomor = "EXP-{$dateCode}-" . Auth::id() . "-{$noUrutPadded}";
 
         // Upload lampiran dengan nama sesuai kode invoice
-        $path = null;
+        $lampiranPaths = [];
         $publicFolder = public_path('storage/lampiran_biaya');
         if (!File::exists($publicFolder)) {
             File::makeDirectory($publicFolder, 0755, true);
         }
 
+        // Handle multiple lampiran
         if ($request->hasFile('lampiran')) {
-            $file = $request->file('lampiran');
-            $extension = $file->getClientOriginalExtension();
-            // Gunakan nomor invoice sebagai nama file
-            $filename = $nomor . '.' . $extension;
-            $file->move($publicFolder, $filename);
-            $path = 'lampiran_biaya/' . $filename;
+            $counter = 1;
+            foreach ($request->file('lampiran') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                // Format: EXP-xxx-1.jpg, EXP-xxx-2.jpg, etc
+                $filename = $nomor . '-' . $counter . '.' . $extension;
+                $file->move($publicFolder, $filename);
+                $lampiranPaths[] = 'lampiran_biaya/' . $filename;
+                $counter++;
+            }
         }
 
         DB::beginTransaction();
@@ -221,7 +225,7 @@ class BiayaController extends Controller
                 'tag' => $request->tag,
                 'koordinat' => $request->koordinat,
                 'memo' => $request->memo,
-                'lampiran_path' => $path,
+                'lampiran_paths' => $lampiranPaths,
                 'tax_percentage' => $pajakPersen,
                 'grand_total' => $grandTotal,
             ]);
@@ -247,8 +251,10 @@ class BiayaController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             // Jika terjadi error, hapus file yang baru di-upload agar tidak orphan
-            if ($path && File::exists(public_path('storage/' . $path))) {
-                File::delete(public_path('storage/' . $path));
+            foreach ($lampiranPaths as $lampiranPath) {
+                if (File::exists(public_path('storage/' . $lampiranPath))) {
+                    File::delete(public_path('storage/' . $lampiranPath));
+                }
             }
             return redirect()->back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage())->withInput();
         }
@@ -318,9 +324,12 @@ class BiayaController extends Controller
             return redirect()->route('biaya.index')->with('error', 'Transaksi tidak dalam status dibatalkan.');
         }
 
+        // Tentukan approver - untuk biaya, super_admin yang melakukan uncancel jadi approver
+        $approverId = $user->id;
+
         // Set status kembali ke Pending agar perlu di-approve ulang
         $biaya->status = 'Pending';
-        $biaya->approver_id = null; // Reset approver
+        $biaya->approver_id = $approverId;
         $biaya->save();
 
         return back()->with('success', 'Pembatalan transaksi dibatalkan. Status kembali ke Pending.');
@@ -423,7 +432,8 @@ class BiayaController extends Controller
             'bayar_dari' => 'required|string',
             'tgl_transaksi' => 'required|date',
             'tax_percentage' => 'required|numeric|min:0',
-            'lampiran' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
+            'lampiran' => 'nullable|array',
+            'lampiran.*' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
             'kategori' => 'required|array|min:1',
             'total' => 'required|array|min:1',
             'kategori.*' => 'required|string|max:255',
@@ -431,7 +441,8 @@ class BiayaController extends Controller
             'penerima' => 'nullable|string|max:255',
         ]);
 
-        $path = $biaya->lampiran_path;
+        // Ambil lampiran_paths yang sudah ada
+        $lampiranPaths = $biaya->lampiran_paths ?? [];
 
         // Pastikan folder public/storage/lampiran_biaya ada
         $publicFolder = public_path('storage/lampiran_biaya');
@@ -439,20 +450,19 @@ class BiayaController extends Controller
             File::makeDirectory($publicFolder, 0755, true);
         }
 
+        // Handle multiple lampiran baru (append ke existing)
+        $newUploadedPaths = [];
         if ($request->hasFile('lampiran')) {
-            // Hapus file lama jika ada
-            if ($path) {
-                $old = public_path('storage/' . $path);
-                if (File::exists($old)) {
-                    File::delete($old);
-                }
+            $counter = count($lampiranPaths) + 1;
+            foreach ($request->file('lampiran') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $filename = $biaya->nomor . '-' . $counter . '.' . $extension;
+                $file->move($publicFolder, $filename);
+                $newPath = 'lampiran_biaya/' . $filename;
+                $lampiranPaths[] = $newPath;
+                $newUploadedPaths[] = $newPath;
+                $counter++;
             }
-
-            $file = $request->file('lampiran');
-            $extension = $file->getClientOriginalExtension();
-            $filename = time() . '_' . uniqid() . '.' . $extension;
-            $file->move($publicFolder, $filename);
-            $path = 'lampiran_biaya/' . $filename;
         }
 
         $subTotal = 0;
@@ -511,7 +521,7 @@ class BiayaController extends Controller
                 'tag' => $request->tag,
                 'koordinat' => $request->koordinat,
                 'memo' => $request->memo,
-                'lampiran_path' => $path,
+                'lampiran_paths' => $lampiranPaths,
                 'tax_percentage' => $pajakPersen,
                 'grand_total' => $grandTotal,
             ]);
@@ -530,8 +540,10 @@ class BiayaController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             // jika error, hapus file baru yang mungkin sudah diupload
-            if (isset($filename) && File::exists(public_path('storage/lampiran_biaya/' . $filename))) {
-                File::delete(public_path('storage/lampiran_biaya/' . $filename));
+            foreach ($newUploadedPaths as $newPath) {
+                if (File::exists(public_path('storage/' . $newPath))) {
+                    File::delete(public_path('storage/' . $newPath));
+                }
             }
             return redirect()->back()->with('error', 'Gagal memperbarui data: ' . $e->getMessage())->withInput();
         }

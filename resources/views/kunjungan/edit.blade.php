@@ -142,16 +142,36 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="lampiran">Lampiran</label>
-                                @if($kunjungan->lampiran_path)
-                                    <div class="mb-2 small">File saat ini: <a href="{{ asset('storage/' . $kunjungan->lampiran_path) }}" target="_blank">{{ basename($kunjungan->lampiran_path) }}</a></div>
+                                <label for="lampiran">Lampiran Tambahan <small class="text-muted">(dapat memilih banyak file)</small></label>
+                                @php
+                                    $allLampiran = [];
+                                    if($kunjungan->lampiran_path) {
+                                        $allLampiran[] = $kunjungan->lampiran_path;
+                                    }
+                                    if($kunjungan->lampiran_paths) {
+                                        $allLampiran = array_merge($allLampiran, $kunjungan->lampiran_paths);
+                                    }
+                                @endphp
+                                @if(count($allLampiran) > 0)
+                                    <div class="mb-2">
+                                        <small class="text-muted">File saat ini:</small>
+                                        <ul class="list-unstyled mb-0 mt-1">
+                                            @foreach($allLampiran as $lampiran)
+                                                <li><i class="fas fa-file mr-1"></i> <a href="{{ asset('storage/' . $lampiran) }}" target="_blank">{{ basename($lampiran) }}</a></li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
                                 @endif
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror" id="lampiran" name="lampiran" accept=".jpg,.png,.pdf,.zip,.doc,.docx">
+                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror" id="lampiran" name="lampiran[]" multiple accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx">
                                     <label class="custom-file-label" for="lampiran">Pilih file baru...</label>
                                 </div>
-                                <small class="text-muted">Kosongkan jika tidak ingin mengubah lampiran</small>
+                                <div id="lampiran-list" class="mt-2" style="display: none;">
+                                    <small class="text-muted">File baru terpilih:</small>
+                                    <ul id="lampiran-file-list" class="list-unstyled mb-0 mt-1"></ul>
+                                </div>
                                 @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                @error('lampiran.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>
@@ -336,6 +356,37 @@
                 });
             }
         });
+
+        // Lampiran upload feedback - multiple files
+        const lampiranInput = document.getElementById('lampiran');
+        const lampiranList = document.getElementById('lampiran-list');
+        const lampiranFileList = document.getElementById('lampiran-file-list');
+
+        if (lampiranInput) {
+            lampiranInput.addEventListener('change', function() {
+                lampiranFileList.innerHTML = '';
+                if (this.files && this.files.length > 0) {
+                    lampiranList.style.display = 'block';
+                    for (let i = 0; i < this.files.length; i++) {
+                        const li = document.createElement('li');
+                        li.innerHTML = '<i class="fas fa-file mr-1 text-primary"></i> ' + this.files[i].name;
+                        lampiranFileList.appendChild(li);
+                    }
+                    
+                    // Update custom file label
+                    const label = this.nextElementSibling;
+                    if (label) {
+                        label.textContent = this.files.length + ' file dipilih';
+                    }
+                } else {
+                    lampiranList.style.display = 'none';
+                    const label = this.nextElementSibling;
+                    if (label) {
+                        label.textContent = 'Pilih file baru...';
+                    }
+                }
+            });
+        }
     });
 </script>
 @endpush

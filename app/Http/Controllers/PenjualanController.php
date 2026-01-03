@@ -153,8 +153,7 @@ class PenjualanController extends Controller
             'gudang_id' => 'required|exists:gudangs,id',
             'tax_percentage' => 'required|numeric|min:0',
             'diskon_akhir' => 'nullable|numeric|min:0',
-            'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
-            'lampiran_multi.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
+            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
 
             'produk_id' => 'required|array|min:1',
             'produk_id.*' => 'required|exists:produks,id',
@@ -236,27 +235,16 @@ class PenjualanController extends Controller
         $nomor = Penjualan::generateNomor(Auth::id(), $noUrut, Carbon::now());
 
         // Upload lampiran dengan nama sesuai kode invoice
-        $path = null;
         $lampiranPaths = [];
         $publicFolder = public_path('storage/lampiran_penjualan');
         if (!File::exists($publicFolder)) {
             File::makeDirectory($publicFolder, 0755, true);
         }
 
-        // Handle single lampiran (backward compatibility)
+        // Handle multiple lampiran (semua file masuk ke lampiran_paths)
         if ($request->hasFile('lampiran')) {
-            $file = $request->file('lampiran');
-            $extension = $file->getClientOriginalExtension();
-            // Gunakan nomor invoice sebagai nama file
-            $filename = $nomor . '.' . $extension;
-            $file->move($publicFolder, $filename);
-            $path = 'lampiran_penjualan/' . $filename;
-        }
-
-        // Handle multiple lampiran
-        if ($request->hasFile('lampiran_multi')) {
             $counter = 1;
-            foreach ($request->file('lampiran_multi') as $file) {
+            foreach ($request->file('lampiran') as $file) {
                 $extension = $file->getClientOriginalExtension();
                 // Format: INV-xxx-1.jpg, INV-xxx-2.jpg, etc
                 $filename = $nomor . '-' . $counter . '.' . $extension;
@@ -314,7 +302,6 @@ class PenjualanController extends Controller
                 'tag' => $request->tag,
                 'koordinat' => $request->koordinat,
                 'memo' => $request->memo,
-                'lampiran_path' => $path,
                 'lampiran_paths' => $lampiranPaths,
                 'diskon_akhir' => $diskonAkhir,
                 'tax_percentage' => $pajakPersen,
@@ -346,11 +333,7 @@ class PenjualanController extends Controller
 
         } catch (\Exception $e) {
 
-            if ($path && File::exists(public_path('storage/' . $path))) {
-                File::delete(public_path('storage/' . $path));
-            }
-
-            // Hapus multiple lampiran jika error
+            // Hapus semua lampiran jika error
             foreach ($lampiranPaths as $lampiranPath) {
                 if (File::exists(public_path('storage/' . $lampiranPath))) {
                     File::delete(public_path('storage/' . $lampiranPath));
@@ -418,8 +401,7 @@ class PenjualanController extends Controller
             'gudang_id' => 'required|exists:gudangs,id',
             'diskon_akhir' => 'nullable|numeric|min:0',
             'tax_percentage' => 'required|numeric|min:0',
-            'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
-            'lampiran_multi.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
+            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
             'produk_id' => 'required|array|min:1',
             'produk_id.*' => 'required|exists:produks,id',
             'kuantitas.*' => 'required|numeric|min:1',
@@ -452,8 +434,8 @@ class PenjualanController extends Controller
                 ->withInput();
         }
 
-        $path = $penjualan->lampiran_path;
         $lampiranPaths = $penjualan->lampiran_paths ?? [];
+        $newUploadedPaths = []; // Track newly uploaded files for cleanup on error
 
         // Folder public storage
         $publicFolder = public_path('storage/lampiran_penjualan');
@@ -461,31 +443,18 @@ class PenjualanController extends Controller
             File::makeDirectory($publicFolder, 0755, true);
         }
 
-        if ($request->hasFile('lampiran')) {
-
-            // Hapus file lama
-            if ($path && File::exists(public_path('storage/' . $path))) {
-                File::delete(public_path('storage/' . $path));
-            }
-
-            $file = $request->file('lampiran');
-            $extension = $file->getClientOriginalExtension();
-            $filename = time() . '_' . uniqid() . '.' . $extension;
-
-            $file->move($publicFolder, $filename);
-            $path = 'lampiran_penjualan/' . $filename;
-        }
-
         // Handle multiple lampiran baru - append ke existing
-        if ($request->hasFile('lampiran_multi')) {
+        if ($request->hasFile('lampiran')) {
             // Hitung counter dari existing lampiran_paths
             $counter = count($lampiranPaths) + 1;
-            foreach ($request->file('lampiran_multi') as $file) {
+            foreach ($request->file('lampiran') as $file) {
                 $extension = $file->getClientOriginalExtension();
                 // Format: INV-xxx-1.jpg, INV-xxx-2.jpg, etc
                 $filename = $penjualan->nomor . '-' . $counter . '.' . $extension;
                 $file->move($publicFolder, $filename);
-                $lampiranPaths[] = 'lampiran_penjualan/' . $filename;
+                $newPath = 'lampiran_penjualan/' . $filename;
+                $lampiranPaths[] = $newPath;
+                $newUploadedPaths[] = $newPath;
                 $counter++;
             }
         }
@@ -572,7 +541,6 @@ class PenjualanController extends Controller
                 'tag' => $request->tag,
                 'koordinat' => $request->koordinat,
                 'memo' => $request->memo,
-                'lampiran_path' => $path,
                 'lampiran_paths' => $lampiranPaths,
                 'diskon_akhir' => $diskonAkhir,
                 'tax_percentage' => $pajakPersen,
@@ -601,9 +569,11 @@ class PenjualanController extends Controller
             DB::commit();
 
         } catch (\Exception $e) {
-
-            if ($path && File::exists(public_path('storage/' . $path))) {
-                File::delete(public_path('storage/' . $path));
+            // Hapus file baru yang diupload jika error
+            foreach ($newUploadedPaths as $newPath) {
+                if (File::exists(public_path('storage/' . $newPath))) {
+                    File::delete(public_path('storage/' . $newPath));
+                }
             }
 
             DB::rollBack();
@@ -758,9 +728,30 @@ class PenjualanController extends Controller
             return back()->with('error', 'Transaksi ini tidak dalam status Canceled.');
         }
 
+        // Tentukan approver berdasarkan gudang transaksi
+        $gudangId = $penjualan->gudang_id;
+        $approverId = null;
+
+        // Cari admin yang handle gudang ini
+        $adminGudang = User::where('role', 'admin')
+            ->where(function ($q) use ($gudangId) {
+                $q->where('gudang_id', $gudangId)
+                    ->orWhereHas('gudangs', function ($sub) use ($gudangId) {
+                        $sub->where('gudangs.id', $gudangId);
+                    });
+            })
+            ->first();
+
+        if ($adminGudang) {
+            $approverId = $adminGudang->id;
+        } else {
+            // Fallback ke super admin yang melakukan uncancel
+            $approverId = $user->id;
+        }
+
         // Set status kembali ke Pending agar perlu approve ulang
         $penjualan->status = 'Pending';
-        $penjualan->approver_id = null; // Reset approver
+        $penjualan->approver_id = $approverId;
         $penjualan->save();
 
         return redirect()->route('penjualan.index')
