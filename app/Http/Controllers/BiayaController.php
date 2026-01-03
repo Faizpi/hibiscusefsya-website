@@ -305,6 +305,56 @@ class BiayaController extends Controller
         return back()->with('success', 'Transaksi dibatalkan.');
     }
 
+    public function uncancel(Biaya $biaya)
+    {
+        $user = Auth::user();
+
+        // Hanya super_admin yang bisa uncancel
+        if ($user->role !== 'super_admin') {
+            return back()->with('error', 'Hanya Super Admin yang dapat membatalkan pembatalan transaksi.');
+        }
+
+        if ($biaya->status !== 'Canceled') {
+            return redirect()->route('biaya.index')->with('error', 'Transaksi tidak dalam status dibatalkan.');
+        }
+
+        // Set status kembali ke Pending agar perlu di-approve ulang
+        $biaya->status = 'Pending';
+        $biaya->approver_id = null; // Reset approver
+        $biaya->save();
+
+        return back()->with('success', 'Pembatalan transaksi dibatalkan. Status kembali ke Pending.');
+    }
+
+    public function deleteLampiran(Biaya $biaya, $index)
+    {
+        $user = Auth::user();
+
+        // Hanya super_admin yang bisa hapus lampiran
+        if ($user->role !== 'super_admin') {
+            return back()->with('error', 'Hanya Super Admin yang dapat menghapus lampiran.');
+        }
+
+        $lampiranPaths = $biaya->lampiran_paths ?? [];
+
+        if (!isset($lampiranPaths[$index])) {
+            return back()->with('error', 'Lampiran tidak ditemukan.');
+        }
+
+        // Hapus file fisik
+        $filePath = public_path('storage/' . $lampiranPaths[$index]);
+        if (File::exists($filePath)) {
+            File::delete($filePath);
+        }
+
+        // Hapus dari array
+        unset($lampiranPaths[$index]);
+        $biaya->lampiran_paths = array_values($lampiranPaths); // Re-index array
+        $biaya->save();
+
+        return back()->with('success', 'Lampiran berhasil dihapus.');
+    }
+
     public function destroy(Biaya $biaya)
     {
         $user = Auth::user();

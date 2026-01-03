@@ -150,13 +150,12 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="dropdown action-dropdown">
-                                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
+                                    <div class="dropdown no-arrow">
+                                        <button class="btn btn-sm btn-secondary dropdown-toggle no-caret" type="button"
+                                            data-toggle="dropdown">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
-                                        <div class="dropdown-menu dropdown-menu-right shadow-sm">
-                                            {{-- VIEW --}}
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
                                             <a class="dropdown-item" href="{{ route('kunjungan.show', $item->id) }}">
                                                 <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat Detail
                                             </a>
@@ -184,6 +183,15 @@
                                                         <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan
                                                     </button>
                                                 @endif
+                                            @endif
+
+                                            {{-- UNCANCEL: Jika Canceled, super_admin bisa uncancel --}}
+                                            @if($item->status == 'Canceled' && $role == 'super_admin')
+                                                <button type="button" class="dropdown-item" data-toggle="modal"
+                                                    data-target="#uncancelModal"
+                                                    data-action="{{ route('kunjungan.uncancel', $item->id) }}">
+                                                    <i class="fas fa-undo fa-fw mr-2 text-info"></i> Batalkan Pembatalan
+                                                </button>
                                             @endif
 
                                             {{-- EDIT & DELETE: Super Admin saja --}}
@@ -222,8 +230,8 @@
     <div class="modal fade" id="cancelModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-warning">
-                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle mr-2"></i>Konfirmasi Pembatalan</h5>
+                <div class="modal-header">
+                    <h5 class="modal-title">Konfirmasi Pembatalan</h5>
                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <form id="cancelForm" method="POST">
@@ -240,13 +248,36 @@
         </div>
     </div>
 
+    {{-- Modal Uncancel --}}
+    <div class="modal fade" id="uncancelModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="fas fa-undo mr-2"></i>Konfirmasi Batalkan Pembatalan</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <form id="uncancelForm" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <p>Apakah Anda yakin ingin <strong>membatalkan pembatalan</strong> kunjungan ini?</p>
+                        <p class="text-muted mb-0"><small>Status kunjungan akan kembali ke <strong>Pending</strong> dan perlu disetujui ulang.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                        <button type="submit" class="btn btn-info">Ya, Batalkan Pembatalan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     {{-- Modal Delete --}}
     <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle mr-2"></i>Konfirmasi Hapus</h5>
-                    <button class="close text-white" type="button" data-dismiss="modal"><span>&times;</span></button>
+                <div class="modal-header">
+                    <h5 class="modal-title">Konfirmasi Hapus</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <form id="deleteForm" method="POST">
                     @csrf
@@ -271,6 +302,12 @@
             var button = $(event.relatedTarget);
             var action = button.data('action');
             $(this).find('#cancelForm').attr('action', action);
+        });
+
+        $('#uncancelModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var action = button.data('action');
+            $(this).find('#uncancelForm').attr('action', action);
         });
 
         $('#deleteModal').on('show.bs.modal', function (event) {

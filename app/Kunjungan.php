@@ -49,6 +49,7 @@ class Kunjungan extends Model
         'koordinat',
         'memo',
         'lampiran_path',
+        'lampiran_paths',
         'status',
     ];
 
@@ -68,6 +69,7 @@ class Kunjungan extends Model
 
     protected $casts = [
         'tgl_kunjungan' => 'date',
+        'lampiran_paths' => 'array',
     ];
 
     public function user()

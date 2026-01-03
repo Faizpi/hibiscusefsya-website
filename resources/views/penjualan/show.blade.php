@@ -41,6 +41,14 @@
                     @endif
                 @endif
 
+                {{-- Tombol Uncancel (Hanya super_admin) --}}
+                @if($penjualan->status == 'Canceled' && $user->role == 'super_admin')
+                    <button type="button" class="btn btn-info btn-sm shadow-sm" data-toggle="modal"
+                        data-target="#uncancelModal">
+                        <i class="fas fa-undo fa-sm"></i> Batalkan Pembatalan
+                    </button>
+                @endif
+
                 {{-- Tombol Print & Kembali --}}
                 <button type="button" id="printBluetooth" class="btn btn-primary btn-sm shadow-sm" data-type="penjualan"
                     data-url="{{ route('bluetooth.penjualan', $penjualan->id) }}">
@@ -269,23 +277,77 @@
                         <h6 class="m-0 font-weight-bold text-primary">Lampiran</h6>
                     </div>
                     <div class="card-body">
-                        @if($penjualan->lampiran_path)
-                            @php
-                                $path = $penjualan->lampiran_path;
-                                $isImage = in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-                            @endphp
-                            @if($isImage)
-                                <a href="{{ asset('storage/' . $path) }}" target="_blank">
-                                    <img src="{{ asset('storage/' . $path) }}" alt="Lampiran" class="img-fluid rounded"
-                                        style="max-height: 250px;">
-                                </a>
-                            @else
-                                <div class="alert alert-info d-flex align-items-center mb-0">
-                                    <i class="fas fa-file-alt fa-2x mr-3"></i>
-                                    <div>
-                                        <strong>File terlampir:</strong><br>
-                                        <a href="{{ asset('storage/' . $path) }}" target="_blank">{{ basename($path) }}</a>
-                                    </div>
+                        @php
+                            $hasLampiran = $penjualan->lampiran_path || (is_array($penjualan->lampiran_paths) && count($penjualan->lampiran_paths) > 0);
+                        @endphp
+
+                        @if($hasLampiran)
+                            {{-- Single lampiran (backward compatibility) --}}
+                            @if($penjualan->lampiran_path)
+                                @php
+                                    $path = $penjualan->lampiran_path;
+                                    $isImage = in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                @endphp
+                                <div class="mb-3">
+                                    <small class="text-muted d-block mb-2">Lampiran Utama:</small>
+                                    @if($isImage)
+                                        <a href="{{ asset('storage/' . $path) }}" target="_blank">
+                                            <img src="{{ asset('storage/' . $path) }}" alt="Lampiran" class="img-fluid rounded"
+                                                style="max-height: 200px;">
+                                        </a>
+                                    @else
+                                        <div class="alert alert-info d-flex align-items-center mb-0">
+                                            <i class="fas fa-file-alt fa-2x mr-3"></i>
+                                            <div>
+                                                <strong>File terlampir:</strong><br>
+                                                <a href="{{ asset('storage/' . $path) }}" target="_blank">{{ basename($path) }}</a>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
+                            {{-- Multiple lampiran --}}
+                            @if(is_array($penjualan->lampiran_paths) && count($penjualan->lampiran_paths) > 0)
+                                <small class="text-muted d-block mb-2">Lampiran Tambahan ({{ count($penjualan->lampiran_paths) }}
+                                    file):</small>
+                                <div class="row">
+                                    @foreach($penjualan->lampiran_paths as $index => $lampiranPath)
+                                        @php
+                                            $isImg = in_array(strtolower(pathinfo($lampiranPath, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                        @endphp
+                                        <div class="col-6 col-md-4 mb-3">
+                                            <div class="card h-100">
+                                                @if($isImg)
+                                                    <a href="{{ asset('storage/' . $lampiranPath) }}" target="_blank">
+                                                        <img src="{{ asset('storage/' . $lampiranPath) }}" class="card-img-top"
+                                                            alt="Lampiran {{ $index + 1 }}" style="height: 100px; object-fit: cover;">
+                                                    </a>
+                                                @else
+                                                    <div class="card-body text-center py-3">
+                                                        <i class="fas fa-file-alt fa-2x text-secondary"></i>
+                                                    </div>
+                                                @endif
+                                                <div class="card-footer py-1 px-2 d-flex justify-content-between align-items-center">
+                                                    <a href="{{ asset('storage/' . $lampiranPath) }}" target="_blank"
+                                                        class="small text-truncate" style="max-width: 70%;">
+                                                        {{ basename($lampiranPath) }}
+                                                    </a>
+                                                    @if(auth()->user()->role == 'super_admin')
+                                                        <form action="{{ route('penjualan.deleteLampiran', [$penjualan->id, $index]) }}"
+                                                            method="POST" class="d-inline"
+                                                            onsubmit="return confirm('Hapus lampiran ini?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Hapus">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             @endif
                         @else
@@ -314,6 +376,30 @@
                     <form action="{{ route('penjualan.cancel', $penjualan->id) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-warning">Ya, Batalkan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Uncancel Modal -->
+    <div class="modal fade" id="uncancelModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="fas fa-undo mr-2"></i>Konfirmasi Batalkan Pembatalan</h5>
+                    <button class="close" type="button" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Apakah Anda yakin ingin <strong>membatalkan pembatalan</strong> transaksi ini?</p>
+                    <p class="text-muted mb-0"><small>Status transaksi akan kembali ke <strong>Pending</strong> dan perlu
+                            disetujui ulang.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Tidak</button>
+                    <form action="{{ route('penjualan.uncancel', $penjualan->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-info">Ya, Batalkan Pembatalan</button>
                     </form>
                 </div>
             </div>

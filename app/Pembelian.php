@@ -58,6 +58,7 @@ class Pembelian extends Model
         'koordinat',
         'memo',
         'lampiran_path',
+        'lampiran_paths',
         'status',
 
         // Keuangan
@@ -83,6 +84,7 @@ class Pembelian extends Model
     protected $casts = [
         'tgl_transaksi' => 'date',
         'tgl_jatuh_tempo' => 'date',
+        'lampiran_paths' => 'array',
     ];
 
     public function user()

@@ -49,6 +49,7 @@ class Biaya extends Model
         'koordinat',
         'memo',
         'lampiran_path',
+        'lampiran_paths',
         'status',
         'tax_percentage',
         'grand_total'
@@ -70,6 +71,7 @@ class Biaya extends Model
 
     protected $casts = [
         'tgl_transaksi' => 'date',
+        'lampiran_paths' => 'array',
     ];
 
     public function user()

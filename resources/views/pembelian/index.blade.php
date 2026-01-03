@@ -197,6 +197,15 @@
                                                 @endif
                                             @endif
 
+                                            {{-- UNCANCEL: Jika Canceled, super_admin bisa uncancel --}}
+                                            @if($item->status == 'Canceled' && $role == 'super_admin')
+                                                <button type="button" class="dropdown-item" data-toggle="modal"
+                                                    data-target="#uncancelModal"
+                                                    data-action="{{ route('pembelian.uncancel', $item->id) }}">
+                                                    <i class="fas fa-undo fa-fw mr-2 text-info"></i> Batalkan Pembatalan
+                                                </button>
+                                            @endif
+
                                             {{-- EDIT & DELETE: Super Admin saja --}}
                                             @if($role == 'super_admin')
                                                 <div class="dropdown-divider"></div>
@@ -270,6 +279,30 @@
             </div>
         </div>
     </div>
+
+    {{-- Uncancel Modal --}}
+    <div class="modal fade" id="uncancelModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="fas fa-undo mr-2"></i>Konfirmasi Batalkan Pembatalan</h5>
+                    <button class="close" type="button" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Apakah Anda yakin ingin <strong>membatalkan pembatalan</strong> transaksi ini?</p>
+                    <p class="text-muted mb-0"><small>Status transaksi akan kembali ke <strong>Pending</strong> dan perlu
+                            disetujui ulang.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Tidak</button>
+                    <form id="uncancelForm" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-info">Ya, Batalkan Pembatalan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -286,6 +319,13 @@
             var action = button.data('action');
             var modal = $(this);
             modal.find('#cancelForm').attr('action', action);
+        });
+
+        $('#uncancelModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var action = button.data('action');
+            var modal = $(this);
+            modal.find('#uncancelForm').attr('action', action);
         });
     </script>
 @endpush

@@ -300,6 +300,22 @@
                             </div>
                             @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                         </div>
+
+                        {{-- Multiple Lampiran --}}
+                        <div class="form-group">
+                            <label for="lampiran_multi">Lampiran Tambahan (Multiple)</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input @error('lampiran_multi') is-invalid @enderror @error('lampiran_multi.*') is-invalid @enderror" id="lampiran_multi" name="lampiran_multi[]" multiple accept="image/*,.pdf,.doc,.docx,.zip">
+                                <label class="custom-file-label" for="lampiran_multi">Pilih file (bisa pilih banyak)...</label>
+                            </div>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Anda bisa memilih beberapa file sekaligus. File akan disimpan dengan format: <strong>{{ $previewNomor ?? 'INV-xxx' }}-1.jpg, {{ $previewNomor ?? 'INV-xxx' }}-2.jpg</strong>, dst.
+                            </small>
+                            <div id="lampiran-multi-list" class="mt-2"></div>
+                            @error('lampiran_multi') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            @error('lampiran_multi.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <table class="table table-borderless text-right">
@@ -1041,6 +1057,40 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             } else {
                 lampiranFeedback.style.display = 'none';
+            }
+        });
+    }
+
+    // Multiple Lampiran preview
+    const lampiranMulti = document.getElementById('lampiran_multi');
+    const lampiranMultiList = document.getElementById('lampiran-multi-list');
+
+    if (lampiranMulti) {
+        lampiranMulti.addEventListener('change', function() {
+            lampiranMultiList.innerHTML = '';
+            
+            if (this.files && this.files.length > 0) {
+                // Update label
+                const label = this.nextElementSibling;
+                if (label) {
+                    label.textContent = this.files.length + ' file dipilih';
+                }
+
+                // Show file list with preview names
+                let html = '<div class="alert alert-info py-2"><small><strong>File yang akan diupload:</strong></small><ul class="mb-0 pl-3 mt-1">';
+                for (let i = 0; i < this.files.length; i++) {
+                    const file = this.files[i];
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    const expectedFilename = previewNomor + '-' + (i + 1) + '.' + extension;
+                    html += '<li><small>' + file.name + ' → <strong>' + expectedFilename + '</strong></small></li>';
+                }
+                html += '</ul></div>';
+                lampiranMultiList.innerHTML = html;
+            } else {
+                const label = this.nextElementSibling;
+                if (label) {
+                    label.textContent = 'Pilih file (bisa pilih banyak)...';
+                }
             }
         });
     }

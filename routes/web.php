@@ -63,7 +63,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('penjualan/{penjualan}/struk-image', 'PrintImageController@penjualan')->name('penjualan.strukImage');
     Route::post('penjualan/{penjualan}/approve', 'PenjualanController@approve')->name('penjualan.approve');
     Route::post('penjualan/{penjualan}/cancel', 'PenjualanController@cancel')->name('penjualan.cancel');
+    Route::post('penjualan/{penjualan}/uncancel', 'PenjualanController@uncancel')->name('penjualan.uncancel');
     Route::post('penjualan/{penjualan}/mark-paid', 'PenjualanController@markAsPaid')->name('penjualan.markAsPaid');
+    Route::delete('penjualan/{penjualan}/lampiran/{index}', 'PenjualanController@deleteLampiran')->name('penjualan.deleteLampiran');
     Route::resource('penjualan', 'PenjualanController');
 
     // 2. Modul Pembelian
@@ -73,6 +75,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('pembelian/{pembelian}/struk-image', 'PrintImageController@pembelian')->name('pembelian.strukImage');
     Route::post('pembelian/{pembelian}/approve', 'PembelianController@approve')->name('pembelian.approve');
     Route::post('pembelian/{pembelian}/cancel', 'PembelianController@cancel')->name('pembelian.cancel');
+    Route::post('pembelian/{pembelian}/uncancel', 'PembelianController@uncancel')->name('pembelian.uncancel');
+    Route::delete('pembelian/{pembelian}/lampiran/{index}', 'PembelianController@deleteLampiran')->name('pembelian.deleteLampiran');
     Route::resource('pembelian', 'PembelianController');
 
     // 3. Modul Biaya
@@ -82,6 +86,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('biaya/{biaya}/struk-image', 'PrintImageController@biaya')->name('biaya.strukImage');
     Route::post('biaya/{biaya}/approve', 'BiayaController@approve')->name('biaya.approve');
     Route::post('biaya/{biaya}/cancel', 'BiayaController@cancel')->name('biaya.cancel');
+    Route::post('biaya/{biaya}/uncancel', 'BiayaController@uncancel')->name('biaya.uncancel');
+    Route::delete('biaya/{biaya}/lampiran/{index}', 'BiayaController@deleteLampiran')->name('biaya.deleteLampiran');
     Route::resource('biaya', 'BiayaController');
 
     // 4. Modul Kunjungan
@@ -89,6 +95,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('kunjungan/{kunjungan}/print-json', 'KunjunganController@printJson')->name('kunjungan.printJson');
     Route::post('kunjungan/{kunjungan}/approve', 'KunjunganController@approve')->name('kunjungan.approve');
     Route::post('kunjungan/{kunjungan}/cancel', 'KunjunganController@cancel')->name('kunjungan.cancel');
+    Route::post('kunjungan/{kunjungan}/uncancel', 'KunjunganController@uncancel')->name('kunjungan.uncancel');
+    Route::delete('kunjungan/{kunjungan}/lampiran/{index}', 'KunjunganController@deleteLampiran')->name('kunjungan.deleteLampiran');
     Route::resource('kunjungan', 'KunjunganController');
 
 

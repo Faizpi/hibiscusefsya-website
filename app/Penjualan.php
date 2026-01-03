@@ -55,6 +55,7 @@ class Penjualan extends Model
         'tag',
         'memo',
         'lampiran_path',
+        'lampiran_paths',
         'status',
         'diskon_akhir',
         'tax_percentage',
@@ -78,6 +79,7 @@ class Penjualan extends Model
     protected $casts = [
         'tgl_transaksi' => 'date',
         'tgl_jatuh_tempo' => 'date',
+        'lampiran_paths' => 'array',
     ];
 
     public function user()

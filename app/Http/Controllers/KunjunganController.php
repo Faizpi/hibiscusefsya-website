@@ -155,12 +155,7 @@ class KunjunganController extends Controller
                 $gudangId = $gudang->id;
                 // Cari admin yang handle gudang ini
                 $adminGudang = User::where('role', 'admin')
-                    ->where(function ($q) use ($gudang) {
-                        $q->where('gudang_id', $gudang->id)
-                            ->orWhereHas('gudangs', function ($sub) use ($gudang) {
-                                $sub->where('gudangs.id', $gudang->id);
-                            });
-                    })
+                    ->where('current_gudang_id', $gudang->id)
                     ->first();
 
                 if ($adminGudang) {
@@ -438,6 +433,62 @@ class KunjunganController extends Controller
         }
 
         return back()->with('error', 'Anda tidak memiliki akses untuk membatalkan kunjungan ini.');
+    }
+
+    /**
+     * Uncancel kunjungan - kembalikan ke status Pending
+     */
+    public function uncancel(Kunjungan $kunjungan)
+    {
+        $user = Auth::user();
+
+        // Hanya super_admin yang bisa uncancel
+        if ($user->role !== 'super_admin') {
+            return back()->with('error', 'Hanya Super Admin yang dapat membatalkan pembatalan kunjungan.');
+        }
+
+        if ($kunjungan->status !== 'Canceled') {
+            return back()->with('error', 'Kunjungan tidak dalam status dibatalkan.');
+        }
+
+        // Set status kembali ke Pending agar perlu di-approve ulang
+        $kunjungan->status = 'Pending';
+        $kunjungan->approver_id = null; // Reset approver
+        $kunjungan->save();
+
+        return back()->with('success', 'Pembatalan kunjungan dibatalkan. Status kembali ke Pending.');
+    }
+
+    /**
+     * Delete individual lampiran
+     */
+    public function deleteLampiran(Kunjungan $kunjungan, $index)
+    {
+        $user = Auth::user();
+
+        // Hanya super_admin yang bisa hapus lampiran
+        if ($user->role !== 'super_admin') {
+            return back()->with('error', 'Hanya Super Admin yang dapat menghapus lampiran.');
+        }
+
+        $lampiranPaths = $kunjungan->lampiran_paths ?? [];
+
+        if (!isset($lampiranPaths[$index])) {
+            return back()->with('error', 'Lampiran tidak ditemukan.');
+        }
+
+        // Hapus file fisik
+        $filePath = public_path('storage/' . $lampiranPaths[$index]);
+        if (\File::exists($filePath)) {
+            \File::delete($filePath);
+        }
+
+        // Hapus dari array
+        unset($lampiranPaths[$index]);
+        $kunjungan->lampiran_paths = array_values($lampiranPaths); // Re-index array
+        $kunjungan->save();
+
+        return back()->with('success', 'Lampiran berhasil dihapus.');
     }
 
     /**

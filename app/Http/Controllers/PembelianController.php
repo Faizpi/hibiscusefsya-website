@@ -618,6 +618,62 @@ class PembelianController extends Controller
         }
     }
 
+    /**
+     * Uncancel - Mengembalikan transaksi yang dibatalkan ke status Pending
+     * Hanya super_admin yang bisa melakukan uncancel
+     */
+    public function uncancel(Pembelian $pembelian)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'super_admin') {
+            return back()->with('error', 'Hanya Super Admin yang dapat membatalkan pembatalan.');
+        }
+
+        if ($pembelian->status !== 'Canceled') {
+            return back()->with('error', 'Transaksi ini tidak dalam status Canceled.');
+        }
+
+        // Set status kembali ke Pending agar perlu approve ulang
+        $pembelian->status = 'Pending';
+        $pembelian->approver_id = null; // Reset approver
+        $pembelian->save();
+
+        return redirect()->route('pembelian.index')
+            ->with('success', 'Transaksi berhasil di-uncancel. Status kembali ke Pending dan perlu di-approve ulang.');
+    }
+
+    /**
+     * Delete specific lampiran by index
+     */
+    public function deleteLampiran(Pembelian $pembelian, $index)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'super_admin') {
+            return back()->with('error', 'Hanya Super Admin yang dapat menghapus lampiran.');
+        }
+
+        $lampiran = $pembelian->lampiran_paths ?? [];
+
+        if (!isset($lampiran[$index])) {
+            return back()->with('error', 'Lampiran tidak ditemukan.');
+        }
+
+        // Delete file
+        $filePath = public_path('storage/' . $lampiran[$index]);
+        if (File::exists($filePath)) {
+            File::delete($filePath);
+        }
+
+        // Remove from array
+        unset($lampiran[$index]);
+        $pembelian->lampiran_paths = array_values($lampiran); // Re-index array
+        $pembelian->save();
+
+        return back()->with('success', 'Lampiran berhasil dihapus.');
+    }
+
     public function destroy(Pembelian $pembelian)
     {
         $user = Auth::user();
