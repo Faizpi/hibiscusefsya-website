@@ -177,10 +177,26 @@ class KunjunganController extends Controller
             $gudangId = $gudang ? $gudang->id : null;
             $superAdmin = User::where('role', 'super_admin')->first();
             $approverId = $superAdmin ? $superAdmin->id : null;
-        } else {
-            // Super admin: langsung approved, tidak perlu approver
+        } elseif ($user->role == 'super_admin') {
+            // Super admin: langsung approved, tapi tetap harus isi approver_id
             $initialStatus = 'Approved';
-            $approverId = null;
+            // Ambil gudang yang dipilih super admin
+            $gudang = $user->getCurrentGudang();
+            $gudangId = $request->gudang_id ?? ($gudang ? $gudang->id : null);
+            
+            // Cari admin gudang untuk approver_id
+            if ($gudangId) {
+                $adminGudang = User::where('role', 'admin')
+                    ->where('current_gudang_id', $gudangId)
+                    ->first();
+                $approverId = $adminGudang ? $adminGudang->id : $user->id;
+            } else {
+                $approverId = $user->id;
+            }
+        } else {
+            // Fallback: gunakan super_admin sebagai approver
+            $superAdmin = User::where('role', 'super_admin')->first();
+            $approverId = $superAdmin ? $superAdmin->id : $user->id;
         }
 
         // Generate nomor urut

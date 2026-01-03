@@ -256,6 +256,25 @@ class PembelianController extends Controller
                 $approverId = $superAdmin->id;
                 $stafPenyetuju = $superAdmin->name;
             }
+        } elseif ($user->role == 'super_admin') {
+            // Super admin: cari admin gudang yang dipilih, jika tidak ada jadikan diri sendiri
+            $adminGudang = User::where('role', 'admin')
+                ->where(function ($q) use ($request) {
+                    $q->where('gudang_id', $request->gudang_id)
+                        ->orWhereHas('gudangs', function ($sub) use ($request) {
+                            $sub->where('gudangs.id', $request->gudang_id);
+                        });
+                })
+                ->first();
+
+            if ($adminGudang) {
+                $approverId = $adminGudang->id;
+                $stafPenyetuju = $adminGudang->name;
+            } else {
+                // Jadikan super admin sendiri sebagai approver
+                $approverId = $user->id;
+                $stafPenyetuju = $user->name;
+            }
         }
 
         DB::beginTransaction();

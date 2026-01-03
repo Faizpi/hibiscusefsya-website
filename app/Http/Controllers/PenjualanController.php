@@ -280,8 +280,26 @@ class PenjualanController extends Controller
             // Admin: ke super admin
             $superAdmin = User::where('role', 'super_admin')->first();
             $approverId = $superAdmin ? $superAdmin->id : null;
+        } elseif ($user->role == 'super_admin') {
+            // Super admin: cari admin gudang untuk approver_id (agar tidak null)
+            // Meskipun super_admin bisa langsung approved, approver_id tetap harus diisi
+            $adminGudang = User::where('role', 'admin')
+                ->where(function ($q) use ($request) {
+                    $q->where('gudang_id', $request->gudang_id)
+                        ->orWhere('current_gudang_id', $request->gudang_id)
+                        ->orWhereHas('gudangs', function ($sub) use ($request) {
+                            $sub->where('gudangs.id', $request->gudang_id);
+                        });
+                })
+                ->first();
+
+            if ($adminGudang) {
+                $approverId = $adminGudang->id;
+            } else {
+                // Jika tidak ada admin gudang, super_admin jadi approver sendiri
+                $approverId = $user->id;
+            }
         }
-        // Super admin tidak perlu approval, bisa langsung approved di logic lain jika perlu
 
         DB::beginTransaction();
         try {
