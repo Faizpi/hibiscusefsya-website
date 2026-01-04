@@ -183,7 +183,7 @@ class KunjunganController extends Controller
             // Ambil gudang yang dipilih super admin
             $gudang = $user->getCurrentGudang();
             $gudangId = $request->gudang_id ?? ($gudang ? $gudang->id : null);
-            
+
             // Cari admin gudang untuk approver_id
             if ($gudangId) {
                 $adminGudang = User::where('role', 'admin')

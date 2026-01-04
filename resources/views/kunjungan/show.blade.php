@@ -223,20 +223,25 @@
                                             <div class="col-6 col-md-4 mb-3 text-center lampiran-item" data-path="{{ $path }}">
                                                 @if($isImage)
                                                     <a href="{{ asset('storage/' . $path) }}" target="_blank">
-                                                        <img src="{{ asset('storage/' . $path) }}" alt="Lampiran" class="img-fluid rounded" style="max-height: 120px; object-fit: cover;">
+                                                        <img src="{{ asset('storage/' . $path) }}" alt="Lampiran"
+                                                            class="img-fluid rounded" style="max-height: 120px; object-fit: cover;">
                                                     </a>
                                                 @else
-                                                    <a href="{{ asset('storage/' . $path) }}" target="_blank" class="d-block p-3 bg-light rounded">
+                                                    <a href="{{ asset('storage/' . $path) }}" target="_blank"
+                                                        class="d-block p-3 bg-light rounded">
                                                         <i class="fas fa-file-alt fa-3x text-primary"></i>
                                                     </a>
                                                 @endif
-                                                <small class="d-block text-truncate mt-1" title="{{ basename($path) }}">{{ basename($path) }}</small>
+                                                <small class="d-block text-truncate mt-1"
+                                                    title="{{ basename($path) }}">{{ basename($path) }}</small>
                                                 @if(Auth::user()->role === 'super_admin')
-                                                    <form action="{{ route('kunjungan.deleteLampiran', $kunjungan->id) }}" method="POST" class="mt-1 d-inline delete-lampiran-form">
+                                                    <form action="{{ route('kunjungan.deleteLampiran', $kunjungan->id) }}" method="POST"
+                                                        class="mt-1 d-inline delete-lampiran-form">
                                                         @csrf
                                                         @method('DELETE')
                                                         <input type="hidden" name="lampiran_path" value="{{ $path }}">
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus lampiran ini?')">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                            onclick="return confirm('Hapus lampiran ini?')">
                                                             <i class="fas fa-trash"></i>
                                                         </button>
                                                     </form>
