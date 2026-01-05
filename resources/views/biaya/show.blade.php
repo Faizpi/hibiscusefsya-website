@@ -259,7 +259,7 @@
                                         <small class="d-block text-truncate mt-1"
                                             title="{{ basename($path) }}">{{ basename($path) }}</small>
                                         @if(Auth::user()->role === 'super_admin')
-                                            <form action="{{ route('biaya.deleteLampiran', $biaya->id) }}" method="POST"
+                                            <form action="{{ route('biaya.deleteLampiran', ['biaya' => $biaya->id, 'index' => $loop->index]) }}" method="POST"
                                                 class="mt-1 d-inline delete-lampiran-form">
                                                 @csrf
                                                 @method('DELETE')
