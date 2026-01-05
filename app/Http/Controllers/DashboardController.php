@@ -414,6 +414,10 @@ class DashboardController extends Controller
                 // Get all products for filter
                 $data['allProduks'] = Produk::orderBy('nama_produk')->get();
                 $selectedProdukId = $request->get('produk_filter');
+                
+                // Get date range filter
+                $startDate = $request->get('start_date');
+                $endDate = $request->get('end_date');
 
                 // Data for sales quantity chart - Quantity produk terjual per sales
                 $salesQuantityLabels = [];
@@ -426,11 +430,17 @@ class DashboardController extends Controller
                     $salesQuantityLabels[] = $salesUser->name;
 
                     // Query to get total quantity sold by this sales
-                    $query = PenjualanItem::whereHas('penjualan', function ($q) use ($salesUser, $selectedGudangId) {
+                    $query = PenjualanItem::whereHas('penjualan', function ($q) use ($salesUser, $selectedGudangId, $startDate, $endDate) {
                         $q->where('user_id', $salesUser->id)
                             ->whereIn('status', ['Approved', 'Lunas'])
                             ->when($selectedGudangId, function ($q2) use ($selectedGudangId) {
                                 return $q2->where('gudang_id', $selectedGudangId);
+                            })
+                            ->when($startDate, function ($q2) use ($startDate) {
+                                return $q2->whereDate('tgl_transaksi', '>=', $startDate);
+                            })
+                            ->when($endDate, function ($q2) use ($endDate) {
+                                return $q2->whereDate('tgl_transaksi', '<=', $endDate);
                             });
                     });
 
@@ -446,6 +456,8 @@ class DashboardController extends Controller
                 $data['salesQuantityLabels'] = $salesQuantityLabels;
                 $data['salesQuantityData'] = $salesQuantityData;
                 $data['selectedProdukId'] = $selectedProdukId;
+                $data['startDate'] = $startDate;
+                $data['endDate'] = $endDate;
             }
             // ==================== END SALES QUANTITY CHART ====================
         } else {

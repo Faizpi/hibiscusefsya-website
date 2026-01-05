@@ -326,8 +326,18 @@
                                     @if(isset($selectedGudangId))
                                         <input type="hidden" name="gudang_filter" value="{{ $selectedGudangId }}">
                                     @endif
+                                    <div class="form-group mb-0 mr-2">
+                                        <label class="small mb-0 mr-1">Dari:</label>
+                                        <input type="date" name="start_date" class="form-control form-control-sm" 
+                                            value="{{ $startDate ?? '' }}" style="width: 140px;">
+                                    </div>
+                                    <div class="form-group mb-0 mr-2">
+                                        <label class="small mb-0 mr-1">Sampai:</label>
+                                        <input type="date" name="end_date" class="form-control form-control-sm" 
+                                            value="{{ $endDate ?? '' }}" style="width: 140px;">
+                                    </div>
                                     <select name="produk_filter" class="form-control form-control-sm mr-2"
-                                        onchange="this.form.submit()" style="width: 200px;">
+                                        style="width: 200px;">
                                         <option value="">-- Semua Produk --</option>
                                         @if(isset($allProduks))
                                             @foreach($allProduks as $produk)
@@ -338,6 +348,14 @@
                                             @endforeach
                                         @endif
                                     </select>
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-filter"></i> Filter
+                                    </button>
+                                    @if(isset($startDate) || isset($endDate) || isset($selectedProdukId))
+                                        <a href="{{ route('dashboard') }}?gudang_filter={{ $selectedGudangId ?? '' }}" class="btn btn-secondary btn-sm ml-2">
+                                            <i class="fas fa-redo"></i> Reset
+                                        </a>
+                                    @endif
                                 </form>
                             </div>
                         </div>

@@ -205,8 +205,7 @@
                                                     <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
                                                 </a>
                                                 <button type="button" class="dropdown-item text-danger" data-toggle="modal"
-                                                    data-target="#deleteModal"
-                                                    data-action="{{ route('biaya.destroy', $item->id) }}"
+                                                    data-target="#deleteModal" data-action="{{ route('biaya.destroy', $item->id) }}"
                                                     data-nomor="{{ $item->custom_number ?? $item->id }}">
                                                     <i class="fas fa-trash fa-fw mr-2"></i> Hapus
                                                 </button>

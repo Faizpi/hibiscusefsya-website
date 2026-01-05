@@ -250,7 +250,8 @@
                     <button class="close text-white" type="button" data-dismiss="modal"><span>×</span></button>
                 </div>
                 <div class="modal-body">
-                    <p>Apakah Anda yakin ingin <strong>menghapus</strong> data kunjungan <strong id="deleteNomor"></strong>?</p>
+                    <p>Apakah Anda yakin ingin <strong>menghapus</strong> data kunjungan <strong id="deleteNomor"></strong>?
+                    </p>
                     <p class="text-muted mb-0"><small>Data yang dihapus tidak dapat dikembalikan.</small></p>
                 </div>
                 <div class="modal-footer">
