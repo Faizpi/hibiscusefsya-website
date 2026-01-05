@@ -171,7 +171,8 @@
                                             @if($role == 'super_admin')
                                                 <div class="dropdown-divider"></div>
                                                 <button type="button" class="dropdown-item text-danger" data-toggle="modal"
-                                                    data-target="#deleteModal" data-action="{{ route('penerimaan-barang.destroy', $item->id) }}">
+                                                    data-target="#deleteModal" data-action="{{ route('penerimaan-barang.destroy', $item->id) }}"
+                                                    data-nomor="{{ $item->nomor }}">
                                                     <i class="fas fa-trash fa-fw mr-2"></i> Hapus
                                                 </button>
                                             @endif
@@ -202,7 +203,7 @@
                     <button class="close text-white" type="button" data-dismiss="modal"><span>×</span></button>
                 </div>
                 <div class="modal-body">
-                    <p>Apakah Anda yakin ingin <strong>menghapus</strong> data ini?</p>
+                    <p>Apakah Anda yakin ingin <strong>menghapus</strong> penerimaan barang <strong id="deleteNomor"></strong>?</p>
                     <p class="text-warning"><small><i class="fas fa-exclamation-circle"></i> Jika sudah approved, stok yang telah ditambahkan akan dikurangi kembali.</small></p>
                 </div>
                 <div class="modal-footer">
@@ -262,8 +263,11 @@
 @push('scripts')
 <script>
     $('#deleteModal').on('show.bs.modal', function (event) {
-        var action = $(event.relatedTarget).data('action');
+        var button = $(event.relatedTarget);
+        var action = button.data('action');
+        var nomor = button.data('nomor');
         $(this).find('#deleteForm').attr('action', action);
+        $(this).find('#deleteNomor').text(nomor);
     });
     $('#cancelModal').on('show.bs.modal', function (event) {
         var action = $(event.relatedTarget).data('action');

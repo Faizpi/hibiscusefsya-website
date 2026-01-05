@@ -151,7 +151,8 @@ class PenerimaanBarangController extends Controller
                         });
                 })
                 ->first();
-            $approverId = $adminGudang ? $adminGudang->id : User::where('role', 'super_admin')->first()?->id;
+            $superAdmin = User::where('role', 'super_admin')->first();
+            $approverId = $adminGudang ? $adminGudang->id : ($superAdmin ? $superAdmin->id : null);
         } elseif ($user->role == 'admin') {
             $superAdmin = User::where('role', 'super_admin')->first();
             $approverId = $superAdmin ? $superAdmin->id : null;

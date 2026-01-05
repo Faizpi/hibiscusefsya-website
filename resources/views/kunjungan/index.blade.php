@@ -216,7 +216,8 @@
                                                 </a>
                                                 <button type="button" class="dropdown-item text-danger" data-toggle="modal"
                                                     data-target="#deleteModal"
-                                                    data-action="{{ route('kunjungan.destroy', $item->id) }}">
+                                                    data-action="{{ route('kunjungan.destroy', $item->id) }}"
+                                                    data-nomor="{{ $item->custom_number ?? $item->id }}">
                                                     <i class="fas fa-trash fa-fw mr-2"></i> Hapus
                                                 </button>
                                             @endif
@@ -249,7 +250,7 @@
                     <button class="close text-white" type="button" data-dismiss="modal"><span>×</span></button>
                 </div>
                 <div class="modal-body">
-                    <p>Apakah Anda yakin ingin <strong>menghapus</strong> data ini?</p>
+                    <p>Apakah Anda yakin ingin <strong>menghapus</strong> data kunjungan <strong id="deleteNomor"></strong>?</p>
                     <p class="text-muted mb-0"><small>Data yang dihapus tidak dapat dikembalikan.</small></p>
                 </div>
                 <div class="modal-footer">
@@ -315,8 +316,10 @@
         $('#deleteModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
             var action = button.data('action');
+            var nomor = button.data('nomor');
             var modal = $(this);
             modal.find('#deleteForm').attr('action', action);
+            modal.find('#deleteNomor').text(nomor);
         });
 
         $('#cancelModal').on('show.bs.modal', function (event) {
