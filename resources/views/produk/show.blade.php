@@ -49,6 +49,11 @@
                                         <td><span class="text-success font-weight-bold">Rp
                                                 {{ number_format($produk->harga ?? 0, 0, ',', '.') }}</span></td>
                                     </tr>
+                                    <tr>
+                                        <td><strong>Satuan</strong></td>
+                                        <td>:</td>
+                                        <td><span class="badge badge-info">{{ $produk->satuan ?? 'Pcs' }}</span></td>
+                                    </tr>
                                 </table>
                             </div>
                             <div class="col-md-6">
