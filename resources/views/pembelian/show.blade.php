@@ -297,7 +297,7 @@
                                         @endif
                                         <small class="d-block text-truncate mt-1" title="{{ basename($path) }}">{{ basename($path) }}</small>
                                         @if(Auth::user()->role === 'super_admin')
-                                            <form action="{{ route('pembelian.deleteLampiran', $pembelian->id) }}" method="POST" class="mt-1 d-inline delete-lampiran-form">
+                                            <form action="{{ route('pembelian.deleteLampiran', ['pembelian' => $pembelian->id, 'index' => $loop->index]) }}" method="POST" class="mt-1 d-inline delete-lampiran-form">
                                                 @csrf
                                                 @method('DELETE')
                                                 <input type="hidden" name="lampiran_path" value="{{ $path }}">
