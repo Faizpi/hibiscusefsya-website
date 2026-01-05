@@ -351,8 +351,8 @@
                                                 @endif
                                             </select>
                                         </div>
-                                        <div class="col-12 col-md-auto mb-2 d-flex align-items-center">
-                                            <button type="submit" class="btn btn-primary btn-sm mr-2">
+                                        <div class="col-12 col-md-auto mb-2 d-flex align-items-center" style="gap: 0.5rem; padding-top: 0.25rem; padding-bottom: 0.25rem;">
+                                            <button type="submit" class="btn btn-primary btn-sm">
                                                 <i class="fas fa-filter"></i> Filter
                                             </button>
                                             @if(isset($startDate) || isset($endDate) || isset($selectedProdukId))
