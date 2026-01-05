@@ -317,45 +317,51 @@
             <div class="row">
                 <div class="col-12 mb-4">
                     <div class="card shadow h-100">
-                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <div class="card-header py-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
                             <h6 class="m-0 font-weight-bold text-primary">
                                 <i class="fas fa-chart-bar mr-2"></i>Kuantitas Produk Terjual per Sales
                             </h6>
-                            <div class="d-flex align-items-center">
-                                <form method="GET" class="d-flex align-items-center">
+                            <div class="w-100 w-md-auto mt-3 mt-md-0">
+                                <form method="GET" class="w-100">
                                     @if(isset($selectedGudangId))
                                         <input type="hidden" name="gudang_filter" value="{{ $selectedGudangId }}">
                                     @endif
-                                    <div class="form-group mb-0 mr-2">
-                                        <label class="small mb-0 mr-1">Dari:</label>
-                                        <input type="date" name="start_date" class="form-control form-control-sm" 
-                                            value="{{ $startDate ?? '' }}" style="width: 140px;">
+                                    <div class="form-row align-items-end">
+                                        <div class="col-12 col-md-auto mb-2">
+                                            <label class="small mb-1">Dari</label>
+                                            <input type="date" name="start_date" class="form-control form-control-sm"
+                                                value="{{ $startDate ?? '' }}">
+                                        </div>
+                                        <div class="col-12 col-md-auto mb-2">
+                                            <label class="small mb-1">Sampai</label>
+                                            <input type="date" name="end_date" class="form-control form-control-sm"
+                                                value="{{ $endDate ?? '' }}">
+                                        </div>
+                                        <div class="col-12 col-md-auto mb-2">
+                                            <label class="small mb-1">Produk</label>
+                                            <select name="produk_filter" class="form-control form-control-sm">
+                                                <option value="">-- Semua Produk --</option>
+                                                @if(isset($allProduks))
+                                                    @foreach($allProduks as $produk)
+                                                        <option value="{{ $produk->id }}"
+                                                            {{ (isset($selectedProdukId) && $selectedProdukId == $produk->id) ? 'selected' : '' }}>
+                                                            {{ $produk->nama_produk }}
+                                                        </option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-auto mb-2 d-flex align-items-center">
+                                            <button type="submit" class="btn btn-primary btn-sm mr-2">
+                                                <i class="fas fa-filter"></i> Filter
+                                            </button>
+                                            @if(isset($startDate) || isset($endDate) || isset($selectedProdukId))
+                                                <a href="{{ route('dashboard') }}?gudang_filter={{ $selectedGudangId ?? '' }}" class="btn btn-secondary btn-sm">
+                                                    <i class="fas fa-redo"></i> Reset
+                                                </a>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div class="form-group mb-0 mr-2">
-                                        <label class="small mb-0 mr-1">Sampai:</label>
-                                        <input type="date" name="end_date" class="form-control form-control-sm" 
-                                            value="{{ $endDate ?? '' }}" style="width: 140px;">
-                                    </div>
-                                    <select name="produk_filter" class="form-control form-control-sm mr-2"
-                                        style="width: 200px;">
-                                        <option value="">-- Semua Produk --</option>
-                                        @if(isset($allProduks))
-                                            @foreach($allProduks as $produk)
-                                                <option value="{{ $produk->id }}"
-                                                    {{ (isset($selectedProdukId) && $selectedProdukId == $produk->id) ? 'selected' : '' }}>
-                                                    {{ $produk->nama_produk }}
-                                                </option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                    <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="fas fa-filter"></i> Filter
-                                    </button>
-                                    @if(isset($startDate) || isset($endDate) || isset($selectedProdukId))
-                                        <a href="{{ route('dashboard') }}?gudang_filter={{ $selectedGudangId ?? '' }}" class="btn btn-secondary btn-sm ml-2">
-                                            <i class="fas fa-redo"></i> Reset
-                                        </a>
-                                    @endif
                                 </form>
                             </div>
                         </div>
