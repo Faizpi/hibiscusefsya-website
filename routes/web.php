@@ -99,6 +99,22 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('kunjungan/{kunjungan}/lampiran/{index}', 'KunjunganController@deleteLampiran')->name('kunjungan.deleteLampiran');
     Route::resource('kunjungan', 'KunjunganController');
 
+    // 5. Modul Pembayaran
+    Route::post('pembayaran/{pembayaran}/approve', 'PembayaranController@approve')->name('pembayaran.approve');
+    Route::post('pembayaran/{pembayaran}/cancel', 'PembayaranController@cancel')->name('pembayaran.cancel');
+    Route::post('pembayaran/{pembayaran}/uncancel', 'PembayaranController@uncancel')->name('pembayaran.uncancel');
+    Route::delete('pembayaran/{pembayaran}/lampiran/{index}', 'PembayaranController@deleteLampiran')->name('pembayaran.deleteLampiran');
+    Route::get('pembayaran/get-penjualan/{id}', 'PembayaranController@getPenjualanDetail')->name('pembayaran.getPenjualan');
+    Route::resource('pembayaran', 'PembayaranController');
+
+    // 6. Modul Penerimaan Barang (Barang Masuk)
+    Route::post('penerimaan-barang/{penerimaan_barang}/approve', 'PenerimaanBarangController@approve')->name('penerimaan-barang.approve');
+    Route::post('penerimaan-barang/{penerimaan_barang}/cancel', 'PenerimaanBarangController@cancel')->name('penerimaan-barang.cancel');
+    Route::post('penerimaan-barang/{penerimaan_barang}/uncancel', 'PenerimaanBarangController@uncancel')->name('penerimaan-barang.uncancel');
+    Route::delete('penerimaan-barang/{penerimaan_barang}/lampiran/{index}', 'PenerimaanBarangController@deleteLampiran')->name('penerimaan-barang.deleteLampiran');
+    Route::get('penerimaan-barang/get-pembelian/{id}', 'PenerimaanBarangController@getPembelianDetail')->name('penerimaan-barang.getPembelian');
+    Route::resource('penerimaan-barang', 'PenerimaanBarangController');
+
 
     // ====================================================================
     // GRUP 2: Area Admin, Spectator & Super Admin
