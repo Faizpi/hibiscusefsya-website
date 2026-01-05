@@ -327,7 +327,7 @@
                                         <input type="hidden" name="gudang_filter" value="{{ $selectedGudangId }}">
                                     @endif
                                     <div class="form-row align-items-end">
-                                        <div class="col-12 col-md-auto mb-2">
+                                        <div class="col-12 col-md-auto mb-2 ml-md-auto">
                                             <label class="small mb-1">Dari</label>
                                             <input type="date" name="start_date" class="form-control form-control-sm"
                                                 value="{{ $startDate ?? '' }}">
