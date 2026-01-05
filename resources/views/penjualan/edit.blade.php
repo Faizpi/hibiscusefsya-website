@@ -151,7 +151,7 @@
                                             <select class="form-control product-select" name="produk_id[]" required>
                                                 <option value="">Pilih...</option>
                                                 @foreach($produks as $p) <option value="{{ $p->id }}"
-                                                    data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}" {{ $oldProd == $p->id ? 'selected' : '' }}>{{ $p->nama_produk }}</option>
+                                                    data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}" data-satuan="{{ $p->satuan ?? 'Pcs' }}" {{ $oldProd == $p->id ? 'selected' : '' }}>{{ $p->nama_produk }}</option>
                                                 @endforeach
                                             </select>
                                         </td>
@@ -159,10 +159,7 @@
                                                 value="{{ $oldDesc }}"></td>
                                         <td><input type="number" class="form-control product-quantity" name="kuantitas[]"
                                                 value="{{ $oldQty }}" min="1" required></td>
-                                        <td><select class="form-control" name="unit[]">
-                                                <option {{ $oldUnit == 'Pcs' ? 'selected' : '' }}>Pcs</option>
-                                                <option {{ $oldUnit == 'Box' ? 'selected' : '' }}>Box</option>
-                                            </select></td>
+                                        <td><input type="text" class="form-control product-unit" name="unit[]" value="{{ $oldUnit }}" readonly></td>
                                         <td><input type="number" class="form-control text-right product-price"
                                                 name="harga_satuan[]" value="{{ $oldPrice }}" required></td>
                                         <td><input type="number" class="form-control text-right product-discount"
@@ -314,7 +311,7 @@
                                         <select class="form-control product-select" name="produk_id[]" required>
                                             <option value="">Pilih...</option>
                                             @foreach($produks as $produk)
-                                                <option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-deskripsi="{{ $produk->deskripsi }}">{{ $produk->nama_produk }}</option>
+                                                <option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-deskripsi="{{ $produk->deskripsi }}" data-satuan="{{ $produk->satuan ?? 'Pcs' }}">{{ $produk->nama_produk }}</option>
                                             @endforeach
                                         </select>
                                     `;
@@ -331,6 +328,7 @@
                     if (row) {
                         row.querySelector('.product-price').value = option.dataset.harga || 0;
                         row.querySelector('.product-description').value = option.dataset.deskripsi || '';
+                        row.querySelector('.product-unit').value = option.dataset.satuan || 'Pcs';
                         if (kontakSelect) {
                             const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
                             if (kontakOption) {
@@ -400,7 +398,7 @@
                     const produkName = select.options[select.selectedIndex]?.text || 'Pilih Produk';
                     const desc = row.querySelector('.product-description').value || '-';
                     const qty = row.querySelector('.product-quantity').value || 0;
-                    const unit = row.querySelector('select[name="unit[]"]').value || 'Pcs';
+                    const unit = row.querySelector('.product-unit').value || 'Pcs';
                     const price = row.querySelector('.product-price').value || 0;
                     const disc = row.querySelector('.product-discount').value || 0;
                     const total = row.querySelector('.product-line-total').value || 0;
@@ -427,10 +425,7 @@
                                                         </div>
                                                         <div class="field-group">
                                                             <span class="field-label">Unit</span>
-                                                            <select class="form-control product-unit-mobile" data-row="${index}">
-                                                                <option value="Pcs" ${unit === 'Pcs' ? 'selected' : ''}>Pcs</option>
-                                                                <option value="Karton" ${unit === 'Karton' ? 'selected' : ''}>Karton</option>
-                                                            </select>
+                                                            <input type="text" class="form-control product-unit-mobile" data-row="${index}" value="${unit}" readonly>
                                                         </div>
                                                         <div class="field-group">
                                                             <span class="field-label">Harga</span>
@@ -507,9 +502,6 @@
                                 totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-line-total').value) || 0);
                             }
                         }
-                    }
-                    if (e.target.classList.contains('product-unit-mobile')) {
-                        row.querySelector('select[name="unit[]"]').value = e.target.value;
                     }
                 });
 
@@ -614,7 +606,7 @@
                                             <td>${productDropdownHtml}</td>
                                             <td><input type="text" class="form-control product-description" name="deskripsi[]"></td>
                                             <td><input type="number" class="form-control product-quantity" name="kuantitas[]" value="1" min="1"></td>
-                                            <td><select class="form-control" name="unit[]"><option>Pcs</option><option>Karton</option></select></td>
+                                            <td><input type="text" class="form-control product-unit" name="unit[]" value="" readonly></td>
                                             <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]" placeholder="0" required></td>
                                             <td><input type="number" class="form-control text-right product-discount" name="diskon[]" placeholder="0" min="0" max="100"></td>
                                             <td><input type="text" class="form-control text-right product-line-total" readonly></td>

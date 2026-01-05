@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Produk extends Model
 {
-    protected $fillable = ['nama_produk', 'item_code', 'harga', 'deskripsi'];
+    protected $fillable = ['nama_produk', 'item_code', 'harga', 'satuan', 'deskripsi'];
 
     // Definisikan relasi ke tabel stok (gudang_produk)
     public function stokDiGudang()

@@ -22,12 +22,48 @@ class BiayaController extends Controller
         $user = Auth::user();
         $query = Biaya::with(['user', 'approver']);
         if ($user->role == 'super_admin') {
-        } elseif (in_array($user->role, ['admin', 'spectator'])) {
-            $query->where(function ($q) use ($user) {
+            // Super admin dapat melihat semua biaya
+        } elseif ($user->role == 'admin') {
+            // Admin dapat melihat:
+            // 1. Biaya yang dia buat sendiri
+            // 2. Biaya yang dia sebagai approver
+            // 3. Biaya yang dibuat oleh user di gudang yang dia kelola
+            $adminGudangIds = $user->gudangs->pluck('id')->toArray();
+            if ($user->current_gudang_id) {
+                $adminGudangIds[] = $user->current_gudang_id;
+            }
+            if ($user->gudang_id) {
+                $adminGudangIds[] = $user->gudang_id;
+            }
+            $adminGudangIds = array_unique($adminGudangIds);
+            
+            // Ambil semua user_id yang berada di gudang yang dikelola admin ini
+            $usersInGudang = User::whereIn('gudang_id', $adminGudangIds)
+                ->orWhereIn('current_gudang_id', $adminGudangIds)
+                ->pluck('id')
+                ->toArray();
+            
+            $query->where(function ($q) use ($user, $usersInGudang) {
                 $q->where('approver_id', $user->id)
-                    ->orWhere('user_id', $user->id);
+                    ->orWhere('user_id', $user->id)
+                    ->orWhereIn('user_id', $usersInGudang);
             });
+        } elseif ($user->role == 'spectator') {
+            // Spectator dapat melihat biaya di gudang yang dia akses
+            $spectatorGudangIds = $user->spectatorGudangs->pluck('id')->toArray();
+            if ($user->current_gudang_id) {
+                $spectatorGudangIds[] = $user->current_gudang_id;
+            }
+            $spectatorGudangIds = array_unique($spectatorGudangIds);
+            
+            $usersInGudang = User::whereIn('gudang_id', $spectatorGudangIds)
+                ->orWhereIn('current_gudang_id', $spectatorGudangIds)
+                ->pluck('id')
+                ->toArray();
+            
+            $query->whereIn('user_id', $usersInGudang);
         } else {
+            // User biasa hanya melihat biaya miliknya sendiri
             $query->where('user_id', $user->id);
         }
 

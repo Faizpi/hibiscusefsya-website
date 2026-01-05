@@ -142,6 +142,7 @@
                                                 <option value="{{ $produk->id }}" 
                                                         data-harga="{{ $produk->harga }}" 
                                                         data-deskripsi="{{ $produk->deskripsi }}"
+                                                        data-satuan="{{ $produk->satuan ?? 'Pcs' }}"
                                                         {{ $oldProdukId == $produk->id ? 'selected' : '' }}>
                                                     {{ $produk->nama_produk }}
                                                 </option>
@@ -151,11 +152,7 @@
                                     <td><input type="text" class="form-control product-description" name="deskripsi[]" value="{{ $oldDeskripsi }}"></td>
                                     <td><input type="number" class="form-control product-quantity" name="kuantitas[]" value="{{ $oldKuantitas }}" min="1" required></td>
                                     <td>
-                                        <select class="form-control" name="unit[]">
-                                            <option value="Pcs" {{ $oldUnit == 'Pcs' ? 'selected' : '' }}>Pcs</option>
-                                            <option value="Karton" {{ $oldUnit == 'Karton' ? 'selected' : '' }}>Karton</option>
-                                            <option value="Box" {{ $oldUnit == 'Box' ? 'selected' : '' }}>Box</option>
-                                        </select>
+                                        <input type="text" class="form-control product-unit" name="unit[]" value="{{ $oldUnit }}" readonly>
                                     </td>
                                     <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]" value="{{ $oldHarga }}" placeholder="0" required></td>
                                     <td><input type="number" class="form-control text-right product-discount" name="diskon[]" value="{{ $oldDiskon }}" placeholder="0" min="0" max="100"></td>
@@ -277,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const discAkhirInput = document.getElementById('diskon_akhir_input');
 
     // Product Options HTML for mobile cards
-    const productOptionsHtml = `@foreach($produks as $produk)<option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-deskripsi="{{ $produk->deskripsi }}">{{ $produk->nama_produk }}</option>@endforeach`;
+    const productOptionsHtml = `@foreach($produks as $produk)<option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-deskripsi="{{ $produk->deskripsi }}" data-satuan="{{ $produk->satuan ?? 'Pcs' }}">{{ $produk->nama_produk }}</option>@endforeach`;
 
     // --- JATUH TEMPO AUTO ---
     function updateDueDate() {
@@ -300,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <select class="form-control product-select" name="produk_id[]" required>
             <option value="">Pilih...</option>
             @foreach($produks as $produk)
-                <option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-deskripsi="{{ $produk->deskripsi }}">
+                <option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-deskripsi="{{ $produk->deskripsi }}" data-satuan="{{ $produk->satuan ?? 'Pcs' }}">
                     {{ $produk->nama_produk }}
                 </option>
             @endforeach
@@ -319,6 +316,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if(row) {
                 row.querySelector('.product-price').value = option.dataset.harga || 0;
                 row.querySelector('.product-description').value = option.dataset.deskripsi || '';
+                row.querySelector('.product-unit').value = option.dataset.satuan || 'Pcs';
                 calculateRow(row);
             }
         });
@@ -379,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const select = row.querySelector('.product-select');
             const desc = row.querySelector('.product-description').value || '-';
             const qty = row.querySelector('.product-quantity').value || 0;
-            const unit = row.querySelector('select[name="unit[]"]').value || 'Pcs';
+            const unit = row.querySelector('.product-unit').value || 'Pcs';
             const price = row.querySelector('.product-price').value || 0;
             const disc = row.querySelector('.product-discount').value || 0;
             const total = row.querySelector('.product-line-total').value || 0;
@@ -406,11 +404,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                     <div class="field-group">
                         <span class="field-label">Unit</span>
-                        <select class="form-control product-unit-mobile" data-row="${index}">
-                            <option value="Pcs" ${unit === 'Pcs' ? 'selected' : ''}>Pcs</option>
-                            <option value="Box" ${unit === 'Box' ? 'selected' : ''}>Box</option>
-                            <option value="Karton" ${unit === 'Karton' ? 'selected' : ''}>Karton</option>
-                        </select>
+                        <input type="text" class="form-control product-unit-mobile" data-row="${index}" value="${unit}" readonly>
                     </div>
                     <div class="field-group">
                         <span class="field-label">Harga</span>
@@ -450,17 +444,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 const selectedOption = e.target.options[e.target.selectedIndex];
                 const harga = selectedOption.dataset.harga || 0;
                 const deskripsi = selectedOption.dataset.deskripsi || '';
+                const satuan = selectedOption.dataset.satuan || 'Pcs';
                 
                 // Update desktop table
                 row.querySelector('.product-price').value = harga;
                 row.querySelector('.product-description').value = deskripsi;
+                row.querySelector('.product-unit').value = satuan;
                 
                 // Update mobile card langsung
                 if (card) {
                     const priceMobile = card.querySelector('.product-price-mobile');
                     const descMobile = card.querySelector('.product-desc-mobile');
+                    const unitMobile = card.querySelector('.product-unit-mobile');
                     if (priceMobile) priceMobile.value = harga;
                     if (descMobile) descMobile.value = deskripsi;
+                    if (unitMobile) unitMobile.value = satuan;
                 }
                 
                 // Calculate total dan update di mobile card
@@ -471,9 +469,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-line-total').value) || 0);
                     }
                 }
-            }
-            if (e.target.classList.contains('product-unit-mobile')) {
-                row.querySelector('select[name="unit[]"]').value = e.target.value;
             }
         });
 
@@ -583,11 +578,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <td><input type="text" class="form-control product-description" name="deskripsi[]"></td>
             <td><input type="number" class="form-control product-quantity" name="kuantitas[]" value="1" min="1"></td>
             <td>
-                <select class="form-control" name="unit[]">
-                    <option value="Pcs">Pcs</option>
-                    <option value="Karton">Karton</option>
-                    <option value="Box">Box</option>
-                </select>
+                <input type="text" class="form-control product-unit" name="unit[]" value="" readonly>
             </td>
             <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]" placeholder="0" required></td>
             <td><input type="number" class="form-control text-right product-discount" name="diskon[]" placeholder="0" min="0" max="100"></td>

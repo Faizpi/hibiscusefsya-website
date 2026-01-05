@@ -35,6 +35,17 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="satuan">Satuan *</label>
+                    <select class="form-control @error('satuan') is-invalid @enderror" id="satuan" name="satuan" required>
+                        <option value="Pcs" {{ old('satuan') == 'Pcs' ? 'selected' : '' }}>Pcs</option>
+                        <option value="Lusin" {{ old('satuan') == 'Lusin' ? 'selected' : '' }}>Lusin</option>
+                        <option value="Karton" {{ old('satuan') == 'Karton' ? 'selected' : '' }}>Karton</option>
+                    </select>
+                    @error('satuan')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="form-group">
                     <label for="deskripsi">Deskripsi</label>
                     <textarea class="form-control @error('deskripsi') is-invalid @enderror" id="deskripsi" name="deskripsi" rows="3">{{ old('deskripsi') }}</textarea>
                     @error('deskripsi')
