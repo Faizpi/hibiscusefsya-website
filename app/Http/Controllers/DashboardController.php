@@ -414,7 +414,7 @@ class DashboardController extends Controller
                 // Get all products for filter
                 $data['allProduks'] = Produk::orderBy('nama_produk')->get();
                 $selectedProdukId = $request->get('produk_filter');
-                
+
                 // Get date range filter
                 $startDate = $request->get('start_date');
                 $endDate = $request->get('end_date');
