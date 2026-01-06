@@ -320,7 +320,7 @@ class BiayaController extends Controller
         // Admin hanya bisa approve biaya dari user di gudang yang dia kelola
         if ($user->role === 'admin') {
             $canApprove = false;
-            
+
             // Cek jika admin adalah approver yang ditunjuk
             if ($biaya->approver_id == $user->id) {
                 $canApprove = true;
