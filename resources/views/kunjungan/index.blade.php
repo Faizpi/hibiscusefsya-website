@@ -408,24 +408,25 @@
                 type: 'bar',
                 data: {
                     labels: @json($chartLabels),
-                    datasets: @json($chartDatasets)
+                    datasets: [{
+                        label: 'Jumlah Produk Diperiksa',
+                        data: @json($chartValues),
+                        backgroundColor: 'rgba(78, 115, 223, 0.8)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 1
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                boxWidth: 12,
-                                padding: 15
-                            }
+                            display: false
                         },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.y + ' unit';
+                                    return 'Total: ' + context.parsed.y + ' unit';
                                 }
                             }
                         }
