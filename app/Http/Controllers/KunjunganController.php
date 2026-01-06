@@ -10,11 +10,13 @@ use App\Gudang;
 use App\GudangProduk;
 use App\Produk;
 use App\Services\InvoiceEmailService;
+use App\Exports\KunjunganExport;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Maatwebsite\Excel\Facades\Excel;
 
 class KunjunganController extends Controller
 {
@@ -72,21 +74,19 @@ class KunjunganController extends Controller
         });
 
         // =====================================================
-        // CHART: Product Visit Frequency per Sales (Pemeriksaan Stock only)
+        // CHART: Total Produk Diperiksa per Sales (Pemeriksaan Stock only)
         // =====================================================
         $chartStartDate = request('chart_start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $chartEndDate = request('chart_end_date', Carbon::now()->format('Y-m-d'));
         $chartProdukFilter = request('chart_produk_filter', '');
 
-        // Query for chart data: count produk visits per sales
+        // Query for chart data: total qty per sales (simple bar chart)
         $chartQuery = KunjunganItem::select(
-                'users.name as sales_name',
-                'produks.nama_produk',
-                DB::raw('SUM(kunjungan_items.jumlah) as total_qty')
-            )
+            'users.name as sales_name',
+            DB::raw('SUM(kunjungan_items.jumlah) as total_qty')
+        )
             ->join('kunjungans', 'kunjungan_items.kunjungan_id', '=', 'kunjungans.id')
             ->join('users', 'kunjungans.user_id', '=', 'users.id')
-            ->join('produks', 'kunjungan_items.produk_id', '=', 'produks.id')
             ->where('kunjungans.tujuan', 'Pemeriksaan Stock')
             ->whereIn('kunjungans.status', ['Pending', 'Approved'])
             ->whereBetween('kunjungans.tgl_kunjungan', [$chartStartDate, $chartEndDate]);
@@ -111,43 +111,15 @@ class KunjunganController extends Controller
         }
 
         $chartData = $chartQuery
-            ->groupBy('users.id', 'users.name', 'produks.id', 'produks.nama_produk')
+            ->groupBy('users.id', 'users.name')
             ->orderBy('users.name')
             ->get();
 
-        // Transform data for Chart.js (grouped bar chart by sales)
-        $chartLabels = $chartData->pluck('sales_name')->unique()->values()->toArray();
-        $chartProducts = $chartData->pluck('nama_produk')->unique()->values()->toArray();
-        
-        // Build datasets per product
-        $chartDatasets = [];
-        $colors = [
-            'rgba(78, 115, 223, 0.8)',   // Primary blue
-            'rgba(28, 200, 138, 0.8)',   // Success green  
-            'rgba(54, 185, 204, 0.8)',   // Info cyan
-            'rgba(246, 194, 62, 0.8)',   // Warning yellow
-            'rgba(231, 74, 59, 0.8)',    // Danger red
-            'rgba(133, 135, 150, 0.8)',  // Secondary gray
-            'rgba(102, 16, 242, 0.8)',   // Purple
-            'rgba(253, 126, 20, 0.8)',   // Orange
-        ];
-        
-        foreach ($chartProducts as $index => $product) {
-            $dataPerSales = [];
-            foreach ($chartLabels as $salesName) {
-                $found = $chartData->where('sales_name', $salesName)
-                    ->where('nama_produk', $product)
-                    ->first();
-                $dataPerSales[] = $found ? (int)$found->total_qty : 0;
-            }
-            $chartDatasets[] = [
-                'label' => $product,
-                'data' => $dataPerSales,
-                'backgroundColor' => $colors[$index % count($colors)],
-                'borderColor' => str_replace('0.8', '1', $colors[$index % count($colors)]),
-                'borderWidth' => 1,
-            ];
-        }
+        // Transform data for Chart.js (simple bar chart)
+        $chartLabels = $chartData->pluck('sales_name')->toArray();
+        $chartValues = $chartData->pluck('total_qty')->map(function ($val) {
+            return (int) $val;
+        })->toArray();
 
         // Get all products for filter dropdown
         $allProduks = Produk::orderBy('nama_produk')->get();
@@ -161,7 +133,7 @@ class KunjunganController extends Controller
             'totalCanceled' => $totalCanceled,
             // Chart data
             'chartLabels' => $chartLabels,
-            'chartDatasets' => $chartDatasets,
+            'chartValues' => $chartValues,
             'chartStartDate' => $chartStartDate,
             'chartEndDate' => $chartEndDate,
             'chartProdukFilter' => $chartProdukFilter,
