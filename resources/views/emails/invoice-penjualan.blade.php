@@ -270,10 +270,7 @@
 
         $statusClass = 'pending';
         $statusText = $transaksi->status;
-        if ($transaksi->syarat_pembayaran == 'Cash') {
-            $statusClass = 'lunas';
-            $statusText = 'Lunas';
-        } elseif ($transaksi->status == 'Lunas') {
+        if ($transaksi->status == 'Lunas') {
             $statusClass = 'lunas';
             $statusText = 'Lunas';
         } elseif ($transaksi->status == 'Approved') {

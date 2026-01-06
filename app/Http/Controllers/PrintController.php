@@ -212,7 +212,7 @@ class PrintController extends Controller
 
         // Status
         $st = $data->status;
-        if($data->syarat_pembayaran == 'Cash') $st = 'Lunas';
+        if($data->status == 'Lunas') $st = 'Lunas';
         elseif($data->status == 'Approved') $st = 'Belum Lunas';
         
         // --- RAKIT DIV ---
