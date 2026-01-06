@@ -126,7 +126,11 @@
                         </div>
                         <div class="mt-2 text-center">
                             <small class="text-muted">
-                                Data kunjungan Pemeriksaan Stock periode {{ \Carbon\Carbon::parse($chartStartDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($chartEndDate)->format('d M Y') }}
+                                @if($chartStartDate && $chartEndDate)
+                                    Data kunjungan Pemeriksaan Stock periode {{ \Carbon\Carbon::parse($chartStartDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($chartEndDate)->format('d M Y') }}
+                                @else
+                                    Data kunjungan Pemeriksaan Stock (Semua Waktu)
+                                @endif
                             </small>
                         </div>
                     @else

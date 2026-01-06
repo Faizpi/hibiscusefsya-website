@@ -76,8 +76,9 @@ class KunjunganController extends Controller
         // =====================================================
         // CHART: Total Produk Diperiksa per Sales (Pemeriksaan Stock only)
         // =====================================================
-        $chartStartDate = request('chart_start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
-        $chartEndDate = request('chart_end_date', Carbon::now()->format('Y-m-d'));
+        // Default: all-time (kosong = tampilkan semua data)
+        $chartStartDate = request('chart_start_date', '');
+        $chartEndDate = request('chart_end_date', '');
         $chartProdukFilter = request('chart_produk_filter', '');
 
         // Query for chart data: total qty per sales (simple bar chart)
@@ -88,8 +89,12 @@ class KunjunganController extends Controller
             ->join('kunjungans', 'kunjungan_items.kunjungan_id', '=', 'kunjungans.id')
             ->join('users', 'kunjungans.user_id', '=', 'users.id')
             ->where('kunjungans.tujuan', 'Pemeriksaan Stock')
-            ->whereIn('kunjungans.status', ['Pending', 'Approved'])
-            ->whereBetween('kunjungans.tgl_kunjungan', [$chartStartDate, $chartEndDate]);
+            ->whereIn('kunjungans.status', ['Pending', 'Approved']);
+
+        // Apply date range filter if specified
+        if ($chartStartDate && $chartEndDate) {
+            $chartQuery->whereBetween('kunjungans.tgl_kunjungan', [$chartStartDate, $chartEndDate]);
+        }
 
         // Apply same access control for chart
         if ($user->role == 'super_admin') {
