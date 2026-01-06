@@ -79,6 +79,68 @@
         </div>
     </div>
 
+    {{-- ROW 2: Chart Pemeriksaan Stock per Sales --}}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                        <h6 class="m-0 font-weight-bold text-primary mb-2 mb-md-0">
+                            <i class="fas fa-chart-bar mr-2"></i>Frekuensi Pemeriksaan Stock per Sales
+                        </h6>
+                        <form method="GET" class="d-flex flex-column flex-md-row align-items-start align-items-md-center" style="gap: 10px;">
+                            @if(request('tujuan'))
+                                <input type="hidden" name="tujuan" value="{{ request('tujuan') }}">
+                            @endif
+                            <div class="d-flex align-items-center">
+                                <label class="mr-2 mb-0 text-xs">Dari:</label>
+                                <input type="date" name="chart_start_date" class="form-control form-control-sm" 
+                                    value="{{ $chartStartDate }}" style="width: auto;">
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <label class="mr-2 mb-0 text-xs">Sampai:</label>
+                                <input type="date" name="chart_end_date" class="form-control form-control-sm" 
+                                    value="{{ $chartEndDate }}" style="width: auto;">
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <label class="mr-2 mb-0 text-xs">Produk:</label>
+                                <select name="chart_produk_filter" class="form-control form-control-sm" style="width: auto; min-width: 150px;">
+                                    <option value="">Semua Produk</option>
+                                    @foreach($allProduks as $produk)
+                                        <option value="{{ $produk->id }}" {{ $chartProdukFilter == $produk->id ? 'selected' : '' }}>
+                                            {{ $produk->nama_produk }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                <i class="fas fa-filter"></i> Filter
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if(count($chartLabels) > 0)
+                        <div class="chart-area" style="height: 350px;">
+                            <canvas id="visitChart"></canvas>
+                        </div>
+                        <div class="mt-2 text-center">
+                            <small class="text-muted">
+                                Data kunjungan Pemeriksaan Stock periode {{ \Carbon\Carbon::parse($chartStartDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($chartEndDate)->format('d M Y') }}
+                            </small>
+                        </div>
+                    @else
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-chart-bar fa-3x mb-3 text-gray-300"></i>
+                            <p class="mb-0">Belum ada data kunjungan Pemeriksaan Stock pada periode ini.</p>
+                            <small>Coba ubah filter tanggal atau produk.</small>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">Daftar Kunjungan</h6>
@@ -313,6 +375,7 @@
 @endsection
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         $('#deleteModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
@@ -336,5 +399,62 @@
             var modal = $(this);
             modal.find('#uncancelForm').attr('action', action);
         });
+
+        // Visit Chart Initialization
+        @if(count($chartLabels) > 0)
+        var visitCtx = document.getElementById('visitChart');
+        if (visitCtx) {
+            new Chart(visitCtx, {
+                type: 'bar',
+                data: {
+                    labels: @json($chartLabels),
+                    datasets: @json($chartDatasets)
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' unit';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 0
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                precision: 0
+                            },
+                            title: {
+                                display: true,
+                                text: 'Jumlah Produk Diperiksa'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        @endif
     </script>
 @endpush

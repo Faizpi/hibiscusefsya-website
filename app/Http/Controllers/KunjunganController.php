@@ -71,6 +71,87 @@ class KunjunganController extends Controller
             return $item;
         });
 
+        // =====================================================
+        // CHART: Product Visit Frequency per Sales (Pemeriksaan Stock only)
+        // =====================================================
+        $chartStartDate = request('chart_start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
+        $chartEndDate = request('chart_end_date', Carbon::now()->format('Y-m-d'));
+        $chartProdukFilter = request('chart_produk_filter', '');
+
+        // Query for chart data: count produk visits per sales
+        $chartQuery = KunjunganItem::select(
+                'users.name as sales_name',
+                'produks.nama_produk',
+                DB::raw('SUM(kunjungan_items.jumlah) as total_qty')
+            )
+            ->join('kunjungans', 'kunjungan_items.kunjungan_id', '=', 'kunjungans.id')
+            ->join('users', 'kunjungans.user_id', '=', 'users.id')
+            ->join('produks', 'kunjungan_items.produk_id', '=', 'produks.id')
+            ->where('kunjungans.tujuan', 'Pemeriksaan Stock')
+            ->whereIn('kunjungans.status', ['Pending', 'Approved'])
+            ->whereBetween('kunjungans.tgl_kunjungan', [$chartStartDate, $chartEndDate]);
+
+        // Apply same access control for chart
+        if ($user->role == 'super_admin') {
+            // Super admin sees all
+        } elseif (in_array($user->role, ['admin', 'spectator'])) {
+            $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
+            $chartQuery->where(function ($q) use ($user, $accessibleGudangIds) {
+                $q->whereIn('kunjungans.gudang_id', $accessibleGudangIds)
+                    ->orWhere('kunjungans.approver_id', $user->id)
+                    ->orWhere('kunjungans.user_id', $user->id);
+            });
+        } else {
+            $chartQuery->where('kunjungans.user_id', $user->id);
+        }
+
+        // Filter by produk if specified
+        if ($chartProdukFilter) {
+            $chartQuery->where('kunjungan_items.produk_id', $chartProdukFilter);
+        }
+
+        $chartData = $chartQuery
+            ->groupBy('users.id', 'users.name', 'produks.id', 'produks.nama_produk')
+            ->orderBy('users.name')
+            ->get();
+
+        // Transform data for Chart.js (grouped bar chart by sales)
+        $chartLabels = $chartData->pluck('sales_name')->unique()->values()->toArray();
+        $chartProducts = $chartData->pluck('nama_produk')->unique()->values()->toArray();
+        
+        // Build datasets per product
+        $chartDatasets = [];
+        $colors = [
+            'rgba(78, 115, 223, 0.8)',   // Primary blue
+            'rgba(28, 200, 138, 0.8)',   // Success green  
+            'rgba(54, 185, 204, 0.8)',   // Info cyan
+            'rgba(246, 194, 62, 0.8)',   // Warning yellow
+            'rgba(231, 74, 59, 0.8)',    // Danger red
+            'rgba(133, 135, 150, 0.8)',  // Secondary gray
+            'rgba(102, 16, 242, 0.8)',   // Purple
+            'rgba(253, 126, 20, 0.8)',   // Orange
+        ];
+        
+        foreach ($chartProducts as $index => $product) {
+            $dataPerSales = [];
+            foreach ($chartLabels as $salesName) {
+                $found = $chartData->where('sales_name', $salesName)
+                    ->where('nama_produk', $product)
+                    ->first();
+                $dataPerSales[] = $found ? (int)$found->total_qty : 0;
+            }
+            $chartDatasets[] = [
+                'label' => $product,
+                'data' => $dataPerSales,
+                'backgroundColor' => $colors[$index % count($colors)],
+                'borderColor' => str_replace('0.8', '1', $colors[$index % count($colors)]),
+                'borderWidth' => 1,
+            ];
+        }
+
+        // Get all products for filter dropdown
+        $allProduks = Produk::orderBy('nama_produk')->get();
+
         return view('kunjungan.index', [
             'kunjungans' => $kunjungans,
             'totalPemeriksaanStock' => $totalPemeriksaanStock,
@@ -78,6 +159,13 @@ class KunjunganController extends Controller
             'totalPenawaran' => $totalPenawaran,
             'totalPromo' => $totalPromo,
             'totalCanceled' => $totalCanceled,
+            // Chart data
+            'chartLabels' => $chartLabels,
+            'chartDatasets' => $chartDatasets,
+            'chartStartDate' => $chartStartDate,
+            'chartEndDate' => $chartEndDate,
+            'chartProdukFilter' => $chartProdukFilter,
+            'allProduks' => $allProduks,
         ]);
     }
 
@@ -123,7 +211,8 @@ class KunjunganController extends Controller
             return redirect()->route('kunjungan.index')->with('error', 'Spectator tidak memiliki akses untuk membuat transaksi.');
         }
 
-        $request->validate([
+        // Conditional validation rules based on tujuan
+        $rules = [
             'kontak_id' => 'required|exists:kontaks,id',
             'sales_nama' => 'required|string|max:255',
             'sales_email' => 'nullable|email|max:255',
@@ -134,12 +223,25 @@ class KunjunganController extends Controller
             'memo' => 'nullable|string',
             'lampiran' => 'nullable|array',
             'lampiran.*' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
-            'produk_id' => 'nullable|array',
-            'produk_id.*' => 'exists:produks,id',
             'jumlah' => 'nullable|array',
             'jumlah.*' => 'integer|min:1',
             'keterangan' => 'nullable|array',
             'keterangan.*' => 'nullable|string|max:255',
+        ];
+
+        // Produk wajib hanya untuk Pemeriksaan Stock
+        if ($request->tujuan === 'Pemeriksaan Stock') {
+            $rules['produk_id'] = 'required|array|min:1';
+            $rules['produk_id.*'] = 'required|exists:produks,id';
+        } else {
+            $rules['produk_id'] = 'nullable|array';
+            $rules['produk_id.*'] = 'nullable|exists:produks,id';
+        }
+
+        $request->validate($rules, [
+            'produk_id.required' => 'Produk wajib diisi untuk kunjungan Pemeriksaan Stock.',
+            'produk_id.min' => 'Minimal 1 produk harus dipilih untuk kunjungan Pemeriksaan Stock.',
+            'produk_id.*.required' => 'Pilih produk yang valid.',
         ]);
 
         $user = Auth::user();

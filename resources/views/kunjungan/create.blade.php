@@ -170,8 +170,14 @@
                     <hr>
 
                     {{-- PRODUK ITEMS --}}
-                    <h5 class="text-primary mb-3"><i class="fas fa-boxes"></i> Produk Terkait</h5>
-                    <div id="produk-container">
+                    <div id="produk-section">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-boxes"></i> Produk Terkait 
+                            <span id="produk-required-badge" class="badge badge-danger" style="display: none;">Wajib</span>
+                            <span id="produk-optional-badge" class="badge badge-secondary" style="display: none;">Opsional</span>
+                        </h5>
+                        <small class="text-muted d-block mb-3" id="produk-help-text"></small>
+                        <div id="produk-container">
                         <div class="row produk-row mb-2 align-items-center">
                             <div class="col-md-7">
                                 <select class="form-control produk-select" name="produk_id[]">
@@ -201,6 +207,7 @@
                     <button type="button" class="btn btn-outline-primary btn-sm mb-3" id="btn-add-produk">
                         <i class="fas fa-plus"></i> Tambah Produk
                     </button>
+                    </div> {{-- End produk-section --}}
 
                     <hr>
 
@@ -233,6 +240,41 @@
             const salesNamaHidden = document.getElementById('sales_nama_hidden');
             const salesEmailInput = document.getElementById('sales_email');
             const salesAlamatInput = document.getElementById('sales_alamat');
+            const tujuanSelect = document.getElementById('tujuan');
+
+            // Handle tujuan change - update produk requirement
+            function updateProdukRequirement() {
+                const tujuan = $('#tujuan').val();
+                const isPemeriksaanStock = tujuan === 'Pemeriksaan Stock';
+                
+                // Update badges
+                $('#produk-required-badge').toggle(isPemeriksaanStock);
+                $('#produk-optional-badge').toggle(!isPemeriksaanStock && tujuan !== '');
+                
+                // Update help text
+                if (isPemeriksaanStock) {
+                    $('#produk-help-text').text('Untuk kunjungan Pemeriksaan Stock, minimal 1 produk wajib diisi.');
+                } else if (tujuan) {
+                    $('#produk-help-text').text('Produk bersifat opsional untuk tujuan ' + tujuan + '.');
+                } else {
+                    $('#produk-help-text').text('');
+                }
+
+                // Update select required state
+                if (isPemeriksaanStock) {
+                    $('.produk-select').first().attr('required', true);
+                } else {
+                    $('.produk-select').removeAttr('required');
+                }
+            }
+
+            // Listen for tujuan changes
+            $('#tujuan').on('change', function() {
+                updateProdukRequirement();
+            });
+
+            // Initial call
+            updateProdukRequirement();
 
             // Init Select2 untuk dropdown Kontak (searchable)
             $('#kontak_id').select2({
@@ -254,6 +296,8 @@
                     allowClear: true,
                     width: '100%'
                 });
+                // Re-apply required state
+                updateProdukRequirement();
             }
             initProdukSelect2();
 
