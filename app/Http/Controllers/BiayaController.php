@@ -38,11 +38,12 @@ class BiayaController extends Controller
             $adminGudangIds = array_unique($adminGudangIds);
             
             // Ambil semua user_id yang berada di gudang yang dikelola admin ini
-            $usersInGudang = User::whereIn('gudang_id', $adminGudangIds)
-                ->orWhereIn('current_gudang_id', $adminGudangIds)
-                ->pluck('id')
-                ->toArray();
-            
+            // Fix: properly group orWhereIn to avoid returning all users
+            $usersInGudang = User::where(function ($q) use ($adminGudangIds) {
+                $q->whereIn('gudang_id', $adminGudangIds)
+                    ->orWhereIn('current_gudang_id', $adminGudangIds);
+            })->pluck('id')->toArray();
+
             $query->where(function ($q) use ($user, $usersInGudang) {
                 $q->where('approver_id', $user->id)
                     ->orWhere('user_id', $user->id)
@@ -55,12 +56,13 @@ class BiayaController extends Controller
                 $spectatorGudangIds[] = $user->current_gudang_id;
             }
             $spectatorGudangIds = array_unique($spectatorGudangIds);
-            
-            $usersInGudang = User::whereIn('gudang_id', $spectatorGudangIds)
-                ->orWhereIn('current_gudang_id', $spectatorGudangIds)
-                ->pluck('id')
-                ->toArray();
-            
+
+            // Fix: properly group orWhereIn to avoid returning all users
+            $usersInGudang = User::where(function ($q) use ($spectatorGudangIds) {
+                $q->whereIn('gudang_id', $spectatorGudangIds)
+                    ->orWhereIn('current_gudang_id', $spectatorGudangIds);
+            })->pluck('id')->toArray();
+
             $query->whereIn('user_id', $usersInGudang);
         } else {
             // User biasa hanya melihat biaya miliknya sendiri

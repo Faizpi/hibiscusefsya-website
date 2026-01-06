@@ -119,6 +119,10 @@
                                 <td><strong>Approver</strong></td>
                                 <td>: {{ $penjualan->status == 'Pending' ? '-' : ($penjualan->approver->name ?? '-') }}</td>
                             </tr>
+                            <tr>
+                                <td><strong>Syarat Pembayaran</strong></td>
+                                <td>: {{ $penjualan->syarat_pembayaran ?? '-' }}</td>
+                            </tr>
                         </table>
                     </div>
                     <div class="col-md-6">
