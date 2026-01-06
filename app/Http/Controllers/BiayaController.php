@@ -317,6 +317,38 @@ class BiayaController extends Controller
         if (!in_array($user->role, ['admin', 'super_admin']))
             return back()->with('error', 'Akses ditolak.');
 
+        // Admin hanya bisa approve biaya dari user di gudang yang dia kelola
+        if ($user->role === 'admin') {
+            $canApprove = false;
+            
+            // Cek jika admin adalah approver yang ditunjuk
+            if ($biaya->approver_id == $user->id) {
+                $canApprove = true;
+            } else {
+                // Cek apakah pembuat biaya berada di gudang yang dikelola admin ini
+                $adminGudangIds = $user->gudangs->pluck('id')->toArray();
+                if ($user->current_gudang_id) {
+                    $adminGudangIds[] = $user->current_gudang_id;
+                }
+                if ($user->gudang_id) {
+                    $adminGudangIds[] = $user->gudang_id;
+                }
+                $adminGudangIds = array_unique($adminGudangIds);
+
+                $creator = $biaya->user;
+                if ($creator) {
+                    $creatorGudangId = $creator->current_gudang_id ?? $creator->gudang_id;
+                    if ($creatorGudangId && in_array($creatorGudangId, $adminGudangIds)) {
+                        $canApprove = true;
+                    }
+                }
+            }
+
+            if (!$canApprove) {
+                return back()->with('error', 'Akses ditolak. Anda tidak memiliki akses ke gudang pembuat biaya ini.');
+            }
+        }
+
         if ($biaya->status === 'Canceled') {
             return back()->with('error', 'Transaksi sudah dibatalkan, tidak bisa di-approve.');
         }
@@ -605,6 +637,26 @@ class BiayaController extends Controller
             $allow = true;
         elseif ($biaya->user_id == $user->id)
             $allow = true;
+        elseif ($user->role == 'admin') {
+            // Admin dapat melihat biaya dari user yang berada di gudang yang dia kelola
+            $adminGudangIds = $user->gudangs->pluck('id')->toArray();
+            if ($user->current_gudang_id) {
+                $adminGudangIds[] = $user->current_gudang_id;
+            }
+            if ($user->gudang_id) {
+                $adminGudangIds[] = $user->gudang_id;
+            }
+            $adminGudangIds = array_unique($adminGudangIds);
+
+            // Cek apakah pembuat biaya berada di gudang yang dikelola admin ini
+            $creator = $biaya->user;
+            if ($creator) {
+                $creatorGudangId = $creator->current_gudang_id ?? $creator->gudang_id;
+                if ($creatorGudangId && in_array($creatorGudangId, $adminGudangIds)) {
+                    $allow = true;
+                }
+            }
+        }
 
         if (!$allow)
             return redirect()->route('biaya.index')->with('error', 'Akses ditolak.');
@@ -626,6 +678,25 @@ class BiayaController extends Controller
             $allow = true;
         elseif ($biaya->user_id == $user->id)
             $allow = true;
+        elseif ($user->role == 'admin') {
+            // Admin dapat melihat biaya dari user yang berada di gudang yang dia kelola
+            $adminGudangIds = $user->gudangs->pluck('id')->toArray();
+            if ($user->current_gudang_id) {
+                $adminGudangIds[] = $user->current_gudang_id;
+            }
+            if ($user->gudang_id) {
+                $adminGudangIds[] = $user->gudang_id;
+            }
+            $adminGudangIds = array_unique($adminGudangIds);
+
+            $creator = $biaya->user;
+            if ($creator) {
+                $creatorGudangId = $creator->current_gudang_id ?? $creator->gudang_id;
+                if ($creatorGudangId && in_array($creatorGudangId, $adminGudangIds)) {
+                    $allow = true;
+                }
+            }
+        }
 
         if (!$allow)
             return redirect()->route('biaya.index')->with('error', 'Akses ditolak.');
