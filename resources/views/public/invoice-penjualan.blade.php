@@ -316,13 +316,10 @@
         $kenaPajak = max(0, $subtotal - $penjualan->diskon_akhir);
         $pajakNominal = $kenaPajak * ($penjualan->tax_percentage / 100);
 
-        // Status logic: Cash selalu Lunas (langsung bayar)
+        // Status logic
         $statusClass = 'pending';
         $statusText = $penjualan->status;
-        if ($penjualan->syarat_pembayaran == 'Cash') {
-            $statusClass = 'lunas';
-            $statusText = 'Lunas';
-        } elseif ($penjualan->status == 'Lunas') {
+        if ($penjualan->status == 'Lunas') {
             $statusClass = 'lunas';
             $statusText = 'Lunas';
         } elseif ($penjualan->status == 'Approved') {

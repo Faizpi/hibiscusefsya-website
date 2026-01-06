@@ -648,12 +648,8 @@ class PenjualanController extends Controller
             // Set approver_id ke user yang sedang approve
             $penjualan->approver_id = $user->id;
 
-            // Jika cash, langsung set status Lunas, jika tidak cash set ke Approved
-            if ($penjualan->syarat_pembayaran == 'Cash') {
-                $penjualan->status = 'Lunas';
-            } else {
-                $penjualan->status = 'Approved';
-            }
+            // Set status ke Approved (Cash juga harus ditandai manual sebagai Lunas)
+            $penjualan->status = 'Approved';
             $penjualan->save();
 
             DB::commit();
