@@ -624,7 +624,8 @@ class PembelianController extends Controller
 
         DB::beginTransaction();
         try {
-            if ($pembelian->status == 'Approved') {
+            // Kurangi stok jika sudah Approved atau Lunas (stok sudah ditambah)
+            if (in_array($pembelian->status, ['Approved', 'Lunas'])) {
                 foreach ($pembelian->items as $item) {
                     // lockForUpdate() untuk mencegah race condition
                     $stok = GudangProduk::where('gudang_id', $pembelian->gudang_id)
@@ -736,15 +737,48 @@ class PembelianController extends Controller
         if (!$canDelete)
             return back()->with('error', 'Akses ditolak.');
 
-        if ($pembelian->lampiran_path) {
-            $full = public_path('storage/' . $pembelian->lampiran_path);
-            if (File::exists($full)) {
-                File::delete($full);
-            }
-        }
+        DB::beginTransaction();
+        try {
+            // Kurangi stok jika transaksi sudah Approved atau Lunas
+            if (in_array($pembelian->status, ['Approved', 'Lunas'])) {
+                foreach ($pembelian->items as $item) {
+                    $stok = GudangProduk::where('gudang_id', $pembelian->gudang_id)
+                        ->where('produk_id', $item->produk_id)
+                        ->lockForUpdate()
+                        ->first();
 
-        $pembelian->delete();
-        return redirect()->route('pembelian.index')->with('success', 'Data pembelian berhasil dihapus.');
+                    if ($stok && $stok->stok >= $item->kuantitas) {
+                        $stok->decrement('stok', $item->kuantitas);
+                    }
+                }
+            }
+
+            // Hapus lampiran
+            if ($pembelian->lampiran_path) {
+                $full = public_path('storage/' . $pembelian->lampiran_path);
+                if (File::exists($full)) {
+                    File::delete($full);
+                }
+            }
+
+            // Hapus multiple lampiran
+            if ($pembelian->lampiran_paths) {
+                foreach ($pembelian->lampiran_paths as $path) {
+                    $full = public_path('storage/' . $path);
+                    if (File::exists($full)) {
+                        File::delete($full);
+                    }
+                }
+            }
+
+            $pembelian->delete();
+
+            DB::commit();
+            return redirect()->route('pembelian.index')->with('success', 'Data pembelian berhasil dihapus. Stok telah dikurangi.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('pembelian.index')->with('error', 'Gagal menghapus: ' . $e->getMessage());
+        }
     }
 
     public function show(Pembelian $pembelian)

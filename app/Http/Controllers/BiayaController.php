@@ -36,7 +36,7 @@ class BiayaController extends Controller
                 $adminGudangIds[] = $user->gudang_id;
             }
             $adminGudangIds = array_unique($adminGudangIds);
-            
+
             // Ambil semua user_id yang berada di gudang yang dikelola admin ini
             // Fix: properly group orWhereIn to avoid returning all users
             $usersInGudang = User::where(function ($q) use ($adminGudangIds) {
@@ -320,7 +320,7 @@ class BiayaController extends Controller
         // Admin hanya bisa approve biaya dari user di gudang yang dia kelola
         if ($user->role === 'admin') {
             $canApprove = false;
-            
+
             // Cek jika admin adalah approver yang ditunjuk
             if ($biaya->approver_id == $user->id) {
                 $canApprove = true;

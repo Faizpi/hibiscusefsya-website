@@ -695,7 +695,8 @@ class PenjualanController extends Controller
 
         DB::beginTransaction();
         try {
-            if ($penjualan->status == 'Approved') {
+            // Kembalikan stok jika sudah Approved atau Lunas (stok sudah dikurangi)
+            if (in_array($penjualan->status, ['Approved', 'Lunas'])) {
                 foreach ($penjualan->items as $item) {
                     // lockForUpdate() untuk mencegah race condition
                     $stok = GudangProduk::where('gudang_id', $penjualan->gudang_id)
@@ -826,16 +827,54 @@ class PenjualanController extends Controller
         if (!$canDelete)
             return back()->with('error', 'Akses ditolak.');
 
-        if ($penjualan->lampiran_path) {
-            $full = public_path('storage/' . $penjualan->lampiran_path);
-            if (File::exists($full)) {
-                File::delete($full);
+        DB::beginTransaction();
+        try {
+            // Kembalikan stok jika transaksi sudah Approved atau Lunas
+            if (in_array($penjualan->status, ['Approved', 'Lunas'])) {
+                foreach ($penjualan->items as $item) {
+                    $stok = GudangProduk::where('gudang_id', $penjualan->gudang_id)
+                        ->where('produk_id', $item->produk_id)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($stok) {
+                        $stok->increment('stok', $item->kuantitas);
+                    } else {
+                        GudangProduk::create([
+                            'gudang_id' => $penjualan->gudang_id,
+                            'produk_id' => $item->produk_id,
+                            'stok' => $item->kuantitas
+                        ]);
+                    }
+                }
             }
+
+            // Hapus lampiran
+            if ($penjualan->lampiran_path) {
+                $full = public_path('storage/' . $penjualan->lampiran_path);
+                if (File::exists($full)) {
+                    File::delete($full);
+                }
+            }
+
+            // Hapus multiple lampiran
+            if ($penjualan->lampiran_paths) {
+                foreach ($penjualan->lampiran_paths as $path) {
+                    $full = public_path('storage/' . $path);
+                    if (File::exists($full)) {
+                        File::delete($full);
+                    }
+                }
+            }
+
+            $penjualan->delete();
+
+            DB::commit();
+            return redirect()->route('penjualan.index')->with('success', 'Data dihapus. Stok telah dikembalikan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('penjualan.index')->with('error', 'Gagal menghapus: ' . $e->getMessage());
         }
-
-        $penjualan->delete();
-
-        return redirect()->route('penjualan.index')->with('success', 'Data dihapus.');
     }
 
     public function show(Penjualan $penjualan)
