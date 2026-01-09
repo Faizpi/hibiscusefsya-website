@@ -271,7 +271,7 @@ $(document).ready(function() {
                     html += '<td>' + inv.nama_supplier + '</td>';
                     html += '<td>' + inv.tgl_transaksi + '</td>';
                     html += '<td><span class="badge badge-' + (inv.status === 'Approved' ? 'success' : 'warning') + '">' + inv.status + '</span></td>';
-                    html += '<td class="text-right">' + (inv.total_items || 0) + ' item</td>';
+                    html += '<td class="text-right">' + inv.total_items + ' item</td>';
                     html += '</tr>';
                 });
 

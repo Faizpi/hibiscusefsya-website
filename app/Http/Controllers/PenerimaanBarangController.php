@@ -126,11 +126,16 @@ class PenerimaanBarangController extends Controller
                 // Filter hanya pembelian yang masih ada item yang belum diterima
                 $hasUnreceivedItems = false;
                 foreach ($pembelian->items as $item) {
+                    // Hitung total qty yang sudah diterima (dari semua penerimaan yang tidak canceled)
                     $qtyDiterima = PenerimaanBarangItem::whereHas('penerimaanBarang', function($q) use ($pembelian) {
-                        $q->where('pembelian_id', $pembelian->id)->where('status', '!=', 'Canceled');
+                        $q->where('pembelian_id', $pembelian->id)
+                          ->where('status', '!=', 'Canceled');
                     })->where('produk_id', $item->produk_id)->sum('qty_diterima');
                     
-                    if ($item->kuantitas > $qtyDiterima) {
+                    $qtyPesan = $item->kuantitas ?? $item->jumlah ?? 0;
+                    $qtySisa = $qtyPesan - $qtyDiterima;
+                    
+                    if ($qtySisa > 0) {
                         $hasUnreceivedItems = true;
                         break;
                     }
@@ -138,14 +143,27 @@ class PenerimaanBarangController extends Controller
                 return $hasUnreceivedItems;
             })
             ->map(function($pembelian) {
-                $totalItems = $pembelian->items->count();
+                // Hitung jumlah item yang masih belum diterima sepenuhnya
+                $itemsWithSisa = 0;
+                foreach ($pembelian->items as $item) {
+                    $qtyDiterima = PenerimaanBarangItem::whereHas('penerimaanBarang', function($q) use ($pembelian) {
+                        $q->where('pembelian_id', $pembelian->id)
+                          ->where('status', '!=', 'Canceled');
+                    })->where('produk_id', $item->produk_id)->sum('qty_diterima');
+                    
+                    $qtyPesan = $item->kuantitas ?? $item->jumlah ?? 0;
+                    if ($qtyPesan - $qtyDiterima > 0) {
+                        $itemsWithSisa++;
+                    }
+                }
+                
                 return [
                     'id' => $pembelian->id,
                     'nomor' => $pembelian->nomor ?? $pembelian->custom_number ?? 'PO-' . $pembelian->id,
                     'nama_supplier' => $pembelian->nama_supplier ?? $pembelian->kontak->nama ?? '-',
                     'tgl_transaksi' => $pembelian->tgl_transaksi ? $pembelian->tgl_transaksi->format('d/m/Y') : '-',
                     'status' => $pembelian->status,
-                    'total_items' => $totalItems,
+                    'total_items' => $itemsWithSisa . '/' . $pembelian->items->count(),
                 ];
             })
             ->values();
