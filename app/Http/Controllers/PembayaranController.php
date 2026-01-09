@@ -18,7 +18,7 @@ class PembayaranController extends Controller
     {
         $user = Auth::user();
         $query = Pembayaran::with(['user', 'approver', 'penjualan', 'gudang']);
-        
+
         if ($user->role == 'super_admin') {
             // Super admin dapat melihat semua pembayaran
         } elseif ($user->role == 'admin') {
@@ -88,7 +88,7 @@ class PembayaranController extends Controller
         // Super admin bisa pilih gudang, role lain pakai gudang aktifnya
         $gudangs = collect();
         $selectedGudang = null;
-        
+
         if ($user->role === 'super_admin') {
             // Super admin bisa pilih semua gudang
             $gudangs = Gudang::all();
@@ -118,7 +118,7 @@ class PembayaranController extends Controller
     {
         $penjualanBelumLunas = Penjualan::where('gudang_id', $gudangId)
             ->whereIn('status', ['Approved', 'Pending'])
-            ->where(function($q) {
+            ->where(function ($q) {
                 // Filter penjualan dengan syarat pembayaran tempo/hutang
                 $q->where('syarat_pembayaran', 'like', '%Tempo%')
                     ->orWhere('syarat_pembayaran', 'like', '%tempo%')
@@ -130,7 +130,7 @@ class PembayaranController extends Controller
                     ->orWhere('tgl_jatuh_tempo', '!=', null); // Atau yang punya tanggal jatuh tempo
             })
             ->get()
-            ->filter(function($penjualan) {
+            ->filter(function ($penjualan) {
                 // Hitung total pembayaran yang sudah approved
                 $totalBayar = Pembayaran::where('penjualan_id', $penjualan->id)
                     ->where('status', 'Approved')
@@ -138,12 +138,12 @@ class PembayaranController extends Controller
                 $sisa = $penjualan->grand_total - $totalBayar;
                 return $sisa > 0;
             })
-            ->map(function($penjualan) {
+            ->map(function ($penjualan) {
                 $totalBayar = Pembayaran::where('penjualan_id', $penjualan->id)
                     ->where('status', 'Approved')
                     ->sum('jumlah_bayar');
                 $sisa = $penjualan->grand_total - $totalBayar;
-                
+
                 return [
                     'id' => $penjualan->id,
                     'nomor' => $penjualan->nomor ?? $penjualan->custom_number,
@@ -156,7 +156,7 @@ class PembayaranController extends Controller
                 ];
             })
             ->values();
-            
+
         return response()->json($penjualanBelumLunas);
     }
 
@@ -261,18 +261,19 @@ class PembayaranController extends Controller
             $sisaBayar = $request->jumlah_bayar;
             $pembayaranIds = [];
             $invoiceIndex = 0;
-            
+
             foreach ($penjualanDetails as $penjualanId => $detail) {
-                if ($sisaBayar <= 0) break;
-                
+                if ($sisaBayar <= 0)
+                    break;
+
                 $bayarUntukInvoiceIni = min($sisaBayar, $detail['sisa']);
                 $sisaBayar -= $bayarUntukInvoiceIni;
-                
+
                 // Buat pembayaran untuk invoice ini
-                $nomorPembayaran = count($penjualanDetails) > 1 
+                $nomorPembayaran = count($penjualanDetails) > 1
                     ? $nomor . '-' . chr(65 + $invoiceIndex) // A, B, C...
                     : $nomor;
-                    
+
                 $pembayaran = Pembayaran::create([
                     'user_id' => Auth::id(),
                     'approver_id' => $approverId,
@@ -287,21 +288,21 @@ class PembayaranController extends Controller
                     'keterangan' => $request->keterangan,
                     'status' => $initialStatus,
                 ]);
-                
+
                 $pembayaranIds[] = $pembayaran->id;
-                
+
                 // Jika sudah approved dan sudah lunas, update status penjualan
                 if ($initialStatus === 'Approved') {
                     $totalBayarSetelah = Pembayaran::where('penjualan_id', $penjualanId)
                         ->where('status', 'Approved')
                         ->sum('jumlah_bayar');
-                    
+
                     if ($totalBayarSetelah >= $detail['penjualan']->grand_total) {
                         $detail['penjualan']->status = 'Lunas';
                         $detail['penjualan']->save();
                     }
                 }
-                
+
                 $invoiceIndex++;
             }
 
@@ -309,7 +310,7 @@ class PembayaranController extends Controller
             if ($sisaBayar > 0) {
                 // Simpan kelebihan di pembayaran pertama
                 $pembayaranPertama = Pembayaran::find($pembayaranIds[0]);
-                $pembayaranPertama->keterangan = ($pembayaranPertama->keterangan ? $pembayaranPertama->keterangan . '. ' : '') 
+                $pembayaranPertama->keterangan = ($pembayaranPertama->keterangan ? $pembayaranPertama->keterangan . '. ' : '')
                     . 'Kelebihan bayar: Rp ' . number_format($sisaBayar, 0, ',', '.');
                 $pembayaranPertama->save();
             }
@@ -335,13 +336,13 @@ class PembayaranController extends Controller
     public function show(Pembayaran $pembayaran)
     {
         $pembayaran->load(['user', 'approver', 'penjualan', 'gudang']);
-        
+
         // Hitung sisa hutang
         $totalBayar = Pembayaran::where('penjualan_id', $pembayaran->penjualan_id)
             ->where('status', 'Approved')
             ->sum('jumlah_bayar');
         $sisaHutang = $pembayaran->penjualan->grand_total - $totalBayar;
-        
+
         return view('pembayaran.show', compact('pembayaran', 'sisaHutang'));
     }
 
@@ -371,7 +372,7 @@ class PembayaranController extends Controller
             $totalBayar = Pembayaran::where('penjualan_id', $pembayaran->penjualan_id)
                 ->where('status', 'Approved')
                 ->sum('jumlah_bayar');
-            
+
             $penjualan = $pembayaran->penjualan;
             if ($totalBayar >= $penjualan->grand_total) {
                 $penjualan->status = 'Lunas';
@@ -390,7 +391,7 @@ class PembayaranController extends Controller
     public function cancel(Pembayaran $pembayaran)
     {
         $user = Auth::user();
-        
+
         if (!in_array($user->role, ['admin', 'super_admin'])) {
             return back()->with('error', 'Akses ditolak.');
         }
@@ -416,13 +417,13 @@ class PembayaranController extends Controller
 
             $pembayaran->status = 'Canceled';
             $pembayaran->save();
-            
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal cancel: ' . $e->getMessage());
         }
-        
+
         return back()->with('success', 'Pembayaran dibatalkan.');
     }
 
@@ -448,7 +449,7 @@ class PembayaranController extends Controller
     public function destroy(Pembayaran $pembayaran)
     {
         $user = Auth::user();
-        
+
         if ($user->role !== 'super_admin') {
             return back()->with('error', 'Hanya Super Admin yang dapat menghapus pembayaran.');
         }
@@ -497,14 +498,14 @@ class PembayaranController extends Controller
     public function getPenjualanDetail($id)
     {
         $penjualan = Penjualan::with('items.produk')->findOrFail($id);
-        
+
         // Hitung total pembayaran yang sudah approved
         $totalBayar = Pembayaran::where('penjualan_id', $id)
             ->where('status', 'Approved')
             ->sum('jumlah_bayar');
-        
+
         $sisaHutang = $penjualan->grand_total - $totalBayar;
-        
+
         return response()->json([
             'nomor' => $penjualan->nomor ?? $penjualan->custom_number,
             'kontak' => $penjualan->pelanggan ?? '-',

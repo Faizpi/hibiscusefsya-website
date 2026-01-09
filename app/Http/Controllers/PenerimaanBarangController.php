@@ -20,7 +20,7 @@ class PenerimaanBarangController extends Controller
     {
         $user = Auth::user();
         $query = PenerimaanBarang::with(['user', 'approver', 'pembelian', 'gudang', 'items.produk']);
-        
+
         if ($user->role == 'super_admin') {
             // Super admin dapat melihat semua penerimaan
         } elseif ($user->role == 'admin') {
@@ -90,7 +90,7 @@ class PenerimaanBarangController extends Controller
         // Super admin bisa pilih gudang, role lain pakai gudang aktifnya
         $gudangs = collect();
         $selectedGudang = null;
-        
+
         if ($user->role === 'super_admin') {
             // Super admin bisa pilih semua gudang
             $gudangs = Gudang::all();
@@ -122,19 +122,19 @@ class PenerimaanBarangController extends Controller
             ->whereIn('status', ['Approved', 'Pending'])
             ->with('items.produk')
             ->get()
-            ->filter(function($pembelian) {
+            ->filter(function ($pembelian) {
                 // Filter hanya pembelian yang masih ada item yang belum diterima
                 // Hanya hitung dari penerimaan barang yang sudah APPROVED (bukan Pending)
                 $hasUnreceivedItems = false;
                 foreach ($pembelian->items as $item) {
-                    $qtyDiterima = PenerimaanBarangItem::whereHas('penerimaanBarang', function($q) use ($pembelian) {
+                    $qtyDiterima = PenerimaanBarangItem::whereHas('penerimaanBarang', function ($q) use ($pembelian) {
                         $q->where('pembelian_id', $pembelian->id)
-                          ->where('status', 'Approved');
+                            ->where('status', 'Approved');
                     })->where('produk_id', $item->produk_id)->sum('qty_diterima');
-                    
+
                     $qtyPesan = $item->kuantitas ?? $item->jumlah ?? 0;
                     $qtySisa = $qtyPesan - $qtyDiterima;
-                    
+
                     if ($qtySisa > 0) {
                         $hasUnreceivedItems = true;
                         break;
@@ -142,22 +142,22 @@ class PenerimaanBarangController extends Controller
                 }
                 return $hasUnreceivedItems;
             })
-            ->map(function($pembelian) {
+            ->map(function ($pembelian) {
                 // Hitung jumlah item yang masih belum diterima sepenuhnya
                 // Hanya hitung dari penerimaan barang yang sudah APPROVED
                 $itemsWithSisa = 0;
                 foreach ($pembelian->items as $item) {
-                    $qtyDiterima = PenerimaanBarangItem::whereHas('penerimaanBarang', function($q) use ($pembelian) {
+                    $qtyDiterima = PenerimaanBarangItem::whereHas('penerimaanBarang', function ($q) use ($pembelian) {
                         $q->where('pembelian_id', $pembelian->id)
-                          ->where('status', 'Approved');
+                            ->where('status', 'Approved');
                     })->where('produk_id', $item->produk_id)->sum('qty_diterima');
-                    
+
                     $qtyPesan = $item->kuantitas ?? $item->jumlah ?? 0;
                     if ($qtyPesan - $qtyDiterima > 0) {
                         $itemsWithSisa++;
                     }
                 }
-                
+
                 return [
                     'id' => $pembelian->id,
                     'nomor' => $pembelian->nomor ?? $pembelian->custom_number ?? 'PO-' . $pembelian->id,
@@ -168,7 +168,7 @@ class PenerimaanBarangController extends Controller
                 ];
             })
             ->values();
-            
+
         return response()->json($pembelians);
     }
 
@@ -276,13 +276,13 @@ class PenerimaanBarangController extends Controller
             // Create penerimaan for each pembelian
             $penerimaanIds = [];
             $indexPenerimaan = 0;
-            
+
             foreach ($itemsByPembelian as $pembelianId => $pembelianItems) {
                 // Generate nomor untuk setiap penerimaan
-                $nomorPenerimaan = count($itemsByPembelian) > 1 
+                $nomorPenerimaan = count($itemsByPembelian) > 1
                     ? $nomor . '-' . chr(65 + $indexPenerimaan) // A, B, C...
                     : $nomor;
-                
+
                 $penerimaan = PenerimaanBarang::create([
                     'user_id' => Auth::id(),
                     'approver_id' => $approverId,
@@ -313,7 +313,7 @@ class PenerimaanBarangController extends Controller
                         $this->tambahStok($gudangId, $item['produk_id'], $item['qty_diterima']);
                     }
                 }
-                
+
                 $indexPenerimaan++;
             }
 
@@ -338,7 +338,7 @@ class PenerimaanBarangController extends Controller
     public function show(PenerimaanBarang $penerimaan_barang)
     {
         $penerimaan_barang->load(['user', 'approver', 'pembelian.items.produk', 'gudang', 'items.produk']);
-        
+
         return view('penerimaan-barang.show', ['penerimaan' => $penerimaan_barang]);
     }
 
@@ -381,7 +381,7 @@ class PenerimaanBarangController extends Controller
     public function cancel(PenerimaanBarang $penerimaan_barang)
     {
         $user = Auth::user();
-        
+
         if (!in_array($user->role, ['admin', 'super_admin'])) {
             return back()->with('error', 'Akses ditolak.');
         }
@@ -415,7 +415,7 @@ class PenerimaanBarangController extends Controller
             $penerimaan_barang->status = 'Canceled';
             $penerimaan_barang->save();
         }
-        
+
         return back()->with('success', 'Penerimaan barang dibatalkan.');
     }
 
@@ -441,7 +441,7 @@ class PenerimaanBarangController extends Controller
     public function destroy(PenerimaanBarang $penerimaan_barang)
     {
         $user = Auth::user();
-        
+
         if ($user->role !== 'super_admin') {
             return back()->with('error', 'Hanya Super Admin yang dapat menghapus penerimaan barang.');
         }
@@ -504,20 +504,20 @@ class PenerimaanBarangController extends Controller
     public function getPembelianDetail($id)
     {
         $pembelian = Pembelian::with('items.produk')->findOrFail($id);
-        
+
         // Hitung qty yang sudah diterima (hanya dari penerimaan yang APPROVED)
         $qtyDiterima = [];
-        $penerimaanItems = PenerimaanBarangItem::whereHas('penerimaanBarang', function($q) use ($id) {
+        $penerimaanItems = PenerimaanBarangItem::whereHas('penerimaanBarang', function ($q) use ($id) {
             $q->where('pembelian_id', $id)->where('status', 'Approved');
         })->get();
-        
+
         foreach ($penerimaanItems as $item) {
             if (!isset($qtyDiterima[$item->produk_id])) {
                 $qtyDiterima[$item->produk_id] = 0;
             }
             $qtyDiterima[$item->produk_id] += $item->qty_diterima;
         }
-        
+
         $items = [];
         foreach ($pembelian->items as $item) {
             $sudahDiterima = $qtyDiterima[$item->produk_id] ?? 0;
@@ -532,7 +532,7 @@ class PenerimaanBarangController extends Controller
                 'satuan' => $item->satuan ?? ($item->produk ? $item->produk->satuan : 'Pcs'),
             ];
         }
-        
+
         return response()->json([
             'id' => $pembelian->id,
             'nomor' => $pembelian->nomor ?? $pembelian->custom_number ?? 'PO-' . $pembelian->id,
@@ -563,7 +563,7 @@ class PenerimaanBarangController extends Controller
         $gp = GudangProduk::where('gudang_id', $gudangId)
             ->where('produk_id', $produkId)
             ->first();
-        
+
         if ($gp) {
             $gp->stok = max(0, $gp->stok - $qty);
             $gp->save();

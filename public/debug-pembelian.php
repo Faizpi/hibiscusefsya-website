@@ -12,19 +12,19 @@ $pembelianId = $_GET['pembelian_id'] ?? null;
 if ($pembelianId) {
     // Simulate getPembelianDetail
     $pembelian = App\Pembelian::with('items.produk')->findOrFail($pembelianId);
-    
+
     $qtyDiterima = [];
-    $penerimaanItems = App\PenerimaanBarangItem::whereHas('penerimaanBarang', function($q) use ($pembelianId) {
+    $penerimaanItems = App\PenerimaanBarangItem::whereHas('penerimaanBarang', function ($q) use ($pembelianId) {
         $q->where('pembelian_id', $pembelianId)->where('status', 'Approved');
     })->get();
-    
+
     foreach ($penerimaanItems as $item) {
         if (!isset($qtyDiterima[$item->produk_id])) {
             $qtyDiterima[$item->produk_id] = 0;
         }
         $qtyDiterima[$item->produk_id] += $item->qty_diterima;
     }
-    
+
     $items = [];
     foreach ($pembelian->items as $item) {
         $sudahDiterima = $qtyDiterima[$item->produk_id] ?? 0;
@@ -39,7 +39,7 @@ if ($pembelianId) {
             'satuan' => $item->satuan ?? ($item->produk ? $item->produk->satuan : 'Pcs'),
         ];
     }
-    
+
     echo json_encode([
         'id' => $pembelian->id,
         'nomor' => $pembelian->nomor ?? $pembelian->custom_number ?? 'PO-' . $pembelian->id,
@@ -60,10 +60,10 @@ $result = [];
 foreach ($pembelians as $p) {
     $items = [];
     foreach ($p->items as $item) {
-        $qtyDiterima = App\PenerimaanBarangItem::whereHas('penerimaanBarang', function($q) use ($p) {
+        $qtyDiterima = App\PenerimaanBarangItem::whereHas('penerimaanBarang', function ($q) use ($p) {
             $q->where('pembelian_id', $p->id)->where('status', 'Approved');
         })->where('produk_id', $item->produk_id)->sum('qty_diterima');
-        
+
         $items[] = [
             'produk_id' => $item->produk_id,
             'produk_nama' => $item->produk ? $item->produk->nama_produk : 'N/A',
@@ -73,7 +73,7 @@ foreach ($pembelians as $p) {
             'qty_sisa' => ($item->kuantitas ?? 0) - $qtyDiterima,
         ];
     }
-    
+
     $result[] = [
         'id' => $p->id,
         'nomor' => $p->nomor,
