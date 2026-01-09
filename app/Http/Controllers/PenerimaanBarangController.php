@@ -524,8 +524,8 @@ class PenerimaanBarangController extends Controller
             $qtyPesan = $item->kuantitas ?? $item->jumlah ?? 0;
             $items[] = [
                 'produk_id' => $item->produk_id,
-                'produk_nama' => $item->produk ? ($item->produk->nama_produk ?? $item->produk->item_nama) : ($item->nama_produk ?? '-'),
-                'produk_kode' => $item->produk ? ($item->produk->kode_produk ?? $item->produk->item_kode ?? '-') : '-',
+                'produk_nama' => $item->produk ? $item->produk->nama_produk : ($item->nama_produk ?? '-'),
+                'produk_kode' => $item->produk ? ($item->produk->item_code ?? '-') : '-',
                 'qty_pesan' => $qtyPesan,
                 'qty_diterima' => $sudahDiterima,
                 'qty_sisa' => max(0, $qtyPesan - $sudahDiterima),
