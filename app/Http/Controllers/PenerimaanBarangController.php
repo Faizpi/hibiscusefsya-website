@@ -124,12 +124,12 @@ class PenerimaanBarangController extends Controller
             ->get()
             ->filter(function($pembelian) {
                 // Filter hanya pembelian yang masih ada item yang belum diterima
+                // Hanya hitung dari penerimaan barang yang sudah APPROVED (bukan Pending)
                 $hasUnreceivedItems = false;
                 foreach ($pembelian->items as $item) {
-                    // Hitung total qty yang sudah diterima (dari semua penerimaan yang tidak canceled)
                     $qtyDiterima = PenerimaanBarangItem::whereHas('penerimaanBarang', function($q) use ($pembelian) {
                         $q->where('pembelian_id', $pembelian->id)
-                          ->where('status', '!=', 'Canceled');
+                          ->where('status', 'Approved');
                     })->where('produk_id', $item->produk_id)->sum('qty_diterima');
                     
                     $qtyPesan = $item->kuantitas ?? $item->jumlah ?? 0;
@@ -144,11 +144,12 @@ class PenerimaanBarangController extends Controller
             })
             ->map(function($pembelian) {
                 // Hitung jumlah item yang masih belum diterima sepenuhnya
+                // Hanya hitung dari penerimaan barang yang sudah APPROVED
                 $itemsWithSisa = 0;
                 foreach ($pembelian->items as $item) {
                     $qtyDiterima = PenerimaanBarangItem::whereHas('penerimaanBarang', function($q) use ($pembelian) {
                         $q->where('pembelian_id', $pembelian->id)
-                          ->where('status', '!=', 'Canceled');
+                          ->where('status', 'Approved');
                     })->where('produk_id', $item->produk_id)->sum('qty_diterima');
                     
                     $qtyPesan = $item->kuantitas ?? $item->jumlah ?? 0;
@@ -504,10 +505,10 @@ class PenerimaanBarangController extends Controller
     {
         $pembelian = Pembelian::with('items.produk')->findOrFail($id);
         
-        // Hitung qty yang sudah diterima (termasuk pending, tidak hanya approved)
+        // Hitung qty yang sudah diterima (hanya dari penerimaan yang APPROVED)
         $qtyDiterima = [];
         $penerimaanItems = PenerimaanBarangItem::whereHas('penerimaanBarang', function($q) use ($id) {
-            $q->where('pembelian_id', $id)->where('status', '!=', 'Canceled');
+            $q->where('pembelian_id', $id)->where('status', 'Approved');
         })->get();
         
         foreach ($penerimaanItems as $item) {
