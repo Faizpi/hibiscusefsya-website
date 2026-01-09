@@ -6,6 +6,7 @@ use App\PenerimaanBarang;
 use App\PenerimaanBarangItem;
 use App\Pembelian;
 use App\User;
+use App\Gudang;
 use App\GudangProduk;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -86,17 +87,21 @@ class PenerimaanBarangController extends Controller
             return redirect()->route('penerimaan-barang.index')->with('error', 'Spectator tidak memiliki akses untuk membuat transaksi.');
         }
 
-        // Ambil gudang aktif user
-        $gudang = $user->getCurrentGudang();
-        if (!$gudang) {
-            return redirect()->route('penerimaan-barang.index')->with('error', 'Anda belum memiliki gudang aktif.');
+        // Super admin bisa pilih gudang, role lain pakai gudang aktifnya
+        $gudangs = collect();
+        $selectedGudang = null;
+        
+        if ($user->role === 'super_admin') {
+            // Super admin bisa pilih semua gudang
+            $gudangs = Gudang::all();
+            $selectedGudang = $gudangs->first();
+        } else {
+            // User/admin pakai gudang aktif
+            $selectedGudang = $user->getCurrentGudang();
+            if (!$selectedGudang) {
+                return redirect()->route('penerimaan-barang.index')->with('error', 'Anda belum memiliki gudang aktif.');
+            }
         }
-
-        // Ambil pembelian yang belum selesai diterima di gudang aktif
-        $pembelianBelumLunas = Pembelian::where('gudang_id', $gudang->id)
-            ->whereIn('status', ['Approved', 'Pending'])
-            ->with('items.produk')
-            ->get();
 
         // Generate preview nomor invoice
         $countToday = PenerimaanBarang::where('user_id', Auth::id())
@@ -105,7 +110,29 @@ class PenerimaanBarangController extends Controller
         $noUrut = $countToday + 1;
         $previewNomor = PenerimaanBarang::generateNomor(Auth::id(), $noUrut, Carbon::now());
 
-        return view('penerimaan-barang.create', compact('pembelianBelumLunas', 'previewNomor', 'gudang'));
+        return view('penerimaan-barang.create', compact('previewNomor', 'selectedGudang', 'gudangs'));
+    }
+
+    /**
+     * API: Get pembelian berdasarkan gudang
+     */
+    public function getPembelianByGudang($gudangId)
+    {
+        $pembelians = Pembelian::where('gudang_id', $gudangId)
+            ->whereIn('status', ['Approved', 'Pending'])
+            ->with('items.produk')
+            ->get()
+            ->map(function($pembelian) {
+                return [
+                    'id' => $pembelian->id,
+                    'nomor' => $pembelian->nomor ?? $pembelian->custom_number,
+                    'nama_supplier' => $pembelian->nama_supplier ?? '-',
+                    'tgl_transaksi' => $pembelian->tgl_transaksi ? $pembelian->tgl_transaksi->format('d/m/Y') : '-',
+                    'status' => $pembelian->status,
+                ];
+            });
+            
+        return response()->json($pembelians);
     }
 
     public function store(Request $request)
@@ -117,6 +144,7 @@ class PenerimaanBarangController extends Controller
         }
 
         $request->validate([
+            'gudang_id' => 'required|exists:gudangs,id',
             'pembelian_id' => 'required|exists:pembelians,id',
             'tgl_penerimaan' => 'required|date',
             'no_surat_jalan' => 'nullable|string|max:100',
@@ -127,20 +155,25 @@ class PenerimaanBarangController extends Controller
             'items.*.qty_diterima' => 'required|integer|min:0',
         ]);
 
-        $gudang = $user->getCurrentGudang();
-        if (!$gudang) {
-            return redirect()->back()->with('error', 'Anda belum memiliki gudang aktif.')->withInput();
+        // Validasi akses gudang
+        $gudangId = $request->gudang_id;
+        if ($user->role !== 'super_admin') {
+            $gudang = $user->getCurrentGudang();
+            if (!$gudang || $gudang->id != $gudangId) {
+                return redirect()->back()->with('error', 'Anda tidak memiliki akses ke gudang ini.')->withInput();
+            }
         }
 
-        // Validasi pembelian ada di gudang user
+        // Validasi pembelian ada di gudang yang dipilih
         $pembelian = Pembelian::findOrFail($request->pembelian_id);
-        if ($pembelian->gudang_id != $gudang->id) {
-            return redirect()->back()->with('error', 'Invoice pembelian tidak valid untuk gudang Anda.')->withInput();
+        if ($pembelian->gudang_id != $gudangId) {
+            return redirect()->back()->with('error', 'Invoice pembelian tidak valid untuk gudang yang dipilih.')->withInput();
         }
 
         // Tentukan approver dan status
         $approverId = null;
         $initialStatus = 'Pending';
+        $gudang = Gudang::find($gudangId);
 
         if ($user->role == 'user') {
             $adminGudang = User::where('role', 'admin')
@@ -190,7 +223,7 @@ class PenerimaanBarangController extends Controller
             $penerimaan = PenerimaanBarang::create([
                 'user_id' => Auth::id(),
                 'approver_id' => $approverId,
-                'gudang_id' => $gudang->id,
+                'gudang_id' => $gudangId,
                 'pembelian_id' => $request->pembelian_id,
                 'no_urut_harian' => $noUrut,
                 'nomor' => $nomor,
@@ -213,7 +246,7 @@ class PenerimaanBarangController extends Controller
 
                     // Jika langsung approved, tambahkan stok
                     if ($initialStatus === 'Approved') {
-                        $this->tambahStok($gudang->id, $item['produk_id'], $item['qty_diterima']);
+                        $this->tambahStok($gudangId, $item['produk_id'], $item['qty_diterima']);
                     }
                 }
             }
@@ -404,7 +437,7 @@ class PenerimaanBarangController extends Controller
     // API untuk mendapatkan detail pembelian
     public function getPembelianDetail($id)
     {
-        $pembelian = Pembelian::with('items.produk', 'supplier')->findOrFail($id);
+        $pembelian = Pembelian::with('items.produk')->findOrFail($id);
         
         // Hitung qty yang sudah diterima
         $qtyDiterima = [];
@@ -424,19 +457,19 @@ class PenerimaanBarangController extends Controller
             $sudahDiterima = $qtyDiterima[$item->produk_id] ?? 0;
             $items[] = [
                 'produk_id' => $item->produk_id,
-                'produk_nama' => $item->produk->item_nama ?? $item->nama_produk,
-                'produk_kode' => $item->produk->item_kode ?? '-',
+                'produk_nama' => $item->produk ? ($item->produk->nama_produk ?? $item->produk->item_nama) : ($item->nama_produk ?? '-'),
+                'produk_kode' => $item->produk ? ($item->produk->kode_produk ?? $item->produk->item_kode ?? '-') : '-',
                 'qty_pesan' => $item->jumlah,
                 'qty_diterima' => $sudahDiterima,
                 'qty_sisa' => max(0, $item->jumlah - $sudahDiterima),
-                'satuan' => $item->satuan ?? $item->produk->satuan ?? 'Pcs',
+                'satuan' => $item->satuan ?? ($item->produk ? $item->produk->satuan : 'Pcs'),
             ];
         }
         
         return response()->json([
             'nomor' => $pembelian->nomor ?? $pembelian->custom_number,
-            'supplier' => $pembelian->supplier ? $pembelian->supplier->nama : ($pembelian->nama_supplier ?? '-'),
-            'tgl_transaksi' => $pembelian->tgl_transaksi->format('d/m/Y'),
+            'supplier' => $pembelian->nama_supplier ?? '-',
+            'tgl_transaksi' => $pembelian->tgl_transaksi ? $pembelian->tgl_transaksi->format('d/m/Y') : '-',
             'items' => $items,
         ]);
     }

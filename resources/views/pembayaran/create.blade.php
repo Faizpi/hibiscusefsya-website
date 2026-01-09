@@ -4,6 +4,7 @@
     <div class="container-fluid">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Buat Pembayaran</h1>
+            <h3 class="font-weight-bold text-right text-primary" id="total-display">Total: Rp 0</h3>
         </div>
 
         @if ($errors->any())
@@ -21,74 +22,51 @@
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
 
-        <form action="{{ route('pembayaran.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('pembayaran.store') }}" method="POST" enctype="multipart/form-data" id="formPembayaran">
             @csrf
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-money-bill-wave"></i> Form Pembayaran
+                        <i class="fas fa-money-bill-wave"></i> Form Pembayaran Piutang
                     </h6>
                 </div>
                 <div class="card-body">
+                    {{-- ROW 1: Gudang & Preview Nomor --}}
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="penjualan_id">Invoice Penjualan (Belum Lunas) *</label>
-                                <select class="form-control @error('penjualan_id') is-invalid @enderror" 
-                                    id="penjualan_id" name="penjualan_id" required>
-                                    <option value="">Pilih Invoice...</option>
-                                    @foreach($penjualanBelumLunas as $penjualan)
-                                        @php
-                                            $totalBayar = \App\Pembayaran::where('penjualan_id', $penjualan->id)
-                                                ->where('status', 'Approved')
-                                                ->sum('jumlah_bayar');
-                                            $sisa = $penjualan->grand_total - $totalBayar;
-                                        @endphp
-                                        <option value="{{ $penjualan->id }}" 
-                                            data-total="{{ $penjualan->grand_total }}"
-                                            data-bayar="{{ $totalBayar }}"
-                                            data-sisa="{{ $sisa }}"
-                                            data-kontak="{{ $penjualan->pelanggan ?? '-' }}"
-                                            {{ old('penjualan_id') == $penjualan->id ? 'selected' : '' }}>
-                                            {{ $penjualan->nomor ?? $penjualan->custom_number }} - 
-                                            {{ $penjualan->pelanggan ?? '-' }} - 
-                                            Sisa: Rp {{ number_format($sisa, 0, ',', '.') }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('penjualan_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <label for="gudang_id">Gudang *</label>
+                                @if(auth()->user()->role === 'super_admin' && $gudangs->count() > 0)
+                                    <select class="form-control @error('gudang_id') is-invalid @enderror" 
+                                        id="gudang_id" name="gudang_id" required>
+                                        @foreach($gudangs as $gudang)
+                                            <option value="{{ $gudang->id }}" 
+                                                {{ $selectedGudang && $selectedGudang->id == $gudang->id ? 'selected' : '' }}>
+                                                {{ $gudang->nama_gudang }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <input type="hidden" name="gudang_id" value="{{ $selectedGudang->id ?? '' }}">
+                                    <input type="text" class="form-control bg-light" 
+                                        value="{{ $selectedGudang->nama_gudang ?? 'Tidak ada gudang' }}" readonly>
+                                @endif
+                                @error('gudang_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Preview Nomor</label>
-                                <input type="text" class="form-control" value="{{ $previewNomor }}" readonly>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Detail Invoice --}}
-                    <div class="row" id="invoice-detail" style="display: none;">
-                        <div class="col-12">
-                            <div class="alert alert-info">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <strong>Total Invoice:</strong> <span id="info-total">-</span>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <strong>Sudah Dibayar:</strong> <span id="info-bayar">-</span>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <strong>Sisa Hutang:</strong> <span id="info-sisa" class="text-danger font-weight-bold">-</span>
-                                    </div>
-                                </div>
+                                <input type="text" class="form-control bg-light text-primary font-weight-bold" 
+                                    value="{{ $previewNomor }}" readonly>
                             </div>
                         </div>
                     </div>
 
                     <hr>
 
+                    {{-- ROW 2: Tanggal & Metode Pembayaran --}}
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
@@ -122,10 +100,12 @@
                                     id="jumlah_bayar" name="jumlah_bayar" 
                                     value="{{ old('jumlah_bayar') }}" min="1" required>
                                 @error('jumlah_bayar') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <small class="text-muted">Total piutang terpilih: <span id="total-piutang">Rp 0</span></small>
                             </div>
                         </div>
                     </div>
 
+                    {{-- ROW 3: Keterangan & Lampiran --}}
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -136,9 +116,60 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="lampiran">Bukti Pembayaran</label>
-                                <input type="file" class="form-control-file" id="lampiran" name="lampiran[]" multiple accept=".jpg,.jpeg,.png,.pdf">
-                                <small class="text-muted">Format: JPG, PNG, PDF. Maks 2MB per file.</small>
+                                <label>Bukti Pembayaran</label>
+                                <div class="custom-file-container">
+                                    <input type="file" class="form-control-file" id="lampiran" name="lampiran[]" 
+                                        multiple accept=".jpg,.jpeg,.png,.pdf">
+                                    <small class="text-muted d-block">Format: JPG, PNG, PDF. Maks 2MB per file. Bisa upload multiple.</small>
+                                </div>
+                                <div id="lampiran-preview" class="mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    {{-- Invoice Selection --}}
+                    <h6 class="font-weight-bold mb-3">
+                        <i class="fas fa-file-invoice"></i> Pilih Invoice yang Akan Dibayar
+                    </h6>
+                    
+                    <div id="invoice-container">
+                        <div id="invoice-loading" class="text-center py-4" style="display: none;">
+                            <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                            <p class="mt-2 mb-0">Memuat data invoice...</p>
+                        </div>
+                        
+                        <div id="invoice-empty" class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Pilih gudang untuk melihat daftar invoice belum lunas.
+                        </div>
+
+                        <div id="invoice-table-wrapper" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" id="invoice-table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th width="5%" class="text-center">
+                                                <input type="checkbox" id="select-all-invoices">
+                                            </th>
+                                            <th width="20%">No. Invoice</th>
+                                            <th width="20%">Pelanggan</th>
+                                            <th width="12%">Tgl Transaksi</th>
+                                            <th width="12%">Jatuh Tempo</th>
+                                            <th width="15%" class="text-right">Total</th>
+                                            <th width="16%" class="text-right">Sisa Hutang</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="invoice-body">
+                                        <!-- Data akan dimuat via AJAX -->
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="bg-light font-weight-bold">
+                                            <td colspan="6" class="text-right">Total Piutang Terpilih:</td>
+                                            <td class="text-right text-primary" id="total-selected">Rp 0</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -147,7 +178,7 @@
                     <a href="{{ route('pembayaran.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Kembali
                     </a>
-                    <button type="submit" class="btn btn-primary float-right">
+                    <button type="submit" class="btn btn-primary float-right" id="btn-submit" disabled>
                         <i class="fas fa-save"></i> Simpan Pembayaran
                     </button>
                 </div>
@@ -163,29 +194,140 @@ $(document).ready(function() {
         return 'Rp ' + new Intl.NumberFormat('id-ID').format(angka);
     }
 
-    $('#penjualan_id').change(function() {
-        var selected = $(this).find(':selected');
-        if (selected.val()) {
-            var total = selected.data('total');
-            var bayar = selected.data('bayar');
-            var sisa = selected.data('sisa');
-
-            $('#info-total').text(formatRupiah(total));
-            $('#info-bayar').text(formatRupiah(bayar));
-            $('#info-sisa').text(formatRupiah(sisa));
-            $('#invoice-detail').show();
-
-            // Auto-fill jumlah bayar dengan sisa hutang
-            $('#jumlah_bayar').val(sisa).attr('max', sisa);
-        } else {
-            $('#invoice-detail').hide();
+    function loadInvoices(gudangId) {
+        if (!gudangId) {
+            $('#invoice-empty').show();
+            $('#invoice-table-wrapper').hide();
+            $('#btn-submit').prop('disabled', true);
+            return;
         }
+
+        $('#invoice-loading').show();
+        $('#invoice-empty').hide();
+        $('#invoice-table-wrapper').hide();
+
+        $.ajax({
+            url: '/pembayaran/get-penjualan-by-gudang/' + gudangId,
+            type: 'GET',
+            success: function(data) {
+                $('#invoice-loading').hide();
+                
+                if (data.length === 0) {
+                    $('#invoice-empty').html('<i class="fas fa-check-circle text-success"></i> Tidak ada invoice belum lunas di gudang ini.').show();
+                    $('#btn-submit').prop('disabled', true);
+                    return;
+                }
+
+                var html = '';
+                data.forEach(function(inv) {
+                    html += '<tr>';
+                    html += '<td class="text-center">';
+                    html += '<input type="checkbox" class="invoice-checkbox" name="penjualan_ids[]" ';
+                    html += 'value="' + inv.id + '" data-sisa="' + inv.sisa + '">';
+                    html += '</td>';
+                    html += '<td>' + inv.nomor + '</td>';
+                    html += '<td>' + inv.pelanggan + '</td>';
+                    html += '<td>' + inv.tgl_transaksi + '</td>';
+                    html += '<td>' + inv.tgl_jatuh_tempo + '</td>';
+                    html += '<td class="text-right">' + formatRupiah(inv.grand_total) + '</td>';
+                    html += '<td class="text-right text-danger font-weight-bold">' + formatRupiah(inv.sisa) + '</td>';
+                    html += '</tr>';
+                });
+
+                $('#invoice-body').html(html);
+                $('#invoice-table-wrapper').show();
+                
+                // Bind checkbox events
+                bindCheckboxEvents();
+            },
+            error: function() {
+                $('#invoice-loading').hide();
+                $('#invoice-empty').html('<i class="fas fa-exclamation-triangle text-danger"></i> Gagal memuat data invoice.').show();
+            }
+        });
+    }
+
+    function bindCheckboxEvents() {
+        // Select all checkbox
+        $('#select-all-invoices').off('change').on('change', function() {
+            $('.invoice-checkbox').prop('checked', $(this).is(':checked'));
+            updateTotalSelected();
+        });
+
+        // Individual checkbox
+        $('.invoice-checkbox').off('change').on('change', function() {
+            updateTotalSelected();
+            
+            // Update select all state
+            var total = $('.invoice-checkbox').length;
+            var checked = $('.invoice-checkbox:checked').length;
+            $('#select-all-invoices').prop('checked', total === checked);
+        });
+    }
+
+    function updateTotalSelected() {
+        var total = 0;
+        $('.invoice-checkbox:checked').each(function() {
+            total += parseFloat($(this).data('sisa'));
+        });
+        
+        $('#total-selected').text(formatRupiah(total));
+        $('#total-piutang').text(formatRupiah(total));
+        $('#total-display').text('Total: ' + formatRupiah(total));
+        
+        // Auto-fill jumlah bayar dengan total piutang
+        if (total > 0) {
+            $('#jumlah_bayar').val(total);
+            $('#btn-submit').prop('disabled', false);
+        } else {
+            $('#btn-submit').prop('disabled', true);
+        }
+    }
+
+    // Event: Gudang change
+    $('#gudang_id').on('change', function() {
+        loadInvoices($(this).val());
     });
 
-    // Trigger on page load if there's old value
-    if ($('#penjualan_id').val()) {
-        $('#penjualan_id').trigger('change');
+    // Initial load
+    var initialGudang = $('#gudang_id').val() || $('input[name="gudang_id"]').val();
+    if (initialGudang) {
+        loadInvoices(initialGudang);
     }
+
+    // Lampiran preview
+    $('#lampiran').on('change', function() {
+        var files = this.files;
+        var previewHtml = '';
+        
+        for (var i = 0; i < files.length; i++) {
+            previewHtml += '<span class="badge badge-info mr-2 mb-1">';
+            previewHtml += '<i class="fas fa-file mr-1"></i>' + files[i].name;
+            previewHtml += '</span>';
+        }
+        
+        $('#lampiran-preview').html(previewHtml);
+    });
+
+    // Form validation before submit
+    $('#formPembayaran').on('submit', function(e) {
+        var checked = $('.invoice-checkbox:checked').length;
+        var jumlah = parseFloat($('#jumlah_bayar').val()) || 0;
+        
+        if (checked === 0) {
+            e.preventDefault();
+            alert('Pilih minimal satu invoice untuk dibayar.');
+            return false;
+        }
+        
+        if (jumlah <= 0) {
+            e.preventDefault();
+            alert('Jumlah bayar harus lebih dari 0.');
+            return false;
+        }
+        
+        return true;
+    });
 });
 </script>
 @endpush

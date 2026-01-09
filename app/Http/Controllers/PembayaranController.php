@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Pembayaran;
 use App\Penjualan;
 use App\User;
+use App\Gudang;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -84,19 +85,49 @@ class PembayaranController extends Controller
             return redirect()->route('pembayaran.index')->with('error', 'Spectator tidak memiliki akses untuk membuat transaksi.');
         }
 
-        // Ambil gudang aktif user
-        $gudang = $user->getCurrentGudang();
-        if (!$gudang) {
-            return redirect()->route('pembayaran.index')->with('error', 'Anda belum memiliki gudang aktif.');
+        // Super admin bisa pilih gudang, role lain pakai gudang aktifnya
+        $gudangs = collect();
+        $selectedGudang = null;
+        
+        if ($user->role === 'super_admin') {
+            // Super admin bisa pilih semua gudang
+            $gudangs = Gudang::all();
+            $selectedGudang = $gudangs->first();
+        } else {
+            // User/admin pakai gudang aktif
+            $selectedGudang = $user->getCurrentGudang();
+            if (!$selectedGudang) {
+                return redirect()->route('pembayaran.index')->with('error', 'Anda belum memiliki gudang aktif.');
+            }
         }
 
-        // Ambil penjualan yang belum lunas di gudang aktif
-        $penjualanBelumLunas = Penjualan::where('gudang_id', $gudang->id)
+        // Generate preview nomor invoice
+        $countToday = Pembayaran::where('user_id', Auth::id())
+            ->whereDate('created_at', Carbon::today())
+            ->count();
+        $noUrut = $countToday + 1;
+        $previewNomor = Pembayaran::generateNomor(Auth::id(), $noUrut, Carbon::now());
+
+        return view('pembayaran.create', compact('previewNomor', 'selectedGudang', 'gudangs'));
+    }
+
+    /**
+     * API: Get penjualan belum lunas berdasarkan gudang
+     */
+    public function getPenjualanByGudang($gudangId)
+    {
+        $penjualanBelumLunas = Penjualan::where('gudang_id', $gudangId)
             ->whereIn('status', ['Approved', 'Pending'])
             ->where(function($q) {
-                $q->where('cara_pembayaran', 'like', '%Tempo%')
-                    ->orWhere('cara_pembayaran', 'like', '%tempo%')
-                    ->orWhere('cara_pembayaran', 'Hutang');
+                // Filter penjualan dengan syarat pembayaran tempo/hutang
+                $q->where('syarat_pembayaran', 'like', '%Tempo%')
+                    ->orWhere('syarat_pembayaran', 'like', '%tempo%')
+                    ->orWhere('syarat_pembayaran', 'like', '%Hutang%')
+                    ->orWhere('syarat_pembayaran', 'like', '%hutang%')
+                    ->orWhere('syarat_pembayaran', 'like', '%NET%')
+                    ->orWhere('syarat_pembayaran', 'like', '%net%')
+                    ->orWhere('syarat_pembayaran', 'like', '%COD%')
+                    ->orWhere('tgl_jatuh_tempo', '!=', null); // Atau yang punya tanggal jatuh tempo
             })
             ->get()
             ->filter(function($penjualan) {
@@ -106,16 +137,27 @@ class PembayaranController extends Controller
                     ->sum('jumlah_bayar');
                 $sisa = $penjualan->grand_total - $totalBayar;
                 return $sisa > 0;
-            });
-
-        // Generate preview nomor invoice
-        $countToday = Pembayaran::where('user_id', Auth::id())
-            ->whereDate('created_at', Carbon::today())
-            ->count();
-        $noUrut = $countToday + 1;
-        $previewNomor = Pembayaran::generateNomor(Auth::id(), $noUrut, Carbon::now());
-
-        return view('pembayaran.create', compact('penjualanBelumLunas', 'previewNomor', 'gudang'));
+            })
+            ->map(function($penjualan) {
+                $totalBayar = Pembayaran::where('penjualan_id', $penjualan->id)
+                    ->where('status', 'Approved')
+                    ->sum('jumlah_bayar');
+                $sisa = $penjualan->grand_total - $totalBayar;
+                
+                return [
+                    'id' => $penjualan->id,
+                    'nomor' => $penjualan->nomor ?? $penjualan->custom_number,
+                    'pelanggan' => $penjualan->pelanggan ?? '-',
+                    'tgl_transaksi' => $penjualan->tgl_transaksi ? $penjualan->tgl_transaksi->format('d/m/Y') : '-',
+                    'tgl_jatuh_tempo' => $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-',
+                    'grand_total' => $penjualan->grand_total,
+                    'total_bayar' => $totalBayar,
+                    'sisa' => $sisa,
+                ];
+            })
+            ->values();
+            
+        return response()->json($penjualanBelumLunas);
     }
 
     public function store(Request $request)
@@ -127,7 +169,9 @@ class PembayaranController extends Controller
         }
 
         $request->validate([
-            'penjualan_id' => 'required|exists:penjualans,id',
+            'gudang_id' => 'required|exists:gudangs,id',
+            'penjualan_ids' => 'required|array|min:1',
+            'penjualan_ids.*' => 'exists:penjualans,id',
             'tgl_pembayaran' => 'required|date',
             'metode_pembayaran' => 'required|string|max:100',
             'jumlah_bayar' => 'required|numeric|min:1',
@@ -135,20 +179,38 @@ class PembayaranController extends Controller
             'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        $gudang = $user->getCurrentGudang();
-        if (!$gudang) {
-            return redirect()->back()->with('error', 'Anda belum memiliki gudang aktif.')->withInput();
+        // Validasi akses gudang
+        $gudangId = $request->gudang_id;
+        if ($user->role !== 'super_admin') {
+            $gudang = $user->getCurrentGudang();
+            if (!$gudang || $gudang->id != $gudangId) {
+                return redirect()->back()->with('error', 'Anda tidak memiliki akses ke gudang ini.')->withInput();
+            }
         }
 
-        // Validasi penjualan ada di gudang user
-        $penjualan = Penjualan::findOrFail($request->penjualan_id);
-        if ($penjualan->gudang_id != $gudang->id) {
-            return redirect()->back()->with('error', 'Invoice penjualan tidak valid untuk gudang Anda.')->withInput();
+        // Hitung total sisa hutang dari invoice yang dipilih
+        $totalSisaHutang = 0;
+        $penjualanDetails = [];
+        foreach ($request->penjualan_ids as $penjualanId) {
+            $penjualan = Penjualan::findOrFail($penjualanId);
+            if ($penjualan->gudang_id != $gudangId) {
+                return redirect()->back()->with('error', 'Invoice tidak valid untuk gudang yang dipilih.')->withInput();
+            }
+            $totalBayar = Pembayaran::where('penjualan_id', $penjualanId)
+                ->where('status', 'Approved')
+                ->sum('jumlah_bayar');
+            $sisa = $penjualan->grand_total - $totalBayar;
+            $totalSisaHutang += $sisa;
+            $penjualanDetails[$penjualanId] = [
+                'penjualan' => $penjualan,
+                'sisa' => $sisa,
+            ];
         }
 
         // Tentukan approver dan status
         $approverId = null;
         $initialStatus = 'Pending';
+        $gudang = Gudang::find($gudangId);
 
         if ($user->role == 'user') {
             $adminGudang = User::where('role', 'admin')
@@ -195,20 +257,62 @@ class PembayaranController extends Controller
 
         DB::beginTransaction();
         try {
-            $pembayaran = Pembayaran::create([
-                'user_id' => Auth::id(),
-                'approver_id' => $approverId,
-                'gudang_id' => $gudang->id,
-                'penjualan_id' => $request->penjualan_id,
-                'no_urut_harian' => $noUrut,
-                'nomor' => $nomor,
-                'tgl_pembayaran' => $request->tgl_pembayaran,
-                'metode_pembayaran' => $request->metode_pembayaran,
-                'jumlah_bayar' => $request->jumlah_bayar,
-                'lampiran_paths' => $lampiranPaths,
-                'keterangan' => $request->keterangan,
-                'status' => $initialStatus,
-            ]);
+            // Distribusikan pembayaran ke setiap invoice
+            $sisaBayar = $request->jumlah_bayar;
+            $pembayaranIds = [];
+            $invoiceIndex = 0;
+            
+            foreach ($penjualanDetails as $penjualanId => $detail) {
+                if ($sisaBayar <= 0) break;
+                
+                $bayarUntukInvoiceIni = min($sisaBayar, $detail['sisa']);
+                $sisaBayar -= $bayarUntukInvoiceIni;
+                
+                // Buat pembayaran untuk invoice ini
+                $nomorPembayaran = count($penjualanDetails) > 1 
+                    ? $nomor . '-' . chr(65 + $invoiceIndex) // A, B, C...
+                    : $nomor;
+                    
+                $pembayaran = Pembayaran::create([
+                    'user_id' => Auth::id(),
+                    'approver_id' => $approverId,
+                    'gudang_id' => $gudangId,
+                    'penjualan_id' => $penjualanId,
+                    'no_urut_harian' => $noUrut + $invoiceIndex,
+                    'nomor' => $nomorPembayaran,
+                    'tgl_pembayaran' => $request->tgl_pembayaran,
+                    'metode_pembayaran' => $request->metode_pembayaran,
+                    'jumlah_bayar' => $bayarUntukInvoiceIni,
+                    'lampiran_paths' => $invoiceIndex == 0 ? $lampiranPaths : [], // Lampiran hanya di pembayaran pertama
+                    'keterangan' => $request->keterangan,
+                    'status' => $initialStatus,
+                ]);
+                
+                $pembayaranIds[] = $pembayaran->id;
+                
+                // Jika sudah approved dan sudah lunas, update status penjualan
+                if ($initialStatus === 'Approved') {
+                    $totalBayarSetelah = Pembayaran::where('penjualan_id', $penjualanId)
+                        ->where('status', 'Approved')
+                        ->sum('jumlah_bayar');
+                    
+                    if ($totalBayarSetelah >= $detail['penjualan']->grand_total) {
+                        $detail['penjualan']->status = 'Lunas';
+                        $detail['penjualan']->save();
+                    }
+                }
+                
+                $invoiceIndex++;
+            }
+
+            // Jika ada sisa bayar (lebih bayar), simpan sebagai keterangan
+            if ($sisaBayar > 0) {
+                // Simpan kelebihan di pembayaran pertama
+                $pembayaranPertama = Pembayaran::find($pembayaranIds[0]);
+                $pembayaranPertama->keterangan = ($pembayaranPertama->keterangan ? $pembayaranPertama->keterangan . '. ' : '') 
+                    . 'Kelebihan bayar: Rp ' . number_format($sisaBayar, 0, ',', '.');
+                $pembayaranPertama->save();
+            }
 
             DB::commit();
         } catch (\Exception $e) {
@@ -257,9 +361,28 @@ class PembayaranController extends Controller
             return back()->with('error', 'Transaksi sudah disetujui.');
         }
 
-        $pembayaran->status = 'Approved';
-        $pembayaran->approver_id = $user->id;
-        $pembayaran->save();
+        DB::beginTransaction();
+        try {
+            $pembayaran->status = 'Approved';
+            $pembayaran->approver_id = $user->id;
+            $pembayaran->save();
+
+            // Cek apakah invoice sudah lunas
+            $totalBayar = Pembayaran::where('penjualan_id', $pembayaran->penjualan_id)
+                ->where('status', 'Approved')
+                ->sum('jumlah_bayar');
+            
+            $penjualan = $pembayaran->penjualan;
+            if ($totalBayar >= $penjualan->grand_total) {
+                $penjualan->status = 'Lunas';
+                $penjualan->save();
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal approve: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Pembayaran berhasil disetujui.');
     }
@@ -280,8 +403,25 @@ class PembayaranController extends Controller
             return back()->with('error', 'Hanya Super Admin yang dapat membatalkan transaksi yang sudah disetujui.');
         }
 
-        $pembayaran->status = 'Canceled';
-        $pembayaran->save();
+        DB::beginTransaction();
+        try {
+            // Jika sudah approved, cek apakah penjualan sudah lunas, kembalikan ke Approved
+            if ($pembayaran->status === 'Approved') {
+                $penjualan = $pembayaran->penjualan;
+                if ($penjualan->status === 'Lunas') {
+                    $penjualan->status = 'Approved';
+                    $penjualan->save();
+                }
+            }
+
+            $pembayaran->status = 'Canceled';
+            $pembayaran->save();
+            
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal cancel: ' . $e->getMessage());
+        }
         
         return back()->with('success', 'Pembayaran dibatalkan.');
     }
@@ -356,7 +496,7 @@ class PembayaranController extends Controller
     // API untuk mendapatkan detail penjualan
     public function getPenjualanDetail($id)
     {
-        $penjualan = Penjualan::with('items.produk', 'kontak')->findOrFail($id);
+        $penjualan = Penjualan::with('items.produk')->findOrFail($id);
         
         // Hitung total pembayaran yang sudah approved
         $totalBayar = Pembayaran::where('penjualan_id', $id)
@@ -367,8 +507,8 @@ class PembayaranController extends Controller
         
         return response()->json([
             'nomor' => $penjualan->nomor ?? $penjualan->custom_number,
-            'kontak' => $penjualan->kontak ? $penjualan->kontak->nama : ($penjualan->pelanggan ?? '-'),
-            'tgl_transaksi' => $penjualan->tgl_transaksi->format('d/m/Y'),
+            'kontak' => $penjualan->pelanggan ?? '-',
+            'tgl_transaksi' => $penjualan->tgl_transaksi ? $penjualan->tgl_transaksi->format('d/m/Y') : '-',
             'grand_total' => $penjualan->grand_total,
             'total_bayar' => $totalBayar,
             'sisa_hutang' => $sisaHutang,

@@ -30,36 +30,53 @@
                     </h6>
                 </div>
                 <div class="card-body">
+                    {{-- ROW 1: Gudang & Preview Nomor --}}
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="pembelian_id">Invoice Pembelian *</label>
-                                <select class="form-control @error('pembelian_id') is-invalid @enderror" 
-                                    id="pembelian_id" name="pembelian_id" required>
-                                    <option value="">Pilih Invoice Pembelian...</option>
-                                    @foreach($pembelianBelumLunas as $pembelian)
-                                        <option value="{{ $pembelian->id }}" 
-                                            data-supplier="{{ $pembelian->nama_supplier ?? '-' }}"
-                                            {{ old('pembelian_id') == $pembelian->id ? 'selected' : '' }}>
-                                            {{ $pembelian->nomor ?? $pembelian->custom_number }} - 
-                                            {{ $pembelian->nama_supplier ?? '-' }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('pembelian_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <label for="gudang_id">Gudang *</label>
+                                @if(auth()->user()->role === 'super_admin' && $gudangs->count() > 0)
+                                    <select class="form-control @error('gudang_id') is-invalid @enderror" 
+                                        id="gudang_id" name="gudang_id" required>
+                                        @foreach($gudangs as $gudang)
+                                            <option value="{{ $gudang->id }}" 
+                                                {{ $selectedGudang && $selectedGudang->id == $gudang->id ? 'selected' : '' }}>
+                                                {{ $gudang->nama_gudang }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <input type="hidden" name="gudang_id" value="{{ $selectedGudang->id ?? '' }}">
+                                    <input type="text" class="form-control bg-light" 
+                                        value="{{ $selectedGudang->nama_gudang ?? 'Tidak ada gudang' }}" readonly>
+                                @endif
+                                @error('gudang_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Preview Nomor</label>
-                                <input type="text" class="form-control" value="{{ $previewNomor }}" readonly>
+                                <input type="text" class="form-control bg-light text-primary font-weight-bold" 
+                                    value="{{ $previewNomor }}" readonly>
                             </div>
                         </div>
                     </div>
 
+                    {{-- ROW 2: Invoice Pembelian --}}
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="pembelian_id">Invoice Pembelian *</label>
+                                <select class="form-control @error('pembelian_id') is-invalid @enderror" 
+                                    id="pembelian_id" name="pembelian_id" required>
+                                    <option value="">-- Pilih Invoice Pembelian --</option>
+                                </select>
+                                @error('pembelian_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label for="tgl_penerimaan">Tanggal Penerimaan *</label>
                                 <input type="date" class="form-control @error('tgl_penerimaan') is-invalid @enderror"
@@ -69,7 +86,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label for="no_surat_jalan">No. Surat Jalan</label>
                                 <input type="text" class="form-control @error('no_surat_jalan') is-invalid @enderror"
@@ -78,21 +95,26 @@
                                 @error('no_surat_jalan') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
-
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="lampiran">Lampiran (Surat Jalan, dll)</label>
-                                <input type="file" class="form-control-file" id="lampiran" name="lampiran[]" multiple accept=".jpg,.jpeg,.png,.pdf">
-                                <small class="text-muted">Format: JPG, PNG, PDF. Maks 2MB per file.</small>
-                            </div>
-                        </div>
                     </div>
 
+                    {{-- ROW 3: Keterangan & Lampiran --}}
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="keterangan">Keterangan</label>
                                 <textarea class="form-control" id="keterangan" name="keterangan" rows="2">{{ old('keterangan') }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Lampiran (Surat Jalan, dll)</label>
+                                <div class="custom-file-container">
+                                    <input type="file" class="form-control-file" id="lampiran" name="lampiran[]" 
+                                        multiple accept=".jpg,.jpeg,.png,.pdf">
+                                    <small class="text-muted d-block">Format: JPG, PNG, PDF. Maks 2MB per file. Bisa upload multiple.</small>
+                                </div>
+                                <div id="lampiran-preview" class="mt-2"></div>
                             </div>
                         </div>
                     </div>
@@ -104,18 +126,23 @@
                         <i class="fas fa-boxes"></i> Detail Barang Diterima
                     </h6>
                     
+                    <div id="items-loading" class="text-center py-4" style="display: none;">
+                        <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                        <p class="mt-2 mb-0">Memuat data barang...</p>
+                    </div>
+
                     <div id="items-container" style="display: none;">
                         <div class="table-responsive">
                             <table class="table table-bordered table-sm" id="items-table">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th width="10%">Kode</th>
+                                        <th width="12%">Kode</th>
                                         <th width="30%">Nama Produk</th>
                                         <th width="10%">Satuan</th>
-                                        <th width="12%">Qty Pesan</th>
-                                        <th width="12%">Sudah Diterima</th>
-                                        <th width="12%">Sisa</th>
-                                        <th width="14%">Qty Diterima *</th>
+                                        <th width="12%" class="text-center">Qty Pesan</th>
+                                        <th width="12%" class="text-center">Sudah Diterima</th>
+                                        <th width="12%" class="text-center">Sisa</th>
+                                        <th width="12%">Qty Diterima *</th>
                                     </tr>
                                 </thead>
                                 <tbody id="items-body">
@@ -145,9 +172,29 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    $('#pembelian_id').change(function() {
-        var pembelianId = $(this).val();
-        
+    function loadPembelianList(gudangId) {
+        if (!gudangId) {
+            $('#pembelian_id').html('<option value="">-- Pilih Invoice Pembelian --</option>');
+            return;
+        }
+
+        $.ajax({
+            url: '/penerimaan-barang/get-pembelian-by-gudang/' + gudangId,
+            type: 'GET',
+            success: function(data) {
+                var html = '<option value="">-- Pilih Invoice Pembelian --</option>';
+                data.forEach(function(item) {
+                    html += '<option value="' + item.id + '">' + item.nomor + ' - ' + item.nama_supplier + '</option>';
+                });
+                $('#pembelian_id').html(html);
+            },
+            error: function() {
+                alert('Gagal memuat daftar pembelian.');
+            }
+        });
+    }
+
+    function loadPembelianDetail(pembelianId) {
         if (!pembelianId) {
             $('#items-container').hide();
             $('#no-pembelian-selected').show();
@@ -155,11 +202,22 @@ $(document).ready(function() {
             return;
         }
 
-        // Fetch pembelian details via AJAX
+        $('#items-loading').show();
+        $('#items-container').hide();
+        $('#no-pembelian-selected').hide();
+
         $.ajax({
             url: '/penerimaan-barang/get-pembelian/' + pembelianId,
             type: 'GET',
             success: function(data) {
+                $('#items-loading').hide();
+                
+                if (!data.items || data.items.length === 0) {
+                    $('#no-pembelian-selected').html('<i class="fas fa-exclamation-triangle text-warning"></i> Tidak ada item dalam invoice ini.').show();
+                    $('#btn-submit').prop('disabled', true);
+                    return;
+                }
+
                 var html = '';
                 data.items.forEach(function(item, index) {
                     html += '<tr>';
@@ -180,19 +238,46 @@ $(document).ready(function() {
 
                 $('#items-body').html(html);
                 $('#items-container').show();
-                $('#no-pembelian-selected').hide();
                 $('#btn-submit').prop('disabled', false);
             },
             error: function() {
-                alert('Gagal memuat data pembelian.');
+                $('#items-loading').hide();
+                $('#no-pembelian-selected').html('<i class="fas fa-exclamation-triangle text-danger"></i> Gagal memuat data pembelian.').show();
             }
         });
+    }
+
+    // Event: Gudang change
+    $('#gudang_id').on('change', function() {
+        loadPembelianList($(this).val());
+        // Reset pembelian selection
+        $('#pembelian_id').val('').trigger('change');
     });
 
-    // Trigger on page load if there's old value
-    if ($('#pembelian_id').val()) {
-        $('#pembelian_id').trigger('change');
+    // Event: Pembelian change
+    $('#pembelian_id').on('change', function() {
+        loadPembelianDetail($(this).val());
+    });
+
+    // Initial load
+    var initialGudang = $('#gudang_id').val() || $('input[name="gudang_id"]').val();
+    if (initialGudang) {
+        loadPembelianList(initialGudang);
     }
+
+    // Lampiran preview
+    $('#lampiran').on('change', function() {
+        var files = this.files;
+        var previewHtml = '';
+        
+        for (var i = 0; i < files.length; i++) {
+            previewHtml += '<span class="badge badge-info mr-2 mb-1">';
+            previewHtml += '<i class="fas fa-file mr-1"></i>' + files[i].name;
+            previewHtml += '</span>';
+        }
+        
+        $('#lampiran-preview').html(previewHtml);
+    });
 });
 </script>
 @endpush
