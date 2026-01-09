@@ -4,6 +4,7 @@
     <div class="container-fluid">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Buat Penerimaan Barang</h1>
+            <h3 class="font-weight-bold text-right text-primary" id="total-display">Total: 0 Item</h3>
         </div>
 
         @if ($errors->any())
@@ -58,25 +59,14 @@
                             <div class="form-group">
                                 <label>Preview Nomor</label>
                                 <input type="text" class="form-control bg-light text-primary font-weight-bold" 
-                                    value="{{ $previewNomor }}" readonly>
+                                    id="preview-nomor" value="{{ $previewNomor }}" readonly>
                             </div>
                         </div>
                     </div>
 
-                    {{-- ROW 2: Invoice Pembelian --}}
+                    {{-- ROW 2: Tanggal & Surat Jalan --}}
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="pembelian_id">Invoice Pembelian *</label>
-                                <select class="form-control @error('pembelian_id') is-invalid @enderror" 
-                                    id="pembelian_id" name="pembelian_id" required>
-                                    <option value="">-- Pilih Invoice Pembelian --</option>
-                                </select>
-                                @error('pembelian_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="tgl_penerimaan">Tanggal Penerimaan *</label>
                                 <input type="date" class="form-control @error('tgl_penerimaan') is-invalid @enderror"
@@ -86,13 +76,21 @@
                             </div>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="no_surat_jalan">No. Surat Jalan</label>
                                 <input type="text" class="form-control @error('no_surat_jalan') is-invalid @enderror"
                                     id="no_surat_jalan" name="no_surat_jalan" value="{{ old('no_surat_jalan') }}"
                                     placeholder="Contoh: SJ-001">
                                 @error('no_surat_jalan') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Total Item Diterima</label>
+                                <input type="text" class="form-control bg-light font-weight-bold text-success" 
+                                    id="total-items-display" value="0 item" readonly>
                             </div>
                         </div>
                     </div>
@@ -108,22 +106,75 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Lampiran (Surat Jalan, dll)</label>
-                                <div class="custom-file-container">
-                                    <input type="file" class="form-control-file" id="lampiran" name="lampiran[]" 
-                                        multiple accept=".jpg,.jpeg,.png,.pdf">
-                                    <small class="text-muted d-block">Format: JPG, PNG, PDF. Maks 2MB per file. Bisa upload multiple.</small>
+                                <label for="lampiran">Lampiran</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror" 
+                                        id="lampiran" name="lampiran[]" multiple accept="image/*,.pdf" 
+                                        data-preview-nomor="{{ $previewNomor }}">
+                                    <label class="custom-file-label" for="lampiran">Pilih file (bisa pilih banyak)...</label>
                                 </div>
-                                <div id="lampiran-preview" class="mt-2"></div>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Anda bisa memilih beberapa file sekaligus. File akan disimpan dengan format: <strong>{{ $previewNomor }}-1.jpg, {{ $previewNomor }}-2.jpg</strong>, dst.
+                                </small>
+                                <div id="lampiran-list" class="mt-2"></div>
+                                @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                @error('lampiran.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>
 
                     <hr>
 
-                    {{-- Items Table --}}
+                    {{-- Invoice Selection (Multiple) --}}
                     <h6 class="font-weight-bold mb-3">
-                        <i class="fas fa-boxes"></i> Detail Barang Diterima
+                        <i class="fas fa-file-invoice"></i> Pilih Invoice Pembelian yang Barangnya Diterima
+                    </h6>
+                    
+                    <div id="invoice-container">
+                        <div id="invoice-loading" class="text-center py-4" style="display: none;">
+                            <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                            <p class="mt-2 mb-0">Memuat data invoice...</p>
+                        </div>
+                        
+                        <div id="invoice-empty" class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Pilih gudang untuk melihat daftar invoice pembelian.
+                        </div>
+
+                        <div id="invoice-table-wrapper" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" id="invoice-table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th width="5%" class="text-center">
+                                                <input type="checkbox" id="select-all-invoices">
+                                            </th>
+                                            <th width="25%">No. Invoice Pembelian</th>
+                                            <th width="25%">Supplier</th>
+                                            <th width="15%">Tgl Transaksi</th>
+                                            <th width="15%">Status</th>
+                                            <th width="15%" class="text-right">Total Item</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="invoice-body">
+                                        <!-- Data akan dimuat via AJAX -->
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="bg-light font-weight-bold">
+                                            <td colspan="5" class="text-right">Total Invoice Terpilih:</td>
+                                            <td class="text-right text-primary" id="total-selected">0 invoice</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    {{-- Items Detail Table --}}
+                    <h6 class="font-weight-bold mb-3">
+                        <i class="fas fa-boxes"></i> Detail Barang yang Akan Diterima
                     </h6>
                     
                     <div id="items-loading" class="text-center py-4" style="display: none;">
@@ -136,24 +187,31 @@
                             <table class="table table-bordered table-sm" id="items-table">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th width="12%">Kode</th>
-                                        <th width="30%">Nama Produk</th>
-                                        <th width="10%">Satuan</th>
-                                        <th width="12%" class="text-center">Qty Pesan</th>
-                                        <th width="12%" class="text-center">Sudah Diterima</th>
-                                        <th width="12%" class="text-center">Sisa</th>
-                                        <th width="12%">Qty Diterima *</th>
+                                        <th width="10%">Kode</th>
+                                        <th width="25%">Nama Produk</th>
+                                        <th width="12%">Invoice</th>
+                                        <th width="8%">Satuan</th>
+                                        <th width="10%" class="text-center">Qty Pesan</th>
+                                        <th width="10%" class="text-center">Sudah Diterima</th>
+                                        <th width="10%" class="text-center">Sisa</th>
+                                        <th width="15%">Qty Diterima *</th>
                                     </tr>
                                 </thead>
                                 <tbody id="items-body">
-                                    <!-- Items will be loaded via JS -->
+                                    <!-- Items akan dimuat via JS -->
                                 </tbody>
+                                <tfoot>
+                                    <tr class="bg-light font-weight-bold">
+                                        <td colspan="7" class="text-right">Total Qty Diterima:</td>
+                                        <td class="text-primary" id="total-qty-diterima">0</td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
 
-                    <div id="no-pembelian-selected" class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> Pilih invoice pembelian terlebih dahulu untuk melihat daftar barang.
+                    <div id="no-invoice-selected" class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Pilih minimal satu invoice pembelian untuk melihat daftar barang.
                     </div>
                 </div>
                 <div class="card-footer">
@@ -172,91 +230,208 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+    let allPembelianData = [];
+    let selectedPembelianIds = [];
+
     function loadPembelianList(gudangId) {
         if (!gudangId) {
-            $('#pembelian_id').html('<option value="">-- Pilih Invoice Pembelian --</option>');
+            $('#invoice-empty').show();
+            $('#invoice-table-wrapper').hide();
+            $('#items-container').hide();
+            $('#no-invoice-selected').show();
+            $('#btn-submit').prop('disabled', true);
             return;
         }
+
+        $('#invoice-loading').show();
+        $('#invoice-empty').hide();
+        $('#invoice-table-wrapper').hide();
 
         $.ajax({
             url: '/penerimaan-barang/get-pembelian-by-gudang/' + gudangId,
             type: 'GET',
             success: function(data) {
-                var html = '<option value="">-- Pilih Invoice Pembelian --</option>';
-                data.forEach(function(item) {
-                    html += '<option value="' + item.id + '">' + item.nomor + ' - ' + item.nama_supplier + '</option>';
-                });
-                $('#pembelian_id').html(html);
-            },
-            error: function() {
-                alert('Gagal memuat daftar pembelian.');
-            }
-        });
-    }
-
-    function loadPembelianDetail(pembelianId) {
-        if (!pembelianId) {
-            $('#items-container').hide();
-            $('#no-pembelian-selected').show();
-            $('#btn-submit').prop('disabled', true);
-            return;
-        }
-
-        $('#items-loading').show();
-        $('#items-container').hide();
-        $('#no-pembelian-selected').hide();
-
-        $.ajax({
-            url: '/penerimaan-barang/get-pembelian/' + pembelianId,
-            type: 'GET',
-            success: function(data) {
-                $('#items-loading').hide();
+                $('#invoice-loading').hide();
+                allPembelianData = data;
                 
-                if (!data.items || data.items.length === 0) {
-                    $('#no-pembelian-selected').html('<i class="fas fa-exclamation-triangle text-warning"></i> Tidak ada item dalam invoice ini.').show();
+                if (data.length === 0) {
+                    $('#invoice-empty').html('<i class="fas fa-check-circle text-success"></i> Tidak ada invoice pembelian yang perlu diterima barangnya di gudang ini.').show();
                     $('#btn-submit').prop('disabled', true);
                     return;
                 }
 
                 var html = '';
-                data.items.forEach(function(item, index) {
+                data.forEach(function(inv) {
                     html += '<tr>';
-                    html += '<td>' + item.produk_kode + '</td>';
-                    html += '<td>' + item.produk_nama + '</td>';
-                    html += '<td>' + item.satuan + '</td>';
-                    html += '<td class="text-center">' + item.qty_pesan + '</td>';
-                    html += '<td class="text-center">' + item.qty_diterima + '</td>';
-                    html += '<td class="text-center text-primary font-weight-bold">' + item.qty_sisa + '</td>';
-                    html += '<td>';
-                    html += '<input type="hidden" name="items[' + index + '][produk_id]" value="' + item.produk_id + '">';
-                    html += '<input type="number" class="form-control form-control-sm qty-input" ';
-                    html += 'name="items[' + index + '][qty_diterima]" value="' + item.qty_sisa + '" ';
-                    html += 'min="0" max="' + item.qty_sisa + '">';
+                    html += '<td class="text-center">';
+                    html += '<input type="checkbox" class="invoice-checkbox" name="pembelian_ids[]" ';
+                    html += 'value="' + inv.id + '">';
                     html += '</td>';
+                    html += '<td><strong>' + inv.nomor + '</strong></td>';
+                    html += '<td>' + inv.nama_supplier + '</td>';
+                    html += '<td>' + inv.tgl_transaksi + '</td>';
+                    html += '<td><span class="badge badge-' + (inv.status === 'Approved' ? 'success' : 'warning') + '">' + inv.status + '</span></td>';
+                    html += '<td class="text-right">' + (inv.total_items || 0) + ' item</td>';
                     html += '</tr>';
                 });
 
-                $('#items-body').html(html);
-                $('#items-container').show();
-                $('#btn-submit').prop('disabled', false);
+                $('#invoice-body').html(html);
+                $('#invoice-table-wrapper').show();
+                
+                // Bind checkbox events
+                bindCheckboxEvents();
             },
             error: function() {
-                $('#items-loading').hide();
-                $('#no-pembelian-selected').html('<i class="fas fa-exclamation-triangle text-danger"></i> Gagal memuat data pembelian.').show();
+                $('#invoice-loading').hide();
+                $('#invoice-empty').html('<i class="fas fa-exclamation-triangle text-danger"></i> Gagal memuat data invoice.').show();
             }
         });
+    }
+
+    function bindCheckboxEvents() {
+        // Select all checkbox
+        $('#select-all-invoices').off('change').on('change', function() {
+            $('.invoice-checkbox').prop('checked', $(this).is(':checked'));
+            updateSelectedInvoices();
+        });
+
+        // Individual checkbox
+        $('.invoice-checkbox').off('change').on('change', function() {
+            updateSelectedInvoices();
+            
+            // Update select all state
+            var total = $('.invoice-checkbox').length;
+            var checked = $('.invoice-checkbox:checked').length;
+            $('#select-all-invoices').prop('checked', total === checked);
+        });
+    }
+
+    function updateSelectedInvoices() {
+        selectedPembelianIds = [];
+        $('.invoice-checkbox:checked').each(function() {
+            selectedPembelianIds.push($(this).val());
+        });
+        
+        var count = selectedPembelianIds.length;
+        $('#total-selected').text(count + ' invoice');
+        
+        if (count > 0) {
+            loadItemsForSelectedInvoices();
+        } else {
+            $('#items-container').hide();
+            $('#no-invoice-selected').show();
+            $('#btn-submit').prop('disabled', true);
+            updateTotalDisplay(0);
+        }
+    }
+
+    function loadItemsForSelectedInvoices() {
+        if (selectedPembelianIds.length === 0) {
+            $('#items-container').hide();
+            $('#no-invoice-selected').show();
+            return;
+        }
+
+        $('#items-loading').show();
+        $('#items-container').hide();
+        $('#no-invoice-selected').hide();
+
+        // Load items for all selected pembelians
+        var promises = selectedPembelianIds.map(function(id) {
+            return $.ajax({
+                url: '/penerimaan-barang/get-pembelian/' + id,
+                type: 'GET'
+            });
+        });
+
+        $.when.apply($, promises).then(function() {
+            $('#items-loading').hide();
+            
+            // Handle single vs multiple responses
+            var responses = selectedPembelianIds.length === 1 ? [arguments] : Array.from(arguments);
+            
+            var allItems = [];
+            var itemIndex = 0;
+            
+            responses.forEach(function(response) {
+                var data = Array.isArray(response) ? response[0] : response;
+                if (data && data.items) {
+                    data.items.forEach(function(item) {
+                        if (item.qty_sisa > 0) { // Hanya tampilkan item yang masih ada sisa
+                            allItems.push({
+                                ...item,
+                                pembelian_id: data.id,
+                                pembelian_nomor: data.nomor,
+                                index: itemIndex++
+                            });
+                        }
+                    });
+                }
+            });
+
+            if (allItems.length === 0) {
+                $('#no-invoice-selected').html('<i class="fas fa-exclamation-triangle text-warning"></i> Semua barang dari invoice terpilih sudah diterima.').show();
+                $('#btn-submit').prop('disabled', true);
+                return;
+            }
+
+            var html = '';
+            allItems.forEach(function(item) {
+                html += '<tr>';
+                html += '<td>' + item.produk_kode + '</td>';
+                html += '<td>' + item.produk_nama + '</td>';
+                html += '<td><small class="text-muted">' + item.pembelian_nomor + '</small></td>';
+                html += '<td>' + item.satuan + '</td>';
+                html += '<td class="text-center">' + item.qty_pesan + '</td>';
+                html += '<td class="text-center">' + item.qty_diterima + '</td>';
+                html += '<td class="text-center text-primary font-weight-bold">' + item.qty_sisa + '</td>';
+                html += '<td>';
+                html += '<input type="hidden" name="items[' + item.index + '][pembelian_id]" value="' + item.pembelian_id + '">';
+                html += '<input type="hidden" name="items[' + item.index + '][produk_id]" value="' + item.produk_id + '">';
+                html += '<input type="number" class="form-control form-control-sm qty-input" ';
+                html += 'name="items[' + item.index + '][qty_diterima]" value="' + item.qty_sisa + '" ';
+                html += 'min="0" max="' + item.qty_sisa + '">';
+                html += '</td>';
+                html += '</tr>';
+            });
+
+            $('#items-body').html(html);
+            $('#items-container').show();
+            $('#btn-submit').prop('disabled', false);
+
+            // Bind qty input events
+            $('.qty-input').on('input', function() {
+                updateTotalQty();
+            });
+            
+            updateTotalQty();
+        }).fail(function() {
+            $('#items-loading').hide();
+            $('#no-invoice-selected').html('<i class="fas fa-exclamation-triangle text-danger"></i> Gagal memuat data barang.').show();
+        });
+    }
+
+    function updateTotalQty() {
+        var total = 0;
+        $('.qty-input').each(function() {
+            total += parseInt($(this).val()) || 0;
+        });
+        $('#total-qty-diterima').text(total);
+        $('#total-items-display').val(total + ' item');
+        updateTotalDisplay(total);
+    }
+
+    function updateTotalDisplay(total) {
+        $('#total-display').text('Total: ' + total + ' Item');
     }
 
     // Event: Gudang change
     $('#gudang_id').on('change', function() {
         loadPembelianList($(this).val());
-        // Reset pembelian selection
-        $('#pembelian_id').val('').trigger('change');
-    });
-
-    // Event: Pembelian change
-    $('#pembelian_id').on('change', function() {
-        loadPembelianDetail($(this).val());
+        // Reset selections
+        selectedPembelianIds = [];
+        $('#items-container').hide();
+        $('#no-invoice-selected').show();
     });
 
     // Initial load
@@ -265,18 +440,62 @@ $(document).ready(function() {
         loadPembelianList(initialGudang);
     }
 
-    // Lampiran preview
-    $('#lampiran').on('change', function() {
-        var files = this.files;
-        var previewHtml = '';
+    // Lampiran upload feedback (multiple files)
+    const lampiranInput = document.getElementById('lampiran');
+    const lampiranList = document.getElementById('lampiran-list');
+    const previewNomor = lampiranInput ? lampiranInput.dataset.previewNomor : '';
+
+    if (lampiranInput) {
+        lampiranInput.addEventListener('change', function() {
+            lampiranList.innerHTML = '';
+            
+            if (this.files && this.files.length > 0) {
+                // Update label
+                const label = this.nextElementSibling;
+                if (label) {
+                    label.textContent = this.files.length + ' file dipilih';
+                }
+
+                // Show file list with preview names
+                let html = '<div class="alert alert-info py-2"><small><strong>File yang akan diupload:</strong></small><ul class="mb-0 pl-3 mt-1">';
+                for (let i = 0; i < this.files.length; i++) {
+                    const file = this.files[i];
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    const expectedFilename = previewNomor + '-' + (i + 1) + '.' + extension;
+                    html += '<li><small>' + file.name + ' → <strong>' + expectedFilename + '</strong></small></li>';
+                }
+                html += '</ul></div>';
+                lampiranList.innerHTML = html;
+            } else {
+                const label = this.nextElementSibling;
+                if (label) {
+                    label.textContent = 'Pilih file (bisa pilih banyak)...';
+                }
+            }
+        });
+    }
+
+    // Form validation before submit
+    $('#formPenerimaan').on('submit', function(e) {
+        var checked = $('.invoice-checkbox:checked').length;
+        var totalQty = 0;
+        $('.qty-input').each(function() {
+            totalQty += parseInt($(this).val()) || 0;
+        });
         
-        for (var i = 0; i < files.length; i++) {
-            previewHtml += '<span class="badge badge-info mr-2 mb-1">';
-            previewHtml += '<i class="fas fa-file mr-1"></i>' + files[i].name;
-            previewHtml += '</span>';
+        if (checked === 0) {
+            e.preventDefault();
+            alert('Pilih minimal satu invoice pembelian.');
+            return false;
         }
         
-        $('#lampiran-preview').html(previewHtml);
+        if (totalQty <= 0) {
+            e.preventDefault();
+            alert('Total qty diterima harus lebih dari 0.');
+            return false;
+        }
+        
+        return true;
     });
 });
 </script>

@@ -122,15 +122,33 @@ class PenerimaanBarangController extends Controller
             ->whereIn('status', ['Approved', 'Pending'])
             ->with('items.produk')
             ->get()
+            ->filter(function($pembelian) {
+                // Filter hanya pembelian yang masih ada item yang belum diterima
+                $hasUnreceivedItems = false;
+                foreach ($pembelian->items as $item) {
+                    $qtyDiterima = PenerimaanBarangItem::whereHas('penerimaanBarang', function($q) use ($pembelian) {
+                        $q->where('pembelian_id', $pembelian->id)->where('status', '!=', 'Canceled');
+                    })->where('produk_id', $item->produk_id)->sum('qty_diterima');
+                    
+                    if ($item->kuantitas > $qtyDiterima) {
+                        $hasUnreceivedItems = true;
+                        break;
+                    }
+                }
+                return $hasUnreceivedItems;
+            })
             ->map(function($pembelian) {
+                $totalItems = $pembelian->items->count();
                 return [
                     'id' => $pembelian->id,
-                    'nomor' => $pembelian->nomor ?? $pembelian->custom_number,
-                    'nama_supplier' => $pembelian->nama_supplier ?? '-',
+                    'nomor' => $pembelian->nomor ?? $pembelian->custom_number ?? 'PO-' . $pembelian->id,
+                    'nama_supplier' => $pembelian->nama_supplier ?? $pembelian->kontak->nama ?? '-',
                     'tgl_transaksi' => $pembelian->tgl_transaksi ? $pembelian->tgl_transaksi->format('d/m/Y') : '-',
                     'status' => $pembelian->status,
+                    'total_items' => $totalItems,
                 ];
-            });
+            })
+            ->values();
             
         return response()->json($pembelians);
     }
@@ -145,12 +163,14 @@ class PenerimaanBarangController extends Controller
 
         $request->validate([
             'gudang_id' => 'required|exists:gudangs,id',
-            'pembelian_id' => 'required|exists:pembelians,id',
+            'pembelian_ids' => 'required|array|min:1',
+            'pembelian_ids.*' => 'exists:pembelians,id',
             'tgl_penerimaan' => 'required|date',
             'no_surat_jalan' => 'nullable|string|max:100',
             'keterangan' => 'nullable|string',
             'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'items' => 'required|array|min:1',
+            'items.*.pembelian_id' => 'required|exists:pembelians,id',
             'items.*.produk_id' => 'required|exists:produks,id',
             'items.*.qty_diterima' => 'required|integer|min:0',
         ]);
@@ -164,10 +184,12 @@ class PenerimaanBarangController extends Controller
             }
         }
 
-        // Validasi pembelian ada di gudang yang dipilih
-        $pembelian = Pembelian::findOrFail($request->pembelian_id);
-        if ($pembelian->gudang_id != $gudangId) {
-            return redirect()->back()->with('error', 'Invoice pembelian tidak valid untuk gudang yang dipilih.')->withInput();
+        // Validasi semua pembelian ada di gudang yang dipilih
+        foreach ($request->pembelian_ids as $pembelianId) {
+            $pembelian = Pembelian::findOrFail($pembelianId);
+            if ($pembelian->gudang_id != $gudangId) {
+                return redirect()->back()->with('error', 'Invoice pembelian tidak valid untuk gudang yang dipilih.')->withInput();
+            }
         }
 
         // Tentukan approver dan status
@@ -220,23 +242,46 @@ class PenerimaanBarangController extends Controller
 
         DB::beginTransaction();
         try {
-            $penerimaan = PenerimaanBarang::create([
-                'user_id' => Auth::id(),
-                'approver_id' => $approverId,
-                'gudang_id' => $gudangId,
-                'pembelian_id' => $request->pembelian_id,
-                'no_urut_harian' => $noUrut,
-                'nomor' => $nomor,
-                'tgl_penerimaan' => $request->tgl_penerimaan,
-                'no_surat_jalan' => $request->no_surat_jalan,
-                'lampiran_paths' => $lampiranPaths,
-                'keterangan' => $request->keterangan,
-                'status' => $initialStatus,
-            ]);
-
-            // Simpan items
+            // Group items by pembelian_id
+            $itemsByPembelian = [];
             foreach ($request->items as $item) {
                 if ($item['qty_diterima'] > 0) {
+                    $pembelianId = $item['pembelian_id'];
+                    if (!isset($itemsByPembelian[$pembelianId])) {
+                        $itemsByPembelian[$pembelianId] = [];
+                    }
+                    $itemsByPembelian[$pembelianId][] = $item;
+                }
+            }
+
+            // Create penerimaan for each pembelian
+            $penerimaanIds = [];
+            $indexPenerimaan = 0;
+            
+            foreach ($itemsByPembelian as $pembelianId => $pembelianItems) {
+                // Generate nomor untuk setiap penerimaan
+                $nomorPenerimaan = count($itemsByPembelian) > 1 
+                    ? $nomor . '-' . chr(65 + $indexPenerimaan) // A, B, C...
+                    : $nomor;
+                
+                $penerimaan = PenerimaanBarang::create([
+                    'user_id' => Auth::id(),
+                    'approver_id' => $approverId,
+                    'gudang_id' => $gudangId,
+                    'pembelian_id' => $pembelianId,
+                    'no_urut_harian' => $noUrut + $indexPenerimaan,
+                    'nomor' => $nomorPenerimaan,
+                    'tgl_penerimaan' => $request->tgl_penerimaan,
+                    'no_surat_jalan' => $request->no_surat_jalan,
+                    'lampiran_paths' => $indexPenerimaan == 0 ? $lampiranPaths : [], // Lampiran hanya di penerimaan pertama
+                    'keterangan' => $request->keterangan,
+                    'status' => $initialStatus,
+                ]);
+
+                $penerimaanIds[] = $penerimaan->id;
+
+                // Simpan items untuk penerimaan ini
+                foreach ($pembelianItems as $item) {
                     PenerimaanBarangItem::create([
                         'penerimaan_barang_id' => $penerimaan->id,
                         'produk_id' => $item['produk_id'],
@@ -249,6 +294,8 @@ class PenerimaanBarangController extends Controller
                         $this->tambahStok($gudangId, $item['produk_id'], $item['qty_diterima']);
                     }
                 }
+                
+                $indexPenerimaan++;
             }
 
             DB::commit();
@@ -439,10 +486,10 @@ class PenerimaanBarangController extends Controller
     {
         $pembelian = Pembelian::with('items.produk')->findOrFail($id);
         
-        // Hitung qty yang sudah diterima
+        // Hitung qty yang sudah diterima (termasuk pending, tidak hanya approved)
         $qtyDiterima = [];
         $penerimaanItems = PenerimaanBarangItem::whereHas('penerimaanBarang', function($q) use ($id) {
-            $q->where('pembelian_id', $id)->where('status', 'Approved');
+            $q->where('pembelian_id', $id)->where('status', '!=', 'Canceled');
         })->get();
         
         foreach ($penerimaanItems as $item) {
@@ -455,19 +502,21 @@ class PenerimaanBarangController extends Controller
         $items = [];
         foreach ($pembelian->items as $item) {
             $sudahDiterima = $qtyDiterima[$item->produk_id] ?? 0;
+            $qtyPesan = $item->kuantitas ?? $item->jumlah ?? 0;
             $items[] = [
                 'produk_id' => $item->produk_id,
                 'produk_nama' => $item->produk ? ($item->produk->nama_produk ?? $item->produk->item_nama) : ($item->nama_produk ?? '-'),
                 'produk_kode' => $item->produk ? ($item->produk->kode_produk ?? $item->produk->item_kode ?? '-') : '-',
-                'qty_pesan' => $item->jumlah,
+                'qty_pesan' => $qtyPesan,
                 'qty_diterima' => $sudahDiterima,
-                'qty_sisa' => max(0, $item->jumlah - $sudahDiterima),
+                'qty_sisa' => max(0, $qtyPesan - $sudahDiterima),
                 'satuan' => $item->satuan ?? ($item->produk ? $item->produk->satuan : 'Pcs'),
             ];
         }
         
         return response()->json([
-            'nomor' => $pembelian->nomor ?? $pembelian->custom_number,
+            'id' => $pembelian->id,
+            'nomor' => $pembelian->nomor ?? $pembelian->custom_number ?? 'PO-' . $pembelian->id,
             'supplier' => $pembelian->nama_supplier ?? '-',
             'tgl_transaksi' => $pembelian->tgl_transaksi ? $pembelian->tgl_transaksi->format('d/m/Y') : '-',
             'items' => $items,

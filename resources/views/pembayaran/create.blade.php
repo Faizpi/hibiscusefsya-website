@@ -116,13 +116,20 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Bukti Pembayaran</label>
-                                <div class="custom-file-container">
-                                    <input type="file" class="form-control-file" id="lampiran" name="lampiran[]" 
-                                        multiple accept=".jpg,.jpeg,.png,.pdf">
-                                    <small class="text-muted d-block">Format: JPG, PNG, PDF. Maks 2MB per file. Bisa upload multiple.</small>
+                                <label for="lampiran">Lampiran</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror" 
+                                        id="lampiran" name="lampiran[]" multiple accept="image/*,.pdf" 
+                                        data-preview-nomor="{{ $previewNomor }}">
+                                    <label class="custom-file-label" for="lampiran">Pilih file (bisa pilih banyak)...</label>
                                 </div>
-                                <div id="lampiran-preview" class="mt-2"></div>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Anda bisa memilih beberapa file sekaligus. File akan disimpan dengan format: <strong>{{ $previewNomor }}-1.jpg, {{ $previewNomor }}-2.jpg</strong>, dst.
+                                </small>
+                                <div id="lampiran-list" class="mt-2"></div>
+                                @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                @error('lampiran.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>
@@ -295,19 +302,40 @@ $(document).ready(function() {
         loadInvoices(initialGudang);
     }
 
-    // Lampiran preview
-    $('#lampiran').on('change', function() {
-        var files = this.files;
-        var previewHtml = '';
-        
-        for (var i = 0; i < files.length; i++) {
-            previewHtml += '<span class="badge badge-info mr-2 mb-1">';
-            previewHtml += '<i class="fas fa-file mr-1"></i>' + files[i].name;
-            previewHtml += '</span>';
-        }
-        
-        $('#lampiran-preview').html(previewHtml);
-    });
+    // Lampiran upload feedback (multiple files)
+    const lampiranInput = document.getElementById('lampiran');
+    const lampiranList = document.getElementById('lampiran-list');
+    const previewNomor = lampiranInput ? lampiranInput.dataset.previewNomor : '';
+
+    if (lampiranInput) {
+        lampiranInput.addEventListener('change', function() {
+            lampiranList.innerHTML = '';
+            
+            if (this.files && this.files.length > 0) {
+                // Update label
+                const label = this.nextElementSibling;
+                if (label) {
+                    label.textContent = this.files.length + ' file dipilih';
+                }
+
+                // Show file list with preview names
+                let html = '<div class="alert alert-info py-2"><small><strong>File yang akan diupload:</strong></small><ul class="mb-0 pl-3 mt-1">';
+                for (let i = 0; i < this.files.length; i++) {
+                    const file = this.files[i];
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    const expectedFilename = previewNomor + '-' + (i + 1) + '.' + extension;
+                    html += '<li><small>' + file.name + ' → <strong>' + expectedFilename + '</strong></small></li>';
+                }
+                html += '</ul></div>';
+                lampiranList.innerHTML = html;
+            } else {
+                const label = this.nextElementSibling;
+                if (label) {
+                    label.textContent = 'Pilih file (bisa pilih banyak)...';
+                }
+            }
+        });
+    }
 
     // Form validation before submit
     $('#formPembayaran').on('submit', function(e) {
