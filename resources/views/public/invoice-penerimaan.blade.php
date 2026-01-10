@@ -338,26 +338,18 @@
 
             <div class="info-card">
                 <div class="info-card-title"><i class="fas fa-file-invoice"></i> Referensi Pembelian</div>
-                @php
-                    $pembelianList = $penerimaan->items->pluck('pembelianItem.pembelian')->unique('id')->filter();
-                @endphp
-                @forelse($pembelianList as $pembelian)
+                @if($penerimaan->pembelian)
                 <div class="info-row">
                     <span class="label">Invoice</span>
-                    <span class="value">{{ $pembelian->custom_number }}</span>
+                    <span class="value">{{ $penerimaan->pembelian->custom_number }}</span>
                 </div>
-                @empty
+                @else
                 <div class="info-row">
                     <span class="label">Invoice</span>
                     <span class="value">-</span>
                 </div>
-                @endforelse
-                @if($penerimaan->supplier)
-                <div class="info-row">
-                    <span class="label">Supplier</span>
-                    <span class="value">{{ $penerimaan->supplier->nama }}</span>
-                </div>
                 @endif
+            </div>
             </div>
 
             <div class="info-card items-section">
