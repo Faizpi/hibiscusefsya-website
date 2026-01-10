@@ -112,33 +112,19 @@ class PembayaranController extends Controller
     }
 
     /**
-     * API: Get penjualan belum lunas berdasarkan gudang
+     * API: Get penjualan yang sudah Approved tapi belum ditandai Lunas berdasarkan gudang
+     * Menampilkan SEMUA invoice Approved (cash maupun tempo) untuk bisa ditandai lunas
      */
     public function getPenjualanByGudang($gudangId)
     {
+        // Ambil semua penjualan yang sudah Approved (belum Lunas)
+        // Tidak filter berdasarkan syarat pembayaran - semua invoice perlu ditandai lunas
         $penjualanBelumLunas = Penjualan::where('gudang_id', $gudangId)
-            ->whereIn('status', ['Approved', 'Pending'])
-            ->where(function ($q) {
-                // Filter penjualan dengan syarat pembayaran tempo/hutang
-                $q->where('syarat_pembayaran', 'like', '%Tempo%')
-                    ->orWhere('syarat_pembayaran', 'like', '%tempo%')
-                    ->orWhere('syarat_pembayaran', 'like', '%Hutang%')
-                    ->orWhere('syarat_pembayaran', 'like', '%hutang%')
-                    ->orWhere('syarat_pembayaran', 'like', '%NET%')
-                    ->orWhere('syarat_pembayaran', 'like', '%net%')
-                    ->orWhere('syarat_pembayaran', 'like', '%COD%')
-                    ->orWhere('tgl_jatuh_tempo', '!=', null); // Atau yang punya tanggal jatuh tempo
-            })
+            ->where('status', 'Approved') // Hanya yang sudah di-approve, belum lunas
+            ->orderBy('tgl_transaksi', 'desc')
             ->get()
-            ->filter(function ($penjualan) {
-                // Hitung total pembayaran yang sudah approved
-                $totalBayar = Pembayaran::where('penjualan_id', $penjualan->id)
-                    ->where('status', 'Approved')
-                    ->sum('jumlah_bayar');
-                $sisa = $penjualan->grand_total - $totalBayar;
-                return $sisa > 0;
-            })
             ->map(function ($penjualan) {
+                // Hitung total pembayaran yang sudah approved (jika ada pembayaran cicilan)
                 $totalBayar = Pembayaran::where('penjualan_id', $penjualan->id)
                     ->where('status', 'Approved')
                     ->sum('jumlah_bayar');
@@ -150,6 +136,7 @@ class PembayaranController extends Controller
                     'pelanggan' => $penjualan->pelanggan ?? '-',
                     'tgl_transaksi' => $penjualan->tgl_transaksi ? $penjualan->tgl_transaksi->format('d/m/Y') : '-',
                     'tgl_jatuh_tempo' => $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-',
+                    'syarat_pembayaran' => $penjualan->syarat_pembayaran ?? 'Cash',
                     'grand_total' => $penjualan->grand_total,
                     'total_bayar' => $totalBayar,
                     'sisa' => $sisa,

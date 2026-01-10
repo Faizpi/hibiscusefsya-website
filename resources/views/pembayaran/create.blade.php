@@ -27,7 +27,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-money-bill-wave"></i> Form Pembayaran Piutang
+                        <i class="fas fa-money-bill-wave"></i> Form Tandai Lunas Invoice
                     </h6>
                 </div>
                 <div class="card-body">
@@ -146,7 +146,8 @@
 
                     {{-- Invoice Selection --}}
                     <h6 class="font-weight-bold mb-3">
-                        <i class="fas fa-file-invoice"></i> Pilih Invoice yang Akan Dibayar
+                        <i class="fas fa-file-invoice"></i> Pilih Invoice yang Akan Ditandai Lunas
+                        <small class="text-muted">(Invoice yang sudah di-approve)</small>
                     </h6>
 
                     <div id="invoice-container">
@@ -156,7 +157,7 @@
                         </div>
 
                         <div id="invoice-empty" class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> Pilih gudang untuk melihat daftar invoice belum lunas.
+                            <i class="fas fa-info-circle"></i> Pilih gudang untuk melihat daftar invoice yang sudah approved dan belum lunas.
                         </div>
 
                         <div id="invoice-table-wrapper" style="display: none;">
@@ -167,12 +168,13 @@
                                             <th width="5%" class="text-center">
                                                 <input type="checkbox" id="select-all-invoices">
                                             </th>
-                                            <th width="20%">No. Invoice</th>
-                                            <th width="20%">Pelanggan</th>
-                                            <th width="12%">Tgl Transaksi</th>
-                                            <th width="12%">Jatuh Tempo</th>
-                                            <th width="15%" class="text-right">Total</th>
-                                            <th width="16%" class="text-right">Sisa Hutang</th>
+                                            <th width="18%">No. Invoice</th>
+                                            <th width="18%">Pelanggan</th>
+                                            <th width="10%">Tgl Transaksi</th>
+                                            <th width="10%">Syarat Bayar</th>
+                                            <th width="12%" class="text-right">Total</th>
+                                            <th width="12%" class="text-right">Sudah Bayar</th>
+                                            <th width="15%" class="text-right">Sisa</th>
                                         </tr>
                                     </thead>
                                     <tbody id="invoice-body">
@@ -228,7 +230,7 @@
                         $('#invoice-loading').hide();
 
                         if (data.length === 0) {
-                            $('#invoice-empty').html('<i class="fas fa-check-circle text-success"></i> Tidak ada invoice belum lunas di gudang ini.').show();
+                            $('#invoice-empty').html('<i class="fas fa-check-circle text-success"></i> Semua invoice sudah lunas di gudang ini.').show();
                             $('#btn-submit').prop('disabled', true);
                             return;
                         }
@@ -243,9 +245,10 @@
                             html += '<td>' + inv.nomor + '</td>';
                             html += '<td>' + inv.pelanggan + '</td>';
                             html += '<td>' + inv.tgl_transaksi + '</td>';
-                            html += '<td>' + inv.tgl_jatuh_tempo + '</td>';
+                            html += '<td><span class="badge badge-' + (inv.syarat_pembayaran === 'Cash' ? 'success' : 'warning') + '">' + inv.syarat_pembayaran + '</span></td>';
                             html += '<td class="text-right">' + formatRupiah(inv.grand_total) + '</td>';
-                            html += '<td class="text-right text-danger font-weight-bold">' + formatRupiah(inv.sisa) + '</td>';
+                            html += '<td class="text-right text-muted">' + formatRupiah(inv.total_bayar) + '</td>';
+                            html += '<td class="text-right text-primary font-weight-bold">' + formatRupiah(inv.sisa) + '</td>';
                             html += '</tr>';
                         });
 
@@ -290,7 +293,7 @@
                 $('#total-piutang').text(formatRupiah(total));
                 $('#total-display').text('Total: ' + formatRupiah(total));
 
-                // Auto-fill jumlah bayar dengan total piutang
+                // Auto-fill jumlah bayar dengan total sisa
                 if (total > 0) {
                     $('#jumlah_bayar').val(total);
                     $('#btn-submit').prop('disabled', false);
