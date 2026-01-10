@@ -37,6 +37,14 @@ Route::prefix('invoice')->name('public.invoice.')->group(function () {
     // Kunjungan
     Route::get('kunjungan/{uuid}', 'PublicInvoiceController@showKunjungan')->name('kunjungan');
     Route::get('kunjungan/{uuid}/download', 'PublicInvoiceController@downloadKunjungan')->name('kunjungan.download');
+
+    // Pembayaran
+    Route::get('pembayaran/{uuid}', 'PublicInvoiceController@showPembayaran')->name('pembayaran');
+    Route::get('pembayaran/{uuid}/download', 'PublicInvoiceController@downloadPembayaran')->name('pembayaran.download');
+
+    // Penerimaan Barang
+    Route::get('penerimaan-barang/{uuid}', 'PublicInvoiceController@showPenerimaanBarang')->name('penerimaan');
+    Route::get('penerimaan-barang/{uuid}/download', 'PublicInvoiceController@downloadPenerimaanBarang')->name('penerimaan.download');
 });
 
 // ========================================================================
@@ -100,6 +108,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('kunjungan', 'KunjunganController');
 
     // 5. Modul Pembayaran
+    Route::get('pembayaran/{pembayaran}/print', 'PembayaranController@print')->name('pembayaran.print');
     Route::post('pembayaran/{pembayaran}/approve', 'PembayaranController@approve')->name('pembayaran.approve');
     Route::post('pembayaran/{pembayaran}/cancel', 'PembayaranController@cancel')->name('pembayaran.cancel');
     Route::post('pembayaran/{pembayaran}/uncancel', 'PembayaranController@uncancel')->name('pembayaran.uncancel');
@@ -109,6 +118,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('pembayaran', 'PembayaranController');
 
     // 6. Modul Penerimaan Barang (Barang Masuk)
+    Route::get('penerimaan-barang/{penerimaan_barang}/print', 'PenerimaanBarangController@print')->name('penerimaan-barang.print');
     Route::post('penerimaan-barang/{penerimaan_barang}/approve', 'PenerimaanBarangController@approve')->name('penerimaan-barang.approve');
     Route::post('penerimaan-barang/{penerimaan_barang}/cancel', 'PenerimaanBarangController@cancel')->name('penerimaan-barang.cancel');
     Route::post('penerimaan-barang/{penerimaan_barang}/uncancel', 'PenerimaanBarangController@uncancel')->name('penerimaan-barang.uncancel');

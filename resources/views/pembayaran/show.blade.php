@@ -5,6 +5,12 @@
         <div class="d-flex align-items-center justify-content-between mb-4 page-header-mobile">
             <h1 class="h3 mb-0 text-gray-800">Detail Pembayaran</h1>
             <div class="show-action-buttons">
+                <a href="{{ route('pembayaran.print', $pembayaran->id) }}" class="btn btn-info btn-sm shadow-sm" target="_blank">
+                    <i class="fas fa-print fa-sm"></i> Print
+                </a>
+                <button type="button" class="btn btn-success btn-sm shadow-sm" data-toggle="modal" data-target="#qrModal">
+                    <i class="fas fa-qrcode fa-sm"></i> QR
+                </button>
                 <a href="{{ route('pembayaran.index') }}" class="btn btn-secondary btn-sm shadow-sm">
                     <i class="fas fa-arrow-left fa-sm"></i> Kembali
                 </a>
@@ -221,4 +227,52 @@
             </div>
         </div>
     </div>
+
+    {{-- QR Code Modal --}}
+    <div class="modal fade" id="qrModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-qrcode"></i> QR Code Invoice</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    @php
+                        $invoiceUrl = url('invoice/pembayaran/' . $pembayaran->uuid);
+                    @endphp
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode($invoiceUrl) }}" 
+                        alt="QR Code" class="mb-3" style="max-width: 200px;">
+                    <p class="text-muted small mb-2">Scan QR code untuk melihat bukti pembayaran</p>
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" value="{{ $invoiceUrl }}" id="invoiceUrl" readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyUrl()">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="{{ $invoiceUrl }}" target="_blank" class="btn btn-primary btn-sm">
+                        <i class="fas fa-external-link-alt"></i> Buka Link
+                    </a>
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+<script>
+function copyUrl() {
+    var copyText = document.getElementById("invoiceUrl");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    alert("Link berhasil dicopy!");
+}
+</script>
+@endpush

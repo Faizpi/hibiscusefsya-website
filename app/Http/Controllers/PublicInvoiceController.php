@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Penjualan;
 use App\Pembelian;
+use App\Pembayaran;
+use App\PenerimaanBarang;
 use App\Biaya;
 use App\Kunjungan;
 use Illuminate\Http\Request;
@@ -123,6 +125,60 @@ class PublicInvoiceController extends Controller
         $filename = "VST-{$kunjungan->user_id}-{$dateCode}-{$noUrut}.pdf";
 
         $pdf = PDF::loadView('public.invoice-kunjungan-pdf', compact('kunjungan'));
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Show public invoice for Pembayaran
+     */
+    public function showPembayaran($uuid)
+    {
+        $pembayaran = Pembayaran::where('uuid', $uuid)->with(['penjualan', 'user', 'gudang', 'approver'])->firstOrFail();
+
+        return view('public.invoice-pembayaran', compact('pembayaran'));
+    }
+
+    /**
+     * Download PDF for Pembayaran
+     */
+    public function downloadPembayaran($uuid)
+    {
+        $pembayaran = Pembayaran::where('uuid', $uuid)->with(['penjualan', 'user', 'gudang', 'approver'])->firstOrFail();
+
+        $dateCode = $pembayaran->created_at->format('Ymd');
+        $noUrut = str_pad($pembayaran->no_urut_harian ?? 1, 3, '0', STR_PAD_LEFT);
+        $filename = "PAY-{$pembayaran->user_id}-{$dateCode}-{$noUrut}.pdf";
+
+        $pdf = PDF::loadView('public.invoice-pembayaran-pdf', compact('pembayaran'));
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Show public invoice for Penerimaan Barang
+     */
+    public function showPenerimaanBarang($uuid)
+    {
+        $penerimaan = PenerimaanBarang::where('uuid', $uuid)->with(['items.produk', 'items.pembelianItem.pembelian', 'user', 'gudang', 'approver', 'supplier'])->firstOrFail();
+
+        return view('public.invoice-penerimaan', compact('penerimaan'));
+    }
+
+    /**
+     * Download PDF for Penerimaan Barang
+     */
+    public function downloadPenerimaanBarang($uuid)
+    {
+        $penerimaan = PenerimaanBarang::where('uuid', $uuid)->with(['items.produk', 'items.pembelianItem.pembelian', 'user', 'gudang', 'approver', 'supplier'])->firstOrFail();
+
+        $dateCode = $penerimaan->created_at->format('Ymd');
+        $noUrut = str_pad($penerimaan->no_urut_harian ?? 1, 3, '0', STR_PAD_LEFT);
+        $filename = "GRN-{$penerimaan->user_id}-{$dateCode}-{$noUrut}.pdf";
+
+        $pdf = PDF::loadView('public.invoice-penerimaan-pdf', compact('penerimaan'));
         $pdf->setPaper('a4', 'portrait');
 
         return $pdf->download($filename);

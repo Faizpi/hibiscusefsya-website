@@ -191,14 +191,15 @@
                             <table class="table table-bordered table-sm" id="items-table">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th width="10%">Kode</th>
-                                        <th width="25%">Nama Produk</th>
+                                        <th width="8%">Kode</th>
+                                        <th width="20%">Nama Produk</th>
                                         <th width="12%">Invoice</th>
-                                        <th width="8%">Satuan</th>
-                                        <th width="10%" class="text-center">Qty Pesan</th>
-                                        <th width="10%" class="text-center">Sudah Diterima</th>
-                                        <th width="10%" class="text-center">Sisa</th>
+                                        <th width="6%">Satuan</th>
+                                        <th width="8%" class="text-center">Qty Pesan</th>
+                                        <th width="8%" class="text-center">Sudah Diterima</th>
+                                        <th width="8%" class="text-center">Sisa</th>
                                         <th width="15%">Qty Diterima *</th>
+                                        <th width="15%">Qty Reject</th>
                                     </tr>
                                 </thead>
                                 <tbody id="items-body">
@@ -206,12 +207,14 @@
                                 </tbody>
                                 <tfoot>
                                     <tr class="bg-light font-weight-bold">
-                                        <td colspan="7" class="text-right">Total Qty Diterima:</td>
-                                        <td class="text-primary" id="total-qty-diterima">0</td>
+                                        <td colspan="7" class="text-right">Total Qty Diterima / Reject:</td>
+                                        <td class="text-success" id="total-qty-diterima">0</td>
+                                        <td class="text-danger" id="total-qty-reject">0</td>
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
+                        <small class="text-muted"><i class="fas fa-info-circle"></i> <strong>Qty Reject</strong> adalah barang yang tidak lolos quality control dan tidak akan masuk ke stok gudang.</small>
                     </div>
 
                     <div id="no-invoice-selected" class="alert alert-info">
@@ -408,9 +411,14 @@
                         html += '<td>';
                         html += '<input type="hidden" name="items[' + item.index + '][pembelian_id]" value="' + item.pembelian_id + '">';
                         html += '<input type="hidden" name="items[' + item.index + '][produk_id]" value="' + item.produk_id + '">';
-                        html += '<input type="number" class="form-control form-control-sm qty-input" ';
+                        html += '<input type="number" class="form-control form-control-sm qty-input qty-diterima" ';
                         html += 'name="items[' + item.index + '][qty_diterima]" value="' + item.qty_sisa + '" ';
-                        html += 'min="0" max="' + item.qty_sisa + '">';
+                        html += 'min="0" max="' + item.qty_sisa + '" data-max="' + item.qty_sisa + '">';
+                        html += '</td>';
+                        html += '<td>';
+                        html += '<input type="number" class="form-control form-control-sm qty-input qty-reject" ';
+                        html += 'name="items[' + item.index + '][qty_reject]" value="0" ';
+                        html += 'min="0" max="' + item.qty_sisa + '" data-max="' + item.qty_sisa + '">';
                         html += '</td>';
                         html += '</tr>';
                     });
@@ -421,6 +429,19 @@
 
                     // Bind qty input events
                     $('.qty-input').on('input', function () {
+                        var row = $(this).closest('tr');
+                        var maxQty = parseInt(row.find('.qty-diterima').data('max')) || 0;
+                        var qtyDiterima = parseInt(row.find('.qty-diterima').val()) || 0;
+                        var qtyReject = parseInt(row.find('.qty-reject').val()) || 0;
+                        
+                        // Validasi total tidak melebihi max
+                        if (qtyDiterima + qtyReject > maxQty) {
+                            if ($(this).hasClass('qty-diterima')) {
+                                row.find('.qty-diterima').val(maxQty - qtyReject);
+                            } else {
+                                row.find('.qty-reject').val(maxQty - qtyDiterima);
+                            }
+                        }
                         updateTotalQty();
                     });
 
@@ -432,17 +453,26 @@
             }
 
             function updateTotalQty() {
-                var total = 0;
-                $('.qty-input').each(function () {
-                    total += parseInt($(this).val()) || 0;
+                var totalDiterima = 0;
+                var totalReject = 0;
+                $('.qty-diterima').each(function () {
+                    totalDiterima += parseInt($(this).val()) || 0;
                 });
-                $('#total-qty-diterima').text(total);
-                $('#total-items-display').val(total + ' item');
-                updateTotalDisplay(total);
+                $('.qty-reject').each(function () {
+                    totalReject += parseInt($(this).val()) || 0;
+                });
+                $('#total-qty-diterima').text(totalDiterima);
+                $('#total-qty-reject').text(totalReject);
+                $('#total-items-display').val(totalDiterima + ' diterima, ' + totalReject + ' reject');
+                updateTotalDisplay(totalDiterima, totalReject);
             }
 
-            function updateTotalDisplay(total) {
-                $('#total-display').text('Total: ' + total + ' Item');
+            function updateTotalDisplay(totalDiterima, totalReject) {
+                var text = 'Total: ' + totalDiterima + ' Diterima';
+                if (totalReject > 0) {
+                    text += ', ' + totalReject + ' Reject';
+                }
+                $('#total-display').text(text);
             }
 
             // Event: Gudang change

@@ -12,6 +12,7 @@ class PenerimaanBarangItem extends Model
         'penerimaan_barang_id',
         'produk_id',
         'qty_diterima',
+        'qty_reject',
         'keterangan',
     ];
 

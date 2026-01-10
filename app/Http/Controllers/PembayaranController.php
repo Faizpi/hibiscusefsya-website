@@ -333,6 +333,16 @@ class PembayaranController extends Controller
         return view('pembayaran.show', compact('pembayaran', 'sisaHutang'));
     }
 
+    /**
+     * Print view untuk thermal printer
+     */
+    public function print(Pembayaran $pembayaran)
+    {
+        $pembayaran->load(['user', 'approver', 'penjualan', 'gudang']);
+
+        return view('pembayaran.print', compact('pembayaran'));
+    }
+
     public function approve(Pembayaran $pembayaran)
     {
         $user = Auth::user();

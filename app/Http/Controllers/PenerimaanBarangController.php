@@ -192,6 +192,7 @@ class PenerimaanBarangController extends Controller
             'items.*.pembelian_id' => 'required|exists:pembelians,id',
             'items.*.produk_id' => 'required|exists:produks,id',
             'items.*.qty_diterima' => 'required|integer|min:0',
+            'items.*.qty_reject' => 'nullable|integer|min:0',
         ]);
 
         // Validasi akses gudang
@@ -264,7 +265,10 @@ class PenerimaanBarangController extends Controller
             // Group items by pembelian_id
             $itemsByPembelian = [];
             foreach ($request->items as $item) {
-                if ($item['qty_diterima'] > 0) {
+                $qtyDiterima = $item['qty_diterima'] ?? 0;
+                $qtyReject = $item['qty_reject'] ?? 0;
+                // Include item if qty_diterima > 0 OR qty_reject > 0
+                if ($qtyDiterima > 0 || $qtyReject > 0) {
                     $pembelianId = $item['pembelian_id'];
                     if (!isset($itemsByPembelian[$pembelianId])) {
                         $itemsByPembelian[$pembelianId] = [];
@@ -301,16 +305,20 @@ class PenerimaanBarangController extends Controller
 
                 // Simpan items untuk penerimaan ini
                 foreach ($pembelianItems as $item) {
+                    $qtyDiterima = $item['qty_diterima'] ?? 0;
+                    $qtyReject = $item['qty_reject'] ?? 0;
+
                     PenerimaanBarangItem::create([
                         'penerimaan_barang_id' => $penerimaan->id,
                         'produk_id' => $item['produk_id'],
-                        'qty_diterima' => $item['qty_diterima'],
+                        'qty_diterima' => $qtyDiterima,
+                        'qty_reject' => $qtyReject,
                         'keterangan' => $item['keterangan'] ?? null,
                     ]);
 
-                    // Jika langsung approved, tambahkan stok
-                    if ($initialStatus === 'Approved') {
-                        $this->tambahStok($gudangId, $item['produk_id'], $item['qty_diterima']);
+                    // Jika langsung approved, tambahkan stok (HANYA qty_diterima, bukan qty_reject)
+                    if ($initialStatus === 'Approved' && $qtyDiterima > 0) {
+                        $this->tambahStok($gudangId, $item['produk_id'], $qtyDiterima);
                     }
                 }
 
@@ -342,6 +350,16 @@ class PenerimaanBarangController extends Controller
         return view('penerimaan-barang.show', ['penerimaan' => $penerimaan_barang]);
     }
 
+    /**
+     * Print view untuk thermal printer
+     */
+    public function print(PenerimaanBarang $penerimaan_barang)
+    {
+        $penerimaan_barang->load(['user', 'approver', 'gudang', 'items.produk', 'items.pembelianItem.pembelian', 'supplier']);
+
+        return view('penerimaan-barang.print', ['penerimaan' => $penerimaan_barang]);
+    }
+
     public function approve(PenerimaanBarang $penerimaan_barang)
     {
         $user = Auth::user();
@@ -364,9 +382,11 @@ class PenerimaanBarangController extends Controller
             $penerimaan_barang->approver_id = $user->id;
             $penerimaan_barang->save();
 
-            // Tambahkan stok untuk setiap item
+            // Tambahkan stok untuk setiap item (HANYA qty_diterima, bukan qty_reject)
             foreach ($penerimaan_barang->items as $item) {
-                $this->tambahStok($penerimaan_barang->gudang_id, $item->produk_id, $item->qty_diterima);
+                if ($item->qty_diterima > 0) {
+                    $this->tambahStok($penerimaan_barang->gudang_id, $item->produk_id, $item->qty_diterima);
+                }
             }
 
             DB::commit();
@@ -375,7 +395,7 @@ class PenerimaanBarangController extends Controller
             return back()->with('error', 'Gagal approve: ' . $e->getMessage());
         }
 
-        return back()->with('success', 'Penerimaan barang berhasil disetujui dan stok telah ditambahkan.');
+        return back()->with('success', 'Penerimaan barang berhasil disetujui dan stok telah ditambahkan (barang reject tidak masuk stok).');
     }
 
     public function cancel(PenerimaanBarang $penerimaan_barang)

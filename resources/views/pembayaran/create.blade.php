@@ -157,7 +157,8 @@
                         </div>
 
                         <div id="invoice-empty" class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> Pilih gudang untuk melihat daftar invoice yang sudah approved dan belum lunas.
+                            <i class="fas fa-info-circle"></i> Pilih gudang untuk melihat daftar invoice yang sudah approved
+                            dan belum lunas.
                         </div>
 
                         <div id="invoice-table-wrapper" style="display: none;">
