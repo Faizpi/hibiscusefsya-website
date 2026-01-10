@@ -355,7 +355,7 @@ class PenerimaanBarangController extends Controller
      */
     public function print(PenerimaanBarang $penerimaan_barang)
     {
-        $penerimaan_barang->load(['user', 'approver', 'gudang', 'items.produk', 'items.pembelianItem.pembelian', 'supplier']);
+        $penerimaan_barang->load(['user', 'approver', 'gudang', 'items.produk', 'pembelian']);
 
         return view('penerimaan-barang.print', ['penerimaan' => $penerimaan_barang]);
     }

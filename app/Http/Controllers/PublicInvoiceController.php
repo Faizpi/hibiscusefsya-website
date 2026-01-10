@@ -162,7 +162,7 @@ class PublicInvoiceController extends Controller
      */
     public function showPenerimaanBarang($uuid)
     {
-        $penerimaan = PenerimaanBarang::where('uuid', $uuid)->with(['items.produk', 'items.pembelianItem.pembelian', 'user', 'gudang', 'approver', 'supplier'])->firstOrFail();
+        $penerimaan = PenerimaanBarang::where('uuid', $uuid)->with(['items.produk', 'pembelian', 'user', 'gudang', 'approver'])->firstOrFail();
 
         return view('public.invoice-penerimaan', compact('penerimaan'));
     }
@@ -172,7 +172,7 @@ class PublicInvoiceController extends Controller
      */
     public function downloadPenerimaanBarang($uuid)
     {
-        $penerimaan = PenerimaanBarang::where('uuid', $uuid)->with(['items.produk', 'items.pembelianItem.pembelian', 'user', 'gudang', 'approver', 'supplier'])->firstOrFail();
+        $penerimaan = PenerimaanBarang::where('uuid', $uuid)->with(['items.produk', 'pembelian', 'user', 'gudang', 'approver'])->firstOrFail();
 
         $dateCode = $penerimaan->created_at->format('Ymd');
         $noUrut = str_pad($penerimaan->no_urut_harian ?? 1, 3, '0', STR_PAD_LEFT);

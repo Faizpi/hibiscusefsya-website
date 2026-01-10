@@ -137,7 +137,6 @@
         $invoiceUrl = url('invoice/penerimaan-barang/' . $penerimaan->uuid);
         $totalDiterima = $penerimaan->items->sum('qty_diterima');
         $totalReject = $penerimaan->items->sum('qty_reject');
-        $pembelianList = $penerimaan->items->pluck('pembelianItem.pembelian')->unique('id')->filter();
     @endphp
 
     <div class="receipt">
@@ -184,13 +183,10 @@
         <div class="divider"></div>
 
         <p style="font-weight: bold; margin-bottom: 5px;">Ref. Pembelian:</p>
-        @forelse($pembelianList as $pembelian)
-            <p style="font-size: 10px;">{{ $pembelian->custom_number }}</p>
-        @empty
+        @if($penerimaan->pembelian)
+            <p style="font-size: 10px;">{{ $penerimaan->pembelian->custom_number }}</p>
+        @else
             <p style="font-size: 10px;">-</p>
-        @endforelse
-        @if($penerimaan->supplier)
-            <p style="font-size: 10px; margin-top: 3px;">Supplier: {{ $penerimaan->supplier->nama }}</p>
         @endif
 
         <div class="divider"></div>
