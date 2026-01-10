@@ -571,23 +571,9 @@ class PembelianController extends Controller
 
         DB::beginTransaction();
         try {
-            foreach ($pembelian->items as $item) {
-                // lockForUpdate() untuk mencegah race condition
-                $stok = GudangProduk::where('gudang_id', $pembelian->gudang_id)
-                    ->where('produk_id', $item->produk_id)
-                    ->lockForUpdate()
-                    ->first();
-
-                if ($stok) {
-                    $stok->increment('stok', $item->kuantitas);
-                } else {
-                    GudangProduk::create([
-                        'gudang_id' => $pembelian->gudang_id,
-                        'produk_id' => $item->produk_id,
-                        'stok' => $item->kuantitas
-                    ]);
-                }
-            }
+            // CATATAN: Stok TIDAK ditambahkan di sini
+            // Stok akan ditambahkan saat Penerimaan Barang di-approve
+            // Flow: Pembelian (order) -> Penerimaan Barang (goods received) -> Stock increases
 
             // Set approver_id ke user yang sedang approve
             $pembelian->approver_id = $user->id;
@@ -600,7 +586,7 @@ class PembelianController extends Controller
             // Kirim notifikasi email ke pembuat bahwa transaksi telah disetujui
             InvoiceEmailService::sendApprovedNotification($pembelian, 'pembelian');
 
-            return back()->with('success', 'Disetujui. Stok ditambahkan.');
+            return back()->with('success', 'Pembelian disetujui. Stok akan bertambah setelah Penerimaan Barang di-approve.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', $e->getMessage());
@@ -624,20 +610,8 @@ class PembelianController extends Controller
 
         DB::beginTransaction();
         try {
-            // Kurangi stok jika sudah Approved atau Lunas (stok sudah ditambah)
-            if (in_array($pembelian->status, ['Approved', 'Lunas'])) {
-                foreach ($pembelian->items as $item) {
-                    // lockForUpdate() untuk mencegah race condition
-                    $stok = GudangProduk::where('gudang_id', $pembelian->gudang_id)
-                        ->where('produk_id', $item->produk_id)
-                        ->lockForUpdate()
-                        ->first();
-
-                    if ($stok && $stok->stok >= $item->kuantitas) {
-                        $stok->decrement('stok', $item->kuantitas);
-                    }
-                }
-            }
+            // CATATAN: Tidak perlu kurangi stok karena stok ditambahkan di Penerimaan Barang, bukan di Pembelian
+            // Jika ada Penerimaan Barang yang terkait, harus dibatalkan secara terpisah
 
             $pembelian->status = 'Canceled';
             $pembelian->save();

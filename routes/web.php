@@ -37,6 +37,14 @@ Route::prefix('invoice')->name('public.invoice.')->group(function () {
     // Kunjungan
     Route::get('kunjungan/{uuid}', 'PublicInvoiceController@showKunjungan')->name('kunjungan');
     Route::get('kunjungan/{uuid}/download', 'PublicInvoiceController@downloadKunjungan')->name('kunjungan.download');
+
+    // Pembayaran
+    Route::get('pembayaran/{uuid}', 'PublicInvoiceController@showPembayaran')->name('pembayaran');
+    Route::get('pembayaran/{uuid}/download', 'PublicInvoiceController@downloadPembayaran')->name('pembayaran.download');
+
+    // Penerimaan Barang
+    Route::get('penerimaan-barang/{uuid}', 'PublicInvoiceController@showPenerimaanBarang')->name('penerimaan');
+    Route::get('penerimaan-barang/{uuid}/download', 'PublicInvoiceController@downloadPenerimaanBarang')->name('penerimaan.download');
 });
 
 // ========================================================================
@@ -98,6 +106,26 @@ Route::middleware(['auth'])->group(function () {
     Route::post('kunjungan/{kunjungan}/uncancel', 'KunjunganController@uncancel')->name('kunjungan.uncancel');
     Route::delete('kunjungan/{kunjungan}/lampiran/{index}', 'KunjunganController@deleteLampiran')->name('kunjungan.deleteLampiran');
     Route::resource('kunjungan', 'KunjunganController');
+
+    // 5. Modul Pembayaran
+    Route::get('pembayaran/{pembayaran}/print', 'PembayaranController@print')->name('pembayaran.print');
+    Route::post('pembayaran/{pembayaran}/approve', 'PembayaranController@approve')->name('pembayaran.approve');
+    Route::post('pembayaran/{pembayaran}/cancel', 'PembayaranController@cancel')->name('pembayaran.cancel');
+    Route::post('pembayaran/{pembayaran}/uncancel', 'PembayaranController@uncancel')->name('pembayaran.uncancel');
+    Route::delete('pembayaran/{pembayaran}/lampiran/{index}', 'PembayaranController@deleteLampiran')->name('pembayaran.deleteLampiran');
+    Route::get('pembayaran/get-penjualan/{id}', 'PembayaranController@getPenjualanDetail')->name('pembayaran.getPenjualan');
+    Route::get('pembayaran/get-penjualan-by-gudang/{gudangId}', 'PembayaranController@getPenjualanByGudang')->name('pembayaran.getPenjualanByGudang');
+    Route::resource('pembayaran', 'PembayaranController');
+
+    // 6. Modul Penerimaan Barang (Barang Masuk)
+    Route::get('penerimaan-barang/{penerimaan_barang}/print', 'PenerimaanBarangController@print')->name('penerimaan-barang.print');
+    Route::post('penerimaan-barang/{penerimaan_barang}/approve', 'PenerimaanBarangController@approve')->name('penerimaan-barang.approve');
+    Route::post('penerimaan-barang/{penerimaan_barang}/cancel', 'PenerimaanBarangController@cancel')->name('penerimaan-barang.cancel');
+    Route::post('penerimaan-barang/{penerimaan_barang}/uncancel', 'PenerimaanBarangController@uncancel')->name('penerimaan-barang.uncancel');
+    Route::delete('penerimaan-barang/{penerimaan_barang}/lampiran/{index}', 'PenerimaanBarangController@deleteLampiran')->name('penerimaan-barang.deleteLampiran');
+    Route::get('penerimaan-barang/get-pembelian/{id}', 'PenerimaanBarangController@getPembelianDetail')->name('penerimaan-barang.getPembelian');
+    Route::get('penerimaan-barang/get-pembelian-by-gudang/{gudangId}', 'PenerimaanBarangController@getPembelianByGudang')->name('penerimaan-barang.getPembelianByGudang');
+    Route::resource('penerimaan-barang', 'PenerimaanBarangController');
 
 
     // ====================================================================

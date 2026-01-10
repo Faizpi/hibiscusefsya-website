@@ -1786,6 +1786,18 @@
                         <span>Biaya</span>
                     </a>
                 </li>
+                <li class="nav-item {{ Route::is('pembayaran.*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('pembayaran.index') }}" title="Pembayaran">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Pembayaran</span>
+                    </a>
+                </li>
+                <li class="nav-item {{ Route::is('penerimaan-barang.*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('penerimaan-barang.index') }}" title="Penerimaan Barang">
+                        <i class="fas fa-truck-loading"></i>
+                        <span>Penerimaan Barang</span>
+                    </a>
+                </li>
                 <li class="nav-item {{ Route::is('kunjungan.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('kunjungan.index') }}" title="Kunjungan">
                         <i class="fas fa-map-marker-alt"></i>

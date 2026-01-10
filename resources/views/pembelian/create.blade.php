@@ -778,34 +778,40 @@
                 }
             });
 
-            // Tambah Baris
-            const productDropdownHtml = `
-                <select class="form-control product-select" name="produk_id[]" required>
-                    <option value="">Pilih...</option>
-                    @foreach($produks as $p) <option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}">{{ $p->nama_produk }}</option> @endforeach
-                </select>
-            `;
-
+            // Tambah Baris - Clone dari firstRow agar kolom kamera dan unit readonly tetap ada
             addRowBtn.addEventListener('click', function () {
-                const newRow = tableBody.insertRow();
-                newRow.innerHTML = `
-                    <td>${productDropdownHtml}</td>
-                    <td><input type="text" class="form-control product-desc" name="deskripsi[]"></td>
-                    <td><input type="number" class="form-control product-qty" name="kuantitas[]" value="1" min="1" required></td>
-                    <td>
-                        <select class="form-control" name="unit[]">
-                            <option value="Pcs">Pcs</option>
-                            <option value="Box">Box</option>
-                            <option value="Karton">Karton</option>
-                        </select>
-                    </td>
-                    <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]" value="0" required></td>
-                    <td><input type="number" class="form-control text-right product-disc" name="diskon[]" value="0" min="0"></td>
-                    <td><input type="text" class="form-control text-right product-total" readonly></td>
-                    <td><button type="button" class="btn btn-danger btn-sm remove-btn">X</button></td>
-                `;
-                // Init Select2 untuk dropdown baru
-                initSelect2(newRow.querySelector('.product-select'));
+                // Destroy Select2 sebelum clone
+                let firstRow = tableBody.rows[0];
+                let firstSelect = $(firstRow).find('.product-select');
+                let wasSelect2 = firstSelect.hasClass('select2-hidden-accessible');
+                if (wasSelect2) {
+                    firstSelect.select2('destroy');
+                }
+
+                let row = firstRow.cloneNode(true);
+                row.querySelectorAll('input').forEach(i => i.value = '');
+                row.querySelector('.product-qty').value = 1;
+                row.querySelector('.product-price').value = 0;
+                row.querySelector('.product-disc').value = 0;
+                row.querySelector('.product-unit').value = '';
+
+                // Update product options berdasarkan gudang yang dipilih
+                let productSelect = row.querySelector('.product-select');
+                productSelect.innerHTML = productOptionsHtml;
+                productSelect.value = '';
+
+                if (!row.querySelector('.remove-btn')) {
+                    let td = row.lastElementChild;
+                    td.innerHTML = '<button type="button" class="btn btn-danger btn-sm remove-btn">X</button>';
+                }
+                tableBody.appendChild(row);
+
+                // Re-init Select2 untuk first row dan new row
+                if (wasSelect2) {
+                    initSelect2(firstSelect[0]);
+                }
+                initSelect2(row.querySelector('.product-select'));
+
                 syncMobileCards();
             });
 
