@@ -8,12 +8,26 @@
             <form action="{{ route('kontak.update', $kontak->id) }}" method="POST">
                 @csrf
                 @method('PUT')
-                <div class="form-group">
-                    <label for="nama">Nama Kontak *</label>
-                    <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" value="{{ old('nama', $kontak->nama) }}" required>
-                    @error('nama')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="kode_kontak">Kode Kontak</label>
+                            <input type="text" class="form-control @error('kode_kontak') is-invalid @enderror" id="kode_kontak" name="kode_kontak" value="{{ old('kode_kontak', $kontak->kode_kontak) }}">
+                            <small class="form-text text-muted">Kode untuk barcode/QR code</small>
+                            @error('kode_kontak')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="nama">Nama Kontak *</label>
+                            <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" value="{{ old('nama', $kontak->nama) }}" required>
+                            @error('nama')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">

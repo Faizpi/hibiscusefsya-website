@@ -70,6 +70,7 @@ class KontakController extends Controller
         }
 
         $request->validate([
+            'kode_kontak' => 'nullable|string|max:50|unique:kontaks,kode_kontak',
             'nama' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:kontaks',
             'no_telp' => 'nullable|string|max:20',
@@ -99,6 +100,7 @@ class KontakController extends Controller
         }
 
         $request->validate([
+            'kode_kontak' => 'nullable|string|max:50|unique:kontaks,kode_kontak,' . $kontak->id,
             'nama' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:kontaks,email,' . $kontak->id,
             'no_telp' => 'nullable|string|max:20',
