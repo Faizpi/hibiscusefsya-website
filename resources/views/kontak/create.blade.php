@@ -7,12 +7,26 @@
         <div class="card-body">
             <form action="{{ route('kontak.store') }}" method="POST">
                 @csrf
-                <div class="form-group">
-                    <label for="nama">Nama Kontak *</label>
-                    <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" value="{{ old('nama') }}" required>
-                    @error('nama')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="kode_kontak">Kode Kontak</label>
+                            <input type="text" class="form-control @error('kode_kontak') is-invalid @enderror" id="kode_kontak" name="kode_kontak" value="{{ old('kode_kontak') }}" placeholder="Kosongkan untuk auto-generate">
+                            <small class="form-text text-muted">Contoh: KT00001, CUST-001, dll. Kosongkan untuk auto-generate.</small>
+                            @error('kode_kontak')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="nama">Nama Kontak *</label>
+                            <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" value="{{ old('nama') }}" required>
+                            @error('nama')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
