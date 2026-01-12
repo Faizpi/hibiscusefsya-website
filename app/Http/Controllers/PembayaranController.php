@@ -163,7 +163,7 @@ class PembayaranController extends Controller
             'metode_pembayaran' => 'required|string|max:100',
             'jumlah_bayar' => 'required|numeric|min:1',
             'keterangan' => 'nullable|string',
-            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:10240',
         ]);
 
         // Validasi akses gudang

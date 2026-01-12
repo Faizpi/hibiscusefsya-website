@@ -217,6 +217,7 @@
                                         accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx">
                                     <label class="custom-file-label" for="lampiran">Pilih file baru...</label>
                                 </div>
+                                <small class="form-text text-muted">Format: jpg, jpeg, png, pdf, zip, doc, docx (max 10MB per file)</small>
                                 <div id="lampiran-list" class="mt-2" style="display: none;">
                                     <small class="text-muted">File baru terpilih:</small>
                                     <ul id="lampiran-file-list" class="list-unstyled mb-0 mt-1"></ul>

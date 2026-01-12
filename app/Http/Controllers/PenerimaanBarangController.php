@@ -187,7 +187,7 @@ class PenerimaanBarangController extends Controller
             'tgl_penerimaan' => 'required|date',
             'no_surat_jalan' => 'nullable|string|max:100',
             'keterangan' => 'nullable|string',
-            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:10240',
             'items' => 'required|array|min:1',
             'items.*.pembelian_id' => 'required|exists:pembelians,id',
             'items.*.produk_id' => 'required|exists:produks,id',

@@ -160,7 +160,7 @@
                                     <small class="text-muted">File terpilih:</small>
                                     <ul id="lampiran-file-list" class="list-unstyled mb-0 mt-1"></ul>
                                 </div>
-                                <small class="text-muted">Format: jpg, png, pdf, zip, doc, docx (max 2MB per file)</small>
+                                <small class="text-muted">Format: jpg, jpeg, png, pdf, zip, doc, docx (max 10MB per file)</small>
                                 @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                 @error('lampiran.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>

@@ -157,7 +157,7 @@ class BiayaController extends Controller
             'tgl_transaksi' => 'required|date',
             'penerima' => 'nullable|string|max:255',
             'tax_percentage' => 'required|numeric|min:0',
-            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
+            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:10240',
 
             'kategori' => 'required|array|min:1',
             'total' => 'required|array|min:1',
@@ -509,7 +509,7 @@ class BiayaController extends Controller
             'tgl_transaksi' => 'required|date',
             'tax_percentage' => 'required|numeric|min:0',
             'lampiran' => 'nullable|array',
-            'lampiran.*' => 'nullable|file|mimes:jpg,png,pdf,zip,doc,docx|max:2048',
+            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:10240',
             'kategori' => 'required|array|min:1',
             'total' => 'required|array|min:1',
             'kategori.*' => 'required|string|max:255',

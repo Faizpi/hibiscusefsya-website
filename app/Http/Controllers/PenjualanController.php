@@ -153,7 +153,7 @@ class PenjualanController extends Controller
             'gudang_id' => 'required|exists:gudangs,id',
             'tax_percentage' => 'required|numeric|min:0',
             'diskon_akhir' => 'nullable|numeric|min:0',
-            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
+            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:10240',
 
             'produk_id' => 'required|array|min:1',
             'produk_id.*' => 'required|exists:produks,id',
@@ -419,7 +419,7 @@ class PenjualanController extends Controller
             'gudang_id' => 'required|exists:gudangs,id',
             'diskon_akhir' => 'nullable|numeric|min:0',
             'tax_percentage' => 'required|numeric|min:0',
-            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
+            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:10240',
             'produk_id' => 'required|array|min:1',
             'produk_id.*' => 'required|exists:produks,id',
             'kuantitas.*' => 'required|numeric|min:1',

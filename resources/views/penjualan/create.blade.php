@@ -282,12 +282,12 @@
                         <div class="form-group">
                             <label for="lampiran">Lampiran</label>
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror" id="lampiran" name="lampiran[]" multiple accept="image/*,.pdf,.doc,.docx,.zip" data-preview-nomor="{{ $previewNomor ?? '' }}">
+                                <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror" id="lampiran" name="lampiran[]" multiple accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx" data-preview-nomor="{{ $previewNomor ?? '' }}">
                                 <label class="custom-file-label" for="lampiran">Pilih file (bisa pilih banyak)...</label>
                             </div>
                             <small class="form-text text-muted">
                                 <i class="fas fa-info-circle mr-1"></i>
-                                Anda bisa memilih beberapa file sekaligus. File akan disimpan dengan format: <strong>{{ $previewNomor ?? 'INV-xxx' }}-1.jpg, {{ $previewNomor ?? 'INV-xxx' }}-2.jpg</strong>, dst.
+                                Format: jpg, jpeg, png, pdf, zip, doc, docx (max 10MB per file)
                             </small>
                             <div id="lampiran-list" class="mt-2"></div>
                             @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
