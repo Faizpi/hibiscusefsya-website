@@ -83,7 +83,7 @@
                              <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="tgl_transaksi">Tgl. Transaksi *</label>
-                                    <input type="date" class="form-control @error('tgl_transaksi') is-invalid @enderror" id="tgl_transaksi" name="tgl_transaksi" value="{{ old('tgl_transaksi', date('Y-m-d')) }}" required>
+                                    <input type="date" class="form-control @error('tgl_transaksi') is-invalid @enderror" id="tgl_transaksi" name="tgl_transaksi" value="{{ old('tgl_transaksi', date('Y-m-d')) }}" required {{ auth()->user()->role === 'user' ? 'readonly' : '' }}>
                                     @error('tgl_transaksi') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>

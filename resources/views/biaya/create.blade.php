@@ -119,7 +119,7 @@
                                         <label for="tgl_transaksi">Tgl Transaksi *</label>
                                         <input type="date" class="form-control @error('tgl_transaksi') is-invalid @enderror"
                                             id="tgl_transaksi" name="tgl_transaksi"
-                                            value="{{ old('tgl_transaksi', date('Y-m-d')) }}" required>
+                                            value="{{ old('tgl_transaksi', date('Y-m-d')) }}" required {{ auth()->user()->role === 'user' ? 'readonly' : '' }}>
                                         @error('tgl_transaksi') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                 </div>
@@ -249,7 +249,8 @@
                                         accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx">
                                     <label class="custom-file-label" for="lampiran">Pilih file...</label>
                                 </div>
-                                <small class="form-text text-muted">Format: jpg, jpeg, png, pdf, zip, doc, docx (max 2MB per file)</small>
+                                <small class="form-text text-muted">Format: jpg, jpeg, png, pdf, zip, doc, docx (max 2MB per
+                                    file)</small>
                                 <div id="lampiran-list" class="mt-2" style="display: none;">
                                     <small class="text-muted">File terpilih:</small>
                                     <ul id="lampiran-file-list" class="list-unstyled mb-0 mt-1"></ul>
@@ -380,29 +381,29 @@
                     card.className = 'product-card-mobile';
                     card.dataset.rowIndex = index;
                     card.innerHTML = `
-                                        <div class="card-header-mobile">
-                                            <span class="item-number">Item ${index + 1}</span>
-                                            ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
-                                        </div>
-                                        <div class="card-body-mobile">
-                                            <div class="field-group full-width">
-                                                <span class="field-label">Akun Biaya</span>
-                                                <input type="text" class="form-control kategori-mobile" data-row="${index}" value="${kategori}" placeholder="Contoh: Biaya Listrik">
+                                            <div class="card-header-mobile">
+                                                <span class="item-number">Item ${index + 1}</span>
+                                                ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
                                             </div>
-                                            <div class="field-group full-width">
-                                                <span class="field-label">Deskripsi</span>
-                                                <input type="text" class="form-control deskripsi-mobile" data-row="${index}" value="${deskripsi}" placeholder="Deskripsi">
+                                            <div class="card-body-mobile">
+                                                <div class="field-group full-width">
+                                                    <span class="field-label">Akun Biaya</span>
+                                                    <input type="text" class="form-control kategori-mobile" data-row="${index}" value="${kategori}" placeholder="Contoh: Biaya Listrik">
+                                                </div>
+                                                <div class="field-group full-width">
+                                                    <span class="field-label">Deskripsi</span>
+                                                    <input type="text" class="form-control deskripsi-mobile" data-row="${index}" value="${deskripsi}" placeholder="Deskripsi">
+                                                </div>
+                                                <div class="field-group full-width">
+                                                    <span class="field-label">Jumlah</span>
+                                                    <input type="number" class="form-control text-right jumlah-mobile" data-row="${index}" value="${jumlah}">
+                                                </div>
                                             </div>
-                                            <div class="field-group full-width">
-                                                <span class="field-label">Jumlah</span>
-                                                <input type="number" class="form-control text-right jumlah-mobile" data-row="${index}" value="${jumlah}">
+                                            <div class="total-row">
+                                                <span class="total-label">Jumlah</span>
+                                                <span class="total-value">${formatRupiah(jumlah)}</span>
                                             </div>
-                                        </div>
-                                        <div class="total-row">
-                                            <span class="total-label">Jumlah</span>
-                                            <span class="total-value">${formatRupiah(jumlah)}</span>
-                                        </div>
-                                    `;
+                                        `;
                     mobileCardsContainer.appendChild(card);
                 });
             }
@@ -473,11 +474,11 @@
             addRowBtn.addEventListener('click', function () {
                 const newRow = tableBody.insertRow();
                 newRow.innerHTML = `
-                                    <td><input type="text" class="form-control" name="kategori[]" placeholder="Contoh: Biaya Listrik"></td>
-                                    <td><input type="text" class="form-control" name="deskripsi_akun[]"></td>
-                                    <td><input type="number" class="form-control text-right expense-amount" name="total[]" value="0" required></td>
-                                    <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
-                                `;
+                                        <td><input type="text" class="form-control" name="kategori[]" placeholder="Contoh: Biaya Listrik"></td>
+                                        <td><input type="text" class="form-control" name="deskripsi_akun[]"></td>
+                                        <td><input type="number" class="form-control text-right expense-amount" name="total[]" value="0" required></td>
+                                        <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
+                                    `;
                 syncMobileCards();
             });
 

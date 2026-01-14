@@ -71,7 +71,7 @@
                                 <label for="tgl_penerimaan">Tanggal Penerimaan *</label>
                                 <input type="date" class="form-control @error('tgl_penerimaan') is-invalid @enderror"
                                     id="tgl_penerimaan" name="tgl_penerimaan"
-                                    value="{{ old('tgl_penerimaan', date('Y-m-d')) }}" required>
+                                    value="{{ old('tgl_penerimaan', date('Y-m-d')) }}" required {{ auth()->user()->role === 'user' ? 'readonly' : '' }}>
                                 @error('tgl_penerimaan') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -111,7 +111,8 @@
                                 <div class="custom-file">
                                     <input type="file"
                                         class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror"
-                                        id="lampiran" name="lampiran[]" multiple accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx"
+                                        id="lampiran" name="lampiran[]" multiple
+                                        accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx"
                                         data-preview-nomor="{{ $previewNomor }}">
                                     <label class="custom-file-label" for="lampiran">Pilih file (bisa pilih
                                         banyak)...</label>
@@ -213,7 +214,8 @@
                                 </tfoot>
                             </table>
                         </div>
-                        <small class="text-muted"><i class="fas fa-info-circle"></i> <strong>Qty Reject</strong> adalah barang yang tidak lolos quality control dan tidak akan masuk ke stok gudang.</small>
+                        <small class="text-muted"><i class="fas fa-info-circle"></i> <strong>Qty Reject</strong> adalah
+                            barang yang tidak lolos quality control dan tidak akan masuk ke stok gudang.</small>
                     </div>
 
                     <div id="no-invoice-selected" class="alert alert-info">
@@ -362,11 +364,11 @@
                         responses = [arguments[0]];
                     } else {
                         // Multiple requests - each argument is [data, textStatus, jqXHR]
-                        responses = Array.from(arguments).map(function(arg) {
+                        responses = Array.from(arguments).map(function (arg) {
                             return arg[0]; // Get data from each response
                         });
                     }
-                    
+
                     console.log('Responses:', responses); // Debug
 
                     var allItems = [];
@@ -432,7 +434,7 @@
                         var maxQty = parseInt(row.find('.qty-diterima').data('max')) || 0;
                         var qtyDiterima = parseInt(row.find('.qty-diterima').val()) || 0;
                         var qtyReject = parseInt(row.find('.qty-reject').val()) || 0;
-                        
+
                         // Validasi total tidak melebihi max
                         if (qtyDiterima + qtyReject > maxQty) {
                             if ($(this).hasClass('qty-diterima')) {
