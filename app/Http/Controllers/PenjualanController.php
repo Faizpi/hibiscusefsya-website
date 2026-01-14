@@ -18,17 +18,24 @@ use Illuminate\Support\Facades\File;
 
 class PenjualanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $query = Penjualan::with(['user', 'gudang', 'approver']);
 
+        // List of sales users for filter dropdown (only for super_admin and admin)
+        $salesUsers = collect();
+
         if ($user->role == 'super_admin') {
+            // Super admin can filter by all users
+            $salesUsers = User::whereIn('role', ['user', 'admin', 'super_admin'])->orderBy('name')->get();
         } elseif (in_array($user->role, ['admin', 'spectator'])) {
             // Admin/Spectator hanya lihat transaksi di gudang yang sedang aktif (current_gudang_id)
             $currentGudang = $user->getCurrentGudang();
             if ($currentGudang) {
                 $query->where('gudang_id', $currentGudang->id);
+                // Admin can filter by users in their gudang
+                $salesUsers = User::where('gudang_id', $currentGudang->id)->orderBy('name')->get();
             } else {
                 // Jika tidak punya gudang, tidak bisa lihat apapun
                 // Return empty paginator agar view tidak error
@@ -39,10 +46,17 @@ class PenjualanController extends Controller
                     'totalTelatDibayar' => 0,
                     'pelunasan30Hari' => 0,
                     'totalCanceled' => 0,
+                    'salesUsers' => collect(),
+                    'selectedSales' => null,
                 ]);
             }
         } else {
             $query->where('user_id', $user->id);
+        }
+
+        // Apply sales filter if selected
+        if ($request->filled('sales_id') && in_array($user->role, ['super_admin', 'admin', 'spectator'])) {
+            $query->where('user_id', $request->sales_id);
         }
 
         // Clone query untuk summary calculations (semua data)
@@ -68,7 +82,7 @@ class PenjualanController extends Controller
 
         // Paginated data untuk table display
         /** @var \Illuminate\Pagination\LengthAwarePaginator $penjualans */
-        $penjualans = $query->latest()->paginate(20);
+        $penjualans = $query->latest()->paginate(20)->appends($request->query());
         $penjualans->getCollection()->transform(function ($item) {
             $dateCode = $item->created_at->format('Ymd');
             $noUrutPadded = str_pad($item->no_urut_harian, 3, '0', STR_PAD_LEFT);
@@ -82,6 +96,8 @@ class PenjualanController extends Controller
             'totalTelatDibayar' => $totalTelatDibayar,
             'pelunasan30Hari' => $pelunasan30Hari,
             'totalCanceled' => $totalCanceled,
+            'salesUsers' => $salesUsers,
+            'selectedSales' => $request->sales_id,
         ]);
     }
 
@@ -813,6 +829,22 @@ class PenjualanController extends Controller
         $penjualan->save();
         return redirect()->route('penjualan.index')
             ->with('success', 'Penjualan ditandai LUNAS.');
+    }
+
+    public function unmarkAsPaid(Penjualan $penjualan)
+    {
+        if (Auth::user()->role !== 'super_admin') {
+            return back()->with('error', 'Akses ditolak. Hanya Super Admin yang dapat melakukan ini.');
+        }
+
+        if ($penjualan->status !== 'Lunas') {
+            return back()->with('error', 'Transaksi ini tidak dalam status Lunas.');
+        }
+
+        $penjualan->status = 'Approved';
+        $penjualan->save();
+        return redirect()->route('penjualan.index')
+            ->with('success', 'Status penjualan dikembalikan ke BELUM LUNAS (Approved).');
     }
 
     public function destroy(Penjualan $penjualan)

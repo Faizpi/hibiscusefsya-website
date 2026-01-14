@@ -73,6 +73,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('penjualan/{penjualan}/cancel', 'PenjualanController@cancel')->name('penjualan.cancel');
     Route::post('penjualan/{penjualan}/uncancel', 'PenjualanController@uncancel')->name('penjualan.uncancel');
     Route::post('penjualan/{penjualan}/mark-paid', 'PenjualanController@markAsPaid')->name('penjualan.markAsPaid');
+    Route::post('penjualan/{penjualan}/unmark-paid', 'PenjualanController@unmarkAsPaid')->name('penjualan.unmarkAsPaid');
     Route::delete('penjualan/{penjualan}/lampiran/{index}', 'PenjualanController@deleteLampiran')->name('penjualan.deleteLampiran');
     Route::resource('penjualan', 'PenjualanController');
 

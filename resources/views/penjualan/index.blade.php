@@ -93,7 +93,23 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">Daftar Penjualan</h6>
-            <span class="text-muted small">Total: {{ $penjualans->total() }} data</span>
+            <div class="d-flex align-items-center">
+                @if(in_array(auth()->user()->role, ['super_admin', 'admin', 'spectator']) && isset($salesUsers) && $salesUsers->count() > 0)
+                    <form method="GET" action="{{ route('penjualan.index') }}" class="mr-3">
+                        <div class="input-group input-group-sm">
+                            <select name="sales_id" class="form-control" onchange="this.form.submit()">
+                                <option value="">-- Semua Sales --</option>
+                                @foreach($salesUsers as $salesUser)
+                                    <option value="{{ $salesUser->id }}" {{ ($selectedSales ?? '') == $salesUser->id ? 'selected' : '' }}>
+                                        {{ $salesUser->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </form>
+                @endif
+                <span class="text-muted small">Total: {{ $penjualans->total() }} data</span>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -165,13 +181,14 @@
                                                     @endphp
 
                                                     @if($canApprove)
-                                                        <form action="{{ route('penjualan.approve', $item->id) }}" method="POST"
-                                                            class="d-inline">
-                                                            @csrf
-                                                            <button type="submit" class="dropdown-item">
-                                                                <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
-                                                            </button>
-                                                        </form>
+                                                        <button type="button" class="dropdown-item" data-toggle="modal"
+                                                            data-target="#approveModal"
+                                                            data-action="{{ route('penjualan.approve', $item->id) }}"
+                                                            data-nomor="{{ $item->custom_number ?? $item->id }}"
+                                                            data-pelanggan="{{ $item->pelanggan }}"
+                                                            data-total="Rp {{ number_format($item->grand_total, 0, ',', '.') }}">
+                                                            <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
+                                                        </button>
                                                     @endif
                                                 @endif
 
@@ -184,6 +201,15 @@
                                                             <i class="fas fa-dollar-sign fa-fw mr-2 text-primary"></i> Tandai Lunas
                                                         </button>
                                                     </form>
+                                                @endif
+
+                                                {{-- UNMARK PAID: Super Admin bisa kembalikan dari Lunas ke Approved --}}
+                                                @if($item->status == 'Lunas' && $role == 'super_admin')
+                                                    <button type="button" class="dropdown-item" data-toggle="modal"
+                                                        data-target="#unmarkPaidModal"
+                                                        data-action="{{ route('penjualan.unmarkAsPaid', $item->id) }}">
+                                                        <i class="fas fa-undo fa-fw mr-2 text-warning"></i> Kembalikan ke Belum Lunas
+                                                    </button>
                                                 @endif
 
                                                 {{-- CANCEL: Jika belum Canceled, hanya super_admin bisa cancel Approved/Lunas --}}
@@ -305,6 +331,66 @@
             </div>
         </div>
     </div>
+
+    {{-- Approve Modal --}}
+    <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-check-circle mr-2"></i>Konfirmasi Approve</h5>
+                    <button class="close text-white" type="button" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Apakah Anda yakin ingin <strong>menyetujui</strong> transaksi ini?</p>
+                    <table class="table table-sm table-borderless mb-0">
+                        <tr>
+                            <td width="100"><strong>Nomor</strong></td>
+                            <td>: <span id="approveNomor"></span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pelanggan</strong></td>
+                            <td>: <span id="approvePelanggan"></span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total</strong></td>
+                            <td>: <span id="approveTotal" class="font-weight-bold text-primary"></span></td>
+                        </tr>
+                    </table>
+                    <p class="text-muted mb-0 mt-2"><small>Pastikan data sudah benar sebelum menyetujui.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
+                    <form id="approveForm" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-success">Ya, Approve</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Unmark Paid Modal --}}
+    <div class="modal fade" id="unmarkPaidModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="fas fa-undo mr-2"></i>Kembalikan ke Belum Lunas</h5>
+                    <button class="close" type="button" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Apakah Anda yakin ingin <strong>mengembalikan status</strong> transaksi ini ke <strong>Belum Lunas (Approved)</strong>?</p>
+                    <p class="text-muted mb-0"><small>Transaksi akan dikembalikan ke status Approved dan perlu ditandai lunas kembali.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Tidak</button>
+                    <form id="unmarkPaidForm" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-warning">Ya, Kembalikan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -330,6 +416,26 @@
             var action = button.data('action');
             var modal = $(this);
             modal.find('#uncancelForm').attr('action', action);
+        });
+
+        $('#approveModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var action = button.data('action');
+            var nomor = button.data('nomor');
+            var pelanggan = button.data('pelanggan');
+            var total = button.data('total');
+            var modal = $(this);
+            modal.find('#approveForm').attr('action', action);
+            modal.find('#approveNomor').text(nomor);
+            modal.find('#approvePelanggan').text(pelanggan);
+            modal.find('#approveTotal').text(total);
+        });
+
+        $('#unmarkPaidModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var action = button.data('action');
+            var modal = $(this);
+            modal.find('#unmarkPaidForm').attr('action', action);
         });
 
         // ============ FIX DROPDOWN DI TABEL ============
