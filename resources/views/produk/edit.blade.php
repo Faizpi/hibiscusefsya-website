@@ -30,8 +30,8 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="harga">Harga Jual *</label>
-                                <input type="number" step="0.01" class="form-control @error('harga') is-invalid @enderror" id="harga"
-                                    name="harga" value="{{ old('harga', $produk->harga) }}" required>
+                                <input type="number" step="0.01" class="form-control @error('harga') is-invalid @enderror"
+                                    id="harga" name="harga" value="{{ old('harga', $produk->harga) }}" required>
                                 @error('harga')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
