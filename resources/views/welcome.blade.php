@@ -1,10 +1,27 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="id">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <!-- SEO Meta Tags -->
+        <title>Hibiscus Efsya</title>
+        <meta name="description" content="Kami adalah perusahaan yang bergerak di berbagai bidang usaha dengan fokus pada pengembangan kemitraan dan franchise yang menguntungkan. Bergerak di bidang Body Care, Fashion, Travel, dan Technology.">
+        <meta name="keywords" content="Hibiscus Efsya, Body Care, Fashion, Travel, Technology, Franchise, Kemitraan, Bisnis">
+        <meta name="author" content="Hibiscus Efsya">
+        <meta name="robots" content="index, follow">
+        
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="Hibiscus Efsya">
+        <meta property="og:description" content="Kami adalah perusahaan yang bergerak di berbagai bidang usaha dengan fokus pada pengembangan kemitraan dan franchise yang menguntungkan. Bergerak di bidang Body Care, Fashion, Travel, dan Technology.">
+        <meta property="og:site_name" content="Hibiscus Efsya">
+        <meta property="og:locale" content="id_ID">
+        
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Hibiscus Efsya">
+        <meta name="twitter:description" content="Kami adalah perusahaan yang bergerak di berbagai bidang usaha dengan fokus pada pengembangan kemitraan dan franchise yang menguntungkan. Bergerak di bidang Body Care, Fashion, Travel, dan Technology.">
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;600&display=swap" rel="stylesheet">

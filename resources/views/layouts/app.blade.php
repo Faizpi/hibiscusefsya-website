@@ -1,16 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <!-- SEO Meta Tags -->
     <title>Hibiscus Efsya</title>
+    <meta name="description" content="Kami adalah perusahaan yang bergerak di berbagai bidang usaha dengan fokus pada pengembangan kemitraan dan franchise yang menguntungkan. Bergerak di bidang Body Care, Fashion, Travel, dan Technology.">
+    <meta name="keywords" content="Hibiscus Efsya, Body Care, Fashion, Travel, Technology, Franchise, Kemitraan, Bisnis">
+    <meta name="author" content="Hibiscus Efsya">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:title" content="Hibiscus Efsya">
+    <meta property="og:description" content="Kami adalah perusahaan yang bergerak di berbagai bidang usaha dengan fokus pada pengembangan kemitraan dan franchise yang menguntungkan. Bergerak di bidang Body Care, Fashion, Travel, dan Technology.">
+    <meta property="og:image" content="{{ asset('assets/img/logoHE1.png') }}">
+    <meta property="og:site_name" content="Hibiscus Efsya">
+    <meta property="og:locale" content="id_ID">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ url('/') }}">
+    <meta name="twitter:title" content="Hibiscus Efsya">
+    <meta name="twitter:description" content="Kami adalah perusahaan yang bergerak di berbagai bidang usaha dengan fokus pada pengembangan kemitraan dan franchise yang menguntungkan. Bergerak di bidang Body Care, Fashion, Travel, dan Technology.">
+    <meta name="twitter:image" content="{{ asset('assets/img/logoHE1.png') }}">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon-rounded.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/img/favicon-rounded.png') }}">
+    <link rel="canonical" href="{{ url('/') }}">
 
     <link href="{{ asset('template/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
