@@ -1,21 +1,2 @@
 User-agent: *
-Disallow: /dashboard
-Disallow: /home
-Disallow: /produk
-Disallow: /kontak
-Disallow: /penjualan
-Disallow: /pembelian
-Disallow: /stok
-Disallow: /users
-Disallow: /gudang
-Disallow: /biaya
-Disallow: /kunjungan
-Disallow: /pembayaran
-Disallow: /penerimaan-barang
-Disallow: /admin-gudang
-Disallow: /reports
-
-Allow: /login
-Allow: /invoice/
-
-Sitemap: https://hibiscusefsya.com/sitemap.xml
+Disallow:
