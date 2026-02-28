@@ -52,6 +52,22 @@
                                         <td>:</td>
                                         <td>{{ $kontak->no_telp ?? '-' }}</td>
                                     </tr>
+                                    <tr>
+                                        <td><strong>PIN</strong></td>
+                                        <td>:</td>
+                                        <td>
+                                            @if($kontak->pin)
+                                                <span id="pin-masked">******</span>
+                                                <span id="pin-value" style="display:none;">{{ $kontak->pin }}</span>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary ml-1"
+                                                    onclick="togglePin()" style="font-size:0.7rem; padding:1px 6px;">
+                                                    <i id="pin-icon" class="fas fa-eye"></i>
+                                                </button>
+                                            @else
+                                                <span class="text-muted">Belum diatur</span>
+                                            @endif
+                                        </td>
+                                    </tr>
                                 </table>
                             </div>
                             <div class="col-md-6">
@@ -133,4 +149,23 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function togglePin() {
+            var masked = document.getElementById('pin-masked');
+            var value = document.getElementById('pin-value');
+            var icon = document.getElementById('pin-icon');
+            if (masked.style.display !== 'none') {
+                masked.style.display = 'none';
+                value.style.display = 'inline';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                masked.style.display = 'inline';
+                value.style.display = 'none';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 @endsection

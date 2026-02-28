@@ -19,7 +19,7 @@ Auth::routes();
 
 // ========================================================================
 // CUSTOMER PORTAL (Login via No Telp + PIN)
-// URL: sales.hibiscusefsya.com/customer
+// Akses via: sales.hibiscusefsya.com/customer ATAU customer.hibiscusefsya.com
 // ========================================================================
 Route::prefix('customer')->name('customer.')->group(function () {
     Route::get('/', 'CustomerPortalController@loginForm')->name('login');
@@ -33,6 +33,9 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::get('history/{id}', 'CustomerPortalController@historyDetail')->name('history.detail');
     });
 });
+
+// Subdomain customer.hibiscusefsya.com
+// Handling via CustomerSubdomainRedirect middleware -> redirect ke /customer/* prefix routes
 
 // ========================================================================
 // PUBLIC ROUTES (Tanpa Login) - Untuk QR Code Invoice
