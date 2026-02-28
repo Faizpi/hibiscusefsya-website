@@ -18,6 +18,23 @@ Route::get('/', function () {
 Auth::routes();
 
 // ========================================================================
+// CUSTOMER PORTAL (Login via No Telp + PIN)
+// Subdomain: customer.hibiscusefsya.com
+// ========================================================================
+Route::domain('customer.hibiscusefsya.com')->name('customer.')->group(function () {
+    Route::get('/', 'CustomerPortalController@loginForm')->name('login');
+    Route::get('login', 'CustomerPortalController@loginForm');
+    Route::post('login', 'CustomerPortalController@login')->name('login.submit');
+    Route::post('logout', 'CustomerPortalController@logout')->name('logout');
+
+    Route::middleware(['customer.auth'])->group(function () {
+        Route::get('dashboard', 'CustomerPortalController@dashboard')->name('dashboard');
+        Route::get('history', 'CustomerPortalController@history')->name('history');
+        Route::get('history/{id}', 'CustomerPortalController@historyDetail')->name('history.detail');
+    });
+});
+
+// ========================================================================
 // PUBLIC ROUTES (Tanpa Login) - Untuk QR Code Invoice
 // Security: Menggunakan UUID bukan ID untuk prevent enumeration attack
 // ========================================================================
