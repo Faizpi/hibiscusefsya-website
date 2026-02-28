@@ -115,7 +115,7 @@
 @push('styles')
     <style>
         .page-header {
-            margin-bottom: 28px;
+            margin-bottom: 40px;
             padding-top: 8px;
         }
 
