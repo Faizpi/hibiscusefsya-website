@@ -9,11 +9,10 @@ use Illuminate\Http\Request;
 class CustomerPortalController extends Controller
 {
     /**
-     * Tampilkan halaman login customer
+     * Tampilkan halaman login customer (step 1: no telp)
      */
     public function loginForm()
     {
-        // Jika sudah login, redirect ke dashboard
         if (session('customer_id')) {
             return redirect()->route('customer.dashboard');
         }
@@ -22,7 +21,32 @@ class CustomerPortalController extends Controller
     }
 
     /**
-     * Proses login customer via no_telp + pin
+     * Step 1: Validasi no telp, tampilkan form PIN
+     */
+    public function checkPhone(Request $request)
+    {
+        $request->validate([
+            'no_telp' => 'required|string',
+        ]);
+
+        $kontak = Kontak::where('no_telp', $request->no_telp)->first();
+
+        if (!$kontak) {
+            return back()->with('error', 'Nomor telepon tidak terdaftar.')->withInput();
+        }
+
+        if (empty($kontak->pin)) {
+            return back()->with('error', 'Akun belum diaktifkan. Hubungi sales untuk mengatur PIN.')->withInput();
+        }
+
+        return view('customer.pin', [
+            'no_telp' => $request->no_telp,
+            'nama' => $kontak->nama,
+        ]);
+    }
+
+    /**
+     * Step 2: Proses login via PIN
      */
     public function login(Request $request)
     {
@@ -36,31 +60,29 @@ class CustomerPortalController extends Controller
             ->first();
 
         if (!$kontak) {
-            return back()->with('error', 'No. Telepon atau PIN salah.')->withInput(['no_telp' => $request->no_telp]);
+            return view('customer.pin', [
+                'no_telp' => $request->no_telp,
+                'nama' => Kontak::where('no_telp', $request->no_telp)->value('nama') ?? '',
+                'error' => 'PIN yang Anda masukkan salah.',
+            ]);
         }
 
-        if (empty($kontak->pin)) {
-            return back()->with('error', 'Akun belum diaktifkan. Hubungi admin untuk mengatur PIN.')->withInput(['no_telp' => $request->no_telp]);
-        }
-
-        // Set session
         session([
             'customer_id' => $kontak->id,
             'customer_no_telp' => $kontak->no_telp,
             'customer_nama' => $kontak->nama,
         ]);
 
-        return redirect()->route('customer.dashboard')->with('success', 'Selamat datang, ' . $kontak->nama . '!');
+        return redirect()->route('customer.dashboard');
     }
 
     /**
-     * Customer dashboard - data kontak + diskon
+     * Customer dashboard
      */
     public function dashboard()
     {
         $kontak = Kontak::findOrFail(session('customer_id'));
 
-        // Hitung total transaksi
         $totalTransaksi = Penjualan::where('pelanggan', $kontak->nama)
             ->whereIn('status', ['Approved', 'Lunas'])
             ->count();
@@ -83,7 +105,6 @@ class CustomerPortalController extends Controller
             ->with(['items.produk', 'gudang'])
             ->whereIn('status', ['Approved', 'Lunas', 'Pending']);
 
-        // Filter tanggal
         if ($request->filled('dari')) {
             $query->whereDate('tgl_transaksi', '>=', $request->dari);
         }

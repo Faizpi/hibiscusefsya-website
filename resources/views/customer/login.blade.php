@@ -3,113 +3,191 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Login - Hibiscus Efsya Customer Portal</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Login - Hibiscus Efsya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --primary: #e91e63; --primary-dark: #c2185b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #f48fb1 100%);
+            font-family: 'Inter', sans-serif;
+            background: #f0f4f8;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 24px;
         }
-        .login-card {
-            max-width: 420px;
+        .login-container {
             width: 100%;
-            border: none;
+            max-width: 900px;
+            background: #fff;
             border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
             overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            display: flex;
+            min-height: 420px;
         }
-        .login-header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        .login-left {
+            flex: 1;
+            background: #1e40af;
             color: #fff;
-            padding: 2rem;
-            text-align: center;
+            padding: 48px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-        .login-header h3 { font-weight: 700; margin-bottom: 0.3rem; }
-        .login-header p { opacity: 0.85; margin-bottom: 0; font-size: 0.9rem; }
-        .login-body { padding: 2rem; }
-        .login-icon {
-            width: 70px; height: 70px; border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 1rem;
+        .login-left h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 16px;
         }
-        .btn-login {
-            background: var(--primary); border-color: var(--primary);
-            color: #fff; font-weight: 600; padding: 0.7rem;
-            font-size: 1rem; border-radius: 8px;
+        .login-left p {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.6;
         }
-        .btn-login:hover { background: var(--primary-dark); border-color: var(--primary-dark); color: #fff; }
-        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 0.2rem rgba(233,30,99,0.25); }
-        .input-group-text { background: #fce4ec; border-color: #ddd; color: var(--primary); }
+        .login-left .brand {
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 32px;
+        }
+        .login-right {
+            flex: 1;
+            padding: 48px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .login-right h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .login-right .subtitle {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 28px;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+        .phone-input {
+            display: flex;
+            align-items: center;
+            border: 1.5px solid #d1d5db;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .phone-input:focus-within {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+        .phone-prefix {
+            background: #f9fafb;
+            padding: 12px 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            border-right: 1.5px solid #d1d5db;
+            white-space: nowrap;
+        }
+        .phone-input input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 12px 14px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            color: #1f2937;
+            background: transparent;
+        }
+        .phone-input input::placeholder { color: #9ca3af; }
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 10px;
+            background: #1e40af;
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 24px;
+        }
+        .btn-submit:hover { background: #1d4ed8; }
+        .btn-submit:active { background: #1e3a8a; }
+        .alert {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            margin-bottom: 20px;
+        }
+        .alert-danger {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .alert-success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        @media (max-width: 640px) {
+            body { padding: 16px; }
+            .login-container {
+                flex-direction: column;
+                max-width: 440px;
+            }
+            .login-left {
+                padding: 32px 28px 28px;
+            }
+            .login-left h2 { font-size: 1.35rem; }
+            .login-left .brand { margin-bottom: 20px; }
+            .login-right { padding: 28px; }
+        }
     </style>
 </head>
 <body>
-    <div class="card login-card">
-        <div class="login-header">
-            <div class="login-icon">
-                <i class="fas fa-user fa-2x"></i>
-            </div>
-            <h3>Portal Customer</h3>
-            <p>Hibiscus Efsya</p>
+    <div class="login-container">
+        <div class="login-left">
+            <div class="brand">Hibiscus Efsya</div>
+            <h2>Selamat Datang di Portal Customer</h2>
+            <p>Pantau seluruh riwayat transaksi pembelian Anda di sini. Login dengan nomor telepon yang terdaftar untuk mengakses akun Anda.</p>
         </div>
-        <div class="login-body">
+        <div class="login-right">
+            <h3>Masukkan Nomor HP</h3>
+            <div class="subtitle">Gunakan nomor yang terdaftar di Hibiscus Efsya</div>
+
             @if(session('error'))
-                <div class="alert alert-danger py-2 small">
-                    <i class="fas fa-exclamation-circle mr-1"></i> {{ session('error') }}
-                </div>
+                <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
             @if(session('success'))
-                <div class="alert alert-success py-2 small">
-                    <i class="fas fa-check-circle mr-1"></i> {{ session('success') }}
-                </div>
+                <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            <form method="POST" action="{{ route('customer.login.submit') }}">
+            <form method="POST" action="{{ route('customer.check.phone') }}">
                 @csrf
-                <div class="form-group">
-                    <label class="font-weight-bold small">No. Telepon</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                        </div>
-                        <input type="text" name="no_telp" class="form-control" 
-                               placeholder="Masukkan no. telepon"
-                               value="{{ old('no_telp') }}" required autofocus>
-                    </div>
-                    @error('no_telp')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
+                <label class="form-label">Nomor Telepon</label>
+                <div class="phone-input">
+                    <span class="phone-prefix">+62</span>
+                    <input type="tel" name="no_telp" placeholder="Masukkan nomor HP di sini"
+                           value="{{ old('no_telp') }}" required autofocus
+                           inputmode="numeric" autocomplete="tel">
                 </div>
-                <div class="form-group">
-                    <label class="font-weight-bold small">PIN (6 digit)</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fas fa-key"></i></span>
-                        </div>
-                        <input type="password" name="pin" class="form-control" 
-                               placeholder="Masukkan PIN 6 digit"
-                               maxlength="6" required>
-                    </div>
-                    @error('pin')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-                <button type="submit" class="btn btn-login btn-block mt-4">
-                    <i class="fas fa-sign-in-alt mr-1"></i> Masuk
-                </button>
+                <button type="submit" class="btn-submit">Login</button>
             </form>
-
-            <div class="text-center mt-3">
-                <small class="text-muted">
-                    Hubungi admin untuk mendapatkan akun customer.
-                </small>
-            </div>
         </div>
     </div>
 </body>

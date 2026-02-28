@@ -24,6 +24,7 @@ Auth::routes();
 Route::prefix('customer')->name('customer.')->group(function () {
     Route::get('/', 'CustomerPortalController@loginForm')->name('login');
     Route::get('login', 'CustomerPortalController@loginForm');
+    Route::post('check-phone', 'CustomerPortalController@checkPhone')->name('check.phone');
     Route::post('login', 'CustomerPortalController@login')->name('login.submit');
     Route::post('logout', 'CustomerPortalController@logout')->name('logout');
 
