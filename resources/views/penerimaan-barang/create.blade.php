@@ -192,14 +192,17 @@
                                 <thead class="thead-light">
                                     <tr>
                                         <th width="8%">Kode</th>
-                                        <th width="20%">Nama Produk</th>
-                                        <th width="12%">Invoice</th>
-                                        <th width="6%">Satuan</th>
-                                        <th width="8%" class="text-center">Qty Pesan</th>
-                                        <th width="8%" class="text-center">Sudah Diterima</th>
-                                        <th width="8%" class="text-center">Sisa</th>
-                                        <th width="15%">Qty Diterima *</th>
-                                        <th width="15%">Qty Reject</th>
+                                        <th width="14%">Nama Produk</th>
+                                        <th width="10%">Invoice</th>
+                                        <th width="5%">Satuan</th>
+                                        <th width="5%" class="text-center">Pesan</th>
+                                        <th width="5%" class="text-center">Diterima</th>
+                                        <th width="5%" class="text-center">Sisa</th>
+                                        <th width="10%">Qty Diterima *</th>
+                                        <th width="8%">Qty Reject</th>
+                                        <th width="10%">Tipe Stok *</th>
+                                        <th width="10%">Batch</th>
+                                        <th width="10%">Expired</th>
                                     </tr>
                                 </thead>
                                 <tbody id="items-body">
@@ -210,6 +213,7 @@
                                         <td colspan="7" class="text-right">Total Qty Diterima / Reject:</td>
                                         <td class="text-success" id="total-qty-diterima">0</td>
                                         <td class="text-danger" id="total-qty-reject">0</td>
+                                        <td colspan="3"></td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -420,6 +424,21 @@
                         html += '<input type="number" class="form-control form-control-sm qty-input qty-reject" ';
                         html += 'name="items[' + item.index + '][qty_reject]" value="0" ';
                         html += 'min="0" max="' + item.qty_sisa + '" data-max="' + item.qty_sisa + '">';
+                        html += '</td>';
+                        html += '<td>';
+                        html += '<select class="form-control form-control-sm" name="items[' + item.index + '][tipe_stok]">';
+                        html += '<option value="penjualan" selected>Penjualan</option>';
+                        html += '<option value="gratis">Gratis</option>';
+                        html += '<option value="sample">Sample</option>';
+                        html += '</select>';
+                        html += '</td>';
+                        html += '<td>';
+                        html += '<input type="text" class="form-control form-control-sm" ';
+                        html += 'name="items[' + item.index + '][batch_number]" placeholder="No. Batch">';
+                        html += '</td>';
+                        html += '<td>';
+                        html += '<input type="date" class="form-control form-control-sm" ';
+                        html += 'name="items[' + item.index + '][expired_date]">';
                         html += '</td>';
                         html += '</tr>';
                     });

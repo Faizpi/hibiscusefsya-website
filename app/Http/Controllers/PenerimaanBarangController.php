@@ -193,6 +193,9 @@ class PenerimaanBarangController extends Controller
             'items.*.produk_id' => 'required|exists:produks,id',
             'items.*.qty_diterima' => 'required|integer|min:0',
             'items.*.qty_reject' => 'nullable|integer|min:0',
+            'items.*.tipe_stok' => 'nullable|in:penjualan,gratis,sample',
+            'items.*.batch_number' => 'nullable|string|max:100',
+            'items.*.expired_date' => 'nullable|date',
         ]);
 
         // Validasi akses gudang
@@ -307,18 +310,22 @@ class PenerimaanBarangController extends Controller
                 foreach ($pembelianItems as $item) {
                     $qtyDiterima = $item['qty_diterima'] ?? 0;
                     $qtyReject = $item['qty_reject'] ?? 0;
+                    $tipeStok = $item['tipe_stok'] ?? 'penjualan';
 
                     PenerimaanBarangItem::create([
                         'penerimaan_barang_id' => $penerimaan->id,
                         'produk_id' => $item['produk_id'],
                         'qty_diterima' => $qtyDiterima,
                         'qty_reject' => $qtyReject,
+                        'tipe_stok' => $tipeStok,
+                        'batch_number' => $item['batch_number'] ?? null,
+                        'expired_date' => $item['expired_date'] ?? null,
                         'keterangan' => $item['keterangan'] ?? null,
                     ]);
 
                     // Jika langsung approved, tambahkan stok (HANYA qty_diterima, bukan qty_reject)
                     if ($initialStatus === 'Approved' && $qtyDiterima > 0) {
-                        $this->tambahStok($gudangId, $item['produk_id'], $qtyDiterima);
+                        $this->tambahStok($gudangId, $item['produk_id'], $qtyDiterima, $tipeStok);
                     }
                 }
 
@@ -385,7 +392,7 @@ class PenerimaanBarangController extends Controller
             // Tambahkan stok untuk setiap item (HANYA qty_diterima, bukan qty_reject)
             foreach ($penerimaan_barang->items as $item) {
                 if ($item->qty_diterima > 0) {
-                    $this->tambahStok($penerimaan_barang->gudang_id, $item->produk_id, $item->qty_diterima);
+                    $this->tambahStok($penerimaan_barang->gudang_id, $item->produk_id, $item->qty_diterima, $item->tipe_stok ?? 'penjualan');
                 }
             }
 
@@ -420,7 +427,7 @@ class PenerimaanBarangController extends Controller
             try {
                 // Kurangi stok
                 foreach ($penerimaan_barang->items as $item) {
-                    $this->kurangiStok($penerimaan_barang->gudang_id, $item->produk_id, $item->qty_diterima);
+                    $this->kurangiStok($penerimaan_barang->gudang_id, $item->produk_id, $item->qty_diterima, $item->tipe_stok ?? 'penjualan');
                 }
 
                 $penerimaan_barang->status = 'Canceled';
@@ -471,7 +478,7 @@ class PenerimaanBarangController extends Controller
             DB::beginTransaction();
             try {
                 foreach ($penerimaan_barang->items as $item) {
-                    $this->kurangiStok($penerimaan_barang->gudang_id, $item->produk_id, $item->qty_diterima);
+                    $this->kurangiStok($penerimaan_barang->gudang_id, $item->produk_id, $item->qty_diterima, $item->tipe_stok ?? 'penjualan');
                 }
                 DB::commit();
             } catch (\Exception $e) {
@@ -563,22 +570,31 @@ class PenerimaanBarangController extends Controller
     }
 
     /**
-     * Helper: Tambah stok di gudang
+     * Helper: Tambah stok di gudang berdasarkan tipe
      */
-    private function tambahStok($gudangId, $produkId, $qty)
+    private function tambahStok($gudangId, $produkId, $qty, $tipeStok = 'penjualan')
     {
         $gp = GudangProduk::firstOrCreate(
             ['gudang_id' => $gudangId, 'produk_id' => $produkId],
-            ['stok' => 0]
+            ['stok' => 0, 'stok_penjualan' => 0, 'stok_gratis' => 0, 'stok_sample' => 0]
         );
         $gp->stok += $qty;
+
+        // Tambah ke kolom tipe stok yang sesuai
+        $kolom = 'stok_' . $tipeStok;
+        if (in_array($kolom, ['stok_penjualan', 'stok_gratis', 'stok_sample'])) {
+            $gp->$kolom += $qty;
+        } else {
+            $gp->stok_penjualan += $qty;
+        }
+
         $gp->save();
     }
 
     /**
-     * Helper: Kurangi stok di gudang
+     * Helper: Kurangi stok di gudang berdasarkan tipe
      */
-    private function kurangiStok($gudangId, $produkId, $qty)
+    private function kurangiStok($gudangId, $produkId, $qty, $tipeStok = 'penjualan')
     {
         $gp = GudangProduk::where('gudang_id', $gudangId)
             ->where('produk_id', $produkId)
@@ -586,6 +602,15 @@ class PenerimaanBarangController extends Controller
 
         if ($gp) {
             $gp->stok = max(0, $gp->stok - $qty);
+
+            // Kurangi dari kolom tipe stok yang sesuai
+            $kolom = 'stok_' . $tipeStok;
+            if (in_array($kolom, ['stok_penjualan', 'stok_gratis', 'stok_sample'])) {
+                $gp->$kolom = max(0, $gp->$kolom - $qty);
+            } else {
+                $gp->stok_penjualan = max(0, $gp->stok_penjualan - $qty);
+            }
+
             $gp->save();
         }
     }

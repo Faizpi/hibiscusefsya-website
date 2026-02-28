@@ -13,7 +13,14 @@ class PenerimaanBarangItem extends Model
         'produk_id',
         'qty_diterima',
         'qty_reject',
+        'tipe_stok',
+        'batch_number',
+        'expired_date',
         'keterangan',
+    ];
+
+    protected $casts = [
+        'expired_date' => 'date',
     ];
 
     public function penerimaanBarang()
