@@ -141,6 +141,7 @@
             font-size: 0.95rem;
             color: #6b7280;
             margin: 0;
+            padding-bottom: 4px;
             line-height: 1.5;
         }
 
