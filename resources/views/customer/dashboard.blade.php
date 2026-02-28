@@ -55,13 +55,8 @@
                         <td class="profile-value">{{ $kontak->email ?? '-' }}</td>
                     </tr>
                     <tr>
-                        <td class="profile-label">Alamat</td>
-                        <td class="profile-value">{{ $kontak->alamat ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="profile-label" style="border-bottom: none;">Diskon Bawaan</td>
-                        <td class="profile-value" style="border-bottom: none;"><span
-                                class="badge badge-info">{{ $kontak->diskon_persen ?? 0 }}%</span></td>
+                        <td class="profile-label" style="border-bottom: none;">Alamat</td>
+                        <td class="profile-value" style="border-bottom: none;">{{ $kontak->alamat ?? '-' }}</td>
                     </tr>
                 </table>
             </div>
