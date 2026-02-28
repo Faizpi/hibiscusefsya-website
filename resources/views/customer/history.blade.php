@@ -134,14 +134,14 @@
             font-size: 1.35rem;
             font-weight: 700;
             color: #111827;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .page-subtitle {
             font-size: 0.95rem;
             color: #6b7280;
             margin: 0;
-            padding-bottom: 4px;
+            padding-bottom: 12px;
             line-height: 1.5;
         }
 
