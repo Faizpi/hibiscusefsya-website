@@ -141,7 +141,6 @@ class Kunjungan extends Model
     const TUJUAN_OPTIONS = [
         'Pemeriksaan Stock',
         'Penagihan',
-        'Penawaran',
         'Promo',
     ];
 }

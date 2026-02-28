@@ -699,7 +699,6 @@
                                 <option value="">Semua Tujuan</option>
                                 <option value="Pemeriksaan Stock">Pemeriksaan Stock</option>
                                 <option value="Penagihan">Penagihan</option>
-                                <option value="Penawaran">Penawaran</option>
                                 <option value="Promo">Promo</option>
                             </select>
                             <small class="text-muted">*Hanya berlaku saat tipe transaksi = Kunjungan</small>
