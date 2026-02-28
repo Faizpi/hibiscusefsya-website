@@ -66,7 +66,8 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <a href="{{ route('customer.history.detail', $trx->id) }}" class="btn btn-outline btn-icon btn-sm" title="Detail">
+                                    <a href="{{ route('customer.history.detail', $trx->id) }}"
+                                        class="btn btn-outline btn-icon btn-sm" title="Detail">
                                         Detail
                                     </a>
                                 </td>
@@ -85,7 +86,8 @@
                         <div class="mobile-trx-top">
                             <div>
                                 <div class="mobile-trx-number">{{ $trx->number }}</div>
-                                <div class="mobile-trx-date">{{ $trx->tgl_transaksi ? $trx->tgl_transaksi->format('d M Y') : '-' }}</div>
+                                <div class="mobile-trx-date">{{ $trx->tgl_transaksi ? $trx->tgl_transaksi->format('d M Y') : '-' }}
+                                </div>
                             </div>
                             @if($trx->status == 'Lunas')
                                 <span class="badge badge-success">Lunas</span>
@@ -98,7 +100,8 @@
                             @endif
                         </div>
                         <div class="mobile-trx-bottom">
-                            <span class="mobile-trx-meta">{{ $trx->gudang->nama_gudang ?? '-' }} &middot; {{ $trx->items->count() }} produk</span>
+                            <span class="mobile-trx-meta">{{ $trx->gudang->nama_gudang ?? '-' }} &middot; {{ $trx->items->count() }}
+                                produk</span>
                             <span class="mobile-trx-total">Rp {{ number_format($trx->grand_total ?? 0, 0, ',', '.') }}</span>
                         </div>
                     </div>
@@ -121,56 +124,154 @@
 @endsection
 
 @push('styles')
-<style>
-    .page-header { margin-bottom: 24px; }
-    .page-title { font-size: 1.35rem; font-weight: 700; color: #111827; margin-bottom: 4px; }
-    .page-subtitle { font-size: 0.95rem; color: #6b7280; margin: 0; }
+    <style>
+        .page-header {
+            margin-bottom: 28px;
+            padding-top: 8px;
+        }
 
-    .filter-card { margin-bottom: 20px; }
-    .filter-form { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
-    .filter-field { flex: 1; min-width: 140px; }
-    .filter-label {
-        display: block;
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: #6b7280;
-        margin-bottom: 6px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .filter-input {
-        width: 100%;
-        padding: 10px 14px;
-        border: 1.5px solid #d1d5db;
-        border-radius: 10px;
-        font-size: 0.9rem;
-        font-family: 'Poppins', sans-serif;
-        color: #374151;
-        outline: none;
-        background: rgba(255,255,255,0.6);
-        transition: border-color 0.2s;
-    }
-    .filter-input:focus { border-color: #2563eb; }
-    .filter-actions { display: flex; gap: 8px; }
+        .page-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+        }
 
-    .mobile-cards { display: none; }
-    .mobile-trx-card { display: block; text-decoration: none; color: inherit; margin-bottom: 12px; }
-    .mobile-trx-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-    .mobile-trx-number { font-size: 0.95rem; font-weight: 600; color: #111827; }
-    .mobile-trx-date { font-size: 0.8rem; color: #6b7280; margin-top: 3px; }
-    .mobile-trx-bottom { display: flex; justify-content: space-between; align-items: center; }
-    .mobile-trx-meta { font-size: 0.82rem; color: #6b7280; }
-    .mobile-trx-total { font-size: 1rem; font-weight: 700; color: #111827; }
+        .page-subtitle {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin: 0;
+            line-height: 1.5;
+        }
 
-    .empty-state-lg { text-align: center; padding: 52px 20px; }
-    .empty-title { font-size: 1.05rem; font-weight: 600; color: #6b7280; margin-bottom: 6px; }
-    .empty-desc { font-size: 0.9rem; color: #9ca3af; }
+        .filter-card {
+            margin-bottom: 20px;
+        }
 
-    @media (max-width: 768px) {
-        .desktop-table { display: none; }
-        .mobile-cards { display: block; }
-        .filter-form { flex-direction: column; }
-        .filter-field { min-width: 100%; }
-    }
-</style>
+        .filter-form {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-field {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .filter-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: 'Poppins', sans-serif;
+            color: #374151;
+            outline: none;
+            background: rgba(255, 255, 255, 0.6);
+            transition: border-color 0.2s;
+        }
+
+        .filter-input:focus {
+            border-color: #2563eb;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mobile-cards {
+            display: none;
+        }
+
+        .mobile-trx-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            margin-bottom: 12px;
+        }
+
+        .mobile-trx-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .mobile-trx-number {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .mobile-trx-date {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 3px;
+        }
+
+        .mobile-trx-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mobile-trx-meta {
+            font-size: 0.82rem;
+            color: #6b7280;
+        }
+
+        .mobile-trx-total {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .empty-state-lg {
+            text-align: center;
+            padding: 52px 20px;
+        }
+
+        .empty-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+
+        .empty-desc {
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        @media (max-width: 768px) {
+            .desktop-table {
+                display: none;
+            }
+
+            .mobile-cards {
+                display: block;
+            }
+
+            .filter-form {
+                flex-direction: column;
+            }
+
+            .filter-field {
+                min-width: 100%;
+            }
+        }
+    </style>
 @endpush

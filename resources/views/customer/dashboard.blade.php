@@ -60,7 +60,8 @@
                     </tr>
                     <tr>
                         <td class="profile-label" style="border-bottom: none;">Diskon Bawaan</td>
-                        <td class="profile-value" style="border-bottom: none;"><span class="badge badge-info">{{ $kontak->diskon_persen ?? 0 }}%</span></td>
+                        <td class="profile-value" style="border-bottom: none;"><span
+                                class="badge badge-info">{{ $kontak->diskon_persen ?? 0 }}%</span></td>
                     </tr>
                 </table>
             </div>
@@ -112,73 +113,122 @@
 @endsection
 
 @push('styles')
-<style>
-    .page-header { margin-bottom: 28px; }
-    .page-title { font-size: 1.35rem; font-weight: 700; color: #111827; margin-bottom: 4px; }
-    .page-subtitle { font-size: 0.95rem; color: #6b7280; margin: 0; }
+    <style>
+        .page-header {
+            margin-bottom: 28px;
+            padding-top: 8px;
+        }
 
-    .stat-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-        margin-bottom: 28px;
-    }
-    .stat-card .card-body { padding: 18px 20px; }
-    .stat-label {
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 8px;
-    }
-    .stat-value { font-size: 1.2rem; font-weight: 700; color: #111827; }
+        .page-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+        }
 
-    .content-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-    }
+        .page-subtitle {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin: 0;
+            line-height: 1.5;
+        }
 
-    .profile-label {
-        padding: 14px 22px;
-        color: #6b7280;
-        font-size: 0.9rem;
-        width: 35%;
-        border-bottom: 1px solid #f3f4f6;
-    }
-    .profile-value {
-        padding: 14px 22px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        border-bottom: 1px solid #f3f4f6;
-    }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
 
-    .trx-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 14px 22px;
-        text-decoration: none;
-        color: inherit;
-        border-bottom: 1px solid #f3f4f6;
-        transition: background 0.15s;
-    }
-    .trx-item:hover { background: #f9fafb; }
-    .trx-number { font-size: 0.9rem; font-weight: 600; color: #111827; }
-    .trx-date { font-size: 0.8rem; color: #6b7280; margin-top: 2px; }
-    .trx-amount { font-size: 0.9rem; font-weight: 600; color: #111827; margin-bottom: 4px; }
+        .stat-card .card-body {
+            padding: 18px 20px;
+        }
 
-    .empty-state {
-        text-align: center;
-        padding: 44px 20px;
-        color: #9ca3af;
-        font-size: 0.9rem;
-    }
+        .stat-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
 
-    @media (max-width: 768px) {
-        .stat-grid { grid-template-columns: repeat(2, 1fr); }
-        .content-grid { grid-template-columns: 1fr; }
-    }
-</style>
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .profile-label {
+            padding: 14px 22px;
+            color: #6b7280;
+            font-size: 0.9rem;
+            width: 35%;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .profile-value {
+            padding: 14px 22px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .trx-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 22px;
+            text-decoration: none;
+            color: inherit;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background 0.15s;
+        }
+
+        .trx-item:hover {
+            background: #f9fafb;
+        }
+
+        .trx-number {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .trx-date {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .trx-amount {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 44px 20px;
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 @endpush

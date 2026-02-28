@@ -34,7 +34,8 @@
                     </tr>
                     <tr>
                         <td class="info-label">Tanggal</td>
-                        <td class="info-value">{{ $penjualan->tgl_transaksi ? $penjualan->tgl_transaksi->format('d/m/Y') : '-' }}</td>
+                        <td class="info-value">
+                            {{ $penjualan->tgl_transaksi ? $penjualan->tgl_transaksi->format('d/m/Y') : '-' }}</td>
                     </tr>
                     <tr>
                         <td class="info-label">Gudang</td>
@@ -82,9 +83,11 @@
                             @endphp
                             <tr>
                                 <td>
-                                    <div class="font-bold" style="color: #111827;">{{ $item->produk->nama_produk ?? $item->deskripsi ?? '-' }}</div>
+                                    <div class="font-bold" style="color: #111827;">
+                                        {{ $item->produk->nama_produk ?? $item->deskripsi ?? '-' }}</div>
                                     @if($item->produk && $item->produk->item_code)
-                                        <div style="font-size: 0.78rem; color: #9ca3af; margin-top: 2px;">{{ $item->produk->item_code }}</div>
+                                        <div style="font-size: 0.78rem; color: #9ca3af; margin-top: 2px;">
+                                            {{ $item->produk->item_code }}</div>
                                     @endif
                                 </td>
                                 <td class="text-center">{{ $item->kuantitas ?? 0 }}</td>
@@ -108,17 +111,22 @@
                     <tfoot>
                         <tr>
                             <td colspan="5" class="text-right" style="color: #6b7280; padding: 12px 18px;">Subtotal</td>
-                            <td class="text-right" style="padding: 12px 18px;">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                            <td class="text-right" style="padding: 12px 18px;">Rp
+                                {{ number_format($subtotal, 0, ',', '.') }}</td>
                         </tr>
                         @if(($penjualan->tax_percentage ?? 0) > 0)
                             <tr>
-                                <td colspan="5" class="text-right" style="color: #6b7280; padding: 12px 18px;">Pajak ({{ $penjualan->tax_percentage }}%)</td>
-                                <td class="text-right" style="padding: 12px 18px;">Rp {{ number_format(($penjualan->grand_total ?? 0) - $subtotal, 0, ',', '.') }}</td>
+                                <td colspan="5" class="text-right" style="color: #6b7280; padding: 12px 18px;">Pajak
+                                    ({{ $penjualan->tax_percentage }}%)</td>
+                                <td class="text-right" style="padding: 12px 18px;">Rp
+                                    {{ number_format(($penjualan->grand_total ?? 0) - $subtotal, 0, ',', '.') }}</td>
                             </tr>
                         @endif
                         <tr style="background: #f9fafb;">
-                            <td colspan="5" class="text-right" style="font-weight: 700; padding: 14px 18px;">Grand Total</td>
-                            <td class="text-right" style="font-weight: 700; padding: 14px 18px; font-size: 1.05rem; color: #1e40af;">
+                            <td colspan="5" class="text-right" style="font-weight: 700; padding: 14px 18px;">Grand Total
+                            </td>
+                            <td class="text-right"
+                                style="font-weight: 700; padding: 14px 18px; font-size: 1.05rem; color: #1e40af;">
                                 Rp {{ number_format($penjualan->grand_total ?? 0, 0, ',', '.') }}
                             </td>
                         </tr>
@@ -138,13 +146,17 @@
                         <div class="mobile-product-item">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                 <div>
-                                    <div class="font-bold" style="color: #111827; font-size: 0.95rem;">{{ $item->produk->nama_produk ?? '-' }}</div>
+                                    <div class="font-bold" style="color: #111827; font-size: 0.95rem;">
+                                        {{ $item->produk->nama_produk ?? '-' }}</div>
                                     <div style="font-size: 0.82rem; color: #6b7280; margin-top: 3px;">
-                                        {{ $item->kuantitas ?? 0 }} x Rp {{ number_format($item->harga_satuan ?? 0, 0, ',', '.') }}
-                                        @if(($item->diskon ?? 0) > 0) <span style="color: #dc2626;">(- {{ $item->diskon }}%)</span> @endif
+                                        {{ $item->kuantitas ?? 0 }} x Rp
+                                        {{ number_format($item->harga_satuan ?? 0, 0, ',', '.') }}
+                                        @if(($item->diskon ?? 0) > 0) <span style="color: #dc2626;">(-
+                                        {{ $item->diskon }}%)</span> @endif
                                     </div>
                                 </div>
-                                <div class="font-bold" style="font-size: 0.95rem; color: #111827;">Rp {{ number_format($lineTotal2, 0, ',', '.') }}</div>
+                                <div class="font-bold" style="font-size: 0.95rem; color: #111827;">Rp
+                                    {{ number_format($lineTotal2, 0, ',', '.') }}</div>
                             </div>
                         </div>
                     @empty
@@ -164,7 +176,8 @@
                         @endif
                         <div class="mobile-grand-total">
                             <span>Grand Total</span>
-                            <span style="color: #1e40af;">Rp {{ number_format($penjualan->grand_total ?? 0, 0, ',', '.') }}</span>
+                            <span style="color: #1e40af;">Rp
+                                {{ number_format($penjualan->grand_total ?? 0, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>
@@ -174,55 +187,97 @@
 @endsection
 
 @push('styles')
-<style>
-    .detail-top { margin-bottom: 24px; }
-    .detail-heading { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .detail-title { font-size: 1.35rem; font-weight: 700; color: #111827; margin: 0; }
-    .detail-date { font-size: 0.95rem; color: #6b7280; margin: 6px 0 0; }
+    <style>
+        .detail-top {
+            margin-bottom: 24px;
+            padding-top: 8px;
+        }
 
-    .detail-grid {
-        display: grid;
-        grid-template-columns: 340px 1fr;
-        gap: 20px;
-    }
+        .detail-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
 
-    .info-label {
-        padding: 12px 22px;
-        color: #6b7280;
-        font-size: 0.88rem;
-        width: 40%;
-        border-bottom: 1px solid #f3f4f6;
-    }
-    .info-value {
-        padding: 12px 22px;
-        font-size: 0.88rem;
-        font-weight: 600;
-        border-bottom: 1px solid #f3f4f6;
-    }
+        .detail-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+        }
 
-    .detail-mobile { display: none; }
-    .mobile-product-item { padding: 16px 18px; border-bottom: 1px solid #f3f4f6; }
-    .mobile-total-section { padding: 14px 18px; background: #f9fafb; border-top: 1px solid #e5e7eb; }
-    .mobile-total-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 6px;
-        font-size: 0.88rem;
-        color: #6b7280;
-    }
-    .mobile-grand-total {
-        display: flex;
-        justify-content: space-between;
-        padding-top: 10px;
-        border-top: 1px solid #e5e7eb;
-        font-size: 1rem;
-        font-weight: 700;
-    }
+        .detail-date {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin: 6px 0 0;
+        }
 
-    @media (max-width: 768px) {
-        .detail-grid { grid-template-columns: 1fr; }
-        .detail-desktop { display: none !important; }
-        .detail-mobile { display: block !important; }
-    }
-</style>
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 20px;
+        }
+
+        .info-label {
+            padding: 12px 22px;
+            color: #6b7280;
+            font-size: 0.88rem;
+            width: 40%;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .info-value {
+            padding: 12px 22px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .detail-mobile {
+            display: none;
+        }
+
+        .mobile-product-item {
+            padding: 16px 18px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .mobile-total-section {
+            padding: 14px 18px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .mobile-total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.88rem;
+            color: #6b7280;
+        }
+
+        .mobile-grand-total {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-desktop {
+                display: none !important;
+            }
+
+            .detail-mobile {
+                display: block !important;
+            }
+        }
+    </style>
 @endpush
