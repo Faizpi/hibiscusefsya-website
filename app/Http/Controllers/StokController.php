@@ -45,7 +45,9 @@ class StokController extends Controller
         $request->validate([
             'gudang_id' => 'required|exists:gudangs,id',
             'produk_id' => 'required|exists:produks,id',
-            'stok' => 'required|integer|min:0',
+            'stok_penjualan' => 'required|integer|min:0',
+            'stok_gratis' => 'required|integer|min:0',
+            'stok_sample' => 'required|integer|min:0',
             'keterangan' => 'nullable|string|max:500'
         ]);
 
@@ -60,13 +62,18 @@ class StokController extends Controller
             ->first();
 
         $stokSebelum = $existing ? $existing->stok : 0;
-        $stokSesudah = $request->stok;
-        $selisih = $stokSesudah - $stokSebelum;
+        $newTotal = $request->stok_penjualan + $request->stok_gratis + $request->stok_sample;
+        $selisih = $newTotal - $stokSebelum;
 
         // Update atau create stok
         $gudangProduk = GudangProduk::updateOrCreate(
             ['gudang_id' => $request->gudang_id, 'produk_id' => $request->produk_id],
-            ['stok' => $request->stok]
+            [
+                'stok' => $newTotal,
+                'stok_penjualan' => $request->stok_penjualan,
+                'stok_gratis' => $request->stok_gratis,
+                'stok_sample' => $request->stok_sample,
+            ]
         );
 
         // Log perubahan stok jika ada perubahan
@@ -80,7 +87,7 @@ class StokController extends Controller
                 'gudang_nama' => $gudang->nama_gudang,
                 'user_nama' => $user->name,
                 'stok_sebelum' => $stokSebelum,
-                'stok_sesudah' => $stokSesudah,
+                'stok_sesudah' => $newTotal,
                 'selisih' => $selisih,
                 'keterangan' => $request->keterangan ?? 'Perubahan stok manual'
             ]);
