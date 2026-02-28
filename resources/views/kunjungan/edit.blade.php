@@ -193,15 +193,16 @@
                                     <select class="form-control produk-select" name="produk_id[]">
                                         <option value="">Pilih produk...</option>
                                         @foreach($produks as $produk)
-                                            <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" {{ $item->produk_id == $produk->id ? 'selected' : '' }}>
+                                            <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}" {{ $item->produk_id == $produk->id ? 'selected' : '' }}>
                                                 [{{ $produk->item_code }}] {{ $produk->nama_produk }}
                                             </option>
                                         @endforeach
                                     </select>
+                                    <small class="text-muted stok-gratis-info">@if(isset($stokGratisMap[$item->produk_id]))<i class="fas fa-box-open"></i> Stok gratis: <strong>{{ $stokGratisMap[$item->produk_id] }}</strong>@endif</small>
                                 </div>
                                 <div class="col-md-2">
                                     <input type="number" class="form-control produk-qty" name="jumlah[]"
-                                        value="{{ $item->jumlah ?? 1 }}" min="1" placeholder="Qty">
+                                        value="{{ $item->jumlah ?? 1 }}" min="1" max="{{ $stokGratisMap[$item->produk_id] ?? '' }}" placeholder="Qty">
                                 </div>
                                 <div class="col-md-2">
                                     <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk"
@@ -221,11 +222,12 @@
                                     <select class="form-control produk-select" name="produk_id[]">
                                         <option value="">Pilih produk...</option>
                                         @foreach($produks as $produk)
-                                            <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}">
+                                            <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}">
                                                 [{{ $produk->item_code }}] {{ $produk->nama_produk }}
                                             </option>
                                         @endforeach
                                     </select>
+                                    <small class="text-muted stok-gratis-info"></small>
                                 </div>
                                 <div class="col-md-2">
                                     <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1"
@@ -302,8 +304,57 @@
                     allowClear: true,
                     width: '100%'
                 });
+                bindStokGratisCheck();
             }
             initProdukSelect2();
+
+            // Stok gratis validation
+            function bindStokGratisCheck() {
+                $('.produk-select').off('change.stokgratis').on('change.stokgratis', function() {
+                    const row = $(this).closest('.produk-row');
+                    const selectedOption = $(this).find('option:selected');
+                    const qtyInput = row.find('.produk-qty');
+                    const infoLabel = row.find('.stok-gratis-info');
+
+                    if (selectedOption.val()) {
+                        const stokGratis = parseInt(selectedOption.data('stok-gratis')) || 0;
+                        qtyInput.attr('max', stokGratis);
+                        if (stokGratis > 0) {
+                            infoLabel.html('<i class="fas fa-box-open"></i> Stok gratis: <strong>' + stokGratis + '</strong>');
+                            infoLabel.removeClass('text-danger').addClass('text-muted');
+                            if (parseInt(qtyInput.val()) > stokGratis) {
+                                qtyInput.val(stokGratis);
+                            }
+                        } else {
+                            infoLabel.html('<i class="fas fa-exclamation-triangle"></i> Stok gratis: <strong>0</strong>');
+                            infoLabel.removeClass('text-muted').addClass('text-danger');
+                            qtyInput.val(0).attr('max', 0);
+                        }
+                    } else {
+                        qtyInput.removeAttr('max');
+                        infoLabel.html('');
+                    }
+                });
+
+                $('.produk-qty').off('input.stokgratis').on('input.stokgratis', function() {
+                    const max = parseInt($(this).attr('max'));
+                    if (!isNaN(max) && parseInt($(this).val()) > max) {
+                        $(this).val(max);
+                        const row = $(this).closest('.produk-row');
+                        row.find('.stok-gratis-info')
+                            .html('<i class="fas fa-exclamation-triangle"></i> Maksimal qty: <strong>' + max + '</strong>')
+                            .removeClass('text-muted').addClass('text-danger');
+                        setTimeout(() => {
+                            const selectedOption = row.find('.produk-select option:selected');
+                            const stokGratis = parseInt(selectedOption.data('stok-gratis')) || 0;
+                            row.find('.stok-gratis-info')
+                                .html('<i class="fas fa-box-open"></i> Stok gratis: <strong>' + stokGratis + '</strong>')
+                                .removeClass('text-danger').addClass('text-muted');
+                        }, 2000);
+                    }
+                });
+            }
+            bindStokGratisCheck();
 
             // Tambah baris produk
             $('#btn-add-produk').on('click', function () {
@@ -313,11 +364,12 @@
                             <select class="form-control produk-select" name="produk_id[]">
                                 <option value="">Pilih produk...</option>
                                 @foreach($produks as $produk)
-                                    <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}">
+                                    <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}">
                                         [{{ $produk->item_code }}] {{ $produk->nama_produk }}
                                     </option>
                                 @endforeach
                             </select>
+                            <small class="text-muted stok-gratis-info"></small>
                         </div>
                         <div class="col-md-2">
                             <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">

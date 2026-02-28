@@ -166,6 +166,14 @@ class KunjunganController extends Controller
         // Get all products (kunjungan tidak perlu batasan gudang)
         $produks = Produk::orderBy('nama_produk')->get();
 
+        // Get stok gratis per produk dari gudang user
+        $stokGratisMap = [];
+        if ($gudang) {
+            $stokGratisMap = GudangProduk::where('gudang_id', $gudang->id)
+                ->pluck('stok_gratis', 'produk_id')
+                ->toArray();
+        }
+
         // Generate preview nomor kunjungan
         $countToday = Kunjungan::where('user_id', Auth::id())
             ->whereDate('created_at', Carbon::today())
@@ -173,7 +181,7 @@ class KunjunganController extends Controller
         $noUrut = $countToday + 1;
         $previewNomor = Kunjungan::generateNomor(Auth::id(), $noUrut, Carbon::now());
 
-        return view('kunjungan.create', compact('kontaks', 'gudang', 'produks', 'previewNomor'));
+        return view('kunjungan.create', compact('kontaks', 'gudang', 'produks', 'previewNomor', 'stokGratisMap'));
     }
 
     /**
@@ -220,6 +228,23 @@ class KunjunganController extends Controller
             'produk_id.min' => 'Minimal 1 produk harus dipilih untuk kunjungan Pemeriksaan Stock.',
             'produk_id.*.required' => 'Pilih produk yang valid.',
         ]);
+
+        // Validasi qty tidak melebihi stok gratis
+        $gudangForValidation = $user->getCurrentGudang();
+        if ($gudangForValidation && $request->has('produk_id') && is_array($request->produk_id)) {
+            foreach ($request->produk_id as $index => $produkId) {
+                if ($produkId) {
+                    $qty = $request->jumlah[$index] ?? 1;
+                    $stokGratis = GudangProduk::where('gudang_id', $gudangForValidation->id)
+                        ->where('produk_id', $produkId)
+                        ->value('stok_gratis') ?? 0;
+                    if ($qty > $stokGratis) {
+                        $namaProduk = Produk::find($produkId)->nama_produk ?? 'Produk';
+                        return back()->withInput()->with('error', "Qty {$namaProduk} ({$qty}) melebihi stok gratis yang tersedia ({$stokGratis}).");
+                    }
+                }
+            }
+        }
 
         $user = Auth::user();
 
@@ -390,9 +415,18 @@ class KunjunganController extends Controller
         // Get all products (kunjungan tidak perlu batasan gudang)
         $produks = Produk::orderBy('nama_produk')->get();
 
+        // Get stok gratis per produk dari gudang kunjungan
+        $stokGratisMap = [];
+        $gudangEdit = $kunjungan->gudang_id ? Gudang::find($kunjungan->gudang_id) : $user->getCurrentGudang();
+        if ($gudangEdit) {
+            $stokGratisMap = GudangProduk::where('gudang_id', $gudangEdit->id)
+                ->pluck('stok_gratis', 'produk_id')
+                ->toArray();
+        }
+
         $kunjungan->load('items.produk');
 
-        return view('kunjungan.edit', compact('kunjungan', 'kontaks', 'produks'));
+        return view('kunjungan.edit', compact('kunjungan', 'kontaks', 'produks', 'stokGratisMap'));
     }
 
     /**
@@ -453,6 +487,23 @@ class KunjunganController extends Controller
             'memo' => $request->memo,
             'lampiran_paths' => $lampiranPaths,
         ]);
+
+        // Validasi qty tidak melebihi stok gratis
+        $gudangForValidation = $kunjungan->gudang_id ? Gudang::find($kunjungan->gudang_id) : $user->getCurrentGudang();
+        if ($gudangForValidation && $request->has('produk_id') && is_array($request->produk_id)) {
+            foreach ($request->produk_id as $index => $produkId) {
+                if ($produkId) {
+                    $qty = $request->jumlah[$index] ?? 1;
+                    $stokGratis = GudangProduk::where('gudang_id', $gudangForValidation->id)
+                        ->where('produk_id', $produkId)
+                        ->value('stok_gratis') ?? 0;
+                    if ($qty > $stokGratis) {
+                        $namaProduk = Produk::find($produkId)->nama_produk ?? 'Produk';
+                        return back()->withInput()->with('error', "Qty {$namaProduk} ({$qty}) melebihi stok gratis yang tersedia ({$stokGratis}).");
+                    }
+                }
+            }
+        }
 
         // Update items: hapus lama, buat baru
         $kunjungan->items()->delete();

@@ -343,20 +343,21 @@
                                                 <option value="">-- Semua Produk --</option>
                                                 @if(isset($allProduks))
                                                     @foreach($allProduks as $produk)
-                                                        <option value="{{ $produk->id }}"
-                                                            {{ (isset($selectedProdukId) && $selectedProdukId == $produk->id) ? 'selected' : '' }}>
+                                                        <option value="{{ $produk->id }}" {{ (isset($selectedProdukId) && $selectedProdukId == $produk->id) ? 'selected' : '' }}>
                                                             {{ $produk->nama_produk }}
                                                         </option>
                                                     @endforeach
                                                 @endif
                                             </select>
                                         </div>
-                                        <div class="col-12 col-md-auto mb-2 d-flex align-items-center" style="gap: 0.5rem; padding-top: 0.25rem; padding-bottom: 0.25rem;">
+                                        <div class="col-12 col-md-auto mb-2 d-flex align-items-center"
+                                            style="gap: 0.5rem; padding-top: 0.25rem; padding-bottom: 0.25rem;">
                                             <button type="submit" class="btn btn-primary btn-sm">
                                                 <i class="fas fa-filter"></i> Filter
                                             </button>
                                             @if(isset($startDate) || isset($endDate) || isset($selectedProdukId))
-                                                <a href="{{ route('dashboard') }}?gudang_filter={{ $selectedGudangId ?? '' }}" class="btn btn-secondary btn-sm">
+                                                <a href="{{ route('dashboard') }}?gudang_filter={{ $selectedGudangId ?? '' }}"
+                                                    class="btn btn-secondary btn-sm">
                                                     <i class="fas fa-redo"></i> Reset
                                                 </a>
                                             @endif
@@ -709,10 +710,12 @@
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger" onclick="document.getElementById('export_format').value='pdf'">
+                        <button type="submit" class="btn btn-danger"
+                            onclick="document.getElementById('export_format').value='pdf'">
                             <i class="fas fa-file-pdf mr-1"></i> Export ke PDF
                         </button>
-                        <button type="submit" class="btn btn-success" onclick="document.getElementById('export_format').value='excel'">
+                        <button type="submit" class="btn btn-success"
+                            onclick="document.getElementById('export_format').value='excel'">
                             <i class="fas fa-file-excel mr-1"></i> Export ke Excel
                         </button>
                     </div>
@@ -982,8 +985,8 @@
                         });
                     }
                 @endif
-                // ==================== END SALES QUANTITY CHART ====================
-            });
+                        // ==================== END SALES QUANTITY CHART ====================
+                    });
         </script>
     @endif
 

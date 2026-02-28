@@ -4,7 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1, user-scalable=no">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Hibiscus Efsya</title>
 
@@ -1051,6 +1052,7 @@
         /* ========== MOBILE INPUT FOCUS FIX ========== */
         /* Mencegah keyboard tertutup saat mengetik di mobile */
         @media (max-width: 768px) {
+
             /* Pastikan input dan textarea dapat menerima fokus dengan benar */
             input[type="text"],
             input[type="email"],
@@ -1061,7 +1063,8 @@
             input[type="url"],
             textarea,
             select {
-                font-size: 16px !important; /* Mencegah auto-zoom pada iOS */
+                font-size: 16px !important;
+                /* Mencegah auto-zoom pada iOS */
                 -webkit-appearance: none;
                 -moz-appearance: none;
                 appearance: none;
@@ -1078,7 +1081,7 @@
 
         /* ========== MOBILE DROPDOWN BACKDROP & BOTTOM SHEET ========== */
         /* Ini perlu di luar media query agar selalu tersedia */
-        
+
         /* Overlay backdrop untuk mobile dropdown */
         .mobile-dropdown-backdrop {
             position: fixed;
@@ -1092,12 +1095,12 @@
             visibility: hidden;
             transition: opacity 0.2s ease, visibility 0.2s ease;
         }
-        
+
         .mobile-dropdown-backdrop.show {
             opacity: 1;
             visibility: visible;
         }
-        
+
         /* Mobile dropdown menu styling - bottom sheet style */
         .dropdown-menu.mobile-dropdown-active {
             position: fixed !important;
@@ -1117,24 +1120,27 @@
             background: #fff !important;
             border: none !important;
         }
-        
+
         .dropdown-menu.mobile-dropdown-active .dropdown-item {
             padding: 0.875rem 1rem !important;
             font-size: 0.9375rem !important;
             border-radius: 8px !important;
             margin-bottom: 4px !important;
         }
-        
+
         .dropdown-menu.mobile-dropdown-active .dropdown-divider {
             margin: 0.5rem 0 !important;
         }
 
         /* Touch device specific fixes */
         @media (hover: none) and (pointer: coarse) {
-            input, textarea, select {
+
+            input,
+            textarea,
+            select {
                 touch-action: manipulation;
             }
-            
+
             /* Mencegah double-tap zoom */
             * {
                 touch-action: manipulation;
@@ -1258,7 +1264,9 @@
         }
 
         /* Ensure parent containers don't overflow */
-        #content-wrapper, #content, .container-fluid {
+        #content-wrapper,
+        #content,
+        .container-fluid {
             overflow-x: hidden;
             max-width: 100%;
         }
@@ -1277,7 +1285,7 @@
             .table-responsive .table {
                 min-width: 700px;
             }
-            
+
             /* Container adjustments for mobile */
             .container-fluid {
                 padding: 0.75rem !important;
@@ -1301,7 +1309,7 @@
 
             /* Tombol di card-header wrap di mobile */
             .card-header .btn-group-mobile,
-            .card-header > div {
+            .card-header>div {
                 flex-wrap: wrap;
                 gap: 0.5rem;
             }
@@ -1685,14 +1693,14 @@
                 gap: 0.75rem !important;
             }
 
-            .page-header-mobile > h1,
-            .page-header-mobile > .h3 {
+            .page-header-mobile>h1,
+            .page-header-mobile>.h3 {
                 margin-bottom: 0 !important;
                 font-size: 1.25rem !important;
             }
 
-            .page-header-mobile > a.btn,
-            .page-header-mobile > div {
+            .page-header-mobile>a.btn,
+            .page-header-mobile>div {
                 align-self: flex-start;
             }
 
@@ -1939,7 +1947,7 @@
                                     @if(in_array(Auth::user()->role, ['admin', 'spectator']))
                                         <div class="dropdown-divider"></div>
                                         <h6 class="dropdown-header">{{ Auth::user()->name }}</h6>
-                                        
+
                                         {{-- Show current gudang --}}
                                         @php
                                             $currentGudang = Auth::user()->getCurrentGudang();
@@ -1950,7 +1958,7 @@
                                                 $userGudangs = Auth::user()->spectatorGudangs()->get();
                                             }
                                         @endphp
-                                        
+
                                         @if($userGudangs->count() > 1)
                                             <div class="dropdown-divider"></div>
                                             <form method="POST" action="{{ route('switch-gudang') }}" id="switchGudangForm">
@@ -1959,10 +1967,10 @@
                                                     <small class="text-muted d-block mb-2">
                                                         <i class="fas fa-warehouse mr-1"></i> <strong>Pilih Gudang Aktif</strong>
                                                     </small>
-                                                    <select name="gudang_id" class="custom-select custom-select-sm" onchange="document.getElementById('switchGudangForm').submit();">
+                                                    <select name="gudang_id" class="custom-select custom-select-sm"
+                                                        onchange="document.getElementById('switchGudangForm').submit();">
                                                         @foreach($userGudangs as $gudang)
-                                                            <option value="{{ $gudang->id }}" 
-                                                                {{ $currentGudang && $currentGudang->id === $gudang->id ? 'selected' : '' }}>
+                                                            <option value="{{ $gudang->id }}" {{ $currentGudang && $currentGudang->id === $gudang->id ? 'selected' : '' }}>
                                                                 {{ $gudang->nama_gudang }}
                                                             </option>
                                                         @endforeach
@@ -1973,7 +1981,8 @@
                                             <div class="dropdown-divider"></div>
                                             <div class="px-3 py-2">
                                                 <small class="text-muted">
-                                                    <i class="fas fa-warehouse mr-1"></i> <strong>{{ $currentGudang->nama_gudang }}</strong>
+                                                    <i class="fas fa-warehouse mr-1"></i>
+                                                    <strong>{{ $currentGudang->nama_gudang }}</strong>
                                                 </small>
                                             </div>
                                         @endif
@@ -2089,22 +2098,22 @@
             if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
                 // Prevent scroll when input is focused
                 var inputSelectors = 'input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="tel"], input[type="search"], input[type="url"], textarea';
-                
-                $(document).on('focus', inputSelectors, function(e) {
+
+                $(document).on('focus', inputSelectors, function (e) {
                     var $input = $(this);
                     var $scrollParent = $input.closest('.table-responsive, .card-body, .modal-body');
-                    
+
                     // Store scroll position
                     if ($scrollParent.length) {
                         $scrollParent.data('scroll-left', $scrollParent.scrollLeft());
                     }
-                    
+
                     // Slight delay to ensure keyboard is open
-                    setTimeout(function() {
+                    setTimeout(function () {
                         // Scroll input into view if needed
                         var rect = $input[0].getBoundingClientRect();
                         var viewportHeight = window.innerHeight;
-                        
+
                         // If input is below half of viewport, scroll to bring it up
                         if (rect.top > viewportHeight * 0.5) {
                             $input[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2113,7 +2122,7 @@
                 });
 
                 // Prevent touchmove from stealing focus
-                $(document).on('touchmove', function(e) {
+                $(document).on('touchmove', function (e) {
                     var $focused = $(':focus');
                     if ($focused.is(inputSelectors)) {
                         // Allow scroll only within the input's parent container
@@ -2126,14 +2135,14 @@
 
                 // Re-focus input if accidentally blurred by touch
                 var lastFocusedInput = null;
-                $(document).on('focus', inputSelectors, function() {
+                $(document).on('focus', inputSelectors, function () {
                     lastFocusedInput = this;
                 });
 
-                $(document).on('blur', inputSelectors, function(e) {
+                $(document).on('blur', inputSelectors, function (e) {
                     var $this = $(this);
                     // Small delay to check if focus moved to another input
-                    setTimeout(function() {
+                    setTimeout(function () {
                         var $newFocus = $(':focus');
                         // If no new focus and the blur was due to scroll, refocus
                         if (!$newFocus.length && lastFocusedInput === e.target) {
@@ -2152,16 +2161,16 @@
             if (typeof $.fn.select2 !== 'undefined') {
                 // Override Select2 default options for mobile
                 $.fn.select2.defaults.set('dropdownAutoWidth', true);
-                
+
                 // Fix Select2 search field on mobile
-                $(document).on('select2:open', function() {
+                $(document).on('select2:open', function () {
                     var searchField = document.querySelector('.select2-container--open .select2-search__field');
                     if (searchField) {
                         // Set font size to prevent zoom
                         searchField.style.fontSize = '16px';
-                        
+
                         // Small delay to ensure proper focus
-                        setTimeout(function() {
+                        setTimeout(function () {
                             searchField.focus();
                         }, 100);
                     }
