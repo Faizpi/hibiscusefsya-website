@@ -75,7 +75,13 @@
                             <td></td>
                         @endif
                         <td>{{ $detail->produk->nama_produk ?? ($detail->deskripsi ?? ($detail->kategori ?? '-')) }}</td>
-                        <td>{{ $detail->harga_satuan ?? ($detail->jumlah ?? '-') }}</td>
+                        <td>
+                            @if(isset($item->type) && $item->type === 'Kunjungan')
+                                -
+                            @else
+                                {{ $detail->harga_satuan ?? ($detail->jumlah ?? '-') }}
+                            @endif
+                        </td>
                         <td>{{ $detail->kuantitas ?? ($detail->jumlah ?? '-') }}</td>
                         @if($idx === 0)
                             <td>{{ round($subtotal) }}</td>
