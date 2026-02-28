@@ -196,6 +196,21 @@
             <div style="margin-bottom: 8px;">
                 <div class="item-name">{{ $item->produk->nama_produk ?? '-' }}</div>
                 <div class="item-sku">{{ $item->produk->kode_produk ?? '-' }}</div>
+                <div style="font-size: 9px; margin: 2px 0;">
+                    @if($item->tipe_stok == 'gratis')
+                        <span style="background: #28a745; color: #fff; padding: 1px 4px; border-radius: 2px;">Gratis</span>
+                    @elseif($item->tipe_stok == 'sample')
+                        <span style="background: #ffc107; color: #000; padding: 1px 4px; border-radius: 2px;">Sample</span>
+                    @else
+                        <span style="background: #4e73df; color: #fff; padding: 1px 4px; border-radius: 2px;">Penjualan</span>
+                    @endif
+                    @if($item->batch_number)
+                        &nbsp;Batch: {{ $item->batch_number }}
+                    @endif
+                    @if($item->expired_date)
+                        &nbsp;Exp: {{ $item->expired_date->format('d/m/Y') }}
+                    @endif
+                </div>
                 <table>
                     <tr>
                         <td>Diterima</td>

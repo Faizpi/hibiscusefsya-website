@@ -123,6 +123,9 @@
                                     <tr>
                                         <th>Kode</th>
                                         <th>Nama Produk</th>
+                                        <th class="text-center">Tipe Stok</th>
+                                        <th>Batch</th>
+                                        <th>Expired</th>
                                         <th class="text-center">Qty Diterima</th>
                                         <th>Keterangan</th>
                                     </tr>
@@ -132,18 +135,29 @@
                                         <tr>
                                             <td>{{ $item->produk->item_kode ?? '-' }}</td>
                                             <td>{{ $item->produk->item_nama ?? '-' }}</td>
+                                            <td class="text-center">
+                                                @if($item->tipe_stok == 'gratis')
+                                                    <span class="badge badge-success">Gratis</span>
+                                                @elseif($item->tipe_stok == 'sample')
+                                                    <span class="badge badge-warning">Sample</span>
+                                                @else
+                                                    <span class="badge badge-primary">Penjualan</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $item->batch_number ?? '-' }}</td>
+                                            <td>{{ $item->expired_date ? $item->expired_date->format('d/m/Y') : '-' }}</td>
                                             <td class="text-center font-weight-bold">{{ $item->qty_diterima }}</td>
                                             <td>{{ $item->keterangan ?? '-' }}</td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="4" class="text-center text-muted">Tidak ada item.</td>
+                                            <td colspan="7" class="text-center text-muted">Tidak ada item.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
                                 <tfoot>
                                     <tr class="table-info">
-                                        <th colspan="2" class="text-right">Total Item:</th>
+                                        <th colspan="5" class="text-right">Total Item:</th>
                                         <th class="text-center">{{ $penerimaan->items->sum('qty_diterima') }}</th>
                                         <th></th>
                                     </tr>

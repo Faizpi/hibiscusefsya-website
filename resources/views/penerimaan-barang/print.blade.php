@@ -221,6 +221,11 @@
             @endphp
             <div>
                 <div class="item-name">{{ $item->produk->nama_produk ?? '-' }}</div>
+                <div style="font-size: 7pt; color: #555; margin: 1px 0;">
+                    [{{ ucfirst($item->tipe_stok ?? 'penjualan') }}]
+                    @if($item->batch_number) | Batch: {{ $item->batch_number }} @endif
+                    @if($item->expired_date) | Exp: {{ $item->expired_date->format('d/m/Y') }} @endif
+                </div>
                 <table>
                     <tr>
                         <td>Diterima</td>

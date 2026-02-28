@@ -368,6 +368,21 @@
                             <td>
                                 <div class="item-name">{{ $item->produk->nama_produk ?? '-' }}</div>
                                 <div class="item-sku">{{ $item->produk->kode_produk ?? '-' }}</div>
+                                <div style="margin-top: 4px; font-size: 11px;">
+                                    @if($item->tipe_stok == 'gratis')
+                                        <span style="background: #28a745; color: #fff; padding: 1px 6px; border-radius: 3px; font-size: 10px;">Gratis</span>
+                                    @elseif($item->tipe_stok == 'sample')
+                                        <span style="background: #ffc107; color: #000; padding: 1px 6px; border-radius: 3px; font-size: 10px;">Sample</span>
+                                    @else
+                                        <span style="background: #4e73df; color: #fff; padding: 1px 6px; border-radius: 3px; font-size: 10px;">Penjualan</span>
+                                    @endif
+                                    @if($item->batch_number)
+                                        <span style="color: var(--text-muted); margin-left: 4px;">Batch: {{ $item->batch_number }}</span>
+                                    @endif
+                                    @if($item->expired_date)
+                                        <span style="color: var(--text-muted); margin-left: 4px;">Exp: {{ $item->expired_date->format('d/m/Y') }}</span>
+                                    @endif
+                                </div>
                             </td>
                             <td style="text-align: center">
                                 <span class="qty-diterima">{{ $item->qty_diterima }}</span>
