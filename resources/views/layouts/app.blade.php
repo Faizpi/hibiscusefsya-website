@@ -100,6 +100,7 @@
             font-weight: 500;
             font-size: 0.875rem;
             padding: 0.75rem 1rem;
+            width: auto !important;
             display: flex;
             align-items: center;
             transition: all 0.15s ease;
