@@ -25,6 +25,7 @@ class Kontak extends Model
         'nama',
         'email',
         'no_telp',
+        'pin',
         'alamat',
         'diskon_persen',
     ];

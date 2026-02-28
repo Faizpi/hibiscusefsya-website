@@ -140,18 +140,36 @@
                                             </a>
 
                                             {{-- APPROVE --}}
-                                            @if(in_array($role, ['admin', 'super_admin']) && $item->status == 'Pending')
-                                                <form action="{{ route('pembayaran.approve', $item->id) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="dropdown-item">
-                                                        <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
-                                                    </button>
-                                                </form>
+                                            @if($item->status == 'Pending')
+                                                @php
+                                                    $canApprove = false;
+                                                    if ($role == 'super_admin') {
+                                                        $canApprove = true;
+                                                    } elseif ($role == 'admin') {
+                                                        $canApprove = auth()->user()->canAccessGudang($item->gudang_id);
+                                                    }
+                                                @endphp
+                                                @if($canApprove)
+                                                    <form action="{{ route('pembayaran.approve', $item->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             @endif
 
                                             {{-- CANCEL --}}
-                                            @if(in_array($role, ['admin', 'super_admin']) && $item->status != 'Canceled')
-                                                @if($role == 'super_admin' || $item->status == 'Pending')
+                                            @if($item->status != 'Canceled')
+                                                @php
+                                                    $canCancel = false;
+                                                    if ($role == 'super_admin') {
+                                                        $canCancel = true;
+                                                    } elseif ($role == 'admin' && $item->status == 'Pending') {
+                                                        $canCancel = auth()->user()->canAccessGudang($item->gudang_id);
+                                                    }
+                                                @endphp
+                                                @if($canCancel)
                                                     <button type="button" class="dropdown-item" data-toggle="modal"
                                                         data-target="#cancelModal" data-action="{{ route('pembayaran.cancel', $item->id) }}">
                                                         <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan

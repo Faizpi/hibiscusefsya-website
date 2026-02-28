@@ -589,6 +589,8 @@ class DashboardController extends Controller
             'status_filter' => 'nullable|in:all,Pending,Approved,Rejected,Canceled,Lunas',
             'gudang_id' => 'nullable|exists:gudangs,id',
             'biaya_jenis' => 'nullable|in:masuk,keluar',
+            'tujuan_filter' => 'nullable|string',
+            'export_format' => 'nullable|in:excel,pdf',
         ]);
 
         $dateFrom = $request->date_from;
@@ -597,6 +599,8 @@ class DashboardController extends Controller
         $statusFilter = $request->status_filter ?? 'all';
         $gudangId = $request->gudang_id;
         $biayaJenis = $request->biaya_jenis; // optional filter khusus biaya
+        $tujuanFilter = $request->tujuan_filter;
+        $exportFormat = $request->export_format ?? 'excel';
         $user = Auth::user();
 
         $penjualans = collect();
@@ -613,7 +617,7 @@ class DashboardController extends Controller
 
         // PENJUALAN
         if (in_array($transactionType, ['all', 'penjualan'])) {
-            $query = Penjualan::with('user', 'gudang', 'approver')
+            $query = Penjualan::with('user', 'gudang', 'approver', 'items.produk')
                 ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo]);
 
             // Role-based filtering: Admin hanya bisa export dari gudang yang dia akses
@@ -645,7 +649,7 @@ class DashboardController extends Controller
 
         // PEMBELIAN
         if (in_array($transactionType, ['all', 'pembelian'])) {
-            $query = Pembelian::with('user', 'gudang', 'approver')
+            $query = Pembelian::with('user', 'gudang', 'approver', 'items.produk')
                 ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo]);
 
             if ($user->role == 'admin') {
@@ -675,7 +679,7 @@ class DashboardController extends Controller
 
         // BIAYA
         if (in_array($transactionType, ['all', 'biaya'])) {
-            $query = Biaya::with('user', 'approver')
+            $query = Biaya::with('user', 'approver', 'items')
                 ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo]);
 
             // Note: Biaya tidak memiliki gudang_id, tetap gunakan approver_id untuk admin
@@ -721,6 +725,11 @@ class DashboardController extends Controller
                 $query->where('status', $statusFilter);
             }
 
+            // Filter tujuan kunjungan
+            if ($tujuanFilter && $tujuanFilter !== 'all') {
+                $query->where('tujuan', $tujuanFilter);
+            }
+
             $kunjungans = $query->get();
             $kunjungans->each(function ($item) use ($generateNumber) {
                 $item->type = 'Kunjungan';
@@ -743,15 +752,36 @@ class DashboardController extends Controller
             $gudangLabel = '_' . str_replace(' ', '_', $gudang->nama_gudang);
         }
 
-        $fileName = 'Laporan_' . $typeLabel[$transactionType] . $gudangLabel . '_' . $dateFrom . '_sd_' . $dateTo . '.xlsx';
+        $fileBaseName = 'Laporan_' . $typeLabel[$transactionType] . $gudangLabel . '_' . $dateFrom . '_sd_' . $dateTo;
 
-        // Export based on type
+        // Prepare data
         if ($transactionType == 'all') {
-            $allTransactions = $penjualans->concat($pembelians)->concat($biayas)->concat($kunjungans)->sortBy('created_at');
-            return Excel::download(new TransactionsExport($allTransactions, 'all'), $fileName);
+            $exportData = $penjualans->concat($pembelians)->concat($biayas)->concat($kunjungans)->sortBy('created_at');
         } else {
-            $data = ${$transactionType . 's'}; // $penjualans, $pembelians, $biayas, $kunjungans
-            return Excel::download(new TransactionsExport($data, $transactionType), $fileName);
+            $exportData = ${$transactionType . 's'};
         }
+
+        // Export based on format
+        if ($exportFormat === 'pdf') {
+            return $this->exportPdf($exportData, $transactionType, $fileBaseName, $dateFrom, $dateTo);
+        }
+
+        $fileName = $fileBaseName . '.xlsx';
+        return Excel::download(new TransactionsExport($exportData, $transactionType), $fileName);
+    }
+
+    /**
+     * Export data ke PDF
+     */
+    private function exportPdf($transactions, $exportType, $fileBaseName, $dateFrom, $dateTo)
+    {
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.pdf', [
+            'transactions' => $transactions,
+            'exportType' => $exportType,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+        ]);
+        $pdf->setPaper('a4', 'landscape');
+        return $pdf->download($fileBaseName . '.pdf');
     }
 }

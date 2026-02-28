@@ -163,7 +163,7 @@ class PembayaranController extends Controller
             'metode_pembayaran' => 'required|string|max:100',
             'jumlah_bayar' => 'required|numeric|min:1',
             'keterangan' => 'nullable|string',
-            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
         ]);
 
         // Validasi akses gudang
@@ -351,6 +351,13 @@ class PembayaranController extends Controller
             return back()->with('error', 'Akses ditolak.');
         }
 
+        // Admin hanya bisa approve pembayaran di gudang yang dia kelola
+        if ($user->role === 'admin') {
+            if (!$user->canAccessGudang($pembayaran->gudang_id)) {
+                return back()->with('error', 'Anda tidak memiliki akses ke gudang ini.');
+            }
+        }
+
         if ($pembayaran->status === 'Canceled') {
             return back()->with('error', 'Transaksi sudah dibatalkan, tidak bisa di-approve.');
         }
@@ -391,6 +398,13 @@ class PembayaranController extends Controller
 
         if (!in_array($user->role, ['admin', 'super_admin'])) {
             return back()->with('error', 'Akses ditolak.');
+        }
+
+        // Admin hanya bisa cancel pembayaran di gudang yang dia kelola
+        if ($user->role === 'admin') {
+            if (!$user->canAccessGudang($pembayaran->gudang_id)) {
+                return back()->with('error', 'Anda tidak memiliki akses ke gudang ini.');
+            }
         }
 
         if ($pembayaran->status === 'Canceled') {

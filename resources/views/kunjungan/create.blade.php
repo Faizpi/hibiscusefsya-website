@@ -57,23 +57,23 @@
                                         name="kontak_id" required>
                                         <option value="">Pilih kontak...</option>
                                         @foreach($kontaks as $kontak)
-                                            <option value="{{ $kontak->id }}" 
-                                                data-nama="{{ $kontak->nama }}"
-                                                data-kode="{{ $kontak->kode_kontak }}"
-                                                data-email="{{ $kontak->email }}"
-                                                data-alamat="{{ $kontak->alamat }}" 
-                                                {{ old('kontak_id') == $kontak->id ? 'selected' : '' }}>
+                                            <option value="{{ $kontak->id }}" data-nama="{{ $kontak->nama }}"
+                                                data-kode="{{ $kontak->kode_kontak }}" data-email="{{ $kontak->email }}"
+                                                data-alamat="{{ $kontak->alamat }}" {{ old('kontak_id') == $kontak->id ? 'selected' : '' }}>
                                                 [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
                                             </option>
                                         @endforeach
                                     </select>
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-info" onclick="scanKontak(document.getElementById('kontak_id'))" title="Scan Barcode/QR Kontak">
+                                        <button type="button" class="btn btn-outline-info"
+                                            onclick="scanKontak(document.getElementById('kontak_id'))"
+                                            title="Scan Barcode/QR Kontak">
                                             <i class="fas fa-camera"></i>
                                         </button>
                                     </div>
                                 </div>
-                                <input type="hidden" name="sales_nama" id="sales_nama_hidden" value="{{ old('sales_nama') }}">
+                                <input type="hidden" name="sales_nama" id="sales_nama_hidden"
+                                    value="{{ old('sales_nama') }}">
                                 @error('kontak_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
 
@@ -105,7 +105,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>No Kunjungan (Preview)</label>
-                                        <input type="text" class="form-control bg-light text-primary font-weight-bold" value="{{ $previewNomor ?? '[Auto]' }}" readonly>
+                                        <input type="text" class="form-control bg-light text-primary font-weight-bold"
+                                            value="{{ $previewNomor ?? '[Auto]' }}" readonly>
                                         <small class="text-muted">Nomor yang akan digenerate</small>
                                     </div>
                                 </div>
@@ -150,17 +151,22 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="lampiran">Lampiran <small class="text-muted">(dapat memilih banyak file)</small></label>
+                                <label for="lampiran">Lampiran <small class="text-muted">(dapat memilih banyak
+                                        file)</small></label>
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror"
-                                        id="lampiran" name="lampiran[]" multiple accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx" data-preview-nomor="{{ $previewNomor ?? '' }}">
+                                    <input type="file"
+                                        class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror"
+                                        id="lampiran" name="lampiran[]" multiple
+                                        accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx"
+                                        data-preview-nomor="{{ $previewNomor ?? '' }}">
                                     <label class="custom-file-label" for="lampiran">Pilih file...</label>
                                 </div>
                                 <div id="lampiran-list" class="mt-2" style="display: none;">
                                     <small class="text-muted">File terpilih:</small>
                                     <ul id="lampiran-file-list" class="list-unstyled mb-0 mt-1"></ul>
                                 </div>
-                                <small class="text-muted">Format: jpg, png, pdf, zip, doc, docx (max 2MB per file)</small>
+                                <small class="text-muted">Format: jpg, jpeg, png, pdf, zip, doc, docx (max 2MB per
+                                    file)</small>
                                 @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                 @error('lampiran.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
@@ -172,41 +178,45 @@
                     {{-- PRODUK ITEMS --}}
                     <div id="produk-section">
                         <h5 class="text-primary mb-3">
-                            <i class="fas fa-boxes"></i> Produk Terkait 
+                            <i class="fas fa-boxes"></i> Produk Terkait
                             <span id="produk-required-badge" class="badge badge-danger" style="display: none;">Wajib</span>
-                            <span id="produk-optional-badge" class="badge badge-secondary" style="display: none;">Opsional</span>
+                            <span id="produk-optional-badge" class="badge badge-secondary"
+                                style="display: none;">Opsional</span>
                         </h5>
                         <small class="text-muted d-block mb-3" id="produk-help-text"></small>
                         <div id="produk-container">
-                        <div class="row produk-row mb-2 align-items-center">
-                            <div class="col-md-7">
-                                <select class="form-control produk-select" name="produk_id[]">
-                                    <option value="">Pilih produk...</option>
-                                    @foreach($produks as $produk)
-                                        <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}">
-                                            [{{ $produk->item_code }}] {{ $produk->nama_produk }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
-                                    <i class="fas fa-camera"></i>
-                                </button>
-                            </div>
-                            <div class="col-md-1">
-                                <button type="button" class="btn btn-danger btn-sm btn-remove-produk" style="display:none;">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                            <div class="row produk-row mb-2 align-items-center">
+                                <div class="col-md-7">
+                                    <select class="form-control produk-select" name="produk_id[]">
+                                        <option value="">Pilih produk...</option>
+                                        @foreach($produks as $produk)
+                                            <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}">
+                                                [{{ $produk->item_code }}] {{ $produk->nama_produk }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1"
+                                        placeholder="Qty">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk"
+                                        title="Scan Barcode">
+                                        <i class="fas fa-camera"></i>
+                                    </button>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-danger btn-sm btn-remove-produk"
+                                        style="display:none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <button type="button" class="btn btn-outline-primary btn-sm mb-3" id="btn-add-produk">
-                        <i class="fas fa-plus"></i> Tambah Produk
-                    </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm mb-3" id="btn-add-produk">
+                            <i class="fas fa-plus"></i> Tambah Produk
+                        </button>
                     </div> {{-- End produk-section --}}
 
                     <hr>
@@ -246,11 +256,11 @@
             function updateProdukRequirement() {
                 const tujuan = $('#tujuan').val();
                 const isPemeriksaanStock = tujuan === 'Pemeriksaan Stock';
-                
+
                 // Update badges
                 $('#produk-required-badge').toggle(isPemeriksaanStock);
                 $('#produk-optional-badge').toggle(!isPemeriksaanStock && tujuan !== '');
-                
+
                 // Update help text
                 if (isPemeriksaanStock) {
                     $('#produk-help-text').text('Untuk kunjungan Pemeriksaan Stock, minimal 1 produk wajib diisi.');
@@ -269,7 +279,7 @@
             }
 
             // Listen for tujuan changes
-            $('#tujuan').on('change', function() {
+            $('#tujuan').on('change', function () {
                 updateProdukRequirement();
             });
 
@@ -304,32 +314,32 @@
             // Tambah baris produk
             $('#btn-add-produk').on('click', function () {
                 const newRow = `
-                    <div class="row produk-row mb-2 align-items-center">
-                        <div class="col-md-7">
-                            <select class="form-control produk-select" name="produk_id[]">
-                                <option value="">Pilih produk...</option>
-                                @foreach($produks as $produk)
-                                    <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}">
-                                        [{{ $produk->item_code }}] {{ $produk->nama_produk }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div class="row produk-row mb-2 align-items-center">
+                            <div class="col-md-7">
+                                <select class="form-control produk-select" name="produk_id[]">
+                                    <option value="">Pilih produk...</option>
+                                    @foreach($produks as $produk)
+                                        <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}">
+                                            [{{ $produk->item_code }}] {{ $produk->nama_produk }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
-                                <i class="fas fa-camera"></i>
-                            </button>
-                        </div>
-                        <div class="col-md-1">
-                            <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
+                    `;
                 $('#produk-container').append(newRow);
                 initProdukSelect2();
                 updateRemoveButtons();
@@ -350,7 +360,7 @@
 
             function updateRemoveButtons() {
                 const rows = $('.produk-row');
-                rows.each(function(index) {
+                rows.each(function (index) {
                     $(this).find('.btn-remove-produk').toggle(rows.length > 1);
                 });
             }
@@ -400,7 +410,7 @@
             const lampiranFileList = document.getElementById('lampiran-file-list');
 
             if (lampiranInput) {
-                lampiranInput.addEventListener('change', function() {
+                lampiranInput.addEventListener('change', function () {
                     lampiranFileList.innerHTML = '';
                     if (this.files && this.files.length > 0) {
                         lampiranList.style.display = 'block';
@@ -409,7 +419,7 @@
                             li.innerHTML = '<i class="fas fa-file mr-1 text-primary"></i> ' + this.files[i].name;
                             lampiranFileList.appendChild(li);
                         }
-                        
+
                         // Update custom file label
                         const label = this.nextElementSibling;
                         if (label) {

@@ -55,7 +55,7 @@
                                         <label for="tgl_transaksi">Tgl. Transaksi *</label>
                                         <input type="date" class="form-control @error('tgl_transaksi') is-invalid @enderror"
                                             id="tgl_transaksi" name="tgl_transaksi"
-                                            value="{{ old('tgl_transaksi', date('Y-m-d')) }}" required>
+                                            value="{{ old('tgl_transaksi', date('Y-m-d')) }}" required {{ auth()->user()->role === 'user' ? 'readonly' : '' }}>
                                         @error('tgl_transaksi') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                 </div>
@@ -89,7 +89,8 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="no_transaksi">No Transaksi (Preview)</label>
-                                <input type="text" class="form-control bg-light text-primary font-weight-bold" id="no_transaksi" value="{{ $previewNomor ?? '[Auto]' }}" readonly>
+                                <input type="text" class="form-control bg-light text-primary font-weight-bold"
+                                    id="no_transaksi" value="{{ $previewNomor ?? '[Auto]' }}" readonly>
                                 <small class="text-muted">Nomor invoice yang akan digenerate</small>
                             </div>
                             <div class="form-group">
@@ -126,8 +127,7 @@
                                     @endphp
                                     <input type="text" class="form-control"
                                         value="{{ $adminGudang->nama_gudang ?? 'Admin tidak terhubung ke gudang' }}" readonly>
-                                    <input type="hidden" id="gudang_id" name="gudang_id"
-                                        value="{{ $adminGudang->id ?? '' }}">
+                                    <input type="hidden" id="gudang_id" name="gudang_id" value="{{ $adminGudang->id ?? '' }}">
                                     @error('gudang_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                 @else
                                     {{-- User Biasa (Readonly) --}}
@@ -200,28 +200,33 @@
                                                     @php
                                                         $renderProduks = $produks;
                                                         $oldGudang = old('gudang_id');
-                                                        if(auth()->user()->role == 'super_admin' && isset($gudangProduks) && $gudangProduks && $oldGudang){
+                                                        if (auth()->user()->role == 'super_admin' && isset($gudangProduks) && $gudangProduks && $oldGudang) {
                                                             $allowedIds = $gudangProduks[$oldGudang] ?? [];
                                                             $renderProduks = $produks->whereIn('id', $allowedIds);
-                                                        } elseif(auth()->user()->role == 'super_admin') {
+                                                        } elseif (auth()->user()->role == 'super_admin') {
                                                             $renderProduks = collect();
                                                         }
                                                     @endphp
                                                     @foreach($renderProduks as $p)
-                                                        <option value="{{ $p->id }}" data-kode="{{ $p->item_code ?? '' }}" data-harga="{{ $p->harga }}"
-                                                            data-deskripsi="{{ $p->deskripsi }}" data-satuan="{{ $p->satuan ?? 'Pcs' }}" {{ $oldPid == $p->id ? 'selected' : '' }}>
+                                                        <option value="{{ $p->id }}" data-kode="{{ $p->item_code ?? '' }}"
+                                                            data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}"
+                                                            data-satuan="{{ $p->satuan ?? 'Pcs' }}" {{ $oldPid == $p->id ? 'selected' : '' }}>
                                                             [{{ $p->item_code }}] {{ $p->nama_produk }}
                                                         </option>
                                                     @endforeach
                                                 </select>
                                             </td>
-                                            <td class="text-center"><button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i class="fas fa-camera"></i></button></td>
+                                            <td class="text-center"><button type="button"
+                                                    class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i
+                                                        class="fas fa-camera"></i></button></td>
                                             <td><input type="text" class="form-control product-desc" name="deskripsi[]"
                                                     value="{{ old('deskripsi.' . $index) }}"></td>
                                             <td><input type="number" class="form-control product-qty" name="kuantitas[]"
                                                     value="{{ old('kuantitas.' . $index) }}" min="1" required></td>
                                             <td>
-                                                <input type="text" class="form-control product-unit" name="unit[]" value="{{ old('unit.' . $index, $renderProduks->firstWhere('id', $oldPid)->satuan ?? 'Pcs') }}" readonly>
+                                                <input type="text" class="form-control product-unit" name="unit[]"
+                                                    value="{{ old('unit.' . $index, $renderProduks->firstWhere('id', $oldPid)->satuan ?? 'Pcs') }}"
+                                                    readonly>
                                             </td>
                                             <td><input type="number" class="form-control text-right product-price"
                                                     name="harga_satuan[]" value="{{ old('harga_satuan.' . $index) }}" required></td>
@@ -239,22 +244,27 @@
                                                 <option value="">Pilih...</option>
                                                 @php
                                                     $renderProduks = $produks;
-                                                    if(auth()->user()->role == 'super_admin') {
+                                                    if (auth()->user()->role == 'super_admin') {
                                                         $renderProduks = collect();
                                                     }
                                                 @endphp
                                                 @foreach($renderProduks as $p)
-                                                    <option value="{{ $p->id }}" data-kode="{{ $p->item_code ?? '' }}" data-harga="{{ $p->harga }}"
-                                                        data-deskripsi="{{ $p->deskripsi }}" data-satuan="{{ $p->satuan ?? 'Pcs' }}">[{{ $p->item_code }}] {{ $p->nama_produk }}</option>
+                                                    <option value="{{ $p->id }}" data-kode="{{ $p->item_code ?? '' }}"
+                                                        data-harga="{{ $p->harga }}" data-deskripsi="{{ $p->deskripsi }}"
+                                                        data-satuan="{{ $p->satuan ?? 'Pcs' }}">[{{ $p->item_code }}]
+                                                        {{ $p->nama_produk }}</option>
                                                 @endforeach
                                             </select>
                                         </td>
-                                        <td class="text-center"><button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i class="fas fa-camera"></i></button></td>
+                                        <td class="text-center"><button type="button"
+                                                class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i
+                                                    class="fas fa-camera"></i></button></td>
                                         <td><input type="text" class="form-control product-desc" name="deskripsi[]"></td>
                                         <td><input type="number" class="form-control product-qty" name="kuantitas[]" value="1"
                                                 min="1" required></td>
                                         <td>
-                                            <input type="text" class="form-control product-unit" name="unit[]" value="" readonly>
+                                            <input type="text" class="form-control product-unit" name="unit[]" value=""
+                                                readonly>
                                         </td>
                                         <td><input type="number" class="form-control text-right product-price"
                                                 name="harga_satuan[]" value="0" required></td>
@@ -286,12 +296,18 @@
                                     rows="3">{{ old('memo') }}</textarea>
                             </div>
                             <div class="form-group">
-                                <label for="lampiran">Lampiran <small class="text-muted">(dapat memilih banyak file)</small></label>
+                                <label for="lampiran">Lampiran <small class="text-muted">(dapat memilih banyak
+                                        file)</small></label>
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror"
-                                        id="lampiran" name="lampiran[]" multiple data-preview-nomor="{{ $previewNomor ?? '' }}" accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx">
+                                    <input type="file"
+                                        class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror"
+                                        id="lampiran" name="lampiran[]" multiple
+                                        data-preview-nomor="{{ $previewNomor ?? '' }}"
+                                        accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx">
                                     <label class="custom-file-label" for="lampiran">Pilih file...</label>
                                 </div>
+                                <small class="form-text text-muted">Format: jpg, jpeg, png, pdf, zip, doc, docx (max 2MB per
+                                    file)</small>
                                 <div id="lampiran-list" class="mt-2" style="display: none;">
                                     <small class="text-muted">File terpilih:</small>
                                     <ul id="lampiran-file-list" class="list-unstyled mb-0 mt-1"></ul>
@@ -392,12 +408,12 @@
                 const gudangProduks = null;
             @endif
 
-            // Semua produk dengan data lengkap
-            const allProduks = [
+                // Semua produk dengan data lengkap
+                const allProduks = [
                 @foreach($produks as $p)
                     { id: {{ $p->id }}, nama: "{{ addslashes($p->nama_produk) }}", harga: {{ $p->harga }}, deskripsi: "{{ addslashes($p->deskripsi ?? '') }}", satuan: "{{ $p->satuan ?? 'Pcs' }}" },
                 @endforeach
-            ];
+                ];
 
             // Function untuk generate options HTML berdasarkan gudang
             function getProductOptionsHtml(gudangId = null) {
@@ -429,7 +445,7 @@
 
             // Event listener untuk perubahan gudang (super admin)
             if (gudangSelect && gudangProduks) {
-                gudangSelect.addEventListener('change', function() {
+                gudangSelect.addEventListener('change', function () {
                     const selectedGudang = this.value;
                     productOptionsHtml = getProductOptionsHtml(selectedGudang);
 
@@ -532,45 +548,45 @@
                     card.className = 'product-card-mobile';
                     card.dataset.rowIndex = index;
                     card.innerHTML = `
-                        <div class="card-header-mobile">
-                            <div class="d-flex flex-grow-1">
-                                <select class="form-control product-select-mobile" data-row="${index}">
-                                    <option value="">Pilih...</option>
-                                    ${productOptionsHtml}
-                                </select>
-                                <button type="button" class="btn btn-outline-info btn-sm ml-1 btn-scan-produk-mobile" data-row="${index}" title="Scan Barcode">
-                                    <i class="fas fa-camera"></i>
-                                </button>
+                            <div class="card-header-mobile">
+                                <div class="d-flex flex-grow-1">
+                                    <select class="form-control product-select-mobile" data-row="${index}">
+                                        <option value="">Pilih...</option>
+                                        ${productOptionsHtml}
+                                    </select>
+                                    <button type="button" class="btn btn-outline-info btn-sm ml-1 btn-scan-produk-mobile" data-row="${index}" title="Scan Barcode">
+                                        <i class="fas fa-camera"></i>
+                                    </button>
+                                </div>
+                                ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm ml-1 remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
                             </div>
-                            ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm ml-1 remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
-                        </div>
-                        <div class="card-body-mobile">
-                            <div class="field-group full-width">
-                                <span class="field-label">Deskripsi</span>
-                                <input type="text" class="form-control product-desc-mobile" data-row="${index}" value="${desc}" placeholder="Deskripsi">
+                            <div class="card-body-mobile">
+                                <div class="field-group full-width">
+                                    <span class="field-label">Deskripsi</span>
+                                    <input type="text" class="form-control product-desc-mobile" data-row="${index}" value="${desc}" placeholder="Deskripsi">
+                                </div>
+                                <div class="field-group">
+                                    <span class="field-label">Qty</span>
+                                    <input type="number" class="form-control product-qty-mobile" data-row="${index}" value="${qty}" min="1">
+                                </div>
+                                <div class="field-group">
+                                    <span class="field-label">Unit</span>
+                                    <input type="text" class="form-control product-unit-mobile" data-row="${index}" value="${unit}" readonly>
+                                </div>
+                                <div class="field-group">
+                                    <span class="field-label">Harga</span>
+                                    <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
+                                </div>
+                                <div class="field-group">
+                                    <span class="field-label">Disc%</span>
+                                    <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
+                                </div>
                             </div>
-                            <div class="field-group">
-                                <span class="field-label">Qty</span>
-                                <input type="number" class="form-control product-qty-mobile" data-row="${index}" value="${qty}" min="1">
+                            <div class="total-row">
+                                <span class="total-label">Total</span>
+                                <span class="total-value">${formatRupiah(total)}</span>
                             </div>
-                            <div class="field-group">
-                                <span class="field-label">Unit</span>
-                                <input type="text" class="form-control product-unit-mobile" data-row="${index}" value="${unit}" readonly>
-                            </div>
-                            <div class="field-group">
-                                <span class="field-label">Harga</span>
-                                <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
-                            </div>
-                            <div class="field-group">
-                                <span class="field-label">Disc%</span>
-                                <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
-                            </div>
-                        </div>
-                        <div class="total-row">
-                            <span class="total-label">Total</span>
-                            <span class="total-value">${formatRupiah(total)}</span>
-                        </div>
-                    `;
+                        `;
                     mobileCardsContainer.appendChild(card);
 
                     const mobileSelect = card.querySelector('.product-select-mobile');
@@ -591,7 +607,7 @@
                             tableRow.querySelector('.product-price').value = opt?.dataset?.harga || 0;
                             tableRow.querySelector('.product-desc').value = opt?.dataset?.deskripsi || '';
                             tableRow.querySelector('.product-unit').value = opt?.dataset?.satuan || 'Pcs';
-                            
+
                             // Auto-fill harga & unit di mobile card juga
                             const card = mobileSelect.closest('.product-card-mobile');
                             if (card) {
@@ -602,7 +618,7 @@
                                 if (descMobile) descMobile.value = opt?.dataset?.deskripsi || '';
                                 if (unitMobile) unitMobile.value = opt?.dataset?.satuan || 'Pcs';
                             }
-                            
+
                             calculateTotal();
                         }
                     });
@@ -621,18 +637,18 @@
                     if (e.target.classList.contains('product-select-mobile')) {
                         const tableSelect = row.querySelector('.product-select');
                         tableSelect.value = e.target.value;
-                        
+
                         // Get product data dan auto-fill ke mobile card
                         const selectedOption = e.target.options[e.target.selectedIndex];
                         const harga = selectedOption.dataset.harga || 0;
                         const deskripsi = selectedOption.dataset.deskripsi || '';
                         const satuan = selectedOption.dataset.satuan || 'Pcs';
-                        
+
                         // Update desktop table
                         row.querySelector('.product-price').value = harga;
                         row.querySelector('.product-desc').value = deskripsi;
                         row.querySelector('.product-unit').value = satuan;
-                        
+
                         // Update mobile card langsung
                         if (card) {
                             const priceMobile = card.querySelector('.product-price-mobile');
@@ -642,7 +658,7 @@
                             if (descMobile) descMobile.value = deskripsi;
                             if (unitMobile) unitMobile.value = satuan;
                         }
-                        
+
                         // Calculate total dan update di mobile card
                         calculateTotal(true);
                         if (card) {
@@ -714,12 +730,12 @@
                             calculateTotal();
                         }
                     }
-                    
+
                     // Handle scan produk mobile
                     if (e.target.closest('.btn-scan-produk-mobile')) {
                         const btn = e.target.closest('.btn-scan-produk-mobile');
                         const rowIndex = btn.dataset.row;
-                        scanProduk(function(produkId) {
+                        scanProduk(function (produkId) {
                             // Update select di mobile card
                             const card = mobileCardsContainer.querySelector(`.product-card-mobile[data-row-index="${rowIndex}"]`);
                             if (card) {
@@ -894,7 +910,7 @@
             const lampiranFileList = document.getElementById('lampiran-file-list');
 
             if (lampiranInput) {
-                lampiranInput.addEventListener('change', function() {
+                lampiranInput.addEventListener('change', function () {
                     lampiranFileList.innerHTML = '';
                     if (this.files && this.files.length > 0) {
                         lampiranList.style.display = 'block';
@@ -903,7 +919,7 @@
                             li.innerHTML = '<i class="fas fa-file mr-1 text-primary"></i> ' + this.files[i].name;
                             lampiranFileList.appendChild(li);
                         }
-                        
+
                         // Update custom file label
                         const label = this.nextElementSibling;
                         if (label) {

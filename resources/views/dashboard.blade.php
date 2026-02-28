@@ -691,11 +691,30 @@
                             </select>
                             <small class="text-muted">*Hanya berlaku saat tipe transaksi = Biaya</small>
                         </div>
+
+                        {{-- Tujuan Kunjungan (muncul hanya jika tipe = kunjungan) --}}
+                        <div class="form-group" id="tujuanKunjunganGroup" style="display: none;">
+                            <label for="tujuan_filter">Tujuan Kunjungan</label>
+                            <select class="form-control" name="tujuan_filter" id="tujuan_filter">
+                                <option value="">Semua Tujuan</option>
+                                <option value="Pemeriksaan Stock">Pemeriksaan Stock</option>
+                                <option value="Penagihan">Penagihan</option>
+                                <option value="Penawaran">Penawaran</option>
+                                <option value="Promo">Promo</option>
+                            </select>
+                            <small class="text-muted">*Hanya berlaku saat tipe transaksi = Kunjungan</small>
+                        </div>
+
+                        {{-- Format Export --}}
+                        <input type="hidden" name="export_format" id="export_format" value="excel">
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-download mr-1"></i> Export ke Excel
+                        <button type="submit" class="btn btn-danger" onclick="document.getElementById('export_format').value='pdf'">
+                            <i class="fas fa-file-pdf mr-1"></i> Export ke PDF
+                        </button>
+                        <button type="submit" class="btn btn-success" onclick="document.getElementById('export_format').value='excel'">
+                            <i class="fas fa-file-excel mr-1"></i> Export ke Excel
                         </button>
                     </div>
                 </form>
@@ -713,16 +732,18 @@
     @if(in_array(auth()->user()->role, ['super_admin', 'admin', 'spectator']))
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                // Toggle Jenis Biaya dropdown based on transaction type
+                // Toggle Jenis Biaya & Tujuan Kunjungan dropdown based on transaction type
                 const typeSelect = document.getElementById('transaction_type');
                 const jenisGroup = document.getElementById('biayaJenisGroup');
-                const toggleJenis = () => {
+                const tujuanGroup = document.getElementById('tujuanKunjunganGroup');
+                const toggleFilters = () => {
                     if (!typeSelect) return;
-                    jenisGroup.style.display = typeSelect.value === 'biaya' ? 'block' : 'none';
+                    if (jenisGroup) jenisGroup.style.display = typeSelect.value === 'biaya' ? 'block' : 'none';
+                    if (tujuanGroup) tujuanGroup.style.display = typeSelect.value === 'kunjungan' ? 'block' : 'none';
                 };
-                if (typeSelect && jenisGroup) {
-                    typeSelect.addEventListener('change', toggleJenis);
-                    toggleJenis();
+                if (typeSelect) {
+                    typeSelect.addEventListener('change', toggleFilters);
+                    toggleFilters();
                 }
 
                 // Data dari Controller

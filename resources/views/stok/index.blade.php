@@ -46,10 +46,22 @@
                                     @error('produk_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="stok">Jumlah Stok *</label>
-                                    <input type="number" name="stok" id="stok"
-                                        class="form-control @error('stok') is-invalid @enderror" value="0" min="0" required>
-                                    @error('stok') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    <label for="stok_penjualan">Stok Penjualan *</label>
+                                    <input type="number" name="stok_penjualan" id="stok_penjualan"
+                                        class="form-control @error('stok_penjualan') is-invalid @enderror" value="0" min="0" required>
+                                    @error('stok_penjualan') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label for="stok_gratis">Stok Gratis *</label>
+                                    <input type="number" name="stok_gratis" id="stok_gratis"
+                                        class="form-control @error('stok_gratis') is-invalid @enderror" value="0" min="0" required>
+                                    @error('stok_gratis') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label for="stok_sample">Stok Sample *</label>
+                                    <input type="number" name="stok_sample" id="stok_sample"
+                                        class="form-control @error('stok_sample') is-invalid @enderror" value="0" min="0" required>
+                                    @error('stok_sample') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                                 <div class="form-group">
                                     <label for="keterangan">Keterangan Perubahan</label>
@@ -109,7 +121,10 @@
                                                         <tr class="bg-light">
                                                             <th class="pl-4">Produk</th>
                                                             <th>Item Code</th>
-                                                            <th class="text-right pr-4">Stok</th>
+                                                            <th class="text-right">Penjualan</th>
+                                                            <th class="text-right">Gratis</th>
+                                                            <th class="text-right">Sample</th>
+                                                            <th class="text-right pr-4">Total</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -119,13 +134,16 @@
                                                                 <tr>
                                                                     <td class="pl-4">{{ $stokItem->produk->nama_produk }}</td>
                                                                     <td>{{ $stokItem->produk->item_code }}</td>
+                                                                    <td class="text-right">{{ $stokItem->stok_penjualan ?? 0 }}</td>
+                                                                    <td class="text-right">{{ $stokItem->stok_gratis ?? 0 }}</td>
+                                                                    <td class="text-right">{{ $stokItem->stok_sample ?? 0 }}</td>
                                                                     <td class="text-right font-weight-bold pr-4">{{ $stokItem->stok }}
                                                                     </td>
                                                                 </tr>
                                                             @endif
                                                         @empty
                                                             <tr>
-                                                                <td colspan="3" class="text-center p-3">Belum ada stok produk di
+                                                                <td colspan="6" class="text-center p-3">Belum ada stok produk di
                                                                     gudang ini.</td>
                                                             </tr>
                                                         @endforelse

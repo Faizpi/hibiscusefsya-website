@@ -71,7 +71,7 @@
                                 <label for="tgl_penerimaan">Tanggal Penerimaan *</label>
                                 <input type="date" class="form-control @error('tgl_penerimaan') is-invalid @enderror"
                                     id="tgl_penerimaan" name="tgl_penerimaan"
-                                    value="{{ old('tgl_penerimaan', date('Y-m-d')) }}" required>
+                                    value="{{ old('tgl_penerimaan', date('Y-m-d')) }}" required {{ auth()->user()->role === 'user' ? 'readonly' : '' }}>
                                 @error('tgl_penerimaan') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -111,15 +111,15 @@
                                 <div class="custom-file">
                                     <input type="file"
                                         class="custom-file-input @error('lampiran') is-invalid @enderror @error('lampiran.*') is-invalid @enderror"
-                                        id="lampiran" name="lampiran[]" multiple accept="image/*,.pdf"
+                                        id="lampiran" name="lampiran[]" multiple
+                                        accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx"
                                         data-preview-nomor="{{ $previewNomor }}">
                                     <label class="custom-file-label" for="lampiran">Pilih file (bisa pilih
                                         banyak)...</label>
                                 </div>
                                 <small class="form-text text-muted">
                                     <i class="fas fa-info-circle mr-1"></i>
-                                    Anda bisa memilih beberapa file sekaligus. File akan disimpan dengan format:
-                                    <strong>{{ $previewNomor }}-1.jpg, {{ $previewNomor }}-2.jpg</strong>, dst.
+                                    Format: jpg, jpeg, png, pdf, zip, doc, docx (max 2MB per file)
                                 </small>
                                 <div id="lampiran-list" class="mt-2"></div>
                                 @error('lampiran') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
@@ -192,14 +192,17 @@
                                 <thead class="thead-light">
                                     <tr>
                                         <th width="8%">Kode</th>
-                                        <th width="20%">Nama Produk</th>
-                                        <th width="12%">Invoice</th>
-                                        <th width="6%">Satuan</th>
-                                        <th width="8%" class="text-center">Qty Pesan</th>
-                                        <th width="8%" class="text-center">Sudah Diterima</th>
-                                        <th width="8%" class="text-center">Sisa</th>
-                                        <th width="15%">Qty Diterima *</th>
-                                        <th width="15%">Qty Reject</th>
+                                        <th width="14%">Nama Produk</th>
+                                        <th width="10%">Invoice</th>
+                                        <th width="5%">Satuan</th>
+                                        <th width="5%" class="text-center">Pesan</th>
+                                        <th width="5%" class="text-center">Diterima</th>
+                                        <th width="5%" class="text-center">Sisa</th>
+                                        <th width="10%">Qty Diterima *</th>
+                                        <th width="8%">Qty Reject</th>
+                                        <th width="10%">Tipe Stok *</th>
+                                        <th width="10%">Batch</th>
+                                        <th width="10%">Expired</th>
                                     </tr>
                                 </thead>
                                 <tbody id="items-body">
@@ -210,11 +213,13 @@
                                         <td colspan="7" class="text-right">Total Qty Diterima / Reject:</td>
                                         <td class="text-success" id="total-qty-diterima">0</td>
                                         <td class="text-danger" id="total-qty-reject">0</td>
+                                        <td colspan="3"></td>
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
-                        <small class="text-muted"><i class="fas fa-info-circle"></i> <strong>Qty Reject</strong> adalah barang yang tidak lolos quality control dan tidak akan masuk ke stok gudang.</small>
+                        <small class="text-muted"><i class="fas fa-info-circle"></i> <strong>Qty Reject</strong> adalah
+                            barang yang tidak lolos quality control dan tidak akan masuk ke stok gudang.</small>
                     </div>
 
                     <div id="no-invoice-selected" class="alert alert-info">
@@ -363,11 +368,11 @@
                         responses = [arguments[0]];
                     } else {
                         // Multiple requests - each argument is [data, textStatus, jqXHR]
-                        responses = Array.from(arguments).map(function(arg) {
+                        responses = Array.from(arguments).map(function (arg) {
                             return arg[0]; // Get data from each response
                         });
                     }
-                    
+
                     console.log('Responses:', responses); // Debug
 
                     var allItems = [];
@@ -420,6 +425,21 @@
                         html += 'name="items[' + item.index + '][qty_reject]" value="0" ';
                         html += 'min="0" max="' + item.qty_sisa + '" data-max="' + item.qty_sisa + '">';
                         html += '</td>';
+                        html += '<td>';
+                        html += '<select class="form-control form-control-sm" name="items[' + item.index + '][tipe_stok]">';
+                        html += '<option value="penjualan" selected>Penjualan</option>';
+                        html += '<option value="gratis">Gratis</option>';
+                        html += '<option value="sample">Sample</option>';
+                        html += '</select>';
+                        html += '</td>';
+                        html += '<td>';
+                        html += '<input type="text" class="form-control form-control-sm" ';
+                        html += 'name="items[' + item.index + '][batch_number]" placeholder="No. Batch">';
+                        html += '</td>';
+                        html += '<td>';
+                        html += '<input type="date" class="form-control form-control-sm" ';
+                        html += 'name="items[' + item.index + '][expired_date]">';
+                        html += '</td>';
                         html += '</tr>';
                     });
 
@@ -433,7 +453,7 @@
                         var maxQty = parseInt(row.find('.qty-diterima').data('max')) || 0;
                         var qtyDiterima = parseInt(row.find('.qty-diterima').val()) || 0;
                         var qtyReject = parseInt(row.find('.qty-reject').val()) || 0;
-                        
+
                         // Validasi total tidak melebihi max
                         if (qtyDiterima + qtyReject > maxQty) {
                             if ($(this).hasClass('qty-diterima')) {

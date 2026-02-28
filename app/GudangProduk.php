@@ -8,7 +8,7 @@ class GudangProduk extends Model
 {
     protected $table = 'gudang_produk'; // Nama tabel pivot
     public $timestamps = false; // Tabel ini tidak perlu timestamps
-    protected $fillable = ['gudang_id', 'produk_id', 'stok'];
+    protected $fillable = ['gudang_id', 'produk_id', 'stok', 'stok_penjualan', 'stok_gratis', 'stok_sample'];
 
     // Relasi ke model Gudang
     public function gudang()
