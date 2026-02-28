@@ -48,7 +48,21 @@
                                 <label for="no_telp">No. Telepon</label>
                                 <input type="text" class="form-control @error('no_telp') is-invalid @enderror" id="no_telp"
                                     name="no_telp" value="{{ old('no_telp') }}">
+                                <small class="form-text text-muted">No. Telp akan menjadi username login customer</small>
                                 @error('no_telp')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="pin">PIN Customer (6 digit)</label>
+                                <input type="text" class="form-control @error('pin') is-invalid @enderror" id="pin"
+                                    name="pin" value="{{ old('pin') }}" maxlength="6" placeholder="Contoh: 123456">
+                                <small class="form-text text-muted">PIN untuk login portal customer. Kosongkan jika belum perlu.</small>
+                                @error('pin')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

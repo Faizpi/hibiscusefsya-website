@@ -74,11 +74,8 @@ class KontakController extends Controller
             'nama' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:kontaks',
             'no_telp' => 'nullable|string|max:20',
+            'pin' => 'nullable|string|size:6',
             'alamat' => 'nullable|string',
-            'diskon_persen' => 'nullable|numeric|min:0|max:100',
-        ]);
-
-        Kontak::create($request->all());
 
         return redirect()->route('kontak.index')->with('success', 'Kontak baru berhasil ditambahkan.');
     }
@@ -104,6 +101,7 @@ class KontakController extends Controller
             'nama' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:kontaks,email,' . $kontak->id,
             'no_telp' => 'nullable|string|max:20',
+            'pin' => 'nullable|string|size:6',
             'alamat' => 'nullable|string',
             'diskon_persen' => 'nullable|numeric|min:0|max:100',
         ]);
