@@ -61,7 +61,8 @@
                                 <label for="pin">PIN Customer (6 digit)</label>
                                 <input type="text" class="form-control @error('pin') is-invalid @enderror" id="pin"
                                     name="pin" value="{{ old('pin') }}" maxlength="6" placeholder="Contoh: 123456">
-                                <small class="form-text text-muted">PIN untuk login portal customer. Kosongkan jika belum perlu.</small>
+                                <small class="form-text text-muted">PIN untuk login portal customer. Kosongkan jika belum
+                                    perlu.</small>
                                 @error('pin')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

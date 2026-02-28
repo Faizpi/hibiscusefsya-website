@@ -42,8 +42,18 @@
                             <td>{{ $item->approver->name ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                         @else
-                            <td></td><td></td><td></td><td></td><td></td><td></td>
-                            <td></td><td></td><td></td><td></td><td></td><td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         @endif
                         <td>{{ $detail->kategori ?? '-' }}</td>
                         <td>{{ $detail->deskripsi ?? '-' }}</td>
@@ -53,7 +63,9 @@
                             <td>{{ $item->tax_percentage ?? 0 }}</td>
                             <td>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</td>
                         @else
-                            <td></td><td></td><td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         @endif
                     </tr>
                 @endforeach

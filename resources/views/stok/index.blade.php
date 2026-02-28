@@ -48,19 +48,22 @@
                                 <div class="form-group">
                                     <label for="stok_penjualan">Stok Penjualan *</label>
                                     <input type="number" name="stok_penjualan" id="stok_penjualan"
-                                        class="form-control @error('stok_penjualan') is-invalid @enderror" value="0" min="0" required>
+                                        class="form-control @error('stok_penjualan') is-invalid @enderror" value="0" min="0"
+                                        required>
                                     @error('stok_penjualan') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                                 <div class="form-group">
                                     <label for="stok_gratis">Stok Gratis *</label>
                                     <input type="number" name="stok_gratis" id="stok_gratis"
-                                        class="form-control @error('stok_gratis') is-invalid @enderror" value="0" min="0" required>
+                                        class="form-control @error('stok_gratis') is-invalid @enderror" value="0" min="0"
+                                        required>
                                     @error('stok_gratis') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                                 <div class="form-group">
                                     <label for="stok_sample">Stok Sample *</label>
                                     <input type="number" name="stok_sample" id="stok_sample"
-                                        class="form-control @error('stok_sample') is-invalid @enderror" value="0" min="0" required>
+                                        class="form-control @error('stok_sample') is-invalid @enderror" value="0" min="0"
+                                        required>
                                     @error('stok_sample') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                                 <div class="form-group">

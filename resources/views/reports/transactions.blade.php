@@ -63,7 +63,16 @@
                             </td>
                             <td>{{ $item->status }}</td>
                         @else
-                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         @endif
                         <td>{{ $detail->produk->nama_produk ?? ($detail->deskripsi ?? ($detail->kategori ?? '-')) }}</td>
                         <td>{{ $detail->harga_satuan ?? ($detail->jumlah ?? '-') }}</td>
@@ -73,7 +82,9 @@
                             <td>{{ $item->tax_percentage ?? 0 }}</td>
                             <td>{{ $item->grand_total ?? '-' }}</td>
                         @else
-                            <td></td><td></td><td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         @endif
                     </tr>
                 @endforeach

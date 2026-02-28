@@ -19,9 +19,9 @@ Auth::routes();
 
 // ========================================================================
 // CUSTOMER PORTAL (Login via No Telp + PIN)
-// Subdomain: customer.hibiscusefsya.com
+// URL: sales.hibiscusefsya.com/customer
 // ========================================================================
-Route::domain('customer.hibiscusefsya.com')->name('customer.')->group(function () {
+Route::prefix('customer')->name('customer.')->group(function () {
     Route::get('/', 'CustomerPortalController@loginForm')->name('login');
     Route::get('login', 'CustomerPortalController@loginForm');
     Route::post('login', 'CustomerPortalController@login')->name('login.submit');

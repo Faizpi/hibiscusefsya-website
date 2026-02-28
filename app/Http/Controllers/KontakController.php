@@ -76,6 +76,10 @@ class KontakController extends Controller
             'no_telp' => 'nullable|string|max:20',
             'pin' => 'nullable|string|size:6',
             'alamat' => 'nullable|string',
+            'diskon_persen' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        Kontak::create($request->all());
 
         return redirect()->route('kontak.index')->with('success', 'Kontak baru berhasil ditambahkan.');
     }

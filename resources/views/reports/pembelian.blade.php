@@ -49,9 +49,23 @@
                             <td>{{ $item->approver->name ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                         @else
-                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         @endif
-                        <td>{{ ($detail->produk->item_code ?? '') }} - {{ $detail->produk->nama_produk ?? ($detail->deskripsi ?? '-') }}</td>
+                        <td>{{ ($detail->produk->item_code ?? '') }} -
+                            {{ $detail->produk->nama_produk ?? ($detail->deskripsi ?? '-') }}</td>
                         <td>{{ $detail->harga_satuan ?? 0 }}</td>
                         <td>{{ $detail->kuantitas ?? 0 }}</td>
                         <td>{{ $detail->diskon ?? 0 }}</td>
@@ -62,7 +76,10 @@
                             <td>{{ $item->tax_percentage ?? 0 }}</td>
                             <td>{{ $item->grand_total }}</td>
                         @else
-                            <td></td><td></td><td></td><td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         @endif
                     </tr>
                 @endforeach
@@ -82,7 +99,11 @@
                     <td>{{ $item->user->name ?? '-' }}</td>
                     <td>{{ $item->approver->name ?? '-' }}</td>
                     <td>{{ $item->status }}</td>
-                    <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
                     <td>{{ $item->memo ?? '-' }}</td>
                     <td>{{ $item->diskon_akhir ?? 0 }}</td>
                     <td>{{ $item->tax_percentage ?? 0 }}</td>

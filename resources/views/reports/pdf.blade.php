@@ -14,14 +14,10 @@
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .badge { padding: 2px 6px; border-radius: 3px; color: #fff; font-size: 7px; }
-        .badge-primary { background: #1a56db; }
         .badge-success { background: #0e9f6e; }
-        .badge-info { background: #3f83f8; }
-        .badge-secondary { background: #6b7280; }
         .badge-warning { background: #c27803; color: #fff; }
-        .lampiran-section { margin-top: 10px; page-break-inside: avoid; }
-        .lampiran-img { max-width: 300px; max-height: 250px; margin: 5px; border: 1px solid #ddd; }
-        .page-break { page-break-after: always; }
+        .badge-secondary { background: #6b7280; }
+        .lampiran-thumb { max-width: 60px; max-height: 45px; border: 1px solid #ccc; margin: 1px; }
         .footer { position: fixed; bottom: 0; width: 100%; font-size: 7px; color: #999; border-top: 1px solid #ddd; padding-top: 3px; }
     </style>
 </head>
@@ -38,21 +34,30 @@
             <thead>
                 <tr>
                     <th width="3%">No</th>
-                    <th width="10%">No Kunjungan</th>
+                    <th width="9%">No Kunjungan</th>
                     <th width="7%">Tanggal</th>
-                    <th width="8%">Tujuan</th>
-                    <th width="10%">Sales</th>
-                    <th width="10%">Gudang</th>
-                    <th width="7%">Status</th>
+                    <th width="7%">Tujuan</th>
+                    <th width="8%">Sales</th>
+                    <th width="8%">Gudang</th>
+                    <th width="6%">Status</th>
                     <th width="12%">Produk</th>
-                    <th width="5%">Qty</th>
-                    <th width="15%">Memo</th>
-                    <th width="5%">Lampiran</th>
+                    <th width="4%">Qty</th>
+                    <th width="12%">Memo</th>
+                    <th width="15%">Lampiran</th>
                 </tr>
             </thead>
             <tbody>
                 @php $no = 1; @endphp
                 @foreach($transactions as $item)
+                    @php
+                        $paths = $item->lampiran_paths ?? [];
+                        if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) {
+                            $paths[] = $item->lampiran_path;
+                        }
+                        $imagePaths = collect($paths)->filter(function($p) {
+                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
+                        });
+                    @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
                         <td>{{ $item->number }}</td>
@@ -86,43 +91,22 @@
                             @endif
                         </td>
                         <td>{{ $item->memo ?? '-' }}</td>
-                        <td class="text-center">
-                            @php
-                                $paths = $item->lampiran_paths ?? [];
-                                if ($item->lampiran_path) $paths[] = $item->lampiran_path;
-                            @endphp
-                            {{ count($paths) > 0 ? count($paths) . ' file' : '-' }}
+                        <td>
+                            @if($imagePaths->count() > 0)
+                                @foreach($imagePaths as $imgPath)
+                                    @php $fullPath = public_path('storage/' . $imgPath); @endphp
+                                    @if(file_exists($fullPath))
+                                        <img src="{{ $fullPath }}" class="lampiran-thumb">
+                                    @endif
+                                @endforeach
+                            @else
+                                -
+                            @endif
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
-
-        {{-- Lampiran Section --}}
-        @foreach($transactions as $item)
-            @php
-                $paths = $item->lampiran_paths ?? [];
-                if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) {
-                    $paths[] = $item->lampiran_path;
-                }
-                $imagePaths = collect($paths)->filter(function($p) {
-                    return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
-                });
-            @endphp
-            @if($imagePaths->count() > 0)
-                <div class="lampiran-section">
-                    <strong>Lampiran: {{ $item->number }}</strong><br>
-                    @foreach($imagePaths as $imgPath)
-                        @php
-                            $fullPath = public_path('storage/' . $imgPath);
-                        @endphp
-                        @if(file_exists($fullPath))
-                            <img src="{{ $fullPath }}" class="lampiran-img" alt="Lampiran"><br>
-                        @endif
-                    @endforeach
-                </div>
-            @endif
-        @endforeach
 
     @elseif($exportType === 'penjualan')
         {{-- PENJUALAN --}}
@@ -130,22 +114,30 @@
             <thead>
                 <tr>
                     <th width="3%">No</th>
-                    <th width="10%">No Transaksi</th>
+                    <th width="9%">No Transaksi</th>
                     <th width="7%">Tanggal</th>
-                    <th width="10%">Pelanggan</th>
-                    <th width="8%">Gudang</th>
-                    <th width="6%">Status</th>
-                    <th width="15%">Produk</th>
+                    <th width="9%">Pelanggan</th>
+                    <th width="7%">Gudang</th>
+                    <th width="5%">Status</th>
+                    <th width="13%">Produk</th>
                     <th width="7%">Harga</th>
-                    <th width="5%">Qty</th>
+                    <th width="4%">Qty</th>
                     <th width="7%">Subtotal</th>
-                    <th width="5%">Pajak</th>
+                    <th width="4%">Pajak</th>
                     <th width="8%">Grand Total</th>
+                    <th width="10%">Lampiran</th>
                 </tr>
             </thead>
             <tbody>
                 @php $no = 1; @endphp
                 @foreach($transactions as $item)
+                    @php
+                        $paths = $item->lampiran_paths ?? [];
+                        if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) $paths[] = $item->lampiran_path;
+                        $imagePaths = collect($paths)->filter(function($p) {
+                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
+                        });
+                    @endphp
                     @if($item->items && $item->items->count() > 0)
                         @foreach($item->items as $idx => $detail)
                             <tr>
@@ -166,8 +158,20 @@
                                     <td class="text-right">{{ number_format(($item->grand_total ?? 0) / (1 + (($item->tax_percentage ?? 0) / 100)), 0, ',', '.') }}</td>
                                     <td>{{ $item->tax_percentage ?? 0 }}%</td>
                                     <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
+                                    <td>
+                                        @if($imagePaths->count() > 0)
+                                            @foreach($imagePaths as $imgPath)
+                                                @php $fullPath = public_path('storage/' . $imgPath); @endphp
+                                                @if(file_exists($fullPath))
+                                                    <img src="{{ $fullPath }}" class="lampiran-thumb">
+                                                @endif
+                                            @endforeach
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 @else
-                                    <td></td><td></td><td></td>
+                                    <td></td><td></td><td></td><td></td>
                                 @endif
                             </tr>
                         @endforeach
@@ -183,33 +187,12 @@
                             <td class="text-right">{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</td>
                             <td>{{ $item->tax_percentage ?? 0 }}%</td>
                             <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
+                            <td>-</td>
                         </tr>
                     @endif
                 @endforeach
             </tbody>
         </table>
-
-        {{-- Lampiran --}}
-        @foreach($transactions as $item)
-            @php
-                $paths = $item->lampiran_paths ?? [];
-                if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) $paths[] = $item->lampiran_path;
-                $imagePaths = collect($paths)->filter(function($p) {
-                    return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
-                });
-            @endphp
-            @if($imagePaths->count() > 0)
-                <div class="lampiran-section">
-                    <strong>Lampiran: {{ $item->number }}</strong><br>
-                    @foreach($imagePaths as $imgPath)
-                        @php $fullPath = public_path('storage/' . $imgPath); @endphp
-                        @if(file_exists($fullPath))
-                            <img src="{{ $fullPath }}" class="lampiran-img"><br>
-                        @endif
-                    @endforeach
-                </div>
-            @endif
-        @endforeach
 
     @elseif($exportType === 'pembelian')
         {{-- PEMBELIAN --}}
@@ -350,6 +333,7 @@
                     <th>Harga</th>
                     <th>Qty</th>
                     <th>Grand Total</th>
+                    <th>Lampiran</th>
                 </tr>
             </thead>
             <tbody>
@@ -359,6 +343,12 @@
                         $tanggal = $item->tgl_transaksi ?? $item->tgl_kunjungan ?? null;
                         $items = collect();
                         if ($item->relationLoaded('items')) $items = $item->items;
+                        $paths = [];
+                        if (isset($item->lampiran_paths) && is_array($item->lampiran_paths)) $paths = $item->lampiran_paths;
+                        if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) $paths[] = $item->lampiran_path;
+                        $imagePaths = collect($paths)->filter(function($p) {
+                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
+                        });
                     @endphp
                     @if($items->count() > 0)
                         @foreach($items as $idx => $detail)
@@ -379,8 +369,20 @@
                                 <td class="text-center">{{ $detail->kuantitas ?? ($detail->jumlah ?? '-') }}</td>
                                 @if($idx === 0)
                                     <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
+                                    <td>
+                                        @if($imagePaths->count() > 0)
+                                            @foreach($imagePaths as $imgPath)
+                                                @php $fullPath = public_path('storage/' . $imgPath); @endphp
+                                                @if(file_exists($fullPath))
+                                                    <img src="{{ $fullPath }}" class="lampiran-thumb">
+                                                @endif
+                                            @endforeach
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 @else
-                                    <td></td>
+                                    <td></td><td></td>
                                 @endif
                             </tr>
                         @endforeach
@@ -395,33 +397,12 @@
                             <td>{{ $item->status }}</td>
                             <td>-</td><td>-</td><td>-</td>
                             <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
+                            <td>-</td>
                         </tr>
                     @endif
                 @endforeach
             </tbody>
         </table>
-
-        {{-- Lampiran for ALL --}}
-        @foreach($transactions as $item)
-            @php
-                $paths = $item->lampiran_paths ?? [];
-                if ($item->lampiran_path && !in_array($item->lampiran_path, $paths ?? [])) $paths[] = $item->lampiran_path;
-                $imagePaths = collect($paths)->filter(function($p) {
-                    return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
-                });
-            @endphp
-            @if($imagePaths->count() > 0)
-                <div class="lampiran-section">
-                    <strong>Lampiran: {{ $item->number }}</strong><br>
-                    @foreach($imagePaths as $imgPath)
-                        @php $fullPath = public_path('storage/' . $imgPath); @endphp
-                        @if(file_exists($fullPath))
-                            <img src="{{ $fullPath }}" class="lampiran-img"><br>
-                        @endif
-                    @endforeach
-                </div>
-            @endif
-        @endforeach
     @endif
 
     <div class="footer">
