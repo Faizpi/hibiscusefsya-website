@@ -4,13 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Masukkan PIN - Hibiscus Efsya</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', sans-serif;
-            background: #f0f4f8;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #dbeafe 0%, #f0f4f8 50%, #ede9fe 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -19,33 +18,45 @@
         }
         .pin-container {
             width: 100%;
-            max-width: 420px;
-            background: #fff;
-            border-radius: 16px;
-            padding: 40px 32px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            max-width: 440px;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 24px;
+            padding: 44px 36px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
             text-align: center;
         }
+        .pin-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 32px;
+        }
+        .pin-logo img { height: 34px; }
+        .pin-logo span { font-size: 1.1rem; font-weight: 700; color: #1e40af; }
         .back-link {
             display: inline-flex;
             align-items: center;
             color: #6b7280;
             text-decoration: none;
-            font-size: 0.82rem;
+            font-size: 0.9rem;
             font-weight: 500;
             margin-bottom: 28px;
             transition: color 0.2s;
+            gap: 6px;
         }
         .back-link:hover { color: #1e40af; }
-        .back-link i { margin-right: 6px; font-size: 0.75rem; }
         .pin-container h2 {
-            font-size: 1.25rem;
+            font-size: 1.4rem;
             font-weight: 700;
             color: #1f2937;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         .pin-container .desc {
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             color: #6b7280;
             margin-bottom: 32px;
             line-height: 1.5;
@@ -58,16 +69,17 @@
             margin-bottom: 28px;
         }
         .pin-box {
-            width: 48px;
-            height: 56px;
+            width: 50px;
+            height: 58px;
             border: 1.5px solid #d1d5db;
-            border-radius: 10px;
+            border-radius: 14px;
             text-align: center;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
             color: #1f2937;
             outline: none;
+            background: rgba(255,255,255,0.6);
             transition: border-color 0.2s, box-shadow 0.2s;
             -webkit-text-security: disc;
         }
@@ -75,53 +87,54 @@
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
         }
-        .pin-box.filled { border-color: #1e40af; }
+        .pin-box.filled { border-color: #1e40af; background: rgba(239,246,255,0.6); }
         .btn-submit {
             width: 100%;
-            padding: 13px;
+            padding: 14px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             background: #1e40af;
             color: #fff;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 600;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.1s;
         }
         .btn-submit:hover { background: #1d4ed8; }
-        .btn-submit:active { background: #1e3a8a; }
+        .btn-submit:active { background: #1e3a8a; transform: scale(0.99); }
         .btn-submit:disabled { background: #93c5fd; cursor: not-allowed; }
         .forgot-pin {
             display: block;
             margin-top: 20px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #6b7280;
         }
         .alert {
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.82rem;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
             margin-bottom: 20px;
             text-align: left;
         }
-        .alert-danger {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
+        .alert-danger { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
         @media (max-width: 480px) {
             body { padding: 16px; }
-            .pin-container { padding: 32px 24px; }
-            .pin-box { width: 42px; height: 50px; font-size: 1.1rem; }
+            .pin-container { padding: 36px 24px; }
+            .pin-box { width: 44px; height: 52px; font-size: 1.2rem; }
             .pin-boxes { gap: 8px; }
         }
     </style>
 </head>
 <body>
     <div class="pin-container">
+        <div class="pin-logo">
+            <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo">
+            <span>Hibiscus Efsya</span>
+        </div>
+
         <a href="{{ route('customer.login') }}" class="back-link">
-            <i class="fas fa-arrow-left"></i> Kembali
+            &#8592; Kembali
         </a>
 
         <h2>Masukkan PIN</h2>
@@ -200,15 +213,6 @@
 
                 box.addEventListener('focus', function() { this.select(); });
             });
-
-            // Auto-submit when all 6 filled
-            pinValue.addEventListener = pinValue.addEventListener;
-            var observer = new MutationObserver(function() {});
-            setInterval(function() {
-                if (pinValue.value.length === 6 && btnSubmit.disabled === false) {
-                    // Small delay then auto-submit
-                }
-            }, 100);
         })();
     </script>
 </body>

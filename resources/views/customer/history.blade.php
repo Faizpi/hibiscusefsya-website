@@ -3,29 +3,25 @@
 @section('title', 'Riwayat Pembelian')
 
 @section('content')
-    <div style="margin-bottom: 24px;">
-        <h4 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 4px;">
-            Riwayat Pembelian
-        </h4>
-        <p style="font-size: 0.85rem; color: #6b7280; margin: 0;">Daftar transaksi pembelian Anda.</p>
+    <div class="page-header">
+        <h4 class="page-title">Riwayat Pembelian</h4>
+        <p class="page-subtitle">Daftar transaksi pembelian Anda.</p>
     </div>
 
     {{-- Filter --}}
-    <div class="card" style="margin-bottom: 20px;">
-        <div class="card-body" style="padding: 14px 20px;">
-            <form method="GET" action="{{ route('customer.history') }}" style="display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;">
-                <div style="flex: 1; min-width: 140px;">
-                    <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #6b7280; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Dari Tanggal</label>
-                    <input type="date" name="dari" value="{{ request('dari') }}" 
-                           style="width: 100%; padding: 8px 12px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 0.82rem; font-family: 'Inter', sans-serif; color: #374151; outline: none;">
+    <div class="card filter-card">
+        <div class="card-body" style="padding: 16px 22px;">
+            <form method="GET" action="{{ route('customer.history') }}" class="filter-form">
+                <div class="filter-field">
+                    <label class="filter-label">Dari Tanggal</label>
+                    <input type="date" name="dari" value="{{ request('dari') }}" class="filter-input">
                 </div>
-                <div style="flex: 1; min-width: 140px;">
-                    <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #6b7280; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Sampai Tanggal</label>
-                    <input type="date" name="sampai" value="{{ request('sampai') }}" 
-                           style="width: 100%; padding: 8px 12px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 0.82rem; font-family: 'Inter', sans-serif; color: #374151; outline: none;">
+                <div class="filter-field">
+                    <label class="filter-label">Sampai Tanggal</label>
+                    <input type="date" name="sampai" value="{{ request('sampai') }}" class="filter-input">
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
                     <a href="{{ route('customer.history') }}" class="btn btn-outline btn-sm">Reset</a>
                 </div>
             </form>
@@ -71,7 +67,7 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('customer.history.detail', $trx->id) }}" class="btn btn-outline btn-icon btn-sm" title="Detail">
-                                        <i class="fas fa-eye"></i>
+                                        Detail
                                     </a>
                                 </td>
                             </tr>
@@ -84,14 +80,12 @@
         {{-- Mobile Cards --}}
         <div class="mobile-cards">
             @foreach($penjualans as $trx)
-                <a href="{{ route('customer.history.detail', $trx->id) }}" class="card" style="display: block; text-decoration: none; color: inherit; margin-bottom: 12px;">
-                    <div class="card-body" style="padding: 14px 16px;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <a href="{{ route('customer.history.detail', $trx->id) }}" class="card mobile-trx-card">
+                    <div class="card-body" style="padding: 16px 18px;">
+                        <div class="mobile-trx-top">
                             <div>
-                                <div style="font-size: 0.85rem; font-weight: 600; color: #111827;">{{ $trx->number }}</div>
-                                <div style="font-size: 0.72rem; color: #6b7280; margin-top: 2px;">
-                                    {{ $trx->tgl_transaksi ? $trx->tgl_transaksi->format('d M Y') : '-' }}
-                                </div>
+                                <div class="mobile-trx-number">{{ $trx->number }}</div>
+                                <div class="mobile-trx-date">{{ $trx->tgl_transaksi ? $trx->tgl_transaksi->format('d M Y') : '-' }}</div>
                             </div>
                             @if($trx->status == 'Lunas')
                                 <span class="badge badge-success">Lunas</span>
@@ -103,9 +97,9 @@
                                 <span class="badge badge-secondary">{{ $trx->status }}</span>
                             @endif
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 0.75rem; color: #6b7280;">{{ $trx->gudang->nama_gudang ?? '-' }} &middot; {{ $trx->items->count() }} produk</span>
-                            <span style="font-size: 0.9rem; font-weight: 700; color: #111827;">Rp {{ number_format($trx->grand_total ?? 0, 0, ',', '.') }}</span>
+                        <div class="mobile-trx-bottom">
+                            <span class="mobile-trx-meta">{{ $trx->gudang->nama_gudang ?? '-' }} &middot; {{ $trx->items->count() }} produk</span>
+                            <span class="mobile-trx-total">Rp {{ number_format($trx->grand_total ?? 0, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </a>
@@ -118,10 +112,9 @@
         </div>
     @else
         <div class="card">
-            <div style="text-align: center; padding: 48px 20px; color: #9ca3af;">
-                <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 12px; display: block;"></i>
-                <div style="font-size: 0.95rem; font-weight: 600; color: #6b7280; margin-bottom: 4px;">Belum Ada Transaksi</div>
-                <div style="font-size: 0.82rem;">Data pembelian Anda akan muncul di sini.</div>
+            <div class="empty-state-lg">
+                <div class="empty-title">Belum Ada Transaksi</div>
+                <div class="empty-desc">Data pembelian Anda akan muncul di sini.</div>
             </div>
         </div>
     @endif
@@ -129,10 +122,55 @@
 
 @push('styles')
 <style>
+    .page-header { margin-bottom: 24px; }
+    .page-title { font-size: 1.35rem; font-weight: 700; color: #111827; margin-bottom: 4px; }
+    .page-subtitle { font-size: 0.95rem; color: #6b7280; margin: 0; }
+
+    .filter-card { margin-bottom: 20px; }
+    .filter-form { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+    .filter-field { flex: 1; min-width: 140px; }
+    .filter-label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #6b7280;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .filter-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid #d1d5db;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-family: 'Poppins', sans-serif;
+        color: #374151;
+        outline: none;
+        background: rgba(255,255,255,0.6);
+        transition: border-color 0.2s;
+    }
+    .filter-input:focus { border-color: #2563eb; }
+    .filter-actions { display: flex; gap: 8px; }
+
     .mobile-cards { display: none; }
+    .mobile-trx-card { display: block; text-decoration: none; color: inherit; margin-bottom: 12px; }
+    .mobile-trx-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .mobile-trx-number { font-size: 0.95rem; font-weight: 600; color: #111827; }
+    .mobile-trx-date { font-size: 0.8rem; color: #6b7280; margin-top: 3px; }
+    .mobile-trx-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .mobile-trx-meta { font-size: 0.82rem; color: #6b7280; }
+    .mobile-trx-total { font-size: 1rem; font-weight: 700; color: #111827; }
+
+    .empty-state-lg { text-align: center; padding: 52px 20px; }
+    .empty-title { font-size: 1.05rem; font-weight: 600; color: #6b7280; margin-bottom: 6px; }
+    .empty-desc { font-size: 0.9rem; color: #9ca3af; }
+
     @media (max-width: 768px) {
         .desktop-table { display: none; }
         .mobile-cards { display: block; }
+        .filter-form { flex-direction: column; }
+        .filter-field { min-width: 100%; }
     }
 </style>
 @endpush
