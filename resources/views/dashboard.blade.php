@@ -657,30 +657,17 @@
                             </select>
                         </div>
 
-                        {{-- Gudang Filter (inline query to guarantee rendering) --}}
-                        @php
-                            $userRole = auth()->user()->role;
-                            if ($userRole === 'super_admin' || $userRole === 'spectator') {
-                                $exportGudangs = \App\Gudang::orderBy('nama_gudang')->get();
-                            } elseif ($userRole === 'admin') {
-                                $exportGudangs = auth()->user()->gudangs()->orderBy('nama_gudang')->get();
-                            } else {
-                                $ug = auth()->user()->gudang;
-                                $exportGudangs = $ug ? collect([$ug]) : collect();
-                            }
-                        @endphp
-                        @if($exportGudangs->count() > 0)
-                            <div class="form-group" id="gudangFilterGroup">
-                                <label for="gudang_id"><strong>Filter Gudang</strong></label>
-                                <select class="form-control" name="gudang_id" id="gudang_id">
-                                    <option value="">{{ $userRole === 'admin' ? 'Semua Gudang Saya' : 'Semua Gudang' }}</option>
-                                    @foreach($exportGudangs as $gd)
-                                        <option value="{{ $gd->id }}">{{ $gd->nama_gudang }}</option>
-                                    @endforeach
-                                </select>
-                                <small class="text-muted">*Filter gudang berlaku untuk semua tipe transaksi</small>
-                            </div>
-                        @endif
+                        {{-- Gudang Filter - ALWAYS rendered, no conditions --}}
+                        <div class="form-group" id="gudangFilterGroup">
+                            <label for="gudang_id"><strong>Filter Gudang</strong></label>
+                            <select class="form-control" name="gudang_id" id="gudang_id">
+                                <option value="">Semua Gudang</option>
+                                @foreach(\App\Gudang::orderBy('nama_gudang')->get() as $gd)
+                                    <option value="{{ $gd->id }}">{{ $gd->nama_gudang }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">*Filter gudang berlaku untuk semua tipe transaksi</small>
+                        </div>
 
                         {{-- Jenis Biaya (muncul hanya jika tipe = biaya) --}}
                         <div class="form-group" id="biayaJenisGroup" style="display: none;">
