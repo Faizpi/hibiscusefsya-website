@@ -657,28 +657,28 @@
                             </select>
                         </div>
 
-                        {{-- Gudang Filter --}}
-                        @if(auth()->user()->role == 'super_admin' && isset($availableGudangs) && $availableGudangs->count() > 0)
+                        {{-- Gudang Filter (inline query to guarantee rendering) --}}
+                        @php
+                            $userRole = auth()->user()->role;
+                            if ($userRole === 'super_admin' || $userRole === 'spectator') {
+                                $exportGudangs = \App\Gudang::orderBy('nama_gudang')->get();
+                            } elseif ($userRole === 'admin') {
+                                $exportGudangs = auth()->user()->gudangs()->orderBy('nama_gudang')->get();
+                            } else {
+                                $ug = auth()->user()->gudang;
+                                $exportGudangs = $ug ? collect([$ug]) : collect();
+                            }
+                        @endphp
+                        @if($exportGudangs->count() > 0)
                             <div class="form-group" id="gudangFilterGroup">
                                 <label for="gudang_id"><strong>Filter Gudang</strong></label>
                                 <select class="form-control" name="gudang_id" id="gudang_id">
-                                    <option value="">Semua Gudang</option>
-                                    @foreach($availableGudangs as $gudang)
-                                        <option value="{{ $gudang->id }}">{{ $gudang->nama_gudang }}</option>
+                                    <option value="">{{ $userRole === 'admin' ? 'Semua Gudang Saya' : 'Semua Gudang' }}</option>
+                                    @foreach($exportGudangs as $gd)
+                                        <option value="{{ $gd->id }}">{{ $gd->nama_gudang }}</option>
                                     @endforeach
                                 </select>
                                 <small class="text-muted">*Filter gudang berlaku untuk semua tipe transaksi</small>
-                            </div>
-                        @elseif(auth()->user()->role == 'admin' && isset($availableGudangs) && $availableGudangs->count() > 0)
-                            <div class="form-group">
-                                <label for="gudang_id"><strong>Filter Gudang</strong></label>
-                                <select class="form-control" name="gudang_id" id="gudang_id">
-                                    <option value="">Semua Gudang Saya</option>
-                                    @foreach($availableGudangs as $gudang)
-                                        <option value="{{ $gudang->id }}">{{ $gudang->nama_gudang }}</option>
-                                    @endforeach
-                                </select>
-                                <small class="text-muted">*Anda hanya dapat export data dari gudang yang Anda akses</small>
                             </div>
                         @endif
 

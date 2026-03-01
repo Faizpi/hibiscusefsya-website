@@ -104,6 +104,46 @@
             font-weight: 600;
         }
 
+        /* Promo Navbar Button */
+        .promo-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #dc2626;
+            color: #fff;
+            padding: 7px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            margin-left: 8px;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+        }
+
+        .promo-nav-btn:hover {
+            background: #b91c1c;
+            color: #fff;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+        }
+
+        .promo-nav-percent {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            color: #dc2626;
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            font-weight: 800;
+            font-size: 0.72rem;
+        }
+
         .nav-right {
             display: flex;
             align-items: center;
@@ -538,6 +578,10 @@
                 display: none !important;
             }
 
+            .promo-nav-btn {
+                display: none !important;
+            }
+
             .nav-toggle {
                 display: flex;
                 align-items: center;
@@ -580,6 +624,9 @@
                     <li><a href="{{ route('customer.history') }}"
                             class="{{ request()->routeIs('customer.history*') ? 'active' : '' }}">Riwayat</a></li>
                 </ul>
+                <a href="https://bodycare.hibiscusefsya.com/" target="_blank" class="promo-nav-btn">
+                    <span class="promo-nav-percent">%</span> Promo
+                </a>
             @endif
         </div>
 
