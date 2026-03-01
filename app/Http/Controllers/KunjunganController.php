@@ -165,7 +165,8 @@ class KunjunganController extends Controller
         } else {
             $kontaks = Kontak::where(function ($q) use ($gudang) {
                 $q->whereNull('gudang_id');
-                if ($gudang) $q->orWhere('gudang_id', $gudang->id);
+                if ($gudang)
+                    $q->orWhere('gudang_id', $gudang->id);
             })->orderBy('nama')->get();
         }
 

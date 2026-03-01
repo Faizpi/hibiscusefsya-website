@@ -173,7 +173,7 @@
                                         @endif
                                     </td>
                                 @else
-                                    <td></td><td></td><td></td><td></td><td></td>
+                                    <td></td><td></td><td></td><td></td>
                                 @endif
                             </tr>
                         @endforeach
@@ -186,7 +186,7 @@
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                             <td>-</td><td>-</td><td>-</td><td>-</td>
-                            <td class="text-right">{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</td>
+                            <td class="text-right">{{ number_format(($item->grand_total ?? 0) / (1 + (($item->tax_percentage ?? 0) / 100)), 0, ',', '.') }}</td>
                             <td>{{ $item->tax_percentage ?? 0 }}%</td>
                             <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
                             <td>-</td>
@@ -337,6 +337,7 @@
                     <th>Produk</th>
                     <th>Harga</th>
                     <th>Qty</th>
+                    <th>Diskon</th>
                     <th>Grand Total</th>
                     <th>Lampiran</th>
                 </tr>
@@ -370,8 +371,27 @@
                                     <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
                                 @endif
                                 <td>{{ $detail->produk->nama_produk ?? ($detail->deskripsi ?? ($detail->kategori ?? '-')) }}</td>
-                                <td class="text-right">{{ number_format($detail->harga_satuan ?? ($detail->jumlah ?? 0), 0, ',', '.') }}</td>
-                                <td class="text-center">{{ $detail->kuantitas ?? ($detail->jumlah ?? '-') }}</td>
+                                <td class="text-right">
+                                    @if($item->type === 'Biaya')
+                                        -
+                                    @else
+                                        {{ number_format($detail->harga_satuan ?? 0, 0, ',', '.') }}
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    @if($item->type === 'Biaya')
+                                        -
+                                    @else
+                                        {{ $detail->kuantitas ?? ($detail->jumlah ?? '-') }}
+                                    @endif
+                                </td>
+                                <td class="text-right">
+                                    @if($item->type === 'Penjualan' || $item->type === 'Pembelian')
+                                        {{ $detail->diskon ?? 0 }}%
+                                    @else
+                                        -
+                                    @endif
+                                </td>
                                 @if($idx === 0)
                                     <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
                                     <td>
@@ -400,7 +420,7 @@
                             <td>{{ $item->user->name ?? '-' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
-                            <td>-</td><td>-</td><td>-</td>
+                            <td>-</td><td>-</td><td>-</td><td>-</td>
                             <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
                             <td>-</td>
                         </tr>

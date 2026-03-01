@@ -149,7 +149,8 @@ class PenjualanController extends Controller
             $currentGudang = $user->getCurrentGudang();
             $kontaks = Kontak::where(function ($q) use ($currentGudang) {
                 $q->whereNull('gudang_id');
-                if ($currentGudang) $q->orWhere('gudang_id', $currentGudang->id);
+                if ($currentGudang)
+                    $q->orWhere('gudang_id', $currentGudang->id);
             })->orderBy('nama')->get();
         }
 
@@ -419,7 +420,8 @@ class PenjualanController extends Controller
             $currentGudang = $user->getCurrentGudang();
             $kontaks = Kontak::where(function ($q) use ($currentGudang) {
                 $q->whereNull('gudang_id');
-                if ($currentGudang) $q->orWhere('gudang_id', $currentGudang->id);
+                if ($currentGudang)
+                    $q->orWhere('gudang_id', $currentGudang->id);
             })->orderBy('nama')->get();
         }
 
