@@ -659,7 +659,7 @@
 
                         {{-- Gudang Filter - ALWAYS rendered, no conditions --}}
                         <div class="form-group" id="gudangFilterGroup">
-                            <label for="gudang_id"><strong>Filter Gudang</strong></label>
+                            <label for="gudang_id">Filter Gudang</label>
                             <select class="form-control" name="gudang_id" id="gudang_id">
                                 <option value="">Semua Gudang</option>
                                 @foreach(\App\Gudang::orderBy('nama_gudang')->get() as $gd)

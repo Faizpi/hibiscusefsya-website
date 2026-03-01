@@ -104,26 +104,30 @@
             font-weight: 600;
         }
 
-        /* Promo Navbar Button */
+        /* Promo Navbar Button — ticket shape */
         .promo-nav-btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: #dc2626;
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 0.82rem;
-            font-weight: 600;
+            gap: 5px;
+            background: #7f1d1d;
+            color: #fbbf24;
+            padding: 5px 12px 5px 10px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 700;
             text-decoration: none;
-            letter-spacing: 0.2px;
-            transition: background 0.2s;
+            letter-spacing: 0.3px;
             white-space: nowrap;
+            position: relative;
+            clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 50%, 100% 100%, 8px 100%, 0% 50%);
+            padding-left: 16px;
+            padding-right: 16px;
+            transition: background 0.2s;
         }
 
         .promo-nav-btn:hover {
-            background: #b91c1c;
-            color: #fff;
+            background: #991b1b;
+            color: #fbbf24;
             text-decoration: none;
         }
 
@@ -131,13 +135,9 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255,255,255,0.2);
-            color: #fff;
-            width: 20px;
-            height: 20px;
-            border-radius: 5px;
+            color: #fbbf24;
             font-weight: 800;
-            font-size: 0.72rem;
+            font-size: 0.78rem;
         }
 
         .nav-right {
@@ -622,7 +622,7 @@
         @if(session('customer_id'))
             <div style="display:flex;align-items:center;gap:8px;">
                 <a href="https://bodycare.hibiscusefsya.com/" target="_blank" class="promo-nav-btn">
-                    <span class="promo-nav-percent">%</span> Promo
+                    <span class="promo-nav-percent">&#9733;</span> Promo
                 </a>
                 <button class="nav-toggle"
                     onclick="document.getElementById('mobileOverlay').classList.add('open')">&#9776;</button>
