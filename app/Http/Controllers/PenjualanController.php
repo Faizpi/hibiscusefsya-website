@@ -141,7 +141,17 @@ class PenjualanController extends Controller
                 });
         }
 
-        $kontaks = Kontak::all();
+        // Filter kontak berdasarkan gudang user
+        $user = Auth::user();
+        if ($user->role === 'super_admin') {
+            $kontaks = Kontak::orderBy('nama')->get();
+        } else {
+            $currentGudang = $user->getCurrentGudang();
+            $kontaks = Kontak::where(function ($q) use ($currentGudang) {
+                $q->whereNull('gudang_id');
+                if ($currentGudang) $q->orWhere('gudang_id', $currentGudang->id);
+            })->orderBy('nama')->get();
+        }
 
         // Generate preview nomor invoice
         $countToday = Penjualan::where('user_id', Auth::id())
@@ -401,7 +411,17 @@ class PenjualanController extends Controller
         }
 
         $gudangs = Gudang::all();
-        $kontaks = Kontak::all();
+
+        // Filter kontak berdasarkan gudang
+        if ($user->role === 'super_admin') {
+            $kontaks = Kontak::orderBy('nama')->get();
+        } else {
+            $currentGudang = $user->getCurrentGudang();
+            $kontaks = Kontak::where(function ($q) use ($currentGudang) {
+                $q->whereNull('gudang_id');
+                if ($currentGudang) $q->orWhere('gudang_id', $currentGudang->id);
+            })->orderBy('nama')->get();
+        }
 
         $penjualan->load('items');
 

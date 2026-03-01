@@ -81,7 +81,7 @@ class CustomerPortalController extends Controller
      */
     public function dashboard()
     {
-        $kontak = Kontak::findOrFail(session('customer_id'));
+        $kontak = Kontak::with('gudang')->findOrFail(session('customer_id'));
 
         $totalTransaksi = Penjualan::where('pelanggan', $kontak->nama)
             ->whereIn('status', ['Approved', 'Lunas'])

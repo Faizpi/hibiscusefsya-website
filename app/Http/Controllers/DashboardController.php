@@ -576,6 +576,7 @@ class DashboardController extends Controller
         $data['canceledCountBulanIni'] = $data['canceledBulanIni'];
 
         $data['selectedGudangId'] = $selectedGudangId;
+        $data['availableGudangs'] = $availableGudangs;
 
         return view('dashboard', $data);
     }

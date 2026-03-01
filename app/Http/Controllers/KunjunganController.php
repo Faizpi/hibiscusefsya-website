@@ -158,10 +158,18 @@ class KunjunganController extends Controller
             return redirect()->route('kunjungan.index')->with('error', 'Spectator tidak memiliki akses untuk membuat transaksi.');
         }
 
-        $kontaks = Kontak::all();
-
-        // Get user's gudang
+        // Filter kontak berdasarkan gudang user
         $gudang = $user->getCurrentGudang();
+        if ($user->role === 'super_admin') {
+            $kontaks = Kontak::orderBy('nama')->get();
+        } else {
+            $kontaks = Kontak::where(function ($q) use ($gudang) {
+                $q->whereNull('gudang_id');
+                if ($gudang) $q->orWhere('gudang_id', $gudang->id);
+            })->orderBy('nama')->get();
+        }
+
+        // Get user's gudang (already set above)
 
         // Get all products (kunjungan tidak perlu batasan gudang)
         $produks = Produk::orderBy('nama_produk')->get();
@@ -410,7 +418,8 @@ class KunjunganController extends Controller
             return redirect()->route('kunjungan.index')->with('error', 'Anda tidak memiliki akses untuk mengedit data kunjungan.');
         }
 
-        $kontaks = Kontak::all();
+        // Filter kontak berdasarkan gudang - super_admin sees all
+        $kontaks = Kontak::orderBy('nama')->get();
 
         // Get all products (kunjungan tidak perlu batasan gudang)
         $produks = Produk::orderBy('nama_produk')->get();

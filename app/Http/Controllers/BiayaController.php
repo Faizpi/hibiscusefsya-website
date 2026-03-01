@@ -490,8 +490,8 @@ class BiayaController extends Controller
         }
 
         $biaya->load('items', 'gudang');
-        // Filter kontak berdasarkan gudang - super_admin bisa akses semua
-        $kontaks = Kontak::all();
+        // super_admin sees all kontaks
+        $kontaks = Kontak::orderBy('nama')->get();
         // Tidak perlu approvers, akan otomatis di backend
 
         return view('biaya.edit', compact('biaya', 'kontaks'));

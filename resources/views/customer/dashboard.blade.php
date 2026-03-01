@@ -55,8 +55,12 @@
                         <td class="profile-value">{{ $kontak->email ?? '-' }}</td>
                     </tr>
                     <tr>
-                        <td class="profile-label" style="border-bottom: none;">Alamat</td>
-                        <td class="profile-value" style="border-bottom: none;">{{ $kontak->alamat ?? '-' }}</td>
+                        <td class="profile-label">Alamat</td>
+                        <td class="profile-value">{{ $kontak->alamat ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="profile-label" style="border-bottom: none;">Lokasi Gudang</td>
+                        <td class="profile-value" style="border-bottom: none;">{{ optional($kontak->gudang)->nama_gudang ?? '-' }}</td>
                     </tr>
                 </table>
             </div>
