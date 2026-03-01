@@ -187,10 +187,10 @@
                     <td>: {{ $kontak->diskon_persen ?? 0 }}%</td>
                 </tr>
                 @if($kontak->gudang)
-                <tr>
-                    <td class="label">Gudang</td>
-                    <td>: {{ $kontak->gudang->nama_gudang }}</td>
-                </tr>
+                    <tr>
+                        <td class="label">Gudang</td>
+                        <td>: {{ $kontak->gudang->nama_gudang }}</td>
+                    </tr>
                 @endif
             </table>
         </div>

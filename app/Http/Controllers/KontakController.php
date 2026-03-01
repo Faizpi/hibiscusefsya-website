@@ -23,15 +23,19 @@ class KontakController extends Controller
 
         if ($user->role === 'admin') {
             $gudangIds = $user->gudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) $gudangIds[] = $user->current_gudang_id;
-            if ($user->gudang_id) $gudangIds[] = $user->gudang_id;
+            if ($user->current_gudang_id)
+                $gudangIds[] = $user->current_gudang_id;
+            if ($user->gudang_id)
+                $gudangIds[] = $user->gudang_id;
         } elseif ($user->role === 'spectator') {
             $gudangIds = $user->spectatorGudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) $gudangIds[] = $user->current_gudang_id;
+            if ($user->current_gudang_id)
+                $gudangIds[] = $user->current_gudang_id;
         } else {
             // user/sales
             $gudang = $user->getCurrentGudang();
-            if ($gudang) $gudangIds[] = $gudang->id;
+            if ($gudang)
+                $gudangIds[] = $gudang->id;
         }
 
         return array_unique($gudangIds);
@@ -44,11 +48,12 @@ class KontakController extends Controller
     private function scopeByGudang($query, $user)
     {
         $gudangIds = $this->getAccessibleGudangIds($user);
-        if ($gudangIds === null) return $query; // super_admin sees all
+        if ($gudangIds === null)
+            return $query; // super_admin sees all
 
         $query->where(function ($q) use ($gudangIds) {
             $q->whereIn('gudang_id', $gudangIds)
-              ->orWhereNull('gudang_id');
+                ->orWhereNull('gudang_id');
         });
 
         return $query;
@@ -207,8 +212,10 @@ class KontakController extends Controller
      */
     private function canAccessKontak($user, $kontak)
     {
-        if ($user->role === 'super_admin') return true;
-        if ($kontak->gudang_id === null) return true; // legacy data visible to all
+        if ($user->role === 'super_admin')
+            return true;
+        if ($kontak->gudang_id === null)
+            return true; // legacy data visible to all
 
         $gudangIds = $this->getAccessibleGudangIds($user);
         return in_array($kontak->gudang_id, $gudangIds);

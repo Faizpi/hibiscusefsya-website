@@ -195,20 +195,53 @@
 
     <!-- INFO -->
     <table class="info-table">
-        <tr><td class="label">Nomor</td><td class="colon">:</td><td class="value">{{ $nomorBiaya }}</td></tr>
-        <tr><td class="label">Tanggal</td><td class="colon">:</td>
-            <td class="value">{{ $biaya->tgl_transaksi->format('d/m/Y') }} | {{ $biaya->created_at->format('H:i') }}</td>
+        <tr>
+            <td class="label">Nomor</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $nomorBiaya }}</td>
         </tr>
-        <tr><td class="label">Jatuh Tempo</td><td class="colon">:</td>
+        <tr>
+            <td class="label">Tanggal</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $biaya->tgl_transaksi->format('d/m/Y') }} | {{ $biaya->created_at->format('H:i') }}
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Jatuh Tempo</td>
+            <td class="colon">:</td>
             <td class="value">{{ $biaya->tgl_jatuh_tempo ? $biaya->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
         </tr>
-        <tr><td class="label">Pembayaran</td><td class="colon">:</td><td class="value">{{ $biaya->metode_pembayaran ?? 'Cash' }}</td></tr>
-        <tr><td class="label">Kontak</td><td class="colon">:</td><td class="value">{{ $biaya->nama_pemasok ?? '-' }}</td></tr>
-        <tr><td class="label">Diinput</td><td class="colon">:</td><td class="value">{{ $biaya->user->name ?? '-' }}</td></tr>
-        <tr><td class="label">Gudang</td><td class="colon">:</td><td class="value">{{ optional($biaya->gudang)->nama_gudang ?? '-' }}</td></tr>
-        <tr><td class="label">Status</td><td class="colon">:</td><td class="value">{{ $biaya->status }}</td></tr>
+        <tr>
+            <td class="label">Pembayaran</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $biaya->metode_pembayaran ?? 'Cash' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Kontak</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $biaya->nama_pemasok ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Diinput</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $biaya->user->name ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Gudang</td>
+            <td class="colon">:</td>
+            <td class="value">{{ optional($biaya->gudang)->nama_gudang ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Status</td>
+            <td class="colon">:</td>
+            <td class="value">{{ $biaya->status }}</td>
+        </tr>
         @if($biaya->approver_id && $biaya->approver)
-        <tr><td class="label">Disetujui</td><td class="colon">:</td><td class="value">{{ $biaya->approver->name }}</td></tr>
+            <tr>
+                <td class="label">Disetujui</td>
+                <td class="colon">:</td>
+                <td class="value">{{ $biaya->approver->name }}</td>
+            </tr>
         @endif
     </table>
 
@@ -222,9 +255,13 @@
             </div>
 
             <table class="details-table">
-                <tr><td class="lbl">Deskripsi</td><td class="val">{{ $item->deskripsi ?? '-' }}</td></tr>
-                <tr><td class="lbl" style="font-weight:bold">Jumlah</td>
-                    <td class="val" style="font-weight:bold">Rp {{ number_format($item->jumlah,0,',','.') }}</td>
+                <tr>
+                    <td class="lbl">Deskripsi</td>
+                    <td class="val">{{ $item->deskripsi ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="lbl" style="font-weight:bold">Jumlah</td>
+                    <td class="val" style="font-weight:bold">Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
                 </tr>
             </table>
         </div>
@@ -236,7 +273,7 @@
     <table class="total-table">
         <tr>
             <td class="lbl grand-total">TOTAL BIAYA</td>
-            <td class="val grand-total">Rp {{ number_format($biaya->items->sum('jumlah'),0,',','.') }}</td>
+            <td class="val grand-total">Rp {{ number_format($biaya->items->sum('jumlah'), 0, ',', '.') }}</td>
         </tr>
     </table>
 
@@ -246,14 +283,15 @@
         <div>-- Dokumen Internal --</div>
     </div>
 
-<script>
-// Auto-print setelah halaman load
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        window.print();
-    }, 300);
-});
-</script>
+    <script>
+        // Auto-print setelah halaman load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        });
+    </script>
 
 </body>
+
 </html>

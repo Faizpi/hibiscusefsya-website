@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ strtolower($biaya->jenis_biaya ?? 'keluar') === 'masuk' ? 'Bukti Pemasukan' : 'Bukti Pengeluaran' }}
-        {{ $biaya->penerima }}</title>
+        {{ $biaya->penerima }}
+    </title>
     <style>
         @page {
             size: A4;
@@ -154,7 +155,8 @@
                 <td class="label-col">Jenis</td>
                 <td class="colon-col">:</td>
                 <td class="value-col">
-                    {{ strtolower($biaya->jenis_biaya ?? 'keluar') === 'masuk' ? 'Biaya Masuk' : 'Biaya Keluar' }}</td>
+                    {{ strtolower($biaya->jenis_biaya ?? 'keluar') === 'masuk' ? 'Biaya Masuk' : 'Biaya Keluar' }}
+                </td>
             </tr>
             <tr>
                 <td class="label-col">Bayar Dari</td>

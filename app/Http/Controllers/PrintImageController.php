@@ -16,7 +16,7 @@ class PrintImageController extends Controller
     public function penjualan($id)
     {
         $penjualan = Penjualan::with(['items.produk', 'user', 'gudang'])->findOrFail($id);
-        
+
         $filename = "struk-penjualan-{$id}.png";
         $path = storage_path("app/public/{$filename}");
 
@@ -24,9 +24,9 @@ class PrintImageController extends Controller
             $browsershot = Browsershot::html(
                 view('print.penjualan-image', compact('penjualan'))->render()
             )
-            ->windowSize(384, 2000)
-            ->deviceScaleFactor(2)  // Better quality
-            ->fullPage();
+                ->windowSize(384, 2000)
+                ->deviceScaleFactor(2)  // Better quality
+                ->fullPage();
 
             // Try common Chrome paths
             $chromePaths = [
@@ -62,7 +62,7 @@ class PrintImageController extends Controller
     public function pembelian($id)
     {
         $pembelian = Pembelian::with(['items.produk', 'user', 'gudang'])->findOrFail($id);
-        
+
         $filename = "struk-pembelian-{$id}.png";
         $path = storage_path("app/public/{$filename}");
 
@@ -70,9 +70,9 @@ class PrintImageController extends Controller
             $browsershot = Browsershot::html(
                 view('print.pembelian-image', compact('pembelian'))->render()
             )
-            ->windowSize(384, 2000)
-            ->deviceScaleFactor(2)
-            ->fullPage();
+                ->windowSize(384, 2000)
+                ->deviceScaleFactor(2)
+                ->fullPage();
 
             // Try common Chrome paths
             $chromePaths = [
@@ -107,7 +107,7 @@ class PrintImageController extends Controller
     public function biaya($id)
     {
         $biaya = Biaya::with(['items', 'user', 'gudang'])->findOrFail($id);
-        
+
         $filename = "struk-biaya-{$id}.png";
         $path = storage_path("app/public/{$filename}");
 
@@ -115,9 +115,9 @@ class PrintImageController extends Controller
             $browsershot = Browsershot::html(
                 view('print.biaya-image', compact('biaya'))->render()
             )
-            ->windowSize(384, 2000)
-            ->deviceScaleFactor(2)
-            ->fullPage();
+                ->windowSize(384, 2000)
+                ->deviceScaleFactor(2)
+                ->fullPage();
 
             // Try common Chrome paths
             $chromePaths = [

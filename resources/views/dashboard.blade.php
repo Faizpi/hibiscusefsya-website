@@ -667,7 +667,7 @@
                                         <option value="{{ $gudang->id }}">{{ $gudang->nama_gudang }}</option>
                                     @endforeach
                                 </select>
-                                <small class="text-muted">*Filter gudang hanya berlaku untuk Penjualan dan Pembelian</small>
+                                <small class="text-muted">*Filter gudang berlaku untuk Penjualan, Pembelian, Biaya, dan Kunjungan</small>
                             </div>
                         @elseif(auth()->user()->role == 'admin' && isset($gudangs) && $gudangs->count() > 0)
                             <div class="form-group">

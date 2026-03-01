@@ -23,19 +23,24 @@ class BiayaController extends Controller
      */
     private function getAccessibleGudangIds($user)
     {
-        if ($user->role === 'super_admin') return null;
+        if ($user->role === 'super_admin')
+            return null;
 
         $gudangIds = [];
         if ($user->role === 'admin') {
             $gudangIds = $user->gudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) $gudangIds[] = $user->current_gudang_id;
-            if ($user->gudang_id) $gudangIds[] = $user->gudang_id;
+            if ($user->current_gudang_id)
+                $gudangIds[] = $user->current_gudang_id;
+            if ($user->gudang_id)
+                $gudangIds[] = $user->gudang_id;
         } elseif ($user->role === 'spectator') {
             $gudangIds = $user->spectatorGudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) $gudangIds[] = $user->current_gudang_id;
+            if ($user->current_gudang_id)
+                $gudangIds[] = $user->current_gudang_id;
         } else {
             $gudang = $user->getCurrentGudang();
-            if ($gudang) $gudangIds[] = $gudang->id;
+            if ($gudang)
+                $gudangIds[] = $gudang->id;
         }
         return array_unique($gudangIds);
     }
@@ -50,8 +55,8 @@ class BiayaController extends Controller
         if ($gudangIds !== null) {
             $query->where(function ($q) use ($gudangIds, $user) {
                 $q->whereIn('gudang_id', $gudangIds)
-                  ->orWhere('user_id', $user->id)
-                  ->orWhere('approver_id', $user->id);
+                    ->orWhere('user_id', $user->id)
+                    ->orWhere('approver_id', $user->id);
             });
         }
 
@@ -120,7 +125,8 @@ class BiayaController extends Controller
         } else {
             $kontaks = Kontak::where(function ($q) use ($gudang) {
                 $q->whereNull('gudang_id');
-                if ($gudang) $q->orWhere('gudang_id', $gudang->id);
+                if ($gudang)
+                    $q->orWhere('gudang_id', $gudang->id);
             })->get();
         }
 
@@ -663,9 +669,12 @@ class BiayaController extends Controller
      */
     private function canAccessBiaya($user, $biaya)
     {
-        if ($user->role === 'super_admin') return true;
-        if ($biaya->user_id == $user->id) return true;
-        if ($biaya->approver_id == $user->id) return true;
+        if ($user->role === 'super_admin')
+            return true;
+        if ($biaya->user_id == $user->id)
+            return true;
+        if ($biaya->approver_id == $user->id)
+            return true;
 
         $gudangIds = $this->getAccessibleGudangIds($user);
         if ($gudangIds && $biaya->gudang_id && in_array($biaya->gudang_id, $gudangIds)) {

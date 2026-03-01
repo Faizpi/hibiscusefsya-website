@@ -687,8 +687,8 @@ class DashboardController extends Controller
                 $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
                 $query->where(function ($q) use ($accessibleGudangIds, $user) {
                     $q->whereIn('gudang_id', $accessibleGudangIds)
-                      ->orWhere('user_id', $user->id)
-                      ->orWhere('approver_id', $user->id);
+                        ->orWhere('user_id', $user->id)
+                        ->orWhere('approver_id', $user->id);
                 });
             }
 
