@@ -79,10 +79,12 @@
                                                 <a class="dropdown-item" href="{{ route('kontak.show', $item->id) }}">
                                                     <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat Detail
                                                 </a>
-                                                @if(auth()->user()->role === 'super_admin')
+                                                @if(auth()->user()->role !== 'spectator')
                                                     <a class="dropdown-item" href="{{ route('kontak.edit', $item->id) }}">
                                                         <i class="fas fa-pen fa-fw mr-2 text-warning"></i> Edit
                                                     </a>
+                                                @endif
+                                                @if(auth()->user()->role === 'super_admin')
                                                     <button type="button" class="dropdown-item text-danger" data-toggle="modal"
                                                         data-target="#deleteModal"
                                                         data-action="{{ route('kontak.destroy', $item->id) }}">

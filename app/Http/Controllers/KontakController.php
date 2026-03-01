@@ -162,9 +162,16 @@ class KontakController extends Controller
 
     public function edit(Kontak $kontak)
     {
-        // Hanya super_admin yang bisa edit kontak
-        if (Auth::user()->role !== 'super_admin') {
-            return redirect()->route('kontak.index')->with('error', 'Hanya Super Admin yang dapat mengubah data kontak.');
+        $user = Auth::user();
+
+        // Spectator tidak bisa edit
+        if ($user->role === 'spectator') {
+            return redirect()->route('kontak.index')->with('error', 'Spectator tidak memiliki akses untuk mengubah data.');
+        }
+
+        // Cek akses gudang
+        if (!$this->canAccessKontak($user, $kontak)) {
+            return redirect()->route('kontak.index')->with('error', 'Akses ditolak. Kontak ini bukan milik gudang Anda.');
         }
 
         $gudangs = Gudang::orderBy('nama_gudang')->get();
@@ -174,9 +181,16 @@ class KontakController extends Controller
 
     public function update(Request $request, Kontak $kontak)
     {
-        // Hanya super_admin yang bisa update kontak
-        if (Auth::user()->role !== 'super_admin') {
-            return redirect()->route('kontak.index')->with('error', 'Hanya Super Admin yang dapat mengubah data kontak.');
+        $user = Auth::user();
+
+        // Spectator tidak bisa update
+        if ($user->role === 'spectator') {
+            return redirect()->route('kontak.index')->with('error', 'Spectator tidak memiliki akses untuk mengubah data.');
+        }
+
+        // Cek akses gudang
+        if (!$this->canAccessKontak($user, $kontak)) {
+            return redirect()->route('kontak.index')->with('error', 'Akses ditolak. Kontak ini bukan milik gudang Anda.');
         }
 
         $request->validate([
@@ -190,7 +204,14 @@ class KontakController extends Controller
             'gudang_id' => 'nullable|exists:gudangs,id',
         ]);
 
-        $kontak->update($request->all());
+        $data = $request->except('gudang_id');
+
+        // Hanya super_admin yang bisa ubah gudang
+        if ($user->role === 'super_admin') {
+            $data['gudang_id'] = $request->gudang_id;
+        }
+
+        $kontak->update($data);
 
         return redirect()->route('kontak.index')->with('success', 'Kontak berhasil diperbarui.');
     }

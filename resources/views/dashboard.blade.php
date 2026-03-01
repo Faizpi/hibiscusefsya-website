@@ -657,28 +657,28 @@
                             </select>
                         </div>
 
-                        {{-- Gudang Filter - only for Super Admin --}}
-                        @if(auth()->user()->role == 'super_admin' && isset($gudangs) && $gudangs->count() > 0)
+                        {{-- Gudang Filter --}}
+                        @if(auth()->user()->role == 'super_admin' && isset($availableGudangs) && $availableGudangs->count() > 0)
                             <div class="form-group" id="gudangFilterGroup">
-                                <label for="gudang_id">Filter Gudang</label>
+                                <label for="gudang_id"><strong>Filter Gudang</strong></label>
                                 <select class="form-control" name="gudang_id" id="gudang_id">
                                     <option value="">Semua Gudang</option>
-                                    @foreach($gudangs as $gudang)
+                                    @foreach($availableGudangs as $gudang)
                                         <option value="{{ $gudang->id }}">{{ $gudang->nama_gudang }}</option>
                                     @endforeach
                                 </select>
-                                <small class="text-muted">*Filter gudang berlaku untuk Penjualan, Pembelian, Biaya, dan Kunjungan</small>
+                                <small class="text-muted">*Filter gudang berlaku untuk semua tipe transaksi</small>
                             </div>
-                        @elseif(auth()->user()->role == 'admin' && isset($gudangs) && $gudangs->count() > 0)
+                        @elseif(auth()->user()->role == 'admin' && isset($availableGudangs) && $availableGudangs->count() > 0)
                             <div class="form-group">
-                                <label for="gudang_id"><strong>Gudang Aktif</strong></label>
-                                <input type="hidden" name="gudang_id" id="gudang_id" value="{{ $gudangs->first()->id }}">
-                                <div class="p-2 bg-light border rounded">
-                                    <i class="fas fa-warehouse text-primary mr-2"></i>
-                                    <strong>{{ $gudangs->first()->nama_gudang }}</strong>
-                                </div>
-                                <small class="text-muted d-block mt-2">*Anda hanya dapat export data dari gudang yang
-                                    aktif</small>
+                                <label for="gudang_id"><strong>Filter Gudang</strong></label>
+                                <select class="form-control" name="gudang_id" id="gudang_id">
+                                    <option value="">Semua Gudang Saya</option>
+                                    @foreach($availableGudangs as $gudang)
+                                        <option value="{{ $gudang->id }}">{{ $gudang->nama_gudang }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">*Anda hanya dapat export data dari gudang yang Anda akses</small>
                             </div>
                         @endif
 
