@@ -1013,29 +1013,7 @@
                 });
             }
 
-            // Toggle Gudang Filter visibility based on Transaction Type
-            const transactionTypeSelect = document.getElementById('transaction_type');
-            const gudangFilterGroup = document.getElementById('gudangFilterGroup');
-            const gudangSelect = document.getElementById('gudang_id');
-
-            if (transactionTypeSelect && gudangFilterGroup) {
-                function toggleGudangFilter() {
-                    const selectedType = transactionTypeSelect.value;
-                    // Hide gudang filter if only "biaya" is selected
-                    if (selectedType === 'biaya') {
-                        gudangFilterGroup.style.display = 'none';
-                        if (gudangSelect) gudangSelect.value = '';
-                    } else {
-                        gudangFilterGroup.style.display = 'block';
-                    }
-                }
-
-                // Initial check
-                toggleGudangFilter();
-
-                // Listen to changes
-                transactionTypeSelect.addEventListener('change', toggleGudangFilter);
-            }
+            // Gudang filter selalu tampil untuk semua tipe transaksi termasuk biaya
         });
 
     </script>

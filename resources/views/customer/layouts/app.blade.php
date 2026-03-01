@@ -104,12 +104,12 @@
             font-weight: 600;
         }
 
-        /* Promo Navbar Button — muted, subtle red */
+        /* Promo Navbar Button */
         .promo-nav-btn {
-            display: none;
+            display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: #991b1b;
+            background: #dc2626;
             color: #fff;
             padding: 6px 14px;
             border-radius: 8px;
@@ -118,12 +118,11 @@
             text-decoration: none;
             letter-spacing: 0.2px;
             transition: background 0.2s;
-            margin-left: 8px;
             white-space: nowrap;
         }
 
         .promo-nav-btn:hover {
-            background: #7f1d1d;
+            background: #b91c1c;
             color: #fff;
             text-decoration: none;
         }
@@ -591,10 +590,6 @@
         }
 
         @media (min-width: 769px) {
-            .promo-nav-btn {
-                display: inline-flex !important;
-            }
-
             .nav-toggle {
                 display: none !important;
             }
@@ -621,14 +616,14 @@
                     <li><a href="{{ route('customer.history') }}"
                             class="{{ request()->routeIs('customer.history*') ? 'active' : '' }}">Riwayat</a></li>
                 </ul>
-                <a href="https://bodycare.hibiscusefsya.com/" target="_blank" class="promo-nav-btn">
-                    <span class="promo-nav-percent">%</span> Promo
-                </a>
             @endif
         </div>
 
         @if(session('customer_id'))
             <div style="display:flex;align-items:center;gap:8px;">
+                <a href="https://bodycare.hibiscusefsya.com/" target="_blank" class="promo-nav-btn">
+                    <span class="promo-nav-percent">%</span> Promo
+                </a>
                 <button class="nav-toggle"
                     onclick="document.getElementById('mobileOverlay').classList.add('open')">&#9776;</button>
                 <div class="nav-right" onclick="document.querySelector('.nav-dropdown').classList.toggle('show')">
