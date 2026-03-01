@@ -1838,8 +1838,8 @@
                     </li>
                 @endif
 
-                @if(in_array(auth()->user()->role, ['admin', 'super_admin', 'spectator']))
-                    @if(in_array(auth()->user()->role, ['admin', 'spectator']))
+                @if(in_array(auth()->user()->role, ['admin', 'super_admin', 'spectator', 'user']))
+                    @if(in_array(auth()->user()->role, ['admin', 'spectator', 'user']))
                         <hr class="sidebar-divider">
                         <div class="sidebar-heading">Master Data</div>
                     @endif

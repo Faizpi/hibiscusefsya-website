@@ -81,7 +81,7 @@ class PublicInvoiceController extends Controller
      */
     public function showBiaya($uuid)
     {
-        $biaya = Biaya::where('uuid', $uuid)->with(['items', 'user', 'approver'])->firstOrFail();
+        $biaya = Biaya::where('uuid', $uuid)->with(['items', 'user', 'approver', 'gudang'])->firstOrFail();
 
         return view('public.invoice-biaya', compact('biaya'));
     }
@@ -91,7 +91,7 @@ class PublicInvoiceController extends Controller
      */
     public function downloadBiaya($uuid)
     {
-        $biaya = Biaya::where('uuid', $uuid)->with(['items', 'user', 'approver'])->firstOrFail();
+        $biaya = Biaya::where('uuid', $uuid)->with(['items', 'user', 'approver', 'gudang'])->firstOrFail();
 
         $dateCode = $biaya->created_at->format('Ymd');
         $noUrut = str_pad($biaya->no_urut_harian, 3, '0', STR_PAD_LEFT);

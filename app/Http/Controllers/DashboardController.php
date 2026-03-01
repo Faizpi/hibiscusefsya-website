@@ -679,12 +679,25 @@ class DashboardController extends Controller
 
         // BIAYA
         if (in_array($transactionType, ['all', 'biaya'])) {
-            $query = Biaya::with('user', 'approver', 'items')
+            $query = Biaya::with('user', 'approver', 'items', 'gudang')
                 ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo]);
 
-            // Note: Biaya tidak memiliki gudang_id, tetap gunakan approver_id untuk admin
+            // Role-based filtering menggunakan gudang_id pada biaya
             if ($user->role == 'admin') {
-                $query->where('approver_id', $user->id);
+                $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
+                $query->where(function ($q) use ($accessibleGudangIds, $user) {
+                    $q->whereIn('gudang_id', $accessibleGudangIds)
+                      ->orWhere('user_id', $user->id)
+                      ->orWhere('approver_id', $user->id);
+                });
+            }
+
+            // Gudang filter
+            if ($gudangId) {
+                if ($user->role == 'admin' && !$user->canAccessGudang($gudangId)) {
+                    abort(403, 'Tidak memiliki akses ke gudang ini');
+                }
+                $query->where('gudang_id', $gudangId);
             }
 
             if ($statusFilter != 'all') {

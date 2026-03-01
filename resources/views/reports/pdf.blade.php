@@ -122,6 +122,7 @@
                     <th width="13%">Produk</th>
                     <th width="7%">Harga</th>
                     <th width="4%">Qty</th>
+                    <th width="4%">Diskon</th>
                     <th width="7%">Subtotal</th>
                     <th width="4%">Pajak</th>
                     <th width="8%">Grand Total</th>
@@ -154,6 +155,7 @@
                                 <td>{{ $detail->produk->nama_produk ?? '-' }}</td>
                                 <td class="text-right">{{ number_format($detail->harga_satuan ?? 0, 0, ',', '.') }}</td>
                                 <td class="text-center">{{ $detail->kuantitas ?? 0 }}</td>
+                                <td class="text-right">{{ $detail->diskon ?? 0 }}%</td>
                                 @if($idx === 0)
                                     <td class="text-right">{{ number_format(($item->grand_total ?? 0) / (1 + (($item->tax_percentage ?? 0) / 100)), 0, ',', '.') }}</td>
                                     <td>{{ $item->tax_percentage ?? 0 }}%</td>
@@ -171,7 +173,7 @@
                                         @endif
                                     </td>
                                 @else
-                                    <td></td><td></td><td></td><td></td>
+                                    <td></td><td></td><td></td><td></td><td></td>
                                 @endif
                             </tr>
                         @endforeach
@@ -183,7 +185,7 @@
                             <td>{{ $item->pelanggan ?? '-' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
-                            <td>-</td><td>-</td><td>-</td>
+                            <td>-</td><td>-</td><td>-</td><td>-</td>
                             <td class="text-right">{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</td>
                             <td>{{ $item->tax_percentage ?? 0 }}%</td>
                             <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
@@ -265,6 +267,7 @@
                     <th>Tanggal</th>
                     <th>Jenis</th>
                     <th>Penerima</th>
+                    <th>Gudang</th>
                     <th>Status</th>
                     <th>Kategori</th>
                     <th>Deskripsi</th>
@@ -285,9 +288,10 @@
                                     <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
                                     <td>{{ ucfirst($item->jenis_biaya ?? '-') }}</td>
                                     <td>{{ $item->penerima ?? '-' }}</td>
+                                    <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
                                     <td>{{ $item->status }}</td>
                                 @else
-                                    <td></td><td></td><td></td><td></td><td></td><td></td>
+                                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
                                 @endif
                                 <td>{{ $detail->kategori ?? '-' }}</td>
                                 <td>{{ $detail->deskripsi ?? '-' }}</td>
@@ -307,6 +311,7 @@
                             <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
                             <td>{{ ucfirst($item->jenis_biaya ?? '-') }}</td>
                             <td>{{ $item->penerima ?? '-' }}</td>
+                            <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                             <td>-</td><td>-</td><td>-</td>
                             <td>{{ $item->tax_percentage ?? 0 }}%</td>

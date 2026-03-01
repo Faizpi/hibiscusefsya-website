@@ -285,7 +285,7 @@ class PrintController extends Controller
 
     public function biayaRichText($id)
     {
-        $data = Biaya::with(['items', 'user'])->findOrFail($id);
+        $data = Biaya::with(['items', 'user', 'gudang'])->findOrFail($id);
         $dateCode = $data->created_at->format('Ymd');
         $noUrut = str_pad($data->no_urut_harian, 3, '0', STR_PAD_LEFT);
 
@@ -293,6 +293,7 @@ class PrintController extends Controller
         $p .= $this->divInfo([
             "Nomor" => "EXP-1-{$dateCode}-{$noUrut}",
             "Tanggal" => $data->tgl_transaksi->format('d/m/Y'),
+            "Gudang" => optional($data->gudang)->nama_gudang ?? '-',
             "Penerima" => $data->penerima,
             "Sales" => optional($data->user)->name,
             "Status" => $data->status

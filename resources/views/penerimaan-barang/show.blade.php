@@ -5,7 +5,8 @@
         <div class="d-flex align-items-center justify-content-between mb-4 page-header-mobile">
             <h1 class="h3 mb-0 text-gray-800">Detail Penerimaan Barang</h1>
             <div class="show-action-buttons">
-                <a href="{{ route('penerimaan-barang.print', $penerimaan->id) }}" class="btn btn-info btn-sm shadow-sm" target="_blank">
+                <a href="{{ route('penerimaan-barang.print', $penerimaan->id) }}" class="btn btn-info btn-sm shadow-sm"
+                    target="_blank">
                     <i class="fas fa-print fa-sm"></i> Print
                 </a>
                 <button type="button" class="btn btn-success btn-sm shadow-sm" data-toggle="modal" data-target="#qrModal">
@@ -39,7 +40,8 @@
                                     <tr>
                                         <td width="40%"><strong>Nomor</strong></td>
                                         <td width="5%">:</td>
-                                        <td><span class="badge badge-dark font-weight-bold" style="font-size: 1rem;">{{ $penerimaan->custom_number }}</span></td>
+                                        <td><span class="badge badge-dark font-weight-bold"
+                                                style="font-size: 1rem;">{{ $penerimaan->custom_number }}</span></td>
                                     </tr>
                                     <tr>
                                         <td><strong>Tanggal</strong></td>
@@ -205,7 +207,8 @@
                             @endif
 
                             @if($penerimaan->status == 'Canceled' && $role == 'super_admin')
-                                <form action="{{ route('penerimaan-barang.uncancel', $penerimaan->id) }}" method="POST" class="mb-2">
+                                <form action="{{ route('penerimaan-barang.uncancel', $penerimaan->id) }}" method="POST"
+                                    class="mb-2">
                                     @csrf
                                     <button type="submit" class="btn btn-info btn-block">
                                         <i class="fas fa-undo"></i> Batalkan Pembatalan
@@ -252,9 +255,8 @@
                                         <i class="fas fa-file"></i> Lampiran {{ $index + 1 }}
                                     </a>
                                     @if($role == 'super_admin')
-                                        <form action="{{ route('penerimaan-barang.deleteLampiran', [$penerimaan->id, $index]) }}" 
-                                            method="POST" class="d-inline"
-                                            onsubmit="return confirm('Hapus lampiran ini?')">
+                                        <form action="{{ route('penerimaan-barang.deleteLampiran', [$penerimaan->id, $index]) }}"
+                                            method="POST" class="d-inline" onsubmit="return confirm('Hapus lampiran ini?')">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-outline-danger">
                                                 <i class="fas fa-times"></i>
@@ -284,7 +286,7 @@
                     @php
                         $invoiceUrl = url('invoice/penerimaan-barang/' . $penerimaan->uuid);
                     @endphp
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode($invoiceUrl) }}" 
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode($invoiceUrl) }}"
                         alt="QR Code" class="mb-3" style="max-width: 200px;">
                     <p class="text-muted small mb-2">Scan QR code untuk melihat dokumen penerimaan</p>
                     <div class="input-group input-group-sm">
@@ -308,13 +310,13 @@
 @endsection
 
 @push('scripts')
-<script>
-function copyUrl() {
-    var copyText = document.getElementById("invoiceUrl");
-    copyText.select();
-    copyText.setSelectionRange(0, 99999);
-    document.execCommand("copy");
-    alert("Link berhasil dicopy!");
-}
-</script>
+    <script>
+        function copyUrl() {
+            var copyText = document.getElementById("invoiceUrl");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+            alert("Link berhasil dicopy!");
+        }
+    </script>
 @endpush

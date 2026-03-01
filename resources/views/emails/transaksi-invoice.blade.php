@@ -138,6 +138,10 @@
                     <span class="label">Jenis Biaya</span>
                     <span class="value">{{ $transaksi->jenis_biaya == 'masuk' ? 'Biaya Masuk' : 'Biaya Keluar' }}</span>
                 </div>
+                <div class="info-row">
+                    <span class="label">Gudang</span>
+                    <span class="value">{{ optional($transaksi->gudang)->nama_gudang ?? '-' }}</span>
+                </div>
             @endif
             <div class="info-row">
                 <span class="label">Status</span>

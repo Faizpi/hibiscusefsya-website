@@ -38,6 +38,7 @@
                             <tr>
                                 <th>Kode</th>
                                 <th>Nama</th>
+                                <th>Gudang</th>
                                 <th>Email</th>
                                 <th>No. Telepon</th>
                                 <th class="text-right">Diskon (%)</th>
@@ -57,6 +58,13 @@
                                         <a href="{{ route('kontak.show', $item->id) }}">
                                             {{ $item->nama }}
                                         </a>
+                                    </td>
+                                    <td>
+                                        @if($item->gudang)
+                                            <span class="badge badge-info">{{ $item->gudang->nama_gudang }}</span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
                                     <td>{{ $item->email ?? '-' }}</td>
                                     <td>{{ $item->no_telp ?? '-' }}</td>
@@ -87,7 +95,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center">Belum ada data kontak.</td>
+                                    <td colspan="7" class="text-center">Belum ada data kontak.</td>
                                 </tr>
                             @endforelse
                         </tbody>

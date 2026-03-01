@@ -87,6 +87,20 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    <div class="form-group">
+                        <label for="gudang_id">Gudang</label>
+                        <select class="form-control @error('gudang_id') is-invalid @enderror" id="gudang_id" name="gudang_id">
+                            <option value="">-- Tidak Ada Gudang --</option>
+                            @foreach($gudangs as $g)
+                                <option value="{{ $g->id }}" {{ old('gudang_id', $kontak->gudang_id) == $g->id ? 'selected' : '' }}>
+                                    {{ $g->nama_gudang }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('gudang_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                     <div class="text-right">
                         <a href="{{ route('kontak.index') }}" class="btn btn-secondary">Batal</a>
                         <button type="submit" class="btn btn-primary">Simpan Perubahan</button>

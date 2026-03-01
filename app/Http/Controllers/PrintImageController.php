@@ -106,7 +106,7 @@ class PrintImageController extends Controller
      */
     public function biaya($id)
     {
-        $biaya = Biaya::with(['items', 'user'])->findOrFail($id);
+        $biaya = Biaya::with(['items', 'user', 'gudang'])->findOrFail($id);
         
         $filename = "struk-biaya-{$id}.png";
         $path = storage_path("app/public/{$filename}");

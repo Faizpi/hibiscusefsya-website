@@ -150,6 +150,12 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('penerimaan-barang', 'PenerimaanBarangController');
 
 
+    // Master Kontak (accessible by all authenticated users)
+    Route::get('kontak/{kontak}/print', 'KontakController@print')->name('kontak.print');
+    Route::get('kontak/{kontak}/download', 'KontakController@downloadPdf')->name('kontak.download');
+    Route::resource('kontak', 'KontakController');
+
+
     // ====================================================================
     // GRUP 2: Area Admin, Spectator & Super Admin
     // ====================================================================
@@ -157,11 +163,6 @@ Route::middleware(['auth'])->group(function () {
 
         // Switch gudang untuk admin dan spectator (multi-gudang)
         Route::post('switch-gudang', 'AdminGudangController@switchGudang')->name('switch-gudang');
-
-        // Master Kontak
-        Route::get('kontak/{kontak}/print', 'KontakController@print')->name('kontak.print');
-        Route::get('kontak/{kontak}/download', 'KontakController@downloadPdf')->name('kontak.download');
-        Route::resource('kontak', 'KontakController');
 
         // Cek Stok
         Route::get('stok', 'StokController@index')->name('stok.index');

@@ -79,6 +79,11 @@ class Biaya extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function gudang()
+    {
+        return $this->belongsTo(Gudang::class);
+    }
+
     public function approver()
     {
         return $this->belongsTo(User::class, 'approver_id');

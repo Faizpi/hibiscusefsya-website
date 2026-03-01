@@ -95,7 +95,7 @@ class InvoiceEmailService
     {
         try {
             // Load relasi yang dibutuhkan
-            $biaya->load(['items', 'user', 'approver']);
+            $biaya->load(['items', 'user', 'approver', 'gudang']);
 
             // Generate PDF
             $pdf = Pdf::loadView('pdf.invoice-biaya', ['biaya' => $biaya]);
@@ -216,7 +216,7 @@ class InvoiceEmailService
                 } elseif ($type == 'kunjungan') {
                     $transaksi->load(['items.produk', 'user', 'gudang', 'kontak']);
                 } else {
-                    $transaksi->load(['items', 'user']);
+                    $transaksi->load(['items', 'user', 'gudang']);
                 }
 
                 // Generate PDF - gunakan template yang sama dengan download di public invoice
@@ -276,7 +276,7 @@ class InvoiceEmailService
                 } elseif ($type == 'kunjungan') {
                     $transaksi->load(['items.produk', 'user', 'gudang', 'kontak', 'approver']);
                 } else {
-                    $transaksi->load(['items', 'user', 'approver']);
+                    $transaksi->load(['items', 'user', 'approver', 'gudang']);
                 }
 
                 // Generate PDF invoice final - gunakan template yang sama dengan download di public invoice

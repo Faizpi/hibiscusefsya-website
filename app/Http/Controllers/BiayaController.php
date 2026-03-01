@@ -17,56 +17,42 @@ use Illuminate\Support\Facades\File;
 
 class BiayaController extends Controller
 {
+    /**
+     * Get accessible gudang IDs for the current user.
+     * Returns null for super_admin (all access).
+     */
+    private function getAccessibleGudangIds($user)
+    {
+        if ($user->role === 'super_admin') return null;
+
+        $gudangIds = [];
+        if ($user->role === 'admin') {
+            $gudangIds = $user->gudangs->pluck('id')->toArray();
+            if ($user->current_gudang_id) $gudangIds[] = $user->current_gudang_id;
+            if ($user->gudang_id) $gudangIds[] = $user->gudang_id;
+        } elseif ($user->role === 'spectator') {
+            $gudangIds = $user->spectatorGudangs->pluck('id')->toArray();
+            if ($user->current_gudang_id) $gudangIds[] = $user->current_gudang_id;
+        } else {
+            $gudang = $user->getCurrentGudang();
+            if ($gudang) $gudangIds[] = $gudang->id;
+        }
+        return array_unique($gudangIds);
+    }
+
     public function index()
     {
         $user = Auth::user();
-        $query = Biaya::with(['user', 'approver']);
-        if ($user->role == 'super_admin') {
-            // Super admin dapat melihat semua biaya
-        } elseif ($user->role == 'admin') {
-            // Admin dapat melihat:
-            // 1. Biaya yang dia buat sendiri
-            // 2. Biaya yang dia sebagai approver
-            // 3. Biaya yang dibuat oleh user di gudang yang dia kelola
-            $adminGudangIds = $user->gudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) {
-                $adminGudangIds[] = $user->current_gudang_id;
-            }
-            if ($user->gudang_id) {
-                $adminGudangIds[] = $user->gudang_id;
-            }
-            $adminGudangIds = array_unique($adminGudangIds);
+        $query = Biaya::with(['user', 'approver', 'gudang']);
 
-            // Ambil semua user_id yang berada di gudang yang dikelola admin ini
-            // Fix: properly group orWhereIn to avoid returning all users
-            $usersInGudang = User::where(function ($q) use ($adminGudangIds) {
-                $q->whereIn('gudang_id', $adminGudangIds)
-                    ->orWhereIn('current_gudang_id', $adminGudangIds);
-            })->pluck('id')->toArray();
-
-            $query->where(function ($q) use ($user, $usersInGudang) {
-                $q->where('approver_id', $user->id)
-                    ->orWhere('user_id', $user->id)
-                    ->orWhereIn('user_id', $usersInGudang);
+        // Filter berdasarkan gudang_id pada biaya
+        $gudangIds = $this->getAccessibleGudangIds($user);
+        if ($gudangIds !== null) {
+            $query->where(function ($q) use ($gudangIds, $user) {
+                $q->whereIn('gudang_id', $gudangIds)
+                  ->orWhere('user_id', $user->id)
+                  ->orWhere('approver_id', $user->id);
             });
-        } elseif ($user->role == 'spectator') {
-            // Spectator dapat melihat biaya di gudang yang dia akses
-            $spectatorGudangIds = $user->spectatorGudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) {
-                $spectatorGudangIds[] = $user->current_gudang_id;
-            }
-            $spectatorGudangIds = array_unique($spectatorGudangIds);
-
-            // Fix: properly group orWhereIn to avoid returning all users
-            $usersInGudang = User::where(function ($q) use ($spectatorGudangIds) {
-                $q->whereIn('gudang_id', $spectatorGudangIds)
-                    ->orWhereIn('current_gudang_id', $spectatorGudangIds);
-            })->pluck('id')->toArray();
-
-            $query->whereIn('user_id', $usersInGudang);
-        } else {
-            // User biasa hanya melihat biaya miliknya sendiri
-            $query->where('user_id', $user->id);
         }
 
         // Filter jenis_biaya jika ada
@@ -127,7 +113,16 @@ class BiayaController extends Controller
             return redirect()->route('biaya.index')->with('error', 'Spectator tidak memiliki akses untuk membuat transaksi.');
         }
 
-        $kontaks = Kontak::all();
+        // Filter kontak berdasarkan gudang user
+        $gudang = $user->getCurrentGudang();
+        if ($user->role === 'super_admin') {
+            $kontaks = Kontak::all();
+        } else {
+            $kontaks = Kontak::where(function ($q) use ($gudang) {
+                $q->whereNull('gudang_id');
+                if ($gudang) $q->orWhere('gudang_id', $gudang->id);
+            })->get();
+        }
 
         // Tidak perlu lagi, approver otomatis ditentukan di backend
         // $approvers = User::whereIn('role', ['admin', 'super_admin'])->get();
@@ -254,8 +249,16 @@ class BiayaController extends Controller
 
         DB::beginTransaction();
         try {
+            // Auto-assign gudang_id dari gudang user saat ini
+            $gudangId = null;
+            $currentGudang = $user->getCurrentGudang();
+            if ($currentGudang) {
+                $gudangId = $currentGudang->id;
+            }
+
             $biayaInduk = Biaya::create([
                 'user_id' => Auth::id(),
+                'gudang_id' => $gudangId,
                 'status' => $initialStatus,
                 'approver_id' => $approverId,
                 'no_urut_harian' => $noUrut,
@@ -480,7 +483,8 @@ class BiayaController extends Controller
             return redirect()->route('biaya.index')->with('error', 'Anda tidak memiliki akses untuk mengedit data biaya.');
         }
 
-        $biaya->load('items');
+        $biaya->load('items', 'gudang');
+        // Filter kontak berdasarkan gudang - super_admin bisa akses semua
         $kontaks = Kontak::all();
         // Tidak perlu approvers, akan otomatis di backend
 
@@ -630,38 +634,12 @@ class BiayaController extends Controller
     public function show(Biaya $biaya)
     {
         $user = Auth::user();
-        $allow = false;
-        if ($user->role == 'super_admin')
-            $allow = true;
-        elseif ($user->role == 'admin' && $biaya->approver_id == $user->id)
-            $allow = true;
-        elseif ($biaya->user_id == $user->id)
-            $allow = true;
-        elseif ($user->role == 'admin') {
-            // Admin dapat melihat biaya dari user yang berada di gudang yang dia kelola
-            $adminGudangIds = $user->gudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) {
-                $adminGudangIds[] = $user->current_gudang_id;
-            }
-            if ($user->gudang_id) {
-                $adminGudangIds[] = $user->gudang_id;
-            }
-            $adminGudangIds = array_unique($adminGudangIds);
-
-            // Cek apakah pembuat biaya berada di gudang yang dikelola admin ini
-            $creator = $biaya->user;
-            if ($creator) {
-                $creatorGudangId = $creator->current_gudang_id ?? $creator->gudang_id;
-                if ($creatorGudangId && in_array($creatorGudangId, $adminGudangIds)) {
-                    $allow = true;
-                }
-            }
-        }
+        $allow = $this->canAccessBiaya($user, $biaya);
 
         if (!$allow)
             return redirect()->route('biaya.index')->with('error', 'Akses ditolak.');
 
-        $biaya->load('items', 'user', 'approver');
+        $biaya->load('items', 'user', 'approver', 'gudang');
         $dateCode = $biaya->created_at->format('Ymd');
         $biaya->custom_number = "EXP-{$dateCode}-{$biaya->user_id}-{$biaya->no_urut_harian}";
 
@@ -671,37 +649,28 @@ class BiayaController extends Controller
     public function print(Biaya $biaya)
     {
         $user = Auth::user();
-        $allow = false;
-        if ($user->role == 'super_admin')
-            $allow = true;
-        elseif ($user->role == 'admin' && $biaya->approver_id == $user->id)
-            $allow = true;
-        elseif ($biaya->user_id == $user->id)
-            $allow = true;
-        elseif ($user->role == 'admin') {
-            // Admin dapat melihat biaya dari user yang berada di gudang yang dia kelola
-            $adminGudangIds = $user->gudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) {
-                $adminGudangIds[] = $user->current_gudang_id;
-            }
-            if ($user->gudang_id) {
-                $adminGudangIds[] = $user->gudang_id;
-            }
-            $adminGudangIds = array_unique($adminGudangIds);
-
-            $creator = $biaya->user;
-            if ($creator) {
-                $creatorGudangId = $creator->current_gudang_id ?? $creator->gudang_id;
-                if ($creatorGudangId && in_array($creatorGudangId, $adminGudangIds)) {
-                    $allow = true;
-                }
-            }
-        }
+        $allow = $this->canAccessBiaya($user, $biaya);
 
         if (!$allow)
             return redirect()->route('biaya.index')->with('error', 'Akses ditolak.');
 
-        $biaya->load('items', 'user', 'approver');
+        $biaya->load('items', 'user', 'approver', 'gudang');
         return view('biaya.print', compact('biaya'));
+    }
+
+    /**
+     * Check if user can access a biaya record.
+     */
+    private function canAccessBiaya($user, $biaya)
+    {
+        if ($user->role === 'super_admin') return true;
+        if ($biaya->user_id == $user->id) return true;
+        if ($biaya->approver_id == $user->id) return true;
+
+        $gudangIds = $this->getAccessibleGudangIds($user);
+        if ($gudangIds && $biaya->gudang_id && in_array($biaya->gudang_id, $gudangIds)) {
+            return true;
+        }
+        return false;
     }
 }

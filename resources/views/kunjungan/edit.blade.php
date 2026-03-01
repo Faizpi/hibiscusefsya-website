@@ -193,16 +193,20 @@
                                     <select class="form-control produk-select" name="produk_id[]">
                                         <option value="">Pilih produk...</option>
                                         @foreach($produks as $produk)
-                                            <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}" {{ $item->produk_id == $produk->id ? 'selected' : '' }}>
+                                            <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}"
+                                                data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}" {{ $item->produk_id == $produk->id ? 'selected' : '' }}>
                                                 [{{ $produk->item_code }}] {{ $produk->nama_produk }}
                                             </option>
                                         @endforeach
                                     </select>
-                                    <small class="text-muted stok-gratis-info">@if(isset($stokGratisMap[$item->produk_id]))<i class="fas fa-box-open"></i> Stok gratis: <strong>{{ $stokGratisMap[$item->produk_id] }}</strong>@endif</small>
+                                    <small class="text-muted stok-gratis-info">@if(isset($stokGratisMap[$item->produk_id]))<i
+                                        class="fas fa-box-open"></i> Stok gratis:
+                                    <strong>{{ $stokGratisMap[$item->produk_id] }}</strong>@endif</small>
                                 </div>
                                 <div class="col-md-2">
                                     <input type="number" class="form-control produk-qty" name="jumlah[]"
-                                        value="{{ $item->jumlah ?? 1 }}" min="1" max="{{ $stokGratisMap[$item->produk_id] ?? '' }}" placeholder="Qty">
+                                        value="{{ $item->jumlah ?? 1 }}" min="1"
+                                        max="{{ $stokGratisMap[$item->produk_id] ?? '' }}" placeholder="Qty">
                                 </div>
                                 <div class="col-md-2">
                                     <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk"
@@ -222,7 +226,8 @@
                                     <select class="form-control produk-select" name="produk_id[]">
                                         <option value="">Pilih produk...</option>
                                         @foreach($produks as $produk)
-                                            <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}">
+                                            <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}"
+                                                data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}">
                                                 [{{ $produk->item_code }}] {{ $produk->nama_produk }}
                                             </option>
                                         @endforeach
@@ -310,7 +315,7 @@
 
             // Stok gratis validation
             function bindStokGratisCheck() {
-                $('.produk-select').off('change.stokgratis').on('change.stokgratis', function() {
+                $('.produk-select').off('change.stokgratis').on('change.stokgratis', function () {
                     const row = $(this).closest('.produk-row');
                     const selectedOption = $(this).find('option:selected');
                     const qtyInput = row.find('.produk-qty');
@@ -336,7 +341,7 @@
                     }
                 });
 
-                $('.produk-qty').off('input.stokgratis').on('input.stokgratis', function() {
+                $('.produk-qty').off('input.stokgratis').on('input.stokgratis', function () {
                     const max = parseInt($(this).attr('max'));
                     if (!isNaN(max) && parseInt($(this).val()) > max) {
                         $(this).val(max);
@@ -359,33 +364,33 @@
             // Tambah baris produk
             $('#btn-add-produk').on('click', function () {
                 const newRow = `
-                    <div class="row produk-row mb-2 align-items-center">
-                        <div class="col-md-7">
-                            <select class="form-control produk-select" name="produk_id[]">
-                                <option value="">Pilih produk...</option>
-                                @foreach($produks as $produk)
-                                    <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}">
-                                        [{{ $produk->item_code }}] {{ $produk->nama_produk }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <small class="text-muted stok-gratis-info"></small>
+                        <div class="row produk-row mb-2 align-items-center">
+                            <div class="col-md-7">
+                                <select class="form-control produk-select" name="produk_id[]">
+                                    <option value="">Pilih produk...</option>
+                                    @foreach($produks as $produk)
+                                        <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}">
+                                            [{{ $produk->item_code }}] {{ $produk->nama_produk }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted stok-gratis-info"></small>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
-                                <i class="fas fa-camera"></i>
-                            </button>
-                        </div>
-                        <div class="col-md-1">
-                            <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
+                    `;
                 $('#produk-container').append(newRow);
                 initProdukSelect2();
                 updateRemoveButtons();

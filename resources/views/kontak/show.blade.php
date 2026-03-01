@@ -83,6 +83,17 @@
                                         <td><span class="badge badge-success">{{ $kontak->diskon_persen ?? 0 }}%</span></td>
                                     </tr>
                                     <tr>
+                                        <td><strong>Gudang</strong></td>
+                                        <td>:</td>
+                                        <td>
+                                            @if($kontak->gudang)
+                                                <span class="badge badge-info">{{ $kontak->gudang->nama_gudang }}</span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <td><strong>Dibuat</strong></td>
                                         <td>:</td>
                                         <td>{{ $kontak->created_at ? $kontak->created_at->format('d M Y, H:i') : '-' }}</td>

@@ -133,7 +133,7 @@ class BluetoothPrintController extends Controller
     public function biayaJson($id)
     {
         /** @var Biaya $data */
-        $data = Biaya::with(['items', 'user', 'approver'])->findOrFail($id);
+        $data = Biaya::with(['items', 'user', 'approver', 'gudang'])->findOrFail($id);
 
         $dateCode = $data->created_at->format('Ymd');
         $noUrut = str_pad($data->no_urut_harian, 3, '0', STR_PAD_LEFT);
@@ -157,6 +157,7 @@ class BluetoothPrintController extends Controller
             'cara_pembayaran' => $data->cara_pembayaran ?? '-',
             'bayar_dari' => $data->bayar_dari ?? '-',
             'penerima' => $data->penerima ?? '-',
+            'gudang' => optional($data->gudang)->nama_gudang ?? '-',
             'sales' => optional($data->user)->name ?? '-',
             'approver' => ($data->status != 'Pending' && $data->approver) ? $data->approver->name : '-',
             'status' => $data->status,

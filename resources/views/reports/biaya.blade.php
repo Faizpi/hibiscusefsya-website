@@ -12,6 +12,7 @@
             <th>Alamat Penagihan</th>
             <th>Cara Pembayaran</th>
             <th>Pembuat</th>
+            <th>Gudang</th>
             <th>Approver</th>
             <th>Status</th>
             <th>Kategori Item</th>
@@ -39,9 +40,11 @@
                             <td>{{ $item->alamat_penagihan ?? '-' }}</td>
                             <td>{{ $item->cara_pembayaran ?? '-' }}</td>
                             <td>{{ $item->user->name ?? '-' }}</td>
+                            <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->approver->name ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                         @else
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -81,6 +84,7 @@
                     <td>{{ $item->alamat_penagihan ?? '-' }}</td>
                     <td>{{ $item->cara_pembayaran ?? '-' }}</td>
                     <td>{{ $item->user->name ?? '-' }}</td>
+                    <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
                     <td>{{ $item->approver->name ?? '-' }}</td>
                     <td>{{ $item->status }}</td>
                     <td>-</td>

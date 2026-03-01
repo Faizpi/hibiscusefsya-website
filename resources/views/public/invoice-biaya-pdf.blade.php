@@ -167,6 +167,11 @@
                 <td class="value-col">{{ $biaya->penerima ?? '-' }}</td>
             </tr>
             <tr>
+                <td class="label-col">Gudang</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ optional($biaya->gudang)->nama_gudang ?? '-' }}</td>
+            </tr>
+            <tr>
                 <td class="label-col">Pembuat</td>
                 <td class="colon-col">:</td>
                 <td class="value-col">{{ $biaya->user->name }}</td>

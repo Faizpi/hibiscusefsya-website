@@ -113,6 +113,7 @@
                             <th>Nomor</th>
                             <th>Jenis</th>
                             <th>Pembuat</th>
+                            <th>Gudang</th>
                             <th>Penerima</th>
                             <th class="text-right">Total</th>
                             <th class="text-center">Status</th>
@@ -137,6 +138,13 @@
                                     @endif
                                 </td>
                                 <td>{{ $item->user->name }}</td>
+                                <td>
+                                    @if($item->gudang)
+                                        <span class="badge badge-info">{{ $item->gudang->nama_gudang }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
                                 <td>{{ $item->penerima ?? '-' }}</td>
                                 <td class="text-right font-weight-bold">Rp {{ number_format($item->grand_total, 0, ',', '.') }}
                                 </td>
@@ -216,7 +224,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center">Belum ada data biaya.</td>
+                                <td colspan="9" class="text-center">Belum ada data biaya.</td>
                             </tr>
                         @endforelse
                     </tbody>

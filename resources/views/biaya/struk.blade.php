@@ -205,6 +205,7 @@
         <tr><td class="label">Pembayaran</td><td class="colon">:</td><td class="value">{{ $biaya->metode_pembayaran ?? 'Cash' }}</td></tr>
         <tr><td class="label">Kontak</td><td class="colon">:</td><td class="value">{{ $biaya->nama_pemasok ?? '-' }}</td></tr>
         <tr><td class="label">Diinput</td><td class="colon">:</td><td class="value">{{ $biaya->user->name ?? '-' }}</td></tr>
+        <tr><td class="label">Gudang</td><td class="colon">:</td><td class="value">{{ optional($biaya->gudang)->nama_gudang ?? '-' }}</td></tr>
         <tr><td class="label">Status</td><td class="colon">:</td><td class="value">{{ $biaya->status }}</td></tr>
         @if($biaya->approver_id && $biaya->approver)
         <tr><td class="label">Disetujui</td><td class="colon">:</td><td class="value">{{ $biaya->approver->name }}</td></tr>

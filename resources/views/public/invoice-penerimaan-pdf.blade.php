@@ -217,10 +217,10 @@
                         <td class="val"><span class="qty-diterima">{{ $item->qty_diterima }}</span></td>
                     </tr>
                     @if($item->qty_reject > 0)
-                    <tr>
-                        <td>Reject</td>
-                        <td class="val"><span class="qty-reject">{{ $item->qty_reject }}</span></td>
-                    </tr>
+                        <tr>
+                            <td>Reject</td>
+                            <td class="val"><span class="qty-reject">{{ $item->qty_reject }}</span></td>
+                        </tr>
                     @endif
                 </table>
             </div>
@@ -235,10 +235,10 @@
                     <td class="val"><span class="qty-diterima">{{ $totalDiterima }} pcs</span></td>
                 </tr>
                 @if($totalReject > 0)
-                <tr>
-                    <td>Total Reject</td>
-                    <td class="val"><span class="qty-reject">{{ $totalReject }} pcs</span></td>
-                </tr>
+                    <tr>
+                        <td>Total Reject</td>
+                        <td class="val"><span class="qty-reject">{{ $totalReject }} pcs</span></td>
+                    </tr>
                 @endif
                 <tr style="border-top: 1px dashed #000; padding-top: 5px;">
                     <td><b>Masuk Gudang</b></td>

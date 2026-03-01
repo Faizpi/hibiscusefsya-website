@@ -76,6 +76,16 @@
                                 <td>: {{ $biaya->user->name }}</td>
                             </tr>
                             <tr>
+                                <td><strong>Gudang</strong></td>
+                                <td>:
+                                    @if($biaya->gudang)
+                                        <span class="badge badge-info">{{ $biaya->gudang->nama_gudang }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
                                 <td><strong>Approver</strong></td>
                                 <td>: {{ $biaya->status == 'Pending' ? '-' : ($biaya->approver->name ?? '-') }}</td>
                             </tr>

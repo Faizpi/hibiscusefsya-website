@@ -28,6 +28,7 @@ class Kontak extends Model
         'pin',
         'alamat',
         'diskon_persen',
+        'gudang_id',
     ];
 
     /**
@@ -49,6 +50,11 @@ class Kontak extends Model
     /**
      * Relasi ke kunjungan
      */
+    public function gudang()
+    {
+        return $this->belongsTo(Gudang::class);
+    }
+
     public function kunjungans()
     {
         return $this->hasMany(Kunjungan::class);

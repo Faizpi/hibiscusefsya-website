@@ -179,7 +179,8 @@
             <tr>
                 <td class="label">Disetujui</td>
                 <td class="colon">:</td>
-                <td class="value">{{ $penerimaan->status == 'Pending' ? '-' : ($penerimaan->approver->name ?? '-') }}</td>
+                <td class="value">{{ $penerimaan->status == 'Pending' ? '-' : ($penerimaan->approver->name ?? '-') }}
+                </td>
             </tr>
             <tr>
                 <td class="label">Gudang</td>
@@ -194,17 +195,17 @@
         </table>
 
         @if($penerimaan->pembelian)
-        <div class="divider"></div>
-        <table>
-            <tr>
-                <td colspan="3"><b>Referensi PO:</b></td>
-            </tr>
-            <tr>
-                <td class="label">No. PO</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $penerimaan->pembelian->custom_number }}</td>
-            </tr>
-        </table>
+            <div class="divider"></div>
+            <table>
+                <tr>
+                    <td colspan="3"><b>Referensi PO:</b></td>
+                </tr>
+                <tr>
+                    <td class="label">No. PO</td>
+                    <td class="colon">:</td>
+                    <td class="value">{{ $penerimaan->pembelian->custom_number }}</td>
+                </tr>
+            </table>
         @endif
 
         <div class="divider"></div>
@@ -232,10 +233,10 @@
                         <td class="val">{{ $item->qty_diterima }} {{ $item->produk->satuan ?? 'Pcs' }}</td>
                     </tr>
                     @if(($item->qty_reject ?? 0) > 0)
-                    <tr>
-                        <td class="reject">Reject</td>
-                        <td class="val reject">{{ $item->qty_reject }} {{ $item->produk->satuan ?? 'Pcs' }}</td>
-                    </tr>
+                        <tr>
+                            <td class="reject">Reject</td>
+                            <td class="val reject">{{ $item->qty_reject }} {{ $item->produk->satuan ?? 'Pcs' }}</td>
+                        </tr>
                     @endif
                 </table>
             </div>
@@ -249,16 +250,16 @@
                 <td class="val"><b>{{ $totalDiterima }} item</b></td>
             </tr>
             @if($totalReject > 0)
-            <tr>
-                <td class="reject"><b>Total Reject</b></td>
-                <td class="val reject"><b>{{ $totalReject }} item</b></td>
-            </tr>
+                <tr>
+                    <td class="reject"><b>Total Reject</b></td>
+                    <td class="val reject"><b>{{ $totalReject }} item</b></td>
+                </tr>
             @endif
         </table>
 
         @if($penerimaan->keterangan)
-        <div class="divider"></div>
-        <p style="font-size: 8pt;"><b>Keterangan:</b> {{ $penerimaan->keterangan }}</p>
+            <div class="divider"></div>
+            <p style="font-size: 8pt;"><b>Keterangan:</b> {{ $penerimaan->keterangan }}</p>
         @endif
 
         <div class="qr-section">

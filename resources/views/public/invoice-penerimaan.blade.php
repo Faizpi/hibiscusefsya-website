@@ -339,48 +339,53 @@
             <div class="info-card">
                 <div class="info-card-title"><i class="fas fa-file-invoice"></i> Referensi Pembelian</div>
                 @if($penerimaan->pembelian)
-                <div class="info-row">
-                    <span class="label">Invoice</span>
-                    <span class="value">{{ $penerimaan->pembelian->custom_number }}</span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">Invoice</span>
+                        <span class="value">{{ $penerimaan->pembelian->custom_number }}</span>
+                    </div>
                 @else
-                <div class="info-row">
-                    <span class="label">Invoice</span>
-                    <span class="value">-</span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">Invoice</span>
+                        <span class="value">-</span>
+                    </div>
                 @endif
             </div>
-            </div>
+        </div>
 
-            <div class="info-card items-section">
-                <div class="info-card-title"><i class="fas fa-box"></i> Detail Barang</div>
-                <table class="items-table">
-                    <thead>
-                        <tr>
-                            <th>Produk</th>
-                            <th style="text-align: center">Diterima</th>
-                            <th style="text-align: center">Reject</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($penerimaan->items as $item)
+        <div class="info-card items-section">
+            <div class="info-card-title"><i class="fas fa-box"></i> Detail Barang</div>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Produk</th>
+                        <th style="text-align: center">Diterima</th>
+                        <th style="text-align: center">Reject</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($penerimaan->items as $item)
                         <tr>
                             <td>
                                 <div class="item-name">{{ $item->produk->nama_produk ?? '-' }}</div>
                                 <div class="item-sku">{{ $item->produk->kode_produk ?? '-' }}</div>
                                 <div style="margin-top: 4px; font-size: 11px;">
                                     @if($item->tipe_stok == 'gratis')
-                                        <span style="background: #28a745; color: #fff; padding: 1px 6px; border-radius: 3px; font-size: 10px;">Gratis</span>
+                                        <span
+                                            style="background: #28a745; color: #fff; padding: 1px 6px; border-radius: 3px; font-size: 10px;">Gratis</span>
                                     @elseif($item->tipe_stok == 'sample')
-                                        <span style="background: #ffc107; color: #000; padding: 1px 6px; border-radius: 3px; font-size: 10px;">Sample</span>
+                                        <span
+                                            style="background: #ffc107; color: #000; padding: 1px 6px; border-radius: 3px; font-size: 10px;">Sample</span>
                                     @else
-                                        <span style="background: #4e73df; color: #fff; padding: 1px 6px; border-radius: 3px; font-size: 10px;">Penjualan</span>
+                                        <span
+                                            style="background: #4e73df; color: #fff; padding: 1px 6px; border-radius: 3px; font-size: 10px;">Penjualan</span>
                                     @endif
                                     @if($item->batch_number)
-                                        <span style="color: var(--text-muted); margin-left: 4px;">Batch: {{ $item->batch_number }}</span>
+                                        <span style="color: var(--text-muted); margin-left: 4px;">Batch:
+                                            {{ $item->batch_number }}</span>
                                     @endif
                                     @if($item->expired_date)
-                                        <span style="color: var(--text-muted); margin-left: 4px;">Exp: {{ $item->expired_date->format('d/m/Y') }}</span>
+                                        <span style="color: var(--text-muted); margin-left: 4px;">Exp:
+                                            {{ $item->expired_date->format('d/m/Y') }}</span>
                                     @endif
                                 </div>
                             </td>
@@ -389,70 +394,70 @@
                             </td>
                             <td style="text-align: center">
                                 @if($item->qty_reject > 0)
-                                <span class="qty-reject">{{ $item->qty_reject }}</span>
+                                    <span class="qty-reject">{{ $item->qty_reject }}</span>
                                 @else
-                                <span style="color: var(--text-muted);">0</span>
+                                    <span style="color: var(--text-muted);">0</span>
                                 @endif
                             </td>
                         </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
 
-            <div class="totals-card">
-                <div class="total-row">
-                    <span>Total Diterima</span>
-                    <span>{{ $totalDiterima }} pcs</span>
-                </div>
-                @if($totalReject > 0)
+        <div class="totals-card">
+            <div class="total-row">
+                <span>Total Diterima</span>
+                <span>{{ $totalDiterima }} pcs</span>
+            </div>
+            @if($totalReject > 0)
                 <div class="total-row">
                     <span>Total Reject</span>
                     <span>{{ $totalReject }} pcs</span>
                 </div>
-                @endif
-                <div class="total-row main">
-                    <span>Total Masuk Gudang</span>
-                    <span>{{ $totalDiterima }} pcs</span>
-                </div>
+            @endif
+            <div class="total-row main">
+                <span>Total Masuk Gudang</span>
+                <span>{{ $totalDiterima }} pcs</span>
             </div>
+        </div>
 
-            <div class="info-card">
-                <div class="info-card-title"><i class="fas fa-user"></i> Dibuat Oleh</div>
-                <div class="info-row">
-                    <span class="label">Nama</span>
-                    <span class="value">{{ $penerimaan->user->name }}</span>
-                </div>
-                @if($penerimaan->approver)
+        <div class="info-card">
+            <div class="info-card-title"><i class="fas fa-user"></i> Dibuat Oleh</div>
+            <div class="info-row">
+                <span class="label">Nama</span>
+                <span class="value">{{ $penerimaan->user->name }}</span>
+            </div>
+            @if($penerimaan->approver)
                 <div class="info-row">
                     <span class="label">Disetujui oleh</span>
                     <span class="value">{{ $penerimaan->approver->name }}</span>
                 </div>
-                @endif
-            </div>
+            @endif
+        </div>
 
-            @if($penerimaan->keterangan)
+        @if($penerimaan->keterangan)
             <div class="info-card">
                 <div class="info-card-title"><i class="fas fa-sticky-note"></i> Keterangan</div>
                 <p style="font-size: 13px; color: var(--text-secondary);">{{ $penerimaan->keterangan }}</p>
             </div>
-            @endif
+        @endif
 
-            <div class="qr-section">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
-                    alt="QR Code">
-                <p>Scan untuk melihat dokumen ini</p>
-            </div>
-
-            <a href="{{ route('public.invoice.penerimaan.download', $penerimaan->uuid) }}" class="btn-download">
-                <i class="fas fa-download"></i> Download PDF
-            </a>
+        <div class="qr-section">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
+                alt="QR Code">
+            <p>Scan untuk melihat dokumen ini</p>
         </div>
 
-        <div class="invoice-footer">
-            <strong>HIBISCUS EFSYA</strong>
-            marketing@hibiscusefsya.com
-        </div>
+        <a href="{{ route('public.invoice.penerimaan.download', $penerimaan->uuid) }}" class="btn-download">
+            <i class="fas fa-download"></i> Download PDF
+        </a>
+    </div>
+
+    <div class="invoice-footer">
+        <strong>HIBISCUS EFSYA</strong>
+        marketing@hibiscusefsya.com
+    </div>
     </div>
 </body>
 

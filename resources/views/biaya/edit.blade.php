@@ -41,6 +41,9 @@
                         <div class="col-md-8">
                             <div class="alert alert-info mb-0">
                                 <i class="fas fa-info-circle"></i> Approver akan ditentukan otomatis berdasarkan gudang Anda
+                                @if($biaya->gudang)
+                                    <br><i class="fas fa-warehouse"></i> Gudang: <strong>{{ $biaya->gudang->nama_gudang }}</strong>
+                                @endif
                             </div>
                         </div>
                     </div>

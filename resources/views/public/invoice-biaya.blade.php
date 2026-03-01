@@ -351,6 +351,10 @@
                     <span class="value">{{ $biaya->penerima ?? '-' }}</span>
                 </div>
                 <div class="info-row">
+                    <span class="label">Gudang</span>
+                    <span class="value">{{ optional($biaya->gudang)->nama_gudang ?? '-' }}</span>
+                </div>
+                <div class="info-row">
                     <span class="label">Pembuat</span>
                     <span class="value">{{ $biaya->user->name }}</span>
                 </div>
