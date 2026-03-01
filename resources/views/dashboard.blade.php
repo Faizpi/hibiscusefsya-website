@@ -738,10 +738,13 @@
                 const typeSelect = document.getElementById('transaction_type');
                 const jenisGroup = document.getElementById('biayaJenisGroup');
                 const tujuanGroup = document.getElementById('tujuanKunjunganGroup');
+                const gudangGroup = document.getElementById('gudangFilterGroup');
                 const toggleFilters = () => {
                     if (!typeSelect) return;
                     if (jenisGroup) jenisGroup.style.display = typeSelect.value === 'biaya' ? 'block' : 'none';
                     if (tujuanGroup) tujuanGroup.style.display = typeSelect.value === 'kunjungan' ? 'block' : 'none';
+                    // Gudang filter selalu tampil kecuali tipe 'all' dan 'kunjungan' sudah pasti ada
+                    if (gudangGroup) gudangGroup.style.display = 'block';
                 };
                 if (typeSelect) {
                     typeSelect.addEventListener('change', toggleFilters);

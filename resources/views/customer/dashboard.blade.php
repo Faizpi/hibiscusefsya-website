@@ -3,6 +3,31 @@
 @section('title', 'Dashboard')
 
 @section('content')
+    {{-- Promo Banner --}}
+    <a href="https://bodycare.hibiscusefsya.com/" target="_blank" class="promo-banner">
+        <div class="promo-glow"></div>
+        <div class="promo-content">
+            <div class="promo-icon-wrap">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="5" x2="5" y2="19"></line>
+                    <circle cx="6.5" cy="6.5" r="2.5"></circle>
+                    <circle cx="17.5" cy="17.5" r="2.5"></circle>
+                </svg>
+            </div>
+            <div class="promo-text">
+                <span class="promo-title">Promo Spesial!</span>
+                <span class="promo-desc">Cek katalog & penawaran terbaik kami</span>
+            </div>
+        </div>
+        <div class="promo-cta">
+            <span class="promo-btn"><span class="promo-percent">%</span> Promo</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+        </div>
+    </a>
+
     <div class="page-header">
         <h4 class="page-title">Selamat Datang, {{ $kontak->nama }}</h4>
         <p class="page-subtitle">Berikut ringkasan data akun dan transaksi Anda.</p>
@@ -113,6 +138,129 @@
 
 @push('styles')
     <style>
+        /* Promo Banner */
+        .promo-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #dc2626 0%, #e11d48 50%, #be123c 100%);
+            border-radius: 16px;
+            padding: 18px 24px;
+            margin-bottom: 28px;
+            text-decoration: none;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3);
+        }
+
+        .promo-banner:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(220, 38, 38, 0.45);
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .promo-glow {
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .promo-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 1;
+        }
+
+        .promo-icon-wrap {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            backdrop-filter: blur(8px);
+        }
+
+        .promo-title {
+            display: block;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .promo-desc {
+            display: block;
+            font-size: 0.82rem;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        .promo-cta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        .promo-btn {
+            background: rgba(255,255,255,0.22);
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            backdrop-filter: blur(8px);
+            letter-spacing: 0.3px;
+        }
+
+        .promo-percent {
+            display: inline-block;
+            background: #fff;
+            color: #dc2626;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.78rem;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 600px) {
+            .promo-banner {
+                flex-direction: column;
+                gap: 14px;
+                padding: 18px 20px;
+                align-items: flex-start;
+            }
+
+            .promo-cta {
+                align-self: flex-end;
+            }
+
+            .promo-icon-wrap {
+                width: 40px;
+                height: 40px;
+            }
+
+            .promo-icon-wrap svg {
+                width: 22px;
+                height: 22px;
+            }
+        }
+
         .page-header {
             margin-bottom: 40px;
             padding-top: 8px;
