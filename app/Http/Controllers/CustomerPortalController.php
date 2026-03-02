@@ -102,7 +102,7 @@ class CustomerPortalController extends Controller
         $kontak = Kontak::findOrFail(session('customer_id'));
 
         $query = Penjualan::where('pelanggan', $kontak->nama)
-            ->with(['items.produk', 'gudang'])
+            ->with(['items.produk', 'gudang', 'user'])
             ->whereIn('status', ['Approved', 'Lunas', 'Pending']);
 
         if ($request->filled('dari')) {

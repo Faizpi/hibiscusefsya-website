@@ -92,7 +92,15 @@ class KontakController extends Controller
         }
 
         $kontak->load('gudang');
-        return view('kontak.show', compact('kontak'));
+
+        // Riwayat penjualan berdasarkan nama pelanggan
+        $penjualans = \App\Penjualan::with(['items.produk', 'gudang', 'user'])
+            ->where('pelanggan', $kontak->nama)
+            ->orderBy('tgl_transaksi', 'desc')
+            ->limit(50)
+            ->get();
+
+        return view('kontak.show', compact('kontak', 'penjualans'));
     }
 
     public function print(Kontak $kontak)
@@ -191,6 +199,17 @@ class KontakController extends Controller
         // Cek akses gudang
         if (!$this->canAccessKontak($user, $kontak)) {
             return redirect()->route('kontak.index')->with('error', 'Akses ditolak. Kontak ini bukan milik gudang Anda.');
+        }
+
+        // Sales dan Admin hanya bisa edit PIN
+        if (in_array($user->role, ['user', 'admin'])) {
+            $request->validate([
+                'pin' => 'nullable|string|size:6',
+            ]);
+
+            $kontak->update(['pin' => $request->pin]);
+
+            return redirect()->route('kontak.show', $kontak->id)->with('success', 'PIN kontak berhasil diperbarui.');
         }
 
         $request->validate([

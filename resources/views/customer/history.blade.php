@@ -37,6 +37,7 @@
                         <tr>
                             <th>No. Invoice</th>
                             <th>Tanggal</th>
+                            <th>Sales</th>
                             <th>Gudang</th>
                             <th class="text-center">Item</th>
                             <th class="text-right">Grand Total</th>
@@ -49,6 +50,7 @@
                             <tr>
                                 <td><span class="font-bold" style="color: #111827;">{{ $trx->number }}</span></td>
                                 <td>{{ $trx->tgl_transaksi ? $trx->tgl_transaksi->format('d M Y') : '-' }}</td>
+                                <td>{{ $trx->user->name ?? '-' }}</td>
                                 <td>{{ $trx->gudang->nama_gudang ?? '-' }}</td>
                                 <td class="text-center">
                                     <span class="badge badge-secondary">{{ $trx->items->count() }} produk</span>
@@ -100,7 +102,8 @@
                             @endif
                         </div>
                         <div class="mobile-trx-bottom">
-                            <span class="mobile-trx-meta">{{ $trx->gudang->nama_gudang ?? '-' }} &middot; {{ $trx->items->count() }}
+                            <span class="mobile-trx-meta">{{ $trx->user->name ?? '-' }} &middot;
+                                {{ $trx->gudang->nama_gudang ?? '-' }} &middot; {{ $trx->items->count() }}
                                 produk</span>
                             <span class="mobile-trx-total">Rp {{ number_format($trx->grand_total ?? 0, 0, ',', '.') }}</span>
                         </div>

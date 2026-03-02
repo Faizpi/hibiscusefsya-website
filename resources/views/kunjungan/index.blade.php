@@ -19,7 +19,7 @@
     {{-- ROW 1: Cards Summary --}}
     <div class="row">
         {{-- Card Pemeriksaan Stock --}}
-        <div class="col-lg-3 col-sm-6 mb-4">
+        <div class="col-lg-2 col-sm-6 mb-4">
             <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -34,7 +34,7 @@
         </div>
 
         {{-- Card Penagihan --}}
-        <div class="col-lg-3 col-sm-6 mb-4">
+        <div class="col-lg-2 col-sm-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -48,23 +48,38 @@
             </div>
         </div>
 
-        {{-- Card Promo --}}
-        <div class="col-lg-3 col-sm-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
+        {{-- Card Promo Gratis --}}
+        <div class="col-lg-2 col-sm-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Promo</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalPromo }}</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Promo Gratis</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalPromoGratis }}</div>
                         </div>
-                        <div class="col-auto"><i class="fas fa-tags fa-2x text-gray-300"></i></div>
+                        <div class="col-auto"><i class="fas fa-gift fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Card Promo Sample --}}
+        <div class="col-lg-2 col-sm-6 mb-4">
+            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #6f42c1 !important;">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #6f42c1;">Promo Sample</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalPromoSample }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-vial fa-2x text-gray-300"></i></div>
                     </div>
                 </div>
             </div>
         </div>
 
         {{-- Card Canceled --}}
-        <div class="col-lg-3 col-sm-6 mb-4">
+        <div class="col-lg-2 col-sm-6 mb-4">
             <div class="card border-left-danger shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -161,7 +176,8 @@
                         <option value="Pemeriksaan Stock" {{ request('tujuan') == 'Pemeriksaan Stock' ? 'selected' : '' }}>
                             Pemeriksaan Stock</option>
                         <option value="Penagihan" {{ request('tujuan') == 'Penagihan' ? 'selected' : '' }}>Penagihan</option>
-                        <option value="Promo" {{ request('tujuan') == 'Promo' ? 'selected' : '' }}>Promo</option>
+                        <option value="Promo Gratis" {{ request('tujuan') == 'Promo Gratis' ? 'selected' : '' }}>Promo Gratis</option>
+                        <option value="Promo Sample" {{ request('tujuan') == 'Promo Sample' ? 'selected' : '' }}>Promo Sample</option>
                     </select>
                 </form>
             </div>
@@ -202,10 +218,12 @@
                                         <span class="badge badge-info">{{ $item->tujuan }}</span>
                                     @elseif($item->tujuan == 'Penagihan')
                                         <span class="badge badge-warning">{{ $item->tujuan }}</span>
-                                    @elseif($item->tujuan == 'Promo')
-                                        <span class="badge badge-primary">{{ $item->tujuan }}</span>
-                                    @else
+                                    @elseif($item->tujuan == 'Promo Gratis')
                                         <span class="badge badge-success">{{ $item->tujuan }}</span>
+                                    @elseif($item->tujuan == 'Promo Sample')
+                                        <span class="badge" style="background-color: #6f42c1; color: #fff;">{{ $item->tujuan }}</span>
+                                    @else
+                                        <span class="badge badge-secondary">{{ $item->tujuan }}</span>
                                     @endif
                                 </td>
                                 <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>

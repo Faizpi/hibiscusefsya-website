@@ -123,8 +123,11 @@
                                     <option value="Penagihan" {{ old('tujuan') == 'Penagihan' ? 'selected' : '' }}>
                                         Kunjungan Penagihan
                                     </option>
-                                    <option value="Promo" {{ old('tujuan') == 'Promo' ? 'selected' : '' }}>
-                                        Kunjungan Promo
+                                    <option value="Promo Gratis" {{ old('tujuan') == 'Promo Gratis' ? 'selected' : '' }}>
+                                        Kunjungan Promo Gratis
+                                    </option>
+                                    <option value="Promo Sample" {{ old('tujuan') == 'Promo Sample' ? 'selected' : '' }}>
+                                        Kunjungan Promo Sample
                                     </option>
                                 </select>
                                 @error('tujuan') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -191,7 +194,8 @@
                                         <option value="">Pilih produk...</option>
                                         @foreach($produks as $produk)
                                             <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}"
-                                                data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}">
+                                                data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}"
+                                                data-stok-sample="{{ $stokSampleMap[$produk->id] ?? 0 }}">
                                                 [{{ $produk->item_code }}] {{ $produk->nama_produk }}
                                             </option>
                                         @endforeach
@@ -258,14 +262,21 @@
             function updateProdukRequirement() {
                 const tujuan = $('#tujuan').val();
                 const isPemeriksaanStock = tujuan === 'Pemeriksaan Stock';
+                const isPromoGratis = tujuan === 'Promo Gratis';
+                const isPromoSample = tujuan === 'Promo Sample';
+                const needsProduk = isPemeriksaanStock || isPromoGratis || isPromoSample;
 
                 // Update badges
-                $('#produk-required-badge').toggle(isPemeriksaanStock);
-                $('#produk-optional-badge').toggle(!isPemeriksaanStock && tujuan !== '');
+                $('#produk-required-badge').toggle(needsProduk);
+                $('#produk-optional-badge').toggle(!needsProduk && tujuan !== '');
 
                 // Update help text
                 if (isPemeriksaanStock) {
                     $('#produk-help-text').text('Untuk kunjungan Pemeriksaan Stock, minimal 1 produk wajib diisi.');
+                } else if (isPromoGratis) {
+                    $('#produk-help-text').text('Untuk Promo Gratis, minimal 1 produk wajib diisi. Stok diambil dari stok gratis.');
+                } else if (isPromoSample) {
+                    $('#produk-help-text').text('Untuk Promo Sample, minimal 1 produk wajib diisi. Stok diambil dari stok sample.');
                 } else if (tujuan) {
                     $('#produk-help-text').text('Produk bersifat opsional untuk tujuan ' + tujuan + '.');
                 } else {
@@ -273,11 +284,14 @@
                 }
 
                 // Update select required state
-                if (isPemeriksaanStock) {
+                if (needsProduk) {
                     $('.produk-select').first().attr('required', true);
                 } else {
                     $('.produk-select').removeAttr('required');
                 }
+
+                // Update stok info labels based on tujuan
+                updateStokLabels();
             }
 
             // Listen for tujuan changes
@@ -315,25 +329,62 @@
             }
             initProdukSelect2();
 
-            // Stok gratis validation
+            // Get active stok type based on tujuan
+            function getActiveStokType() {
+                const tujuan = $('#tujuan').val();
+                if (tujuan === 'Promo Gratis') return 'gratis';
+                if (tujuan === 'Promo Sample') return 'sample';
+                return null;
+            }
+
+            // Update stok labels for all rows
+            function updateStokLabels() {
+                $('.produk-row').each(function () {
+                    const row = $(this);
+                    const selectedOption = row.find('.produk-select option:selected');
+                    const qtyInput = row.find('.produk-qty');
+                    const infoLabel = row.find('.stok-gratis-info');
+                    const stokType = getActiveStokType();
+
+                    if (selectedOption.val() && stokType) {
+                        const stokVal = parseInt(selectedOption.data('stok-' + stokType)) || 0;
+                        const label = stokType === 'gratis' ? 'Stok gratis' : 'Stok sample';
+                        qtyInput.attr('max', stokVal);
+                        if (stokVal > 0) {
+                            infoLabel.html('<i class="fas fa-box-open"></i> ' + label + ': <strong>' + stokVal + '</strong>');
+                            infoLabel.removeClass('text-danger').addClass('text-muted');
+                            if (parseInt(qtyInput.val()) > stokVal) qtyInput.val(stokVal);
+                        } else {
+                            infoLabel.html('<i class="fas fa-exclamation-triangle"></i> ' + label + ': <strong>0</strong>');
+                            infoLabel.removeClass('text-muted').addClass('text-danger');
+                            qtyInput.val(0).attr('max', 0);
+                        }
+                    } else {
+                        qtyInput.removeAttr('max');
+                        infoLabel.html('');
+                    }
+                });
+            }
+
+            // Stok validation
             function bindStokGratisCheck() {
                 $('.produk-select').off('change.stokgratis').on('change.stokgratis', function () {
                     const row = $(this).closest('.produk-row');
                     const selectedOption = $(this).find('option:selected');
                     const qtyInput = row.find('.produk-qty');
                     const infoLabel = row.find('.stok-gratis-info');
+                    const stokType = getActiveStokType();
 
-                    if (selectedOption.val()) {
-                        const stokGratis = parseInt(selectedOption.data('stok-gratis')) || 0;
-                        qtyInput.attr('max', stokGratis);
-                        if (stokGratis > 0) {
-                            infoLabel.html('<i class="fas fa-box-open"></i> Stok gratis: <strong>' + stokGratis + '</strong>');
+                    if (selectedOption.val() && stokType) {
+                        const stokVal = parseInt(selectedOption.data('stok-' + stokType)) || 0;
+                        const label = stokType === 'gratis' ? 'Stok gratis' : 'Stok sample';
+                        qtyInput.attr('max', stokVal);
+                        if (stokVal > 0) {
+                            infoLabel.html('<i class="fas fa-box-open"></i> ' + label + ': <strong>' + stokVal + '</strong>');
                             infoLabel.removeClass('text-danger').addClass('text-muted');
-                            if (parseInt(qtyInput.val()) > stokGratis) {
-                                qtyInput.val(stokGratis);
-                            }
+                            if (parseInt(qtyInput.val()) > stokVal) qtyInput.val(stokVal);
                         } else {
-                            infoLabel.html('<i class="fas fa-exclamation-triangle"></i> Stok gratis: <strong>0</strong>');
+                            infoLabel.html('<i class="fas fa-exclamation-triangle"></i> ' + label + ': <strong>0</strong>');
                             infoLabel.removeClass('text-muted').addClass('text-danger');
                             qtyInput.val(0).attr('max', 0);
                         }
@@ -348,14 +399,16 @@
                     if (!isNaN(max) && parseInt($(this).val()) > max) {
                         $(this).val(max);
                         const row = $(this).closest('.produk-row');
+                        const stokType = getActiveStokType();
+                        const label = stokType === 'sample' ? 'Stok sample' : 'Stok gratis';
                         row.find('.stok-gratis-info')
                             .html('<i class="fas fa-exclamation-triangle"></i> Maksimal qty: <strong>' + max + '</strong>')
                             .removeClass('text-muted').addClass('text-danger');
                         setTimeout(() => {
                             const selectedOption = row.find('.produk-select option:selected');
-                            const stokGratis = parseInt(selectedOption.data('stok-gratis')) || 0;
+                            const stokVal = parseInt(selectedOption.data('stok-' + stokType)) || 0;
                             row.find('.stok-gratis-info')
-                                .html('<i class="fas fa-box-open"></i> Stok gratis: <strong>' + stokGratis + '</strong>')
+                                .html('<i class="fas fa-box-open"></i> ' + label + ': <strong>' + stokVal + '</strong>')
                                 .removeClass('text-danger').addClass('text-muted');
                         }, 2000);
                     }
@@ -366,33 +419,33 @@
             // Tambah baris produk
             $('#btn-add-produk').on('click', function () {
                 const newRow = `
-                            <div class="row produk-row mb-2 align-items-center">
-                                <div class="col-md-7">
-                                    <select class="form-control produk-select" name="produk_id[]">
-                                        <option value="">Pilih produk...</option>
-                                        @foreach($produks as $produk)
-                                            <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}">
-                                                [{{ $produk->item_code }}] {{ $produk->nama_produk }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="text-muted stok-gratis-info"></small>
+                                <div class="row produk-row mb-2 align-items-center">
+                                    <div class="col-md-7">
+                                        <select class="form-control produk-select" name="produk_id[]">
+                                            <option value="">Pilih produk...</option>
+                                            @foreach($produks as $produk)
+                                                <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}" data-stok-sample="{{ $stokSampleMap[$produk->id] ?? 0 }}">
+                                                    [{{ $produk->item_code }}] {{ $produk->nama_produk }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <small class="text-muted stok-gratis-info"></small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
+                                            <i class="fas fa-camera"></i>
+                                        </button>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="col-md-2">
-                                    <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
-                                </div>
-                                <div class="col-md-2">
-                                    <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
-                                        <i class="fas fa-camera"></i>
-                                    </button>
-                                </div>
-                                <div class="col-md-1">
-                                    <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
+                            `;
                 $('#produk-container').append(newRow);
                 initProdukSelect2();
                 updateRemoveButtons();

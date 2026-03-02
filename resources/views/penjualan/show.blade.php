@@ -116,6 +116,16 @@
                                 <td>: {{ $penjualan->gudang->nama_gudang ?? '-' }}</td>
                             </tr>
                             <tr>
+                                <td><strong>Tipe Harga</strong></td>
+                                <td>:
+                                    @if(($penjualan->tipe_harga ?? 'retail') == 'grosir')
+                                        <span class="badge badge-info">Grosir</span>
+                                    @else
+                                        <span class="badge badge-primary">Retail</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
                                 <td><strong>Approver</strong></td>
                                 <td>: {{ $penjualan->status == 'Pending' ? '-' : ($penjualan->approver->name ?? '-') }}</td>
                             </tr>

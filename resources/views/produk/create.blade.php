@@ -28,10 +28,22 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="harga">Harga Jual *</label>
+                                <label for="harga">Harga Retail *</label>
                                 <input type="number" step="0.01" class="form-control @error('harga') is-invalid @enderror"
                                     id="harga" name="harga" value="{{ old('harga') }}" required>
                                 @error('harga')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="harga_grosir">Harga Grosir</label>
+                                <input type="number" step="0.01" class="form-control @error('harga_grosir') is-invalid @enderror"
+                                    id="harga_grosir" name="harga_grosir" value="{{ old('harga_grosir', 0) }}">
+                                @error('harga_grosir')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

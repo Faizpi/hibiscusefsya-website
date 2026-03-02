@@ -131,6 +131,8 @@ class Kunjungan extends Model
             'Penagihan' => '<span class="badge badge-warning">Penagihan</span>',
             'Penawaran' => '<span class="badge badge-success">Penawaran</span>',
             'Promo' => '<span class="badge badge-primary">Promo</span>',
+            'Promo Gratis' => '<span class="badge badge-success">Promo Gratis</span>',
+            'Promo Sample' => '<span class="badge badge-purple" style="background:#6f42c1;color:#fff;">Promo Sample</span>',
         ];
         return $badges[$this->tujuan] ?? '<span class="badge badge-secondary">' . $this->tujuan . '</span>';
     }
@@ -141,6 +143,7 @@ class Kunjungan extends Model
     const TUJUAN_OPTIONS = [
         'Pemeriksaan Stock',
         'Penagihan',
-        'Promo',
+        'Promo Gratis',
+        'Promo Sample',
     ];
 }

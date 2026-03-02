@@ -178,6 +178,7 @@ class PenjualanController extends Controller
             'tgl_transaksi' => 'required|date',
             'syarat_pembayaran' => 'required|string',
             'gudang_id' => 'required|exists:gudangs,id',
+            'tipe_harga' => 'nullable|in:retail,grosir',
             'tax_percentage' => 'required|numeric|min:0',
             'diskon_akhir' => 'nullable|numeric|min:0',
             'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
@@ -188,7 +189,7 @@ class PenjualanController extends Controller
             'harga_satuan.*' => 'required|numeric|min:0',
         ]);
 
-        // VALIDASI STOK: Cek apakah stok mencukupi untuk semua produk
+        // VALIDASI STOK: Cek apakah stok penjualan mencukupi untuk semua produk
         $gudangId = $request->gudang_id;
         $stokErrors = [];
 
@@ -199,12 +200,12 @@ class PenjualanController extends Controller
                 ->where('produk_id', $produkId)
                 ->first();
 
-            $stokTersedia = $stokGudang ? $stokGudang->stok : 0;
+            $stokTersedia = $stokGudang ? $stokGudang->stok_penjualan : 0;
 
             if ($stokTersedia < $qty) {
                 $produk = Produk::find($produkId);
                 $namaProduk = $produk->nama_produk ?? "ID: $produkId";
-                $stokErrors[] = "Stok {$namaProduk} tidak cukup. Tersedia: {$stokTersedia}, Diminta: {$qty}";
+                $stokErrors[] = "Stok penjualan {$namaProduk} tidak cukup. Tersedia: {$stokTersedia}, Diminta: {$qty}";
             }
         }
 
@@ -337,6 +338,7 @@ class PenjualanController extends Controller
                 'no_urut_harian' => $noUrut,
                 'nomor' => $nomor,
                 'gudang_id' => $request->gudang_id,
+                'tipe_harga' => $request->tipe_harga ?? 'retail',
                 'pelanggan' => $request->pelanggan,
                 'email' => $request->email,
                 'alamat_penagihan' => $request->alamat_penagihan,
@@ -455,6 +457,7 @@ class PenjualanController extends Controller
             'tgl_transaksi' => 'required|date',
             'syarat_pembayaran' => 'required|string',
             'gudang_id' => 'required|exists:gudangs,id',
+            'tipe_harga' => 'nullable|in:retail,grosir',
             'diskon_akhir' => 'nullable|numeric|min:0',
             'tax_percentage' => 'required|numeric|min:0',
             'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
@@ -464,7 +467,7 @@ class PenjualanController extends Controller
             'harga_satuan.*' => 'required|numeric|min:0',
         ]);
 
-        // VALIDASI STOK: Cek apakah stok mencukupi untuk semua produk
+        // VALIDASI STOK: Cek apakah stok penjualan mencukupi untuk semua produk
         $gudangId = $request->gudang_id;
         $stokErrors = [];
 
@@ -475,12 +478,12 @@ class PenjualanController extends Controller
                 ->where('produk_id', $produkId)
                 ->first();
 
-            $stokTersedia = $stokGudang ? $stokGudang->stok : 0;
+            $stokTersedia = $stokGudang ? $stokGudang->stok_penjualan : 0;
 
             if ($stokTersedia < $qty) {
                 $produk = Produk::find($produkId);
                 $namaProduk = $produk->nama_produk ?? "ID: $produkId";
-                $stokErrors[] = "Stok {$namaProduk} tidak cukup. Tersedia: {$stokTersedia}, Diminta: {$qty}";
+                $stokErrors[] = "Stok penjualan {$namaProduk} tidak cukup. Tersedia: {$stokTersedia}, Diminta: {$qty}";
             }
         }
 
@@ -587,6 +590,7 @@ class PenjualanController extends Controller
                 'status' => $statusBaru,
                 'approver_id' => $approverId,
                 'gudang_id' => $request->gudang_id,
+                'tipe_harga' => $request->tipe_harga ?? 'retail',
                 'pelanggan' => $request->pelanggan,
                 'email' => $request->email,
                 'alamat_penagihan' => $request->alamat_penagihan,
@@ -675,12 +679,13 @@ class PenjualanController extends Controller
                     ->lockForUpdate()
                     ->first();
 
-                if (!$stok || $stok->stok < $item->kuantitas) {
+                if (!$stok || $stok->stok_penjualan < $item->kuantitas) {
                     $namaProduk = $item->produk->nama_produk ?? 'ID: ' . $item->produk_id;
-                    throw new \Exception("Stok tidak cukup untuk produk: $namaProduk");
+                    throw new \Exception("Stok penjualan tidak cukup untuk produk: $namaProduk");
                 }
 
                 $stok->decrement('stok', $item->kuantitas);
+                $stok->decrement('stok_penjualan', $item->kuantitas);
             }
 
             // Set approver_id ke user yang sedang approve
@@ -744,11 +749,13 @@ class PenjualanController extends Controller
 
                     if ($stok) {
                         $stok->increment('stok', $item->kuantitas);
+                        $stok->increment('stok_penjualan', $item->kuantitas);
                     } else {
                         GudangProduk::create([
                             'gudang_id' => $penjualan->gudang_id,
                             'produk_id' => $item->produk_id,
-                            'stok' => $item->kuantitas
+                            'stok' => $item->kuantitas,
+                            'stok_penjualan' => $item->kuantitas,
                         ]);
                     }
                 }
@@ -893,11 +900,13 @@ class PenjualanController extends Controller
 
                     if ($stok) {
                         $stok->increment('stok', $item->kuantitas);
+                        $stok->increment('stok_penjualan', $item->kuantitas);
                     } else {
                         GudangProduk::create([
                             'gudang_id' => $penjualan->gudang_id,
                             'produk_id' => $item->produk_id,
-                            'stok' => $item->kuantitas
+                            'stok' => $item->kuantitas,
+                            'stok_penjualan' => $item->kuantitas,
                         ]);
                     }
                 }

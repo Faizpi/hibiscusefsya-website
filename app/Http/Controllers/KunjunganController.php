@@ -59,7 +59,11 @@ class KunjunganController extends Controller
             ->whereIn('status', ['Pending', 'Approved'])->count();
         $totalPenawaran = $allForSummary->where('tujuan', 'Penawaran')
             ->whereIn('status', ['Pending', 'Approved'])->count();
-        $totalPromo = $allForSummary->where('tujuan', 'Promo')
+        $totalPromo = $allForSummary->whereIn('tujuan', ['Promo', 'Promo Gratis', 'Promo Sample'])
+            ->whereIn('status', ['Pending', 'Approved'])->count();
+        $totalPromoGratis = $allForSummary->where('tujuan', 'Promo Gratis')
+            ->whereIn('status', ['Pending', 'Approved'])->count();
+        $totalPromoSample = $allForSummary->where('tujuan', 'Promo Sample')
             ->whereIn('status', ['Pending', 'Approved'])->count();
         $totalCanceled = $allForSummary->where('status', 'Canceled')->count();
 
@@ -135,6 +139,8 @@ class KunjunganController extends Controller
             'totalPenagihan' => $totalPenagihan,
             'totalPenawaran' => $totalPenawaran,
             'totalPromo' => $totalPromo,
+            'totalPromoGratis' => $totalPromoGratis,
+            'totalPromoSample' => $totalPromoSample,
             'totalCanceled' => $totalCanceled,
             // Chart data
             'chartLabels' => $chartLabels,
@@ -175,12 +181,13 @@ class KunjunganController extends Controller
         // Get all products (kunjungan tidak perlu batasan gudang)
         $produks = Produk::orderBy('nama_produk')->get();
 
-        // Get stok gratis per produk dari gudang user
+        // Get stok gratis dan sample per produk dari gudang user
         $stokGratisMap = [];
+        $stokSampleMap = [];
         if ($gudang) {
-            $stokGratisMap = GudangProduk::where('gudang_id', $gudang->id)
-                ->pluck('stok_gratis', 'produk_id')
-                ->toArray();
+            $gudangProduks = GudangProduk::where('gudang_id', $gudang->id)->get();
+            $stokGratisMap = $gudangProduks->pluck('stok_gratis', 'produk_id')->toArray();
+            $stokSampleMap = $gudangProduks->pluck('stok_sample', 'produk_id')->toArray();
         }
 
         // Generate preview nomor kunjungan
@@ -190,7 +197,7 @@ class KunjunganController extends Controller
         $noUrut = $countToday + 1;
         $previewNomor = Kunjungan::generateNomor(Auth::id(), $noUrut, Carbon::now());
 
-        return view('kunjungan.create', compact('kontaks', 'gudang', 'produks', 'previewNomor', 'stokGratisMap'));
+        return view('kunjungan.create', compact('kontaks', 'gudang', 'produks', 'previewNomor', 'stokGratisMap', 'stokSampleMap'));
     }
 
     /**
@@ -212,7 +219,7 @@ class KunjunganController extends Controller
             'sales_email' => 'nullable|email|max:255',
             'sales_alamat' => 'nullable|string',
             'tgl_kunjungan' => 'required|date',
-            'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Promo',
+            'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Promo Gratis,Promo Sample',
             'koordinat' => 'nullable|string|max:255',
             'memo' => 'nullable|string',
             'lampiran' => 'nullable|array',
@@ -223,8 +230,8 @@ class KunjunganController extends Controller
             'keterangan.*' => 'nullable|string|max:255',
         ];
 
-        // Produk wajib hanya untuk Pemeriksaan Stock
-        if ($request->tujuan === 'Pemeriksaan Stock') {
+        // Produk wajib hanya untuk Pemeriksaan Stock dan Promo
+        if (in_array($request->tujuan, ['Pemeriksaan Stock', 'Promo Gratis', 'Promo Sample'])) {
             $rules['produk_id'] = 'required|array|min:1';
             $rules['produk_id.*'] = 'required|exists:produks,id';
         } else {
@@ -233,23 +240,25 @@ class KunjunganController extends Controller
         }
 
         $request->validate($rules, [
-            'produk_id.required' => 'Produk wajib diisi untuk kunjungan Pemeriksaan Stock.',
-            'produk_id.min' => 'Minimal 1 produk harus dipilih untuk kunjungan Pemeriksaan Stock.',
+            'produk_id.required' => 'Produk wajib diisi untuk kunjungan tipe ini.',
+            'produk_id.min' => 'Minimal 1 produk harus dipilih.',
             'produk_id.*.required' => 'Pilih produk yang valid.',
         ]);
 
-        // Validasi qty tidak melebihi stok gratis
+        // Validasi qty tidak melebihi stok - hanya untuk Promo Gratis dan Promo Sample
         $gudangForValidation = $user->getCurrentGudang();
-        if ($gudangForValidation && $request->has('produk_id') && is_array($request->produk_id)) {
+        if ($gudangForValidation && in_array($request->tujuan, ['Promo Gratis', 'Promo Sample']) && $request->has('produk_id') && is_array($request->produk_id)) {
+            $stokField = $request->tujuan === 'Promo Gratis' ? 'stok_gratis' : 'stok_sample';
+            $stokLabel = $request->tujuan === 'Promo Gratis' ? 'stok gratis' : 'stok sample';
             foreach ($request->produk_id as $index => $produkId) {
                 if ($produkId) {
                     $qty = $request->jumlah[$index] ?? 1;
-                    $stokGratis = GudangProduk::where('gudang_id', $gudangForValidation->id)
+                    $stokAvailable = GudangProduk::where('gudang_id', $gudangForValidation->id)
                         ->where('produk_id', $produkId)
-                        ->value('stok_gratis') ?? 0;
-                    if ($qty > $stokGratis) {
+                        ->value($stokField) ?? 0;
+                    if ($qty > $stokAvailable) {
                         $namaProduk = Produk::find($produkId)->nama_produk ?? 'Produk';
-                        return back()->withInput()->with('error', "Qty {$namaProduk} ({$qty}) melebihi stok gratis yang tersedia ({$stokGratis}).");
+                        return back()->withInput()->with('error', "Qty {$namaProduk} ({$qty}) melebihi {$stokLabel} yang tersedia ({$stokAvailable}).");
                     }
                 }
             }
@@ -425,18 +434,19 @@ class KunjunganController extends Controller
         // Get all products (kunjungan tidak perlu batasan gudang)
         $produks = Produk::orderBy('nama_produk')->get();
 
-        // Get stok gratis per produk dari gudang kunjungan
+        // Get stok gratis dan sample per produk dari gudang kunjungan
         $stokGratisMap = [];
+        $stokSampleMap = [];
         $gudangEdit = $kunjungan->gudang_id ? Gudang::find($kunjungan->gudang_id) : $user->getCurrentGudang();
         if ($gudangEdit) {
-            $stokGratisMap = GudangProduk::where('gudang_id', $gudangEdit->id)
-                ->pluck('stok_gratis', 'produk_id')
-                ->toArray();
+            $gudangProduks = GudangProduk::where('gudang_id', $gudangEdit->id)->get();
+            $stokGratisMap = $gudangProduks->pluck('stok_gratis', 'produk_id')->toArray();
+            $stokSampleMap = $gudangProduks->pluck('stok_sample', 'produk_id')->toArray();
         }
 
         $kunjungan->load('items.produk');
 
-        return view('kunjungan.edit', compact('kunjungan', 'kontaks', 'produks', 'stokGratisMap'));
+        return view('kunjungan.edit', compact('kunjungan', 'kontaks', 'produks', 'stokGratisMap', 'stokSampleMap'));
     }
 
     /**
@@ -456,7 +466,7 @@ class KunjunganController extends Controller
             'sales_nama' => 'required|string|max:255',
             'sales_email' => 'nullable|email|max:255',
             'sales_alamat' => 'nullable|string',
-            'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Promo',
+            'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Promo Gratis,Promo Sample',
             'memo' => 'nullable|string',
             'lampiran' => 'nullable|array',
             'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
@@ -498,18 +508,20 @@ class KunjunganController extends Controller
             'lampiran_paths' => $lampiranPaths,
         ]);
 
-        // Validasi qty tidak melebihi stok gratis
+        // Validasi qty tidak melebihi stok - hanya untuk Promo Gratis dan Promo Sample
         $gudangForValidation = $kunjungan->gudang_id ? Gudang::find($kunjungan->gudang_id) : $user->getCurrentGudang();
-        if ($gudangForValidation && $request->has('produk_id') && is_array($request->produk_id)) {
+        if ($gudangForValidation && in_array($request->tujuan, ['Promo Gratis', 'Promo Sample']) && $request->has('produk_id') && is_array($request->produk_id)) {
+            $stokField = $request->tujuan === 'Promo Gratis' ? 'stok_gratis' : 'stok_sample';
+            $stokLabel = $request->tujuan === 'Promo Gratis' ? 'stok gratis' : 'stok sample';
             foreach ($request->produk_id as $index => $produkId) {
                 if ($produkId) {
                     $qty = $request->jumlah[$index] ?? 1;
-                    $stokGratis = GudangProduk::where('gudang_id', $gudangForValidation->id)
+                    $stokAvailable = GudangProduk::where('gudang_id', $gudangForValidation->id)
                         ->where('produk_id', $produkId)
-                        ->value('stok_gratis') ?? 0;
-                    if ($qty > $stokGratis) {
+                        ->value($stokField) ?? 0;
+                    if ($qty > $stokAvailable) {
                         $namaProduk = Produk::find($produkId)->nama_produk ?? 'Produk';
-                        return back()->withInput()->with('error', "Qty {$namaProduk} ({$qty}) melebihi stok gratis yang tersedia ({$stokGratis}).");
+                        return back()->withInput()->with('error', "Qty {$namaProduk} ({$qty}) melebihi {$stokLabel} yang tersedia ({$stokAvailable}).");
                     }
                 }
             }

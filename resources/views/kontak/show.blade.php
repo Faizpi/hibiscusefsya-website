@@ -159,6 +159,79 @@
                 </div>
             </div>
         </div>
+
+        {{-- Riwayat Penjualan --}}
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-shopping-cart"></i> Riwayat Penjualan
+                        </h6>
+                        <span class="badge badge-primary">{{ $penjualans->count() }} transaksi</span>
+                    </div>
+                    <div class="card-body">
+                        @if($penjualans->isEmpty())
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-3x mb-3"></i>
+                                <p>Belum ada riwayat penjualan untuk kontak ini.</p>
+                            </div>
+                        @else
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" width="100%">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Tanggal</th>
+                                            <th>No. Invoice</th>
+                                            <th>Gudang</th>
+                                            <th>Sales</th>
+                                            <th>Produk</th>
+                                            <th class="text-right">Grand Total</th>
+                                            <th class="text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($penjualans as $trx)
+                                            <tr>
+                                                <td>{{ $trx->tgl_transaksi ? $trx->tgl_transaksi->format('d/m/Y') : '-' }}</td>
+                                                <td>
+                                                    <a href="{{ route('penjualan.show', $trx->id) }}" class="font-weight-bold">
+                                                        {{ $trx->nomor ?? '-' }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ $trx->gudang->nama_gudang ?? '-' }}</td>
+                                                <td>{{ $trx->user->name ?? '-' }}</td>
+                                                <td>
+                                                    @foreach($trx->items->take(3) as $item)
+                                                        <small>{{ $item->produk->nama_produk ?? '-' }}
+                                                            ({{ $item->qty }})</small>@if(!$loop->last), @endif
+                                                    @endforeach
+                                                    @if($trx->items->count() > 3)
+                                                        <small class="text-muted">+{{ $trx->items->count() - 3 }} lainnya</small>
+                                                    @endif
+                                                </td>
+                                                <td class="text-right">Rp {{ number_format($trx->grand_total, 0, ',', '.') }}</td>
+                                                <td class="text-center">
+                                                    @if($trx->status === 'approved')
+                                                        <span class="badge badge-success">Approved</span>
+                                                    @elseif($trx->status === 'pending')
+                                                        <span class="badge badge-warning">Pending</span>
+                                                    @elseif($trx->status === 'cancelled')
+                                                        <span class="badge badge-danger">Cancelled</span>
+                                                    @else
+                                                        <span class="badge badge-secondary">{{ ucfirst($trx->status) }}</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>

@@ -68,6 +68,7 @@ class ProdukController extends Controller
             'nama_produk' => 'required|string|max:255',
             'item_code' => 'nullable|string|max:255|unique:produks',
             'harga' => 'required|numeric|min:0',
+            'harga_grosir' => 'nullable|numeric|min:0',
             'satuan' => 'required|in:Pcs,Lusin,Karton',
             'deskripsi' => 'nullable|string',
         ]);
@@ -88,6 +89,7 @@ class ProdukController extends Controller
             'nama_produk' => 'required|string|max:255',
             'item_code' => 'nullable|string|max:255|unique:produks,item_code,' . $produk->id,
             'harga' => 'required|numeric|min:0',
+            'harga_grosir' => 'nullable|numeric|min:0',
             'satuan' => 'required|in:Pcs,Lusin,Karton',
             'deskripsi' => 'nullable|string',
         ]);

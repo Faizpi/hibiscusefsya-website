@@ -745,6 +745,14 @@ class PembelianController extends Controller
                 }
             }
 
+            // Hapus penerimaan barang terkait beserta itemnya (FK constraint)
+            $penerimaanBarangs = \App\PenerimaanBarang::where('pembelian_id', $pembelian->id)->get();
+            foreach ($penerimaanBarangs as $penerimaan) {
+                $penerimaan->items()->delete();
+                $penerimaan->delete();
+            }
+
+            $pembelian->items()->delete();
             $pembelian->delete();
 
             DB::commit();

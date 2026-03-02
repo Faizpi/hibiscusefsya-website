@@ -69,10 +69,13 @@
                                         <span class="badge badge-info">{{ $kunjungan->tujuan }}</span>
                                     @elseif($kunjungan->tujuan == 'Penagihan')
                                         <span class="badge badge-warning">{{ $kunjungan->tujuan }}</span>
-                                    @elseif($kunjungan->tujuan == 'Promo')
-                                        <span class="badge badge-primary">{{ $kunjungan->tujuan }}</span>
-                                    @else
+                                    @elseif($kunjungan->tujuan == 'Promo Gratis')
                                         <span class="badge badge-success">{{ $kunjungan->tujuan }}</span>
+                                    @elseif($kunjungan->tujuan == 'Promo Sample')
+                                        <span class="badge"
+                                            style="background-color: #6f42c1; color: #fff;">{{ $kunjungan->tujuan }}</span>
+                                    @else
+                                        <span class="badge badge-secondary">{{ $kunjungan->tujuan }}</span>
                                     @endif
                                 </td>
                             </tr>

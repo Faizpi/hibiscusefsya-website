@@ -44,6 +44,7 @@ class Penjualan extends Model
         'nomor',
         'uuid',
         'gudang_id',
+        'tipe_harga',
         'pelanggan',
         'email',
         'alamat_penagihan',
