@@ -8,7 +8,7 @@
             &#8592; Kembali
         </a>
         <div class="detail-heading">
-            <h4 class="detail-title">{{ $penjualan->number }}</h4>
+            <h4 class="detail-title">{{ $penjualan->nomor }}</h4>
             @if($penjualan->status == 'Lunas')
                 <span class="badge badge-success">Lunas</span>
             @elseif($penjualan->status == 'Approved')
@@ -30,7 +30,7 @@
                 <table style="width: 100%;">
                     <tr>
                         <td class="info-label">Invoice</td>
-                        <td class="info-value">{{ $penjualan->number }}</td>
+                        <td class="info-value">{{ $penjualan->nomor }}</td>
                     </tr>
                     <tr>
                         <td class="info-label">Tanggal</td>

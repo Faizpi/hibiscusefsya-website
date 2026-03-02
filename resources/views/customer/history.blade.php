@@ -48,7 +48,7 @@
                     <tbody>
                         @foreach($penjualans as $trx)
                             <tr>
-                                <td><span class="font-bold" style="color: #111827;">{{ $trx->number }}</span></td>
+                                <td><span class="font-bold" style="color: #111827;">{{ $trx->nomor }}</span></td>
                                 <td>{{ $trx->tgl_transaksi ? $trx->tgl_transaksi->format('d M Y') : '-' }}</td>
                                 <td>{{ $trx->user->name ?? '-' }}</td>
                                 <td>{{ $trx->gudang->nama_gudang ?? '-' }}</td>
@@ -87,7 +87,7 @@
                     <div class="card-body" style="padding: 16px 18px;">
                         <div class="mobile-trx-top">
                             <div>
-                                <div class="mobile-trx-number">{{ $trx->number }}</div>
+                                <div class="mobile-trx-number">{{ $trx->nomor }}</div>
                                 <div class="mobile-trx-date">{{ $trx->tgl_transaksi ? $trx->tgl_transaksi->format('d M Y') : '-' }}
                                 </div>
                             </div>
