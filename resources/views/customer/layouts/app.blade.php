@@ -617,6 +617,8 @@
                             class="{{ request()->routeIs('customer.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('customer.history') }}"
                             class="{{ request()->routeIs('customer.history*') ? 'active' : '' }}">Riwayat</a></li>
+                    <li><a href="{{ route('customer.kunjungan') }}"
+                            class="{{ request()->routeIs('customer.kunjungan*') ? 'active' : '' }}">Kunjungan</a></li>
                 </ul>
             @endif
         </div>
@@ -659,6 +661,8 @@
                     class="{{ request()->routeIs('customer.dashboard') ? 'active' : '' }}">Dashboard</a>
                 <a href="{{ route('customer.history') }}"
                     class="{{ request()->routeIs('customer.history*') ? 'active' : '' }}">Riwayat</a>
+                <a href="{{ route('customer.kunjungan') }}"
+                    class="{{ request()->routeIs('customer.kunjungan*') ? 'active' : '' }}">Kunjungan</a>
             </div>
             <div class="mobile-overlay-footer">
                 <div class="mobile-overlay-user">

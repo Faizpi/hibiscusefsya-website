@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Kontak;
 use App\Penjualan;
+use App\Kunjungan;
 use Illuminate\Http\Request;
 
 class CustomerPortalController extends Controller
@@ -138,5 +139,42 @@ class CustomerPortalController extends Controller
     {
         session()->forget(['customer_id', 'customer_no_telp', 'customer_nama']);
         return redirect()->route('customer.login')->with('success', 'Berhasil logout.');
+    }
+
+    /**
+     * Riwayat kunjungan customer
+     */
+    public function kunjungan(Request $request)
+    {
+        $kontak = Kontak::findOrFail(session('customer_id'));
+
+        $query = Kunjungan::where('kontak_id', $kontak->id)
+            ->with(['items.produk', 'gudang', 'user'])
+            ->whereIn('status', ['Approved', 'Pending']);
+
+        if ($request->filled('dari')) {
+            $query->whereDate('tgl_kunjungan', '>=', $request->dari);
+        }
+        if ($request->filled('sampai')) {
+            $query->whereDate('tgl_kunjungan', '<=', $request->sampai);
+        }
+
+        $kunjungans = $query->orderBy('tgl_kunjungan', 'desc')->paginate(15);
+
+        return view('customer.kunjungan', compact('kontak', 'kunjungans'));
+    }
+
+    /**
+     * Detail satu kunjungan
+     */
+    public function kunjunganDetail($id)
+    {
+        $kontak = Kontak::findOrFail(session('customer_id'));
+
+        $kunjungan = Kunjungan::where('kontak_id', $kontak->id)
+            ->with(['items.produk', 'gudang', 'user'])
+            ->findOrFail($id);
+
+        return view('customer.kunjungan-detail', compact('kontak', 'kunjungan'));
     }
 }

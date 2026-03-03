@@ -32,6 +32,8 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::get('dashboard', 'CustomerPortalController@dashboard')->name('dashboard');
         Route::get('history', 'CustomerPortalController@history')->name('history');
         Route::get('history/{id}', 'CustomerPortalController@historyDetail')->name('history.detail');
+        Route::get('kunjungan', 'CustomerPortalController@kunjungan')->name('kunjungan');
+        Route::get('kunjungan/{id}', 'CustomerPortalController@kunjunganDetail')->name('kunjungan.detail');
     });
 });
 
