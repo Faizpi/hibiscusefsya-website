@@ -376,6 +376,10 @@
                     <span class="value">{{ $penjualan->user->name }}</span>
                 </div>
                 <div class="info-row">
+                    <span class="label">Tipe Harga</span>
+                    <span class="value">{{ ucfirst($penjualan->tipe_harga ?? 'retail') }}</span>
+                </div>
+                <div class="info-row">
                     <span class="label">Gudang</span>
                     <span class="value">{{ $penjualan->gudang->nama_gudang ?? '-' }}</span>
                 </div>

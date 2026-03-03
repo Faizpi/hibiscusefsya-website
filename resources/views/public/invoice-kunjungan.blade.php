@@ -368,10 +368,10 @@
                 </div>
             </div>
 
-            {{-- INFO SALES/KONTAK --}}
+            {{-- INFO PELANGGAN --}}
             <div class="info-card">
                 <div class="info-card-title">
-                    <i class="fas fa-user"></i> Sales / Kontak
+                    <i class="fas fa-user"></i> Pelanggan
                 </div>
                 <div class="info-row">
                     <span class="label">Nama</span>

@@ -165,7 +165,7 @@
 
         <div class="divider"></div>
 
-        {{-- DETAIL SALES/KONTAK --}}
+        {{-- DETAIL PELANGGAN --}}
         <table>
             @if($kunjungan->kontak)
                 <tr>
@@ -175,7 +175,7 @@
                 </tr>
             @endif
             <tr>
-                <td class="label">Sales</td>
+                <td class="label">Pelanggan</td>
                 <td class="colon">:</td>
                 <td class="value">{{ $kunjungan->sales_nama }}</td>
             </tr>

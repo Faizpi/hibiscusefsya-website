@@ -51,7 +51,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="kontak_id">Sales/Kontak *</label>
+                                <label for="kontak_id">Pelanggan *</label>
                                 <div class="input-group">
                                     <select class="form-control @error('kontak_id') is-invalid @enderror" id="kontak_id"
                                         name="kontak_id" required>

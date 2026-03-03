@@ -145,7 +145,7 @@
                 <td class="value-col">{{ $kunjungan->tujuan }}</td>
             </tr>
             <tr>
-                <td class="label-col">Sales/Kontak</td>
+                <td class="label-col">Pelanggan</td>
                 <td class="colon-col">:</td>
                 <td class="value-col">{{ $kunjungan->sales_nama }}</td>
             </tr>

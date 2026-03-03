@@ -169,6 +169,11 @@
                 <td class="value-col">{{ $penjualan->pelanggan }}</td>
             </tr>
             <tr>
+                <td class="label-col">Tipe Harga</td>
+                <td class="colon-col">:</td>
+                <td class="value-col">{{ ucfirst($penjualan->tipe_harga ?? 'retail') }}</td>
+            </tr>
+            <tr>
                 <td class="label-col">Sales</td>
                 <td class="colon-col">:</td>
                 <td class="value-col">{{ $penjualan->user->name }}</td>

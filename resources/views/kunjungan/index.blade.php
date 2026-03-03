@@ -189,7 +189,7 @@
                         <tr>
                             <th>Tanggal</th>
                             <th>No Kunjungan</th>
-                            <th>Sales/Kontak</th>
+                            <th>Pelanggan</th>
                             <th>Tujuan</th>
                             <th>Gudang</th>
                             <th>Status</th>

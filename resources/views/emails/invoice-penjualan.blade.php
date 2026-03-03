@@ -335,6 +335,10 @@
                     <span class="value">{{ $transaksi->user->name ?? '-' }}</span>
                 </div>
                 <div class="info-row">
+                    <span class="label">Tipe Harga</span>
+                    <span class="value">{{ ucfirst($transaksi->tipe_harga ?? 'retail') }}</span>
+                </div>
+                <div class="info-row">
                     <span class="label">Gudang</span>
                     <span class="value">{{ $transaksi->gudang->nama_gudang ?? '-' }}</span>
                 </div>

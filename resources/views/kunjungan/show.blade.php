@@ -128,7 +128,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><strong>Sales/Kontak</strong></td>
+                                <td><strong>Pelanggan</strong></td>
                                 <td>: {{ $kunjungan->sales_nama }}</td>
                             </tr>
                             <tr>

@@ -297,7 +297,7 @@
             <div class="info-card">
                 <div class="info-card-title">👤 Detail Kunjungan</div>
                 <div class="info-row">
-                    <span class="label">Kontak</span>
+                    <span class="label">Pelanggan</span>
                     <span class="value">{{ $transaksi->kontak->nama ?? '-' }}</span>
                 </div>
                 <div class="info-row">

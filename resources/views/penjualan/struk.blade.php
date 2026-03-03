@@ -204,6 +204,7 @@
         </tr>
         <tr><td class="label">Pembayaran</td><td class="colon">:</td><td class="value">{{ $penjualan->metode_pembayaran ?? 'Net 7' }}</td></tr>
         <tr><td class="label">Pelanggan</td><td class="colon">:</td><td class="value">{{ $penjualan->pelanggan ?? '-' }}</td></tr>
+        <tr><td class="label">Tipe Harga</td><td class="colon">:</td><td class="value">{{ ucfirst($penjualan->tipe_harga ?? 'retail') }}</td></tr>
         <tr><td class="label">Sales</td><td class="colon">:</td><td class="value">{{ $penjualan->user->name ?? '-' }}</td></tr>
         <tr><td class="label">Gudang</td><td class="colon">:</td><td class="value">{{ $penjualan->gudang->nama_gudang ?? '-' }}</td></tr>
         <tr><td class="label">Status</td><td class="colon">:</td><td class="value">{{ $penjualan->status }}</td></tr>
