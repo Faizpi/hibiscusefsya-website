@@ -68,49 +68,9 @@
         }
 
         .logo-box img {
-            max-width: 200px;
+            max-width: 220px;
             height: auto;
             filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
-        }
-
-        .gear-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 90px;
-            height: 90px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
-            margin-bottom: 25px;
-            animation: pulse 3s ease-in-out infinite;
-        }
-
-        .gear-icon i {
-            font-size: 2.5rem;
-            color: #ffffff;
-            animation: spin 8s linear infinite;
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2);
-            }
-
-            50% {
-                box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
-            }
         }
 
         .maintenance-title {
@@ -131,153 +91,10 @@
             margin-right: auto;
         }
 
-        /* Info cards */
-        .info-cards {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 35px;
-        }
-
-        .info-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 18px 24px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: transform 0.3s ease;
-        }
-
-        .info-card:hover {
-            transform: translateY(-4px);
-        }
-
-        .info-card i {
-            color: #3b82f6;
-            font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-
-        .info-card span {
-            color: #1e3a5f;
-            font-weight: 600;
-            font-size: 0.85rem;
-            white-space: nowrap;
-        }
-
-        /* Footer */
-        .maintenance-footer {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.85rem;
-            margin-top: 10px;
-        }
-
-        /* Floating cards */
-        .floating-card {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            padding: 14px 20px;
-            z-index: 1;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            white-space: nowrap;
-        }
-
-        .floating-card i {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1rem;
-        }
-
-        .floating-card span {
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 500;
-            font-size: 0.8rem;
-        }
-
-        .floating-card.fc-1 {
-            top: 8%;
-            left: 8%;
-            animation: float1 6s ease-in-out infinite;
-        }
-
-        .floating-card.fc-2 {
-            top: 15%;
-            right: 6%;
-            animation: float2 5.5s ease-in-out infinite 1s;
-        }
-
-        .floating-card.fc-3 {
-            bottom: 20%;
-            left: 5%;
-            animation: float3 6.5s ease-in-out infinite 0.5s;
-        }
-
-        .floating-card.fc-4 {
-            bottom: 10%;
-            right: 8%;
-            animation: float4 5s ease-in-out infinite 2s;
-        }
-
-        @keyframes float1 {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-12px);
-            }
-        }
-
-        @keyframes float2 {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        @keyframes float3 {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        @keyframes float4 {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-12px);
-            }
-        }
-
         /* Progress bar animation */
         .progress-bar-wrapper {
             max-width: 300px;
-            margin: 0 auto 30px;
+            margin: 0 auto 35px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 50px;
             height: 6px;
@@ -309,6 +126,46 @@
             }
         }
 
+        /* Info cards */
+        .info-cards {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 35px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 18px 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .info-card i {
+            color: #3b82f6;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .info-card span {
+            color: #1e3a5f;
+            font-weight: 600;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        /* Footer */
+        .maintenance-footer {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
         /* Mobile */
         @media (max-width: 575.98px) {
             .maintenance-container {
@@ -316,16 +173,7 @@
             }
 
             .logo-box img {
-                max-width: 140px;
-            }
-
-            .gear-icon {
-                width: 70px;
-                height: 70px;
-            }
-
-            .gear-icon i {
-                font-size: 2rem;
+                max-width: 160px;
             }
 
             .maintenance-title {
@@ -348,48 +196,16 @@
                 justify-content: center;
             }
 
-            .floating-card {
-                display: none;
-            }
-        }
-
-        @media (max-width: 991.98px) and (min-width: 576px) {
-            .floating-card {
-                padding: 10px 14px;
-                font-size: 0.75rem;
-            }
         }
     </style>
 </head>
 
 <body>
 
-    {{-- Floating background cards --}}
-    <div class="floating-card fc-1">
-        <i class="fas fa-chart-line"></i>
-        <span>Laporan Real-time</span>
-    </div>
-    <div class="floating-card fc-2">
-        <i class="fas fa-file-invoice"></i>
-        <span>Invoice Otomatis</span>
-    </div>
-    <div class="floating-card fc-3">
-        <i class="fas fa-cloud"></i>
-        <span>Cloud Storage</span>
-    </div>
-    <div class="floating-card fc-4">
-        <i class="fas fa-shield-alt"></i>
-        <span>Data Aman</span>
-    </div>
-
     {{-- Main content --}}
     <div class="maintenance-container">
         <div class="logo-box">
             <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Hibiscus Efsya Logo">
-        </div>
-
-        <div class="gear-icon">
-            <i class="fas fa-cog"></i>
         </div>
 
         <h1 class="maintenance-title">Sedang Dalam Pemeliharaan</h1>
