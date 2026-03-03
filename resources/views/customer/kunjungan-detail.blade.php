@@ -32,7 +32,8 @@
                     </tr>
                     <tr>
                         <td class="info-label">Tanggal</td>
-                        <td class="info-value">{{ $kunjungan->tgl_kunjungan ? $kunjungan->tgl_kunjungan->format('d/m/Y') : '-' }}</td>
+                        <td class="info-value">
+                            {{ $kunjungan->tgl_kunjungan ? $kunjungan->tgl_kunjungan->format('d/m/Y') : '-' }}</td>
                     </tr>
                     <tr>
                         <td class="info-label">Tujuan</td>
@@ -84,7 +85,8 @@
                                     <td>
                                         <div class="font-bold" style="color: #111827;">{{ $item->produk->nama_produk ?? '-' }}</div>
                                         @if($item->produk && $item->produk->item_code)
-                                            <div style="font-size: 0.78rem; color: #9ca3af; margin-top: 2px;">{{ $item->produk->item_code }}</div>
+                                            <div style="font-size: 0.78rem; color: #9ca3af; margin-top: 2px;">
+                                                {{ $item->produk->item_code }}</div>
                                         @endif
                                     </td>
                                     <td class="text-center">{{ $item->qty ?? 0 }}</td>
@@ -96,7 +98,8 @@
                         <tfoot>
                             <tr style="background: #f9fafb;">
                                 <td style="font-weight: 700; padding: 14px 18px;">Total Item</td>
-                                <td class="text-center" style="font-weight: 700; padding: 14px 18px;">{{ $kunjungan->items->sum('qty') }}</td>
+                                <td class="text-center" style="font-weight: 700; padding: 14px 18px;">
+                                    {{ $kunjungan->items->sum('qty') }}</td>
                                 <td colspan="2"></td>
                             </tr>
                         </tfoot>
@@ -110,7 +113,8 @@
                             <div class="mobile-product-item">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                     <div>
-                                        <div class="font-bold" style="color: #111827; font-size: 0.95rem;">{{ $item->produk->nama_produk ?? '-' }}</div>
+                                        <div class="font-bold" style="color: #111827; font-size: 0.95rem;">
+                                            {{ $item->produk->nama_produk ?? '-' }}</div>
                                         <div style="font-size: 0.82rem; color: #6b7280; margin-top: 3px;">
                                             {{ $item->qty ?? 0 }} {{ $item->produk->satuan ?? 'Pcs' }}
                                         </div>
