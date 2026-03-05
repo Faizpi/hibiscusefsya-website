@@ -25,7 +25,8 @@
     <h2>Laporan {{ $exportType === 'all' ? 'Semua Transaksi' : ucfirst($exportType) }}</h2>
     <div class="meta">
         Periode: {{ \Carbon\Carbon::parse($dateFrom)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($dateTo)->format('d/m/Y') }}
-        | Dicetak: {{ now()->format('d/m/Y H:i') }}
+        | Dibuat oleh: {{ $generatedBy ?? '-' }}
+        | Dicetak: {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}
     </div>
 
     @if($exportType === 'kunjungan')
@@ -431,7 +432,7 @@
     @endif
 
     <div class="footer">
-        Hibiscus Efsya - Laporan dicetak otomatis pada {{ now()->format('d/m/Y H:i:s') }}
+        Hibiscus Efsya - Laporan dicetak oleh {{ $generatedBy ?? '-' }} pada {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}
     </div>
 </body>
 </html>

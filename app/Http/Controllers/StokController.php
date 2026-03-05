@@ -122,7 +122,7 @@ class StokController extends Controller
 
         // Export menggunakan library Excel dengan FromView
         return Excel::download(
-            new \App\Exports\StokExport($gudang, $stokData),
+            new \App\Exports\StokExport($gudang, $stokData, Auth::user()->name),
             $fileName,
             \Maatwebsite\Excel\Excel::XLSX
         );

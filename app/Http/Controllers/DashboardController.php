@@ -592,6 +592,7 @@ class DashboardController extends Controller
             'biaya_jenis' => 'nullable|in:masuk,keluar',
             'tujuan_filter' => 'nullable|string',
             'export_format' => 'nullable|in:excel,pdf',
+            'sales_id' => 'nullable|exists:users,id',
         ]);
 
         $dateFrom = $request->date_from;
@@ -602,6 +603,7 @@ class DashboardController extends Controller
         $biayaJenis = $request->biaya_jenis; // optional filter khusus biaya
         $tujuanFilter = $request->tujuan_filter;
         $exportFormat = $request->export_format ?? 'excel';
+        $salesId = $request->sales_id;
         $user = Auth::user();
 
         $penjualans = collect();
@@ -641,6 +643,10 @@ class DashboardController extends Controller
                 $query->where('status', $statusFilter);
             }
 
+            if ($salesId) {
+                $query->where('user_id', $salesId);
+            }
+
             $penjualans = $query->get();
             $penjualans->each(function ($item) use ($generateNumber) {
                 $item->type = 'Penjualan';
@@ -669,6 +675,10 @@ class DashboardController extends Controller
 
             if ($statusFilter != 'all') {
                 $query->where('status', $statusFilter);
+            }
+
+            if ($salesId) {
+                $query->where('user_id', $salesId);
             }
 
             $pembelians = $query->get();
@@ -710,6 +720,10 @@ class DashboardController extends Controller
                 $query->where('jenis_biaya', $biayaJenis);
             }
 
+            if ($salesId) {
+                $query->where('user_id', $salesId);
+            }
+
             $biayas = $query->get();
             $biayas->each(function ($item) use ($generateNumber) {
                 $item->type = 'Biaya';
@@ -744,6 +758,10 @@ class DashboardController extends Controller
                 $query->where('tujuan', $tujuanFilter);
             }
 
+            if ($salesId) {
+                $query->where('user_id', $salesId);
+            }
+
             $kunjungans = $query->get();
             $kunjungans->each(function ($item) use ($generateNumber) {
                 $item->type = 'Kunjungan';
@@ -766,7 +784,13 @@ class DashboardController extends Controller
             $gudangLabel = '_' . str_replace(' ', '_', $gudang->nama_gudang);
         }
 
-        $fileBaseName = 'Laporan_' . $typeLabel[$transactionType] . $gudangLabel . '_' . $dateFrom . '_sd_' . $dateTo;
+        $salesLabel = '';
+        if ($salesId) {
+            $salesUser = User::find($salesId);
+            $salesLabel = '_Sales_' . str_replace(' ', '_', $salesUser->name);
+        }
+
+        $fileBaseName = 'Laporan_' . $typeLabel[$transactionType] . $gudangLabel . $salesLabel . '_' . $dateFrom . '_sd_' . $dateTo;
 
         // Prepare data
         if ($transactionType == 'all') {
@@ -777,23 +801,25 @@ class DashboardController extends Controller
 
         // Export based on format
         if ($exportFormat === 'pdf') {
-            return $this->exportPdf($exportData, $transactionType, $fileBaseName, $dateFrom, $dateTo);
+            return $this->exportPdf($exportData, $transactionType, $fileBaseName, $dateFrom, $dateTo, $user->name);
         }
 
         $fileName = $fileBaseName . '.xlsx';
-        return Excel::download(new TransactionsExport($exportData, $transactionType), $fileName);
+        return Excel::download(new TransactionsExport($exportData, $transactionType, $user->name), $fileName);
     }
 
     /**
      * Export data ke PDF
      */
-    private function exportPdf($transactions, $exportType, $fileBaseName, $dateFrom, $dateTo)
+    private function exportPdf($transactions, $exportType, $fileBaseName, $dateFrom, $dateTo, $generatedBy = null)
     {
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.pdf', [
             'transactions' => $transactions,
             'exportType' => $exportType,
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
+            'generatedBy' => $generatedBy ?? 'System',
+            'generatedAt' => now()->format('d/m/Y H:i:s'),
         ]);
         $pdf->setPaper('a4', 'landscape');
         return $pdf->download($fileBaseName . '.pdf');

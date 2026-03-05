@@ -13,11 +13,13 @@ class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithSty
 {
     protected $transactions;
     protected $exportType;
+    protected $generatedBy;
 
-    public function __construct($transactions, $exportType = 'all')
+    public function __construct($transactions, $exportType = 'all', $generatedBy = null)
     {
         $this->transactions = $transactions;
         $this->exportType = $exportType;
+        $this->generatedBy = $generatedBy ?? 'System';
     }
 
     public function view(): View
@@ -37,7 +39,9 @@ class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithSty
 
         return view($viewName, [
             'transactions' => $this->transactions,
-            'exportType' => $this->exportType
+            'exportType' => $this->exportType,
+            'generatedBy' => $this->generatedBy,
+            'generatedAt' => now()->format('d/m/Y H:i:s'),
         ]);
     }
 

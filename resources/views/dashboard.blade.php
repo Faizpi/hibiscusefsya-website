@@ -692,6 +692,18 @@
                             <small class="text-muted">*Hanya berlaku saat tipe transaksi = Kunjungan</small>
                         </div>
 
+                        {{-- Filter Sales --}}
+                        <div class="form-group" id="salesFilterGroup">
+                            <label for="sales_id">Filter Sales</label>
+                            <select class="form-control" name="sales_id" id="sales_id">
+                                <option value="">Semua Sales</option>
+                                @foreach(\App\User::where('role', 'user')->orderBy('name')->get() as $salesUser)
+                                    <option value="{{ $salesUser->id }}">{{ $salesUser->name }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">*Filter berdasarkan sales (pembuat transaksi)</small>
+                        </div>
+
                         {{-- Format Export --}}
                         <input type="hidden" name="export_format" id="export_format" value="excel">
                     </div>

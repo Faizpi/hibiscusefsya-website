@@ -19,7 +19,7 @@
     {{-- ROW 1: Cards Summary --}}
     <div class="row">
         {{-- Card Pemeriksaan Stock --}}
-        <div class="col-lg-2 col-sm-6 mb-4">
+        <div class="col mb-4">
             <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -34,7 +34,7 @@
         </div>
 
         {{-- Card Penagihan --}}
-        <div class="col-lg-2 col-sm-6 mb-4">
+        <div class="col mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -49,7 +49,7 @@
         </div>
 
         {{-- Card Promo Gratis --}}
-        <div class="col-lg-2 col-sm-6 mb-4">
+        <div class="col mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -64,7 +64,7 @@
         </div>
 
         {{-- Card Promo Sample --}}
-        <div class="col-lg-2 col-sm-6 mb-4">
+        <div class="col mb-4">
             <div class="card shadow h-100 py-2" style="border-left: .25rem solid #6f42c1 !important;">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -79,7 +79,7 @@
         </div>
 
         {{-- Card Canceled --}}
-        <div class="col-lg-2 col-sm-6 mb-4">
+        <div class="col mb-4">
             <div class="card border-left-danger shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">

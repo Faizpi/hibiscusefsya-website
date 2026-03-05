@@ -16,18 +16,21 @@ class StokExport implements FromView, WithTitle, ShouldAutoSize, WithStyles
 {
     protected $gudang;
     protected $stokData;
+    protected $generatedBy;
 
-    public function __construct($gudang, $stokData)
+    public function __construct($gudang, $stokData, $generatedBy = null)
     {
         $this->gudang = $gudang;
         $this->stokData = $stokData;
+        $this->generatedBy = $generatedBy ?? 'System';
     }
 
     public function view(): View
     {
         return view('reports.stok', [
             'gudang' => $this->gudang,
-            'stokData' => $this->stokData
+            'stokData' => $this->stokData,
+            'generatedBy' => $this->generatedBy,
         ]);
     }
 

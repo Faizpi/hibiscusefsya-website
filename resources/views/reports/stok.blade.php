@@ -8,7 +8,7 @@
         </tr>
         <tr>
             <th colspan="4" style="background-color: #E7E6E6; font-weight: bold; text-align: left; padding: 5px;">
-                Tanggal Export: {{ date('d-m-Y H:i:s') }}
+                Tanggal Export: {{ date('d-m-Y H:i:s') }} | Dibuat oleh: {{ $generatedBy ?? '-' }}
             </th>
         </tr>
         <tr>
