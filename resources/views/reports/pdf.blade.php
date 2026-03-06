@@ -1,30 +1,104 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Laporan {{ ucfirst($exportType) }}</title>
     <style>
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; color: #333; }
-        h2 { color: #1a56db; margin-bottom: 5px; }
-        .meta { font-size: 8px; color: #666; margin-bottom: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        th { background: #1a56db; color: #fff; padding: 5px 4px; text-align: left; font-size: 8px; }
-        td { border: 1px solid #ddd; padding: 4px; font-size: 8px; vertical-align: top; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-        .badge { padding: 2px 6px; border-radius: 3px; color: #fff; font-size: 7px; }
-        .badge-success { background: #0e9f6e; }
-        .badge-warning { background: #c27803; color: #fff; }
-        .badge-secondary { background: #6b7280; }
-        .lampiran-thumb { max-width: 60px; max-height: 45px; border: 1px solid #ccc; margin: 1px; }
-        .footer { position: fixed; bottom: 0; width: 100%; font-size: 7px; color: #999; border-top: 1px solid #ddd; padding-top: 3px; }
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 9px;
+            color: #333;
+        }
+
+        h2 {
+            color: #1a56db;
+            margin-bottom: 5px;
+        }
+
+        .meta {
+            font-size: 8px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        th {
+            background: #1a56db;
+            color: #fff;
+            padding: 5px 4px;
+            text-align: left;
+            font-size: 8px;
+        }
+
+        td {
+            border: 1px solid #ddd;
+            padding: 4px;
+            font-size: 8px;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #fff;
+            font-size: 7px;
+        }
+
+        .badge-success {
+            background: #0e9f6e;
+        }
+
+        .badge-warning {
+            background: #c27803;
+            color: #fff;
+        }
+
+        .badge-secondary {
+            background: #6b7280;
+        }
+
+        .lampiran-thumb {
+            max-width: 60px;
+            max-height: 45px;
+            border: 1px solid #ccc;
+            margin: 1px;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 7px;
+            color: #999;
+            border-top: 1px solid #ddd;
+            padding-top: 3px;
+        }
     </style>
 </head>
+
 <body>
     <h2>Laporan {{ $exportType === 'all' ? 'Semua Transaksi' : ucfirst($exportType) }}</h2>
     <div class="meta">
-        Periode: {{ \Carbon\Carbon::parse($dateFrom)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($dateTo)->format('d/m/Y') }}
+        Periode: {{ \Carbon\Carbon::parse($dateFrom)->format('d/m/Y') }} s/d
+        {{ \Carbon\Carbon::parse($dateTo)->format('d/m/Y') }}
         | Dibuat oleh: {{ $generatedBy ?? '-' }}
         | Dicetak: {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}
     </div>
@@ -55,7 +129,7 @@
                         if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) {
                             $paths[] = $item->lampiran_path;
                         }
-                        $imagePaths = collect($paths)->filter(function($p) {
+                        $imagePaths = collect($paths)->filter(function ($p) {
                             return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
                         });
                     @endphp
@@ -135,8 +209,9 @@
                 @foreach($transactions as $item)
                     @php
                         $paths = $item->lampiran_paths ?? [];
-                        if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) $paths[] = $item->lampiran_path;
-                        $imagePaths = collect($paths)->filter(function($p) {
+                        if ($item->lampiran_path && !in_array($item->lampiran_path, $paths))
+                            $paths[] = $item->lampiran_path;
+                        $imagePaths = collect($paths)->filter(function ($p) {
                             return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
                         });
                     @endphp
@@ -151,14 +226,21 @@
                                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                                     <td>{{ $item->status }}</td>
                                 @else
-                                    <td></td><td></td><td></td><td></td><td></td><td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                 @endif
                                 <td>{{ $detail->produk->nama_produk ?? '-' }}</td>
                                 <td class="text-right">{{ number_format($detail->harga_satuan ?? 0, 0, ',', '.') }}</td>
                                 <td class="text-center">{{ $detail->kuantitas ?? 0 }}</td>
                                 <td class="text-right">{{ $detail->diskon ?? 0 }}%</td>
                                 @if($idx === 0)
-                                    <td class="text-right">{{ number_format(($item->grand_total ?? 0) / (1 + (($item->tax_percentage ?? 0) / 100)), 0, ',', '.') }}</td>
+                                    <td class="text-right">
+                                        {{ number_format(($item->grand_total ?? 0) / (1 + (($item->tax_percentage ?? 0) / 100)), 0, ',', '.') }}
+                                    </td>
                                     <td>{{ $item->tax_percentage ?? 0 }}%</td>
                                     <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
                                     <td>
@@ -174,7 +256,10 @@
                                         @endif
                                     </td>
                                 @else
-                                    <td></td><td></td><td></td><td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                 @endif
                             </tr>
                         @endforeach
@@ -186,8 +271,13 @@
                             <td>{{ $item->pelanggan ?? '-' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
-                            <td>-</td><td>-</td><td>-</td><td>-</td>
-                            <td class="text-right">{{ number_format(($item->grand_total ?? 0) / (1 + (($item->tax_percentage ?? 0) / 100)), 0, ',', '.') }}</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td class="text-right">
+                                {{ number_format(($item->grand_total ?? 0) / (1 + (($item->tax_percentage ?? 0) / 100)), 0, ',', '.') }}
+                            </td>
                             <td>{{ $item->tax_percentage ?? 0 }}%</td>
                             <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
                             <td>-</td>
@@ -228,7 +318,11 @@
                                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                                     <td>{{ $item->status }}</td>
                                 @else
-                                    <td></td><td></td><td></td><td></td><td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                 @endif
                                 <td>{{ $detail->produk->nama_produk ?? '-' }}</td>
                                 <td class="text-right">{{ number_format($detail->harga_satuan ?? 0, 0, ',', '.') }}</td>
@@ -238,7 +332,8 @@
                                     <td>{{ $item->tax_percentage ?? 0 }}%</td>
                                     <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
                                 @else
-                                    <td></td><td></td>
+                                    <td></td>
+                                    <td></td>
                                 @endif
                             </tr>
                         @endforeach
@@ -249,7 +344,10 @@
                             <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
-                            <td>-</td><td>-</td><td>-</td><td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
                             <td>{{ $item->tax_percentage ?? 0 }}%</td>
                             <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
                         </tr>
@@ -292,7 +390,13 @@
                                     <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
                                     <td>{{ $item->status }}</td>
                                 @else
-                                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                 @endif
                                 <td>{{ $detail->kategori ?? '-' }}</td>
                                 <td>{{ $detail->deskripsi ?? '-' }}</td>
@@ -301,7 +405,8 @@
                                     <td>{{ $item->tax_percentage ?? 0 }}%</td>
                                     <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
                                 @else
-                                    <td></td><td></td>
+                                    <td></td>
+                                    <td></td>
                                 @endif
                             </tr>
                         @endforeach
@@ -314,7 +419,9 @@
                             <td>{{ $item->penerima ?? '-' }}</td>
                             <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
-                            <td>-</td><td>-</td><td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
                             <td>{{ $item->tax_percentage ?? 0 }}%</td>
                             <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
                         </tr>
@@ -349,11 +456,14 @@
                     @php
                         $tanggal = $item->tgl_transaksi ?? $item->tgl_kunjungan ?? null;
                         $items = collect();
-                        if ($item->relationLoaded('items')) $items = $item->items;
+                        if ($item->relationLoaded('items'))
+                            $items = $item->items;
                         $paths = [];
-                        if (isset($item->lampiran_paths) && is_array($item->lampiran_paths)) $paths = $item->lampiran_paths;
-                        if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) $paths[] = $item->lampiran_path;
-                        $imagePaths = collect($paths)->filter(function($p) {
+                        if (isset($item->lampiran_paths) && is_array($item->lampiran_paths))
+                            $paths = $item->lampiran_paths;
+                        if ($item->lampiran_path && !in_array($item->lampiran_path, $paths))
+                            $paths[] = $item->lampiran_path;
+                        $imagePaths = collect($paths)->filter(function ($p) {
                             return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
                         });
                     @endphp
@@ -369,7 +479,13 @@
                                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                                     <td>{{ $item->status }}</td>
                                 @else
-                                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                 @endif
                                 <td>{{ $detail->produk->nama_produk ?? ($detail->deskripsi ?? ($detail->kategori ?? '-')) }}</td>
                                 <td class="text-right">
@@ -408,7 +524,8 @@
                                         @endif
                                     </td>
                                 @else
-                                    <td></td><td></td>
+                                    <td></td>
+                                    <td></td>
                                 @endif
                             </tr>
                         @endforeach
@@ -421,7 +538,10 @@
                             <td>{{ $item->user->name ?? '-' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
-                            <td>-</td><td>-</td><td>-</td><td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
                             <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</strong></td>
                             <td>-</td>
                         </tr>
@@ -432,7 +552,9 @@
     @endif
 
     <div class="footer">
-        Hibiscus Efsya - Laporan dicetak oleh {{ $generatedBy ?? '-' }} pada {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}
+        Hibiscus Efsya - Laporan dicetak oleh {{ $generatedBy ?? '-' }} pada
+        {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}
     </div>
 </body>
+
 </html>

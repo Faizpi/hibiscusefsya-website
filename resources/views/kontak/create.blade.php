@@ -47,8 +47,8 @@
                             <div class="form-group">
                                 <label for="no_telp">No. Telepon</label>
                                 <input type="text" class="form-control @error('no_telp') is-invalid @enderror" id="no_telp"
-                                    name="no_telp" value="{{ old('no_telp') }}">
-                                <small class="form-text text-muted">No. Telp akan menjadi username login customer</small>
+                                    name="no_telp" value="{{ old('no_telp') }}" placeholder="628xxxxxxxxxx">
+                                <small class="form-text text-muted">Format: 628xxxxxxxxxx (tanpa +, spasi, atau strip). No. Telp akan menjadi username login customer</small>
                                 @error('no_telp')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

@@ -10,6 +10,30 @@ use Illuminate\Http\Request;
 class CustomerPortalController extends Controller
 {
     /**
+     * Normalize phone number to 628xxx format.
+     */
+    private function normalizePhone($phone)
+    {
+        if (empty($phone)) return $phone;
+
+        $phone = preg_replace('/[\s\-\.\(\)]+/', '', $phone);
+
+        if (substr($phone, 0, 1) === '+') {
+            $phone = substr($phone, 1);
+        }
+
+        if (substr($phone, 0, 2) === '08') {
+            $phone = '62' . substr($phone, 1);
+        }
+
+        if (substr($phone, 0, 1) === '8' && strlen($phone) >= 9 && strlen($phone) <= 13) {
+            $phone = '62' . $phone;
+        }
+
+        return $phone;
+    }
+
+    /**
      * Tampilkan halaman login customer (step 1: no telp)
      */
     public function loginForm()
@@ -30,7 +54,9 @@ class CustomerPortalController extends Controller
             'no_telp' => 'required|string',
         ]);
 
-        $kontak = Kontak::where('no_telp', $request->no_telp)->first();
+        $noTelp = $this->normalizePhone($request->no_telp);
+
+        $kontak = Kontak::where('no_telp', $noTelp)->first();
 
         if (!$kontak) {
             return back()->with('error', 'Nomor telepon tidak terdaftar.')->withInput();
@@ -41,7 +67,7 @@ class CustomerPortalController extends Controller
         }
 
         return view('customer.pin', [
-            'no_telp' => $request->no_telp,
+            'no_telp' => $noTelp,
             'nama' => $kontak->nama,
         ]);
     }
@@ -56,14 +82,16 @@ class CustomerPortalController extends Controller
             'pin' => 'required|string|size:6',
         ]);
 
-        $kontak = Kontak::where('no_telp', $request->no_telp)
+        $noTelp = $this->normalizePhone($request->no_telp);
+
+        $kontak = Kontak::where('no_telp', $noTelp)
             ->where('pin', $request->pin)
             ->first();
 
         if (!$kontak) {
             return view('customer.pin', [
-                'no_telp' => $request->no_telp,
-                'nama' => Kontak::where('no_telp', $request->no_telp)->value('nama') ?? '',
+                'no_telp' => $noTelp,
+                'nama' => Kontak::where('no_telp', $noTelp)->value('nama') ?? '',
                 'error' => 'PIN yang Anda masukkan salah.',
             ]);
         }

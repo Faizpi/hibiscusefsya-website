@@ -157,6 +157,11 @@ class KontakController extends Controller
 
         $data = $request->all();
 
+        // Normalize phone number to 628xxx
+        if (!empty($data['no_telp'])) {
+            $data['no_telp'] = $this->normalizePhone($data['no_telp']);
+        }
+
         // Auto-assign gudang_id dari gudang user saat ini
         $gudang = $user->getCurrentGudang();
         if ($gudang) {
@@ -225,6 +230,11 @@ class KontakController extends Controller
 
         $data = $request->except('gudang_id');
 
+        // Normalize phone number to 628xxx
+        if (!empty($data['no_telp'])) {
+            $data['no_telp'] = $this->normalizePhone($data['no_telp']);
+        }
+
         // Hanya super_admin yang bisa ubah gudang
         if ($user->role === 'super_admin') {
             $data['gudang_id'] = $request->gudang_id;
@@ -245,6 +255,34 @@ class KontakController extends Controller
         // TODO: Cek dulu apakah kontak ini dipakai di transaksi
         $kontak->delete();
         return redirect()->route('kontak.index')->with('success', 'Kontak berhasil dihapus.');
+    }
+
+    /**
+     * Normalize phone number to 628xxx format.
+     */
+    private function normalizePhone($phone)
+    {
+        if (empty($phone)) return $phone;
+
+        // Hapus spasi, strip, titik, kurung
+        $phone = preg_replace('/[\s\-\.\(\)]+/', '', $phone);
+
+        // Hapus prefix +
+        if (substr($phone, 0, 1) === '+') {
+            $phone = substr($phone, 1);
+        }
+
+        // 08xxx → 628xxx
+        if (substr($phone, 0, 2) === '08') {
+            $phone = '62' . substr($phone, 1);
+        }
+
+        // 8xxx (tanpa prefix) → 628xxx
+        if (substr($phone, 0, 1) === '8' && strlen($phone) >= 9 && strlen($phone) <= 13) {
+            $phone = '62' . $phone;
+        }
+
+        return $phone;
     }
 
     /**

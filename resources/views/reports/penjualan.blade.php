@@ -2,7 +2,8 @@
 <table>
     <thead>
         <tr>
-            <td colspan="23"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak: {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
+            <td colspan="23"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
+                    {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
         </tr>
         <tr>
             <th>No</th>
@@ -66,7 +67,8 @@
                             <td></td>
                         @endif
                         <td>{{ ($detail->produk->item_code ?? '') }} -
-                            {{ $detail->produk->nama_produk ?? ($detail->deskripsi ?? '-') }}</td>
+                            {{ $detail->produk->nama_produk ?? ($detail->deskripsi ?? '-') }}
+                        </td>
                         <td>{{ $detail->harga_satuan ?? 0 }}</td>
                         <td>{{ $detail->kuantitas ?? 0 }}</td>
                         <td>{{ $detail->diskon ?? 0 }}</td>

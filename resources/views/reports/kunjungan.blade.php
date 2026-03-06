@@ -2,7 +2,8 @@
 <table>
     <thead>
         <tr>
-            <td colspan="16"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak: {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
+            <td colspan="16"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
+                    {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
         </tr>
         <tr>
             <th>No</th>
