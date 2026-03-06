@@ -32,7 +32,7 @@ class ProdukController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nama_produk', 'like', "%{$search}%")
-                  ->orWhere('item_code', 'like', "%{$search}%");
+                    ->orWhere('item_code', 'like', "%{$search}%");
             });
         }
 

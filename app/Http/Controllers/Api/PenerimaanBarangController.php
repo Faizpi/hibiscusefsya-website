@@ -24,12 +24,15 @@ class PenerimaanBarangController extends Controller
             // lihat semua
         } elseif ($user->role == 'admin') {
             $adminGudangIds = $user->gudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) $adminGudangIds[] = $user->current_gudang_id;
-            if ($user->gudang_id) $adminGudangIds[] = $user->gudang_id;
+            if ($user->current_gudang_id)
+                $adminGudangIds[] = $user->current_gudang_id;
+            if ($user->gudang_id)
+                $adminGudangIds[] = $user->gudang_id;
             $query->whereIn('gudang_id', array_unique($adminGudangIds));
         } elseif ($user->role == 'spectator') {
             $spectatorGudangIds = $user->spectatorGudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) $spectatorGudangIds[] = $user->current_gudang_id;
+            if ($user->current_gudang_id)
+                $spectatorGudangIds[] = $user->current_gudang_id;
             $query->whereIn('gudang_id', array_unique($spectatorGudangIds));
         } else {
             $query->where('user_id', $user->id);
@@ -46,8 +49,11 @@ class PenerimaanBarangController extends Controller
     {
         return response()->json(
             PenerimaanBarang::with([
-                'user:id,name', 'approver:id,name', 'gudang:id,nama_gudang',
-                'pembelian:id,nomor', 'items.produk:id,nama_produk,item_code,satuan'
+                'user:id,name',
+                'approver:id,name',
+                'gudang:id,nama_gudang',
+                'pembelian:id,nomor',
+                'items.produk:id,nama_produk,item_code,satuan'
             ])->findOrFail($id)
         );
     }
@@ -131,7 +137,8 @@ class PenerimaanBarangController extends Controller
             foreach ($request->items as $item) {
                 $qtyDiterima = $item['qty_diterima'] ?? 0;
                 $qtyReject = $item['qty_reject'] ?? 0;
-                if ($qtyDiterima <= 0 && $qtyReject <= 0) continue;
+                if ($qtyDiterima <= 0 && $qtyReject <= 0)
+                    continue;
 
                 $tipeStok = $item['tipe_stok'] ?? 'penjualan';
 
@@ -237,7 +244,8 @@ class PenerimaanBarangController extends Controller
                     $qtyDiterima = PenerimaanBarangItem::whereHas('penerimaanBarang', function ($q) use ($pembelian) {
                         $q->where('pembelian_id', $pembelian->id)->where('status', 'Approved');
                     })->where('produk_id', $item->produk_id)->sum('qty_diterima');
-                    if (($item->kuantitas ?? 0) - $qtyDiterima > 0) return true;
+                    if (($item->kuantitas ?? 0) - $qtyDiterima > 0)
+                        return true;
                 }
                 return false;
             })

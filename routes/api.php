@@ -46,12 +46,12 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::get('gudang/stok-log', 'GudangController@stokLog');
 
     // Produk
+    Route::get('produk/stok/{gudangId}', 'ProdukController@stokByGudang');
     Route::get('produk', 'ProdukController@index');
     Route::get('produk/{id}', 'ProdukController@show');
     Route::post('produk', 'ProdukController@store');
     Route::put('produk/{id}', 'ProdukController@update');
     Route::delete('produk/{id}', 'ProdukController@destroy');
-    Route::get('produk/stok/{gudangId}', 'ProdukController@stokByGudang');
 
     // Kontak
     Route::get('kontak', 'KontakController@index');
@@ -96,18 +96,18 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::post('pembayaran/{id}/cancel', 'PembayaranController@cancel');
 
     // Penerimaan Barang
+    Route::get('penerimaan-barang/pembelian-by-gudang/{gudangId}', 'PenerimaanBarangController@getPembelianByGudang');
+    Route::get('penerimaan-barang/pembelian-detail/{id}', 'PenerimaanBarangController@getPembelianDetail');
     Route::get('penerimaan-barang', 'PenerimaanBarangController@index');
     Route::get('penerimaan-barang/{id}', 'PenerimaanBarangController@show');
     Route::post('penerimaan-barang', 'PenerimaanBarangController@store');
     Route::post('penerimaan-barang/{id}/approve', 'PenerimaanBarangController@approve');
     Route::post('penerimaan-barang/{id}/cancel', 'PenerimaanBarangController@cancel');
-    Route::get('penerimaan-barang/pembelian-by-gudang/{gudangId}', 'PenerimaanBarangController@getPembelianByGudang');
-    Route::get('penerimaan-barang/pembelian-detail/{id}', 'PenerimaanBarangController@getPembelianDetail');
 
     // Stok (Admin/Super Admin)
+    Route::get('stok/log', 'StokController@log');
     Route::get('stok', 'StokController@index');
     Route::post('stok', 'StokController@store');
-    Route::get('stok/log', 'StokController@log');
 
     // User Management (Super Admin)
     Route::get('users', 'UserController@index');
