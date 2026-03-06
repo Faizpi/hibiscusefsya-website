@@ -105,4 +105,44 @@ class KunjunganController extends Controller
             return response()->json(['message' => 'Gagal membuat kunjungan.'], 500);
         }
     }
+
+    public function approve($id)
+    {
+        $user = auth()->user();
+        if (!in_array($user->role, ['admin', 'super_admin'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $kunjungan = Kunjungan::findOrFail($id);
+
+        if ($kunjungan->status !== 'Pending') {
+            return response()->json(['message' => 'Hanya transaksi Pending yang bisa di-approve.'], 422);
+        }
+
+        $kunjungan->update(['status' => 'Approved', 'approver_id' => $user->id]);
+
+        return response()->json(['message' => 'Kunjungan berhasil di-approve.', 'data' => $kunjungan]);
+    }
+
+    public function cancel($id)
+    {
+        $user = auth()->user();
+        $kunjungan = Kunjungan::findOrFail($id);
+
+        if ($kunjungan->status === 'Canceled') {
+            return response()->json(['message' => 'Transaksi sudah dibatalkan.'], 422);
+        }
+
+        if ($user->role === 'super_admin') {
+            $kunjungan->update(['status' => 'Canceled']);
+            return response()->json(['message' => 'Kunjungan berhasil dibatalkan.']);
+        }
+
+        if ($user->role === 'admin' && $kunjungan->status === 'Pending') {
+            $kunjungan->update(['status' => 'Canceled']);
+            return response()->json(['message' => 'Kunjungan berhasil dibatalkan.']);
+        }
+
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
 }

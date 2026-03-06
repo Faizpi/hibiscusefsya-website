@@ -71,4 +71,80 @@ class PembayaranController extends Controller
 
         return response()->json(['message' => 'Pembayaran berhasil dibuat.', 'data' => $pembayaran], 201);
     }
+
+    public function approve($id)
+    {
+        $user = auth()->user();
+        if (!in_array($user->role, ['admin', 'super_admin'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $pembayaran = Pembayaran::findOrFail($id);
+
+        if ($user->role === 'admin' && !$user->canAccessGudang($pembayaran->gudang_id)) {
+            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        }
+
+        if ($pembayaran->status === 'Canceled') {
+            return response()->json(['message' => 'Transaksi sudah dibatalkan, tidak bisa di-approve.'], 422);
+        }
+        if ($pembayaran->status === 'Approved') {
+            return response()->json(['message' => 'Transaksi sudah disetujui.'], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $pembayaran->update(['status' => 'Approved', 'approver_id' => $user->id]);
+
+            $totalBayar = Pembayaran::where('penjualan_id', $pembayaran->penjualan_id)
+                ->where('status', 'Approved')
+                ->sum('jumlah_bayar');
+
+            $penjualan = $pembayaran->penjualan;
+            if ($totalBayar >= $penjualan->grand_total) {
+                $penjualan->update(['status' => 'Lunas']);
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Pembayaran berhasil di-approve.', 'data' => $pembayaran]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Gagal approve pembayaran.'], 500);
+        }
+    }
+
+    public function cancel($id)
+    {
+        $user = auth()->user();
+        if (!in_array($user->role, ['admin', 'super_admin'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $pembayaran = Pembayaran::findOrFail($id);
+
+        if ($pembayaran->status === 'Canceled') {
+            return response()->json(['message' => 'Transaksi sudah dibatalkan.'], 422);
+        }
+
+        if ($pembayaran->status === 'Approved' && $user->role !== 'super_admin') {
+            return response()->json(['message' => 'Hanya Super Admin yang dapat membatalkan transaksi yang sudah disetujui.'], 403);
+        }
+
+        DB::beginTransaction();
+        try {
+            if ($pembayaran->status === 'Approved') {
+                $penjualan = $pembayaran->penjualan;
+                if ($penjualan && $penjualan->status === 'Lunas') {
+                    $penjualan->update(['status' => 'Approved']);
+                }
+            }
+
+            $pembayaran->update(['status' => 'Canceled']);
+            DB::commit();
+            return response()->json(['message' => 'Pembayaran berhasil dibatalkan.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Gagal membatalkan pembayaran.'], 500);
+        }
+    }
 }

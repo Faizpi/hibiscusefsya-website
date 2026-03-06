@@ -29,8 +29,8 @@ class KontakController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('kode_kontak', 'like', "%{$search}%")
-                  ->orWhere('no_telp', 'like', "%{$search}%");
+                    ->orWhere('kode_kontak', 'like', "%{$search}%")
+                    ->orWhere('no_telp', 'like', "%{$search}%");
             });
         }
 
@@ -79,5 +79,13 @@ class KontakController extends Controller
         $kontak->update($request->only(['nama', 'email', 'no_telp', 'alamat', 'diskon_persen']));
 
         return response()->json(['message' => 'Kontak berhasil diupdate.', 'data' => $kontak]);
+    }
+
+    public function destroy($id)
+    {
+        $kontak = Kontak::findOrFail($id);
+        $kontak->delete();
+
+        return response()->json(['message' => 'Kontak berhasil dihapus.']);
     }
 }

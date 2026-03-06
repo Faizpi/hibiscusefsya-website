@@ -41,6 +41,13 @@ Route::prefix('customer')->name('customer.')->group(function () {
 // Handling via CustomerSubdomainRedirect middleware -> redirect ke /customer/* prefix routes
 
 // ========================================================================
+// API DOCUMENTATION (Public)
+// ========================================================================
+Route::get('/docs', 'ApiDocController@index')->name('api.docs');
+Route::get('/docs/json', 'ApiDocController@json')->name('api.docs.json');
+Route::get('/docs/download', 'ApiDocController@download')->name('api.docs.download');
+
+// ========================================================================
 // PUBLIC ROUTES (Tanpa Login) - Untuk QR Code Invoice
 // Security: Menggunakan UUID bukan ID untuk prevent enumeration attack
 // ========================================================================

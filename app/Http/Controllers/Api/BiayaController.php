@@ -93,4 +93,47 @@ class BiayaController extends Controller
             return response()->json(['message' => 'Gagal membuat biaya.'], 500);
         }
     }
+
+    public function approve($id)
+    {
+        $user = auth()->user();
+        if (!in_array($user->role, ['admin', 'super_admin'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $biaya = Biaya::findOrFail($id);
+
+        if ($biaya->status === 'Canceled') {
+            return response()->json(['message' => 'Transaksi sudah dibatalkan, tidak bisa di-approve.'], 422);
+        }
+
+        if ($biaya->status === 'Approved' && $user->role === 'admin') {
+            return response()->json(['message' => 'Transaksi sudah disetujui.'], 422);
+        }
+
+        $biaya->update(['status' => 'Approved', 'approver_id' => $user->id]);
+
+        return response()->json(['message' => 'Biaya berhasil di-approve.', 'data' => $biaya]);
+    }
+
+    public function cancel($id)
+    {
+        $user = auth()->user();
+        if (!in_array($user->role, ['admin', 'super_admin'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $biaya = Biaya::findOrFail($id);
+
+        if ($biaya->status === 'Canceled') {
+            return response()->json(['message' => 'Transaksi sudah dibatalkan.'], 422);
+        }
+
+        if ($biaya->status === 'Approved' && $user->role !== 'super_admin') {
+            return response()->json(['message' => 'Hanya Super Admin yang dapat membatalkan transaksi yang sudah disetujui.'], 403);
+        }
+
+        $biaya->update(['status' => 'Canceled']);
+        return response()->json(['message' => 'Biaya berhasil dibatalkan.']);
+    }
 }

@@ -65,4 +65,61 @@ class ProdukController extends Controller
 
         return response()->json($stok);
     }
+
+    public function store(Request $request)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'nama_produk' => 'required|string|max:255',
+            'item_code' => 'nullable|string|max:255|unique:produks',
+            'harga' => 'required|numeric|min:0',
+            'harga_grosir' => 'nullable|numeric|min:0',
+            'satuan' => 'required|in:Pcs,Lusin,Karton',
+            'deskripsi' => 'nullable|string',
+        ]);
+
+        $produk = Produk::create($request->only('nama_produk', 'item_code', 'harga', 'harga_grosir', 'satuan', 'deskripsi'));
+
+        return response()->json(['message' => 'Produk berhasil dibuat.', 'data' => $produk], 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $produk = Produk::findOrFail($id);
+
+        $request->validate([
+            'nama_produk' => 'required|string|max:255',
+            'item_code' => 'nullable|string|max:255|unique:produks,item_code,' . $produk->id,
+            'harga' => 'required|numeric|min:0',
+            'harga_grosir' => 'nullable|numeric|min:0',
+            'satuan' => 'required|in:Pcs,Lusin,Karton',
+            'deskripsi' => 'nullable|string',
+        ]);
+
+        $produk->update($request->only('nama_produk', 'item_code', 'harga', 'harga_grosir', 'satuan', 'deskripsi'));
+
+        return response()->json(['message' => 'Produk berhasil diupdate.', 'data' => $produk]);
+    }
+
+    public function destroy($id)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $produk = Produk::findOrFail($id);
+        $produk->delete();
+
+        return response()->json(['message' => 'Produk berhasil dihapus.']);
+    }
 }

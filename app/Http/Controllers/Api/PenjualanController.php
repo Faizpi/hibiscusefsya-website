@@ -44,7 +44,7 @@ class PenjualanController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nomor', 'like', "%{$search}%")
-                  ->orWhere('pelanggan', 'like', "%{$search}%");
+                    ->orWhere('pelanggan', 'like', "%{$search}%");
             });
         }
 
@@ -245,9 +245,9 @@ class PenjualanController extends Controller
             $admin = User::where('role', 'admin')
                 ->where(function ($q) use ($gudangId) {
                     $q->where('gudang_id', $gudangId)
-                      ->orWhereHas('gudangs', function ($sub) use ($gudangId) {
-                          $sub->where('gudangs.id', $gudangId);
-                      });
+                        ->orWhereHas('gudangs', function ($sub) use ($gudangId) {
+                            $sub->where('gudangs.id', $gudangId);
+                        });
                 })->first();
 
             return $admin ? $admin->id : optional(User::where('role', 'super_admin')->first())->id;

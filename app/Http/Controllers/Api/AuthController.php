@@ -96,4 +96,37 @@ class AuthController extends Controller
             ] : null,
         ]);
     }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'alamat' => 'nullable|string',
+            'no_telp' => 'nullable|string|max:20',
+        ]);
+
+        $user->update($request->only('name', 'alamat', 'no_telp'));
+
+        return response()->json(['message' => 'Profil berhasil diupdate.', 'user' => $user]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'Password lama salah.'], 422);
+        }
+
+        $user->update(['password' => Hash::make($request->new_password)]);
+
+        return response()->json(['message' => 'Password berhasil diubah.']);
+    }
 }
