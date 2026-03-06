@@ -113,7 +113,8 @@
                     <th width="7%">Tanggal</th>
                     <th width="7%">Tujuan</th>
                     <th width="8%">Sales</th>
-                    <th width="8%">Gudang</th>
+                    <th width="7%">No Telepon</th>
+                    <th width="7%">Gudang</th>
                     <th width="6%">Status</th>
                     <th width="12%">Produk</th>
                     <th width="4%">Qty</th>
@@ -139,6 +140,7 @@
                         <td>{{ $item->tgl_kunjungan ? $item->tgl_kunjungan->format('d/m/Y') : '-' }}</td>
                         <td>{{ $item->tujuan ?? '-' }}</td>
                         <td>{{ $item->sales_nama ?? ($item->user->name ?? '-') }}</td>
+                        <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                         <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                         <td>
                             @if($item->status == 'Approved')
@@ -192,6 +194,7 @@
                     <th width="9%">No Transaksi</th>
                     <th width="7%">Tanggal</th>
                     <th width="9%">Pelanggan</th>
+                    <th width="8%">No Telepon</th>
                     <th width="7%">Gudang</th>
                     <th width="5%">Status</th>
                     <th width="13%">Produk</th>
@@ -223,9 +226,11 @@
                                     <td>{{ $item->number }}</td>
                                     <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
                                     <td>{{ $item->pelanggan ?? '-' }}</td>
+                                    <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                                     <td>{{ $item->status }}</td>
                                 @else
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -269,6 +274,7 @@
                             <td>{{ $item->number }}</td>
                             <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
                             <td>{{ $item->pelanggan ?? '-' }}</td>
+                            <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                             <td>-</td>
@@ -366,6 +372,7 @@
                     <th>Tanggal</th>
                     <th>Jenis</th>
                     <th>Penerima</th>
+                    <th>No Telepon</th>
                     <th>Gudang</th>
                     <th>Status</th>
                     <th>Kategori</th>
@@ -387,9 +394,11 @@
                                     <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
                                     <td>{{ ucfirst($item->jenis_biaya ?? '-') }}</td>
                                     <td>{{ $item->penerima ?? '-' }}</td>
+                                    <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                                     <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
                                     <td>{{ $item->status }}</td>
                                 @else
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -417,6 +426,7 @@
                             <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
                             <td>{{ ucfirst($item->jenis_biaya ?? '-') }}</td>
                             <td>{{ $item->penerima ?? '-' }}</td>
+                            <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                             <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                             <td>-</td>

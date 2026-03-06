@@ -2,7 +2,7 @@
 <table>
     <thead>
         <tr>
-            <td colspan="16"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
+            <td colspan="17"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
                     {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
         </tr>
         <tr>
@@ -12,6 +12,7 @@
             <th>Jam</th>
             <th>Tujuan</th>
             <th>Sales Nama</th>
+            <th>No Telepon</th>
             <th>Sales Email</th>
             <th>Sales Alamat</th>
             <th>Gudang</th>
@@ -36,6 +37,7 @@
                         <td>{{ $item->created_at->format('H:i') }}</td>
                         <td>{{ $item->tujuan }}</td>
                         <td>{{ $item->sales_nama ?? '-' }}</td>
+                        <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                         <td>{{ $item->sales_email ?? '-' }}</td>
                         <td>{{ $item->sales_alamat ?? '-' }}</td>
                         <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
@@ -56,6 +58,7 @@
                     <td>{{ $item->created_at->format('H:i') }}</td>
                     <td>{{ $item->tujuan }}</td>
                     <td>{{ $item->sales_nama ?? '-' }}</td>
+                    <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                     <td>{{ $item->sales_email ?? '-' }}</td>
                     <td>{{ $item->sales_alamat ?? '-' }}</td>
                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>

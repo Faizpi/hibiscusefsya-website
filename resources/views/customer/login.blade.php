@@ -180,7 +180,7 @@
         <form method="POST" action="{{ route('customer.check.phone') }}">
             @csrf
             <label class="form-label">Nomor Telepon</label>
-            <input type="tel" name="no_telp" class="form-input" placeholder="Contoh: 08123456789"
+            <input type="tel" name="no_telp" class="form-input" placeholder="Contoh: 628123456789"
                 value="{{ old('no_telp') }}" required autofocus inputmode="tel" autocomplete="tel">
             <button type="submit" class="btn-submit">Lanjutkan</button>
         </form>

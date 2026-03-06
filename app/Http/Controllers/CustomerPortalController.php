@@ -14,7 +14,8 @@ class CustomerPortalController extends Controller
      */
     private function normalizePhone($phone)
     {
-        if (empty($phone)) return $phone;
+        if (empty($phone))
+            return $phone;
 
         $phone = preg_replace('/[\s\-\.\(\)]+/', '', $phone);
 

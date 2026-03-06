@@ -262,7 +262,8 @@ class KontakController extends Controller
      */
     private function normalizePhone($phone)
     {
-        if (empty($phone)) return $phone;
+        if (empty($phone))
+            return $phone;
 
         // Hapus spasi, strip, titik, kurung
         $phone = preg_replace('/[\s\-\.\(\)]+/', '', $phone);

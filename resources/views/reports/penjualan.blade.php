@@ -2,7 +2,7 @@
 <table>
     <thead>
         <tr>
-            <td colspan="23"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
+            <td colspan="24"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
                     {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
         </tr>
         <tr>
@@ -12,6 +12,7 @@
             <th>Jam</th>
             <th>Tgl Jatuh Tempo</th>
             <th>Pelanggan</th>
+            <th>No Telepon</th>
             <th>Email</th>
             <th>Alamat Penagihan</th>
             <th>Syarat Pembayaran</th>
@@ -44,6 +45,7 @@
                             <td>{{ $item->created_at ? $item->created_at->format('H:i') : '-' }}</td>
                             <td>{{ $item->tgl_jatuh_tempo ? \Carbon\Carbon::parse($item->tgl_jatuh_tempo)->format('d/m/Y') : '-' }}</td>
                             <td>{{ $item->pelanggan ?? '-' }}</td>
+                            <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                             <td>{{ $item->email ?? '-' }}</td>
                             <td>{{ $item->alamat_penagihan ?? '-' }}</td>
                             <td>{{ $item->syarat_pembayaran ?? '-' }}</td>
@@ -52,6 +54,7 @@
                             <td>{{ $item->approver->name ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                         @else
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -96,6 +99,7 @@
                     <td>{{ $item->created_at ? $item->created_at->format('H:i') : '-' }}</td>
                     <td>{{ $item->tgl_jatuh_tempo ? \Carbon\Carbon::parse($item->tgl_jatuh_tempo)->format('d/m/Y') : '-' }}</td>
                     <td>{{ $item->pelanggan ?? '-' }}</td>
+                    <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                     <td>{{ $item->email ?? '-' }}</td>
                     <td>{{ $item->alamat_penagihan ?? '-' }}</td>
                     <td>{{ $item->syarat_pembayaran ?? '-' }}</td>

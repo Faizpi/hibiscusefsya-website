@@ -2,7 +2,7 @@
 <table>
     <thead>
         <tr>
-            <td colspan="19"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
+            <td colspan="20"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
                     {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
         </tr>
         <tr>
@@ -13,6 +13,7 @@
             <th>Jenis</th>
             <th>Bayar Dari</th>
             <th>Penerima</th>
+            <th>No Telepon</th>
             <th>Alamat Penagihan</th>
             <th>Cara Pembayaran</th>
             <th>Pembuat</th>
@@ -41,6 +42,7 @@
                             <td>{{ $item->jenis_biaya ? ucfirst($item->jenis_biaya) : '-' }}</td>
                             <td>{{ $item->bayar_dari ?? '-' }}</td>
                             <td>{{ $item->penerima ?? '-' }}</td>
+                            <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                             <td>{{ $item->alamat_penagihan ?? '-' }}</td>
                             <td>{{ $item->cara_pembayaran ?? '-' }}</td>
                             <td>{{ $item->user->name ?? '-' }}</td>
@@ -48,6 +50,7 @@
                             <td>{{ $item->approver->name ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                         @else
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -85,6 +88,7 @@
                     <td>{{ $item->jenis_biaya ? ucfirst($item->jenis_biaya) : '-' }}</td>
                     <td>{{ $item->bayar_dari ?? '-' }}</td>
                     <td>{{ $item->penerima ?? '-' }}</td>
+                    <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                     <td>{{ $item->alamat_penagihan ?? '-' }}</td>
                     <td>{{ $item->cara_pembayaran ?? '-' }}</td>
                     <td>{{ $item->user->name ?? '-' }}</td>

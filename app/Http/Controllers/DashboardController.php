@@ -611,6 +611,12 @@ class DashboardController extends Controller
         $biayas = collect();
         $kunjungans = collect();
 
+        // Map kontak nama → no_telp untuk kolom telepon di report
+        $kontakPhoneMap = \App\Kontak::whereNotNull('no_telp')
+            ->where('no_telp', '!=', '')
+            ->pluck('no_telp', 'nama')
+            ->toArray();
+
         // Helper function untuk generate custom number
         $generateNumber = function ($item, $prefix) {
             $dateCode = $item->created_at->format('Ymd');
@@ -648,9 +654,10 @@ class DashboardController extends Controller
             }
 
             $penjualans = $query->get();
-            $penjualans->each(function ($item) use ($generateNumber) {
+            $penjualans->each(function ($item) use ($generateNumber, $kontakPhoneMap) {
                 $item->type = 'Penjualan';
                 $item->number = $generateNumber($item, 'INV');
+                $item->no_telp_kontak = $kontakPhoneMap[$item->pelanggan] ?? '-';
             });
         }
 
@@ -685,6 +692,7 @@ class DashboardController extends Controller
             $pembelians->each(function ($item) use ($generateNumber) {
                 $item->type = 'Pembelian';
                 $item->number = $generateNumber($item, 'PR');
+                $item->no_telp_kontak = '-';
             });
         }
 
@@ -725,15 +733,16 @@ class DashboardController extends Controller
             }
 
             $biayas = $query->get();
-            $biayas->each(function ($item) use ($generateNumber) {
+            $biayas->each(function ($item) use ($generateNumber, $kontakPhoneMap) {
                 $item->type = 'Biaya';
                 $item->number = $generateNumber($item, 'EXP');
+                $item->no_telp_kontak = $kontakPhoneMap[$item->penerima] ?? '-';
             });
         }
 
         // KUNJUNGAN
         if (in_array($transactionType, ['all', 'kunjungan'])) {
-            $query = Kunjungan::with('user', 'gudang', 'approver', 'items.produk')
+            $query = Kunjungan::with('user', 'gudang', 'approver', 'items.produk', 'kontak')
                 ->whereBetween('tgl_kunjungan', [$dateFrom, $dateTo]);
 
             if ($user->role == 'admin') {
@@ -766,6 +775,7 @@ class DashboardController extends Controller
             $kunjungans->each(function ($item) use ($generateNumber) {
                 $item->type = 'Kunjungan';
                 $item->number = $generateNumber($item, 'VST');
+                $item->no_telp_kontak = $item->kontak->no_telp ?? '-';
             });
         }
 
