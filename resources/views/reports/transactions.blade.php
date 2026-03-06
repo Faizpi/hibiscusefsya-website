@@ -3,7 +3,7 @@
 <table>
     <thead>
         <tr>
-            <td colspan="16"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
+            <td colspan="17"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
                     {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
         </tr>
         <tr>
@@ -15,6 +15,7 @@
             <th>Pembuat</th>
             <th>Approver</th>
             <th>Gudang</th>
+            <th>No Telepon</th>
             <th>Jenis Biaya</th>
             <th>Status</th>
             <th>Produk</th>
@@ -58,6 +59,7 @@
                             <td>{{ $item->user->name ?? '-' }}</td>
                             <td>{{ $item->approver->name ?? '-' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
+                            <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                             <td>
                                 @if($item->type === 'Biaya')
                                     {{ $item->jenis_biaya ? ucfirst($item->jenis_biaya) : '-' }}
@@ -67,6 +69,7 @@
                             </td>
                             <td>{{ $item->status }}</td>
                         @else
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -108,6 +111,7 @@
                     <td>{{ $item->user->name ?? '-' }}</td>
                     <td>{{ $item->approver->name ?? '-' }}</td>
                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
+                    <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                     <td>
                         @if(isset($item->type) && $item->type === 'Biaya')
                             {{ $item->jenis_biaya ? ucfirst($item->jenis_biaya) : '-' }}

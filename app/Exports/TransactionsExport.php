@@ -7,9 +7,11 @@ use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithStyles
+class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithStyles, WithColumnFormatting
 {
     protected $transactions;
     protected $exportType;
@@ -64,5 +66,24 @@ class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithSty
             // Header row bold
             1 => ['font' => ['bold' => true]],
         ];
+    }
+
+    public function columnFormats(): array
+    {
+        // Phone number column position varies per export type
+        $map = [
+            'penjualan' => 'G',
+            'kunjungan' => 'G',
+            'biaya' => 'H',
+            'all' => 'I',
+        ];
+
+        $phoneColumn = $map[$this->exportType] ?? null;
+
+        if ($phoneColumn) {
+            return [$phoneColumn => NumberFormat::FORMAT_TEXT];
+        }
+
+        return [];
     }
 }

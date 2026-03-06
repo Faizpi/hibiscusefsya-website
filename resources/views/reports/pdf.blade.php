@@ -451,6 +451,7 @@
                     <th>Tanggal</th>
                     <th>Pembuat</th>
                     <th>Gudang</th>
+                    <th>No Telepon</th>
                     <th>Status</th>
                     <th>Produk</th>
                     <th>Harga</th>
@@ -487,8 +488,10 @@
                                     <td>{{ $tanggal ? $tanggal->format('d/m/Y') : '-' }}</td>
                                     <td>{{ $item->user->name ?? '-' }}</td>
                                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
+                                    <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                                     <td>{{ $item->status }}</td>
                                 @else
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -547,6 +550,7 @@
                             <td>{{ $tanggal ? $tanggal->format('d/m/Y') : '-' }}</td>
                             <td>{{ $item->user->name ?? '-' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
+                            <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                             <td>-</td>
                             <td>-</td>
