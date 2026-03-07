@@ -78,13 +78,35 @@
 
         .topbar-brand {
             white-space: nowrap;
-            padding-right: 1.5rem;
-            margin-right: auto;
-            border-right: 1px solid var(--border-color);
-            height: 100%;
             display: flex;
             align-items: center;
-            min-width: 12.5rem;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .topbar-toggle {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .topbar-toggle:hover {
+            background: var(--sidebar-hover);
+            color: var(--sidebar-active);
         }
 
         .sidebar .nav-item {
@@ -143,23 +165,6 @@
             margin: 0.5rem 1rem;
         }
 
-        .sidebar #sidebarToggle {
-            background: var(--sidebar-hover);
-            border: 1px solid var(--border-color);
-        }
-
-        .sidebar #sidebarToggle::after {
-            color: var(--sidebar-active);
-        }
-
-        .sidebar #sidebarToggle:hover {
-            background: var(--sidebar-active);
-        }
-
-        .sidebar #sidebarToggle:hover::after {
-            color: #fff;
-        }
-
         /* ========== TOPBAR (FIXED) ========== */
         .topbar {
             background: #fff;
@@ -196,11 +201,27 @@
             align-items: center;
             padding: 0.5rem 0.75rem;
             border-radius: 8px;
-            transition: background 0.15s ease;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+            cursor: pointer;
         }
 
         .topbar .user-info:hover {
             background: var(--bg-light);
+        }
+
+        .topbar .user-info:focus,
+        .topbar .user-info:active,
+        .topbar .user-info[aria-expanded="true"] {
+            background: var(--bg-light);
+            border-color: var(--border-color);
+            outline: none;
+            box-shadow: none;
+        }
+
+        .topbar .nav-link:focus {
+            outline: none;
+            box-shadow: none;
         }
 
         .topbar .user-name {
@@ -421,10 +442,17 @@
 
         .topbar .dropdown-menu {
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            border-radius: 12px;
             padding: 0.5rem;
             min-width: 200px;
+            margin-top: 0.5rem;
+            animation: dropdownFade 0.15s ease;
+        }
+
+        @keyframes dropdownFade {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .topbar .dropdown-item {
@@ -1437,45 +1465,10 @@
             .container-fluid {
                 padding: 1rem;
             }
-
-            /* Toggle button style */
-            #sidebarToggleTop {
-                background: var(--sidebar-hover);
-                width: 40px;
-                height: 40px;
-                display: flex !important;
-                align-items: center;
-                justify-content: center;
-                border-radius: 8px !important;
-                margin-right: 0.5rem;
-                border: none !important;
-            }
-
-            #sidebarToggleTop i {
-                color: var(--sidebar-active);
-                font-size: 1.1rem;
-            }
-
-            #sidebarToggleTop:hover {
-                background: var(--sidebar-active);
-            }
-
-            #sidebarToggleTop:hover i {
-                color: #fff;
-            }
-
-            /* Hide desktop toggle on mobile */
-            #sidebarToggle {
-                display: none !important;
-            }
         }
 
         /* Desktop: ensure no horizontal scroll */
         @media (min-width: 769px) {
-            #sidebarToggleTop {
-                display: none !important;
-            }
-
             .sidebar-overlay {
                 display: none !important;
             }
@@ -1823,11 +1816,6 @@
                         </a>
                     </li>
                 @endif
-
-                <hr class="sidebar-divider d-none d-md-block">
-                <div class="text-center d-none d-md-inline">
-                    <button class="rounded-circle border-0" id="sidebarToggle"></button>
-                </div>
             </ul>
             <!-- End Sidebar -->
 
@@ -1835,14 +1823,14 @@
                 <div id="content">
                     <!-- Topbar -->
                     <nav class="navbar navbar-expand navbar-light topbar static-top">
-                        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                            <i class="fa fa-bars"></i>
-                        </button>
-
-                        <a href="{{ route('dashboard') }}" class="topbar-brand d-flex align-items-center" style="text-decoration:none;gap:10px;">
-                            <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo" style="height:32px;border-radius:6px;">
-                            <span style="font-weight:700;font-size:14px;color:var(--text-primary);">Hibiscus Efsya</span>
-                        </a>
+                        <div class="topbar-left">
+                            <button class="topbar-toggle" id="sidebarToggleTop" title="Toggle Sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <a href="{{ route('dashboard') }}" class="topbar-brand" style="text-decoration:none;">
+                                <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo" style="height:34px;border-radius:8px;">
+                            </a>
+                        </div>
 
                         <ul class="navbar-nav ml-auto">
                             <!-- Notification Bell -->
@@ -2029,20 +2017,24 @@
             var overlay = $('#sidebarOverlay');
             var toggleBtn = $('#sidebarToggleTop');
 
-            // Mobile sidebar toggle
+            // Sidebar toggle - works on both desktop and mobile
             toggleBtn.off('click').on('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                sidebar.toggleClass('mobile-show');
-                overlay.toggleClass('show');
-
-                // Change icon based on state
-                var icon = $(this).find('i');
-                if (sidebar.hasClass('mobile-show')) {
-                    icon.removeClass('fa-bars').addClass('fa-times');
+                if ($(window).width() <= 768) {
+                    // Mobile: slide in/out
+                    sidebar.toggleClass('mobile-show');
+                    overlay.toggleClass('show');
+                    var icon = $(this).find('i');
+                    if (sidebar.hasClass('mobile-show')) {
+                        icon.removeClass('fa-bars').addClass('fa-times');
+                    } else {
+                        icon.removeClass('fa-times').addClass('fa-bars');
+                    }
                 } else {
-                    icon.removeClass('fa-times').addClass('fa-bars');
+                    // Desktop: toggle collapsed state
+                    sidebar.toggleClass('toggled');
                 }
             });
 
