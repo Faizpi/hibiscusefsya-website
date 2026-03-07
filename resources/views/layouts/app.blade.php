@@ -1365,7 +1365,40 @@
             white-space: nowrap;
         }
 
-        /* Responsive */
+        /* ========== MOBILE SIDEBAR CLOSE BUTTON ========== */
+        .sidebar-close-btn {
+            display: none;
+            list-style: none;
+        }
+
+        /* ========== TABLET (769px - 1024px) ========== */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .sidebar {
+                width: 14rem !important;
+                min-width: 14rem;
+            }
+
+            .sidebar.toggled {
+                width: 0 !important;
+                min-width: 0 !important;
+                border-right: none;
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+
+            .sidebar.toggled .nav-item,
+            .sidebar.toggled .sidebar-heading,
+            .sidebar.toggled .sidebar-close-btn,
+            .sidebar.toggled hr.sidebar-divider {
+                display: none !important;
+            }
+
+            .sidebar.toggled~#content-wrapper {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* ========== MOBILE (<=768px) ========== */
         @media (max-width: 768px) {
 
             .topbar .user-name,
@@ -1373,35 +1406,84 @@
                 display: none;
             }
 
-            /* Mobile: Topbar full width */
             .topbar {
                 left: 0 !important;
             }
 
-            /* Mobile: Sidebar hidden by default, slide from left */
+            /* Mobile: Sidebar covers full screen, above topbar */
             .sidebar,
             .sidebar.toggled {
                 position: fixed !important;
                 left: 0;
-                top: 65px;
+                top: 0;
                 bottom: 0;
-                height: calc(100vh - 65px);
-                width: 16rem !important;
-                min-width: 16rem !important;
-                max-width: 80vw !important;
+                height: 100vh;
+                width: 280px !important;
+                min-width: 280px !important;
+                max-width: 85vw !important;
                 transform: translateX(-100%);
-                transition: transform 0.25s ease;
-                z-index: 1050;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1100;
                 box-shadow: none;
                 overflow-y: auto !important;
                 overflow-x: hidden !important;
+                padding-top: 0 !important;
+                border-right: none;
             }
 
-            /* Sidebar visible on mobile - full width menu */
+            /* Sidebar visible on mobile */
             .sidebar.mobile-show,
             .sidebar.toggled.mobile-show {
                 transform: translateX(0) !important;
-                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+                box-shadow: 8px 0 30px rgba(0, 0, 0, 0.2);
+            }
+
+            /* Mobile sidebar close button */
+            .sidebar-close-btn {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1rem 1.25rem;
+                border-bottom: 1px solid var(--border-color);
+                height: 65px;
+            }
+
+            .sidebar-close-btn .sidebar-logo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                text-decoration: none;
+            }
+
+            .sidebar-close-btn .sidebar-logo img {
+                height: 32px;
+                border-radius: 8px;
+            }
+
+            .sidebar-close-btn .sidebar-logo span {
+                font-weight: 700;
+                font-size: 0.9rem;
+                color: var(--text-primary);
+            }
+
+            .sidebar-close-btn .close-sidebar {
+                width: 36px;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: none;
+                background: var(--bg-light);
+                border-radius: 8px;
+                color: var(--text-secondary);
+                font-size: 1.1rem;
+                cursor: pointer;
+                transition: all 0.15s ease;
+            }
+
+            .sidebar-close-btn .close-sidebar:hover {
+                background: #fee2e2;
+                color: #ef4444;
             }
 
             /* Reset toggled styles on mobile */
@@ -1445,11 +1527,14 @@
                 right: 0;
                 bottom: 0;
                 background: rgba(0, 0, 0, 0.5);
-                z-index: 1040;
+                z-index: 1090;
+                opacity: 0;
+                transition: opacity 0.3s ease;
             }
 
             .sidebar-overlay.show {
                 display: block;
+                opacity: 1;
             }
 
             /* Content wrapper full width on mobile */
@@ -1464,6 +1549,11 @@
 
             .container-fluid {
                 padding: 1rem;
+            }
+
+            /* Hide topbar toggle text on mobile - just show hamburger */
+            .topbar-brand {
+                display: none;
             }
         }
 
@@ -1723,6 +1813,17 @@
 
             <!-- Sidebar -->
             <ul class="navbar-nav sidebar accordion" id="accordionSidebar">
+
+                <!-- Mobile close button with logo -->
+                <li class="sidebar-close-btn">
+                    <a href="{{ route('dashboard') }}" class="sidebar-logo">
+                        <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo">
+                        <span>Hibiscus Efsya</span>
+                    </a>
+                    <button class="close-sidebar" id="sidebarClose" title="Tutup Menu">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </li>
 
                 <div class="sidebar-heading">Menu Utama</div>
 
@@ -2010,51 +2111,69 @@
     {{-- Select2 JS --}}
     <script src="{{ asset('assets/bundle/select2/dist/js/select2.min.js') }}"></script>
 
-    {{-- Custom Mobile Sidebar Toggle --}}
+    {{-- Custom Sidebar Toggle - replaces sb-admin-2 default --}}
     <script>
         $(document).ready(function () {
             var sidebar = $('.sidebar');
             var overlay = $('#sidebarOverlay');
             var toggleBtn = $('#sidebarToggleTop');
+            var closeBtn = $('#sidebarClose');
 
-            // Sidebar toggle - works on both desktop and mobile
+            // Remove sb-admin-2's default toggle handlers to prevent double-fire
+            $('#sidebarToggle, #sidebarToggleTop').off('click');
+            // Also remove sb-admin-2's resize handler that auto-collapses sidebar
+            $(window).off('resize');
+
+            function closeMobileSidebar() {
+                sidebar.removeClass('mobile-show');
+                overlay.removeClass('show');
+            }
+
+            function openMobileSidebar() {
+                sidebar.addClass('mobile-show');
+                overlay.addClass('show');
+            }
+
+            // Sidebar toggle - works on desktop, tablet, and mobile
             toggleBtn.off('click').on('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
 
                 if ($(window).width() <= 768) {
-                    // Mobile: slide in/out
-                    sidebar.toggleClass('mobile-show');
-                    overlay.toggleClass('show');
-                    var icon = $(this).find('i');
+                    // Mobile: slide in/out with overlay
                     if (sidebar.hasClass('mobile-show')) {
-                        icon.removeClass('fa-bars').addClass('fa-times');
+                        closeMobileSidebar();
                     } else {
-                        icon.removeClass('fa-times').addClass('fa-bars');
+                        openMobileSidebar();
                     }
                 } else {
-                    // Desktop: toggle collapsed state
+                    // Desktop & Tablet: toggle collapsed state
                     sidebar.toggleClass('toggled');
                 }
             });
 
-            // Close sidebar when clicking overlay
-            overlay.on('click', function () {
-                sidebar.removeClass('mobile-show');
-                overlay.removeClass('show');
-                toggleBtn.find('i').removeClass('fa-times').addClass('fa-bars');
+            // Close button inside sidebar (mobile)
+            closeBtn.off('click').on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeMobileSidebar();
             });
 
-            // Close sidebar when clicking a link (mobile)
-            if ($(window).width() <= 768) {
-                sidebar.find('.nav-link').on('click', function () {
-                    if (!$(this).attr('href').includes('#')) {
-                        sidebar.removeClass('mobile-show');
-                        overlay.removeClass('show');
-                        toggleBtn.find('i').removeClass('fa-times').addClass('fa-bars');
+            // Close sidebar when clicking overlay
+            overlay.on('click', function () {
+                closeMobileSidebar();
+            });
+
+            // Close sidebar when clicking a link (mobile only)
+            sidebar.on('click', '.nav-link', function () {
+                if ($(window).width() <= 768) {
+                    var href = $(this).attr('href');
+                    if (href && href.indexOf('#') === -1) {
+                        closeMobileSidebar();
                     }
-                });
-            }
+                }
+                // Desktop/tablet: do NOT change toggled state on menu click
+            });
 
             // ========== MOBILE INPUT FOCUS FIX ==========
             // Mencegah keyboard tertutup saat mengetik di mobile
