@@ -35,7 +35,7 @@
             justify-content: center;
             align-items: center;
             padding: 60px 40px;
-            background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 50%, #dbeafe 100%);
+            background: linear-gradient(180deg, #ffffff 0%, #fdf2f8 50%, #fce7f3 100%);
             position: relative;
         }
 
@@ -132,13 +132,13 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 15px;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 15px rgba(219, 39, 119, 0.3);
         }
 
         .btn-submit:hover {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #be185d 0%, #9d174d 100%);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 8px 25px rgba(219, 39, 119, 0.4);
         }
 
         .btn-submit:active {

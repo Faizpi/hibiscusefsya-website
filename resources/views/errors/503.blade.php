@@ -22,7 +22,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+            background: linear-gradient(135deg, #f472b6 0%, #db2777 50%, #be185d 100%);
             overflow: hidden;
             position: relative;
         }
@@ -147,13 +147,13 @@
         }
 
         .info-card i {
-            color: #3b82f6;
+            color: #db2777;
             font-size: 1.1rem;
             flex-shrink: 0;
         }
 
         .info-card span {
-            color: #1e3a5f;
+            color: #4a1942;
             font-weight: 600;
             font-size: 0.85rem;
             white-space: nowrap;

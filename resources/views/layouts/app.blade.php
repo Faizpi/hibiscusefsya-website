@@ -57,7 +57,7 @@
         /* ========== SIDEBAR - White Blue Style (FIXED) ========== */
         .sidebar {
             background: var(--sidebar-bg) !important;
-            height: 100vh;
+            height: calc(100vh - 65px);
             width: 14rem !important;
             min-width: 14rem;
             flex-shrink: 0;
@@ -67,29 +67,24 @@
             transition: all 0.2s ease;
             z-index: 1000;
             position: fixed;
-            top: 0;
+            top: 65px;
             left: 0;
+            padding-top: 0.5rem;
         }
 
         .sidebar .sidebar-brand {
-            height: 65px;
-            padding: 0 1rem;
-            background: transparent;
-            border-bottom: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .topbar-brand {
+            white-space: nowrap;
+            padding-right: 1.5rem;
+            margin-right: auto;
+            border-right: 1px solid var(--border-color);
+            height: 100%;
             display: flex;
             align-items: center;
-        }
-
-        .sidebar .sidebar-brand-text {
-            color: var(--sidebar-active);
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        .sidebar .sidebar-brand-icon img {
-            filter: none !important;
-            height: 36px;
-            border-radius: 8px;
+            min-width: 12.5rem;
         }
 
         .sidebar .nav-item {
@@ -177,14 +172,14 @@
             position: fixed;
             top: 0;
             right: 0;
-            left: 14rem;
-            z-index: 999;
+            left: 0;
+            z-index: 1001;
             transition: left 0.2s ease;
         }
 
         /* Adjust topbar when sidebar is toggled */
         .sidebar.toggled~#content-wrapper .topbar {
-            left: 6.5rem;
+            left: 0;
         }
 
         .topbar .navbar-nav .nav-item .nav-link {
@@ -1198,21 +1193,7 @@
         }
 
         .sidebar.toggled~#content-wrapper .topbar {
-            left: 6.5rem;
-        }
-
-        .sidebar.toggled .sidebar-brand {
-            padding: 1.25rem 0;
-            justify-content: center;
-        }
-
-        .sidebar.toggled .sidebar-brand .sidebar-brand-icon {
-            margin: 0 auto;
-        }
-
-        .sidebar.toggled .sidebar-brand .sidebar-brand-icon img {
-            height: 28px !important;
-            border-radius: 6px;
+            left: 0;
         }
 
         .sidebar.toggled .nav-item .nav-link {
@@ -1229,10 +1210,6 @@
         }
 
         .sidebar.toggled .nav-item .nav-link span {
-            display: none !important;
-        }
-
-        .sidebar.toggled .sidebar-brand-text {
             display: none !important;
         }
 
@@ -1378,9 +1355,9 @@
             .sidebar.toggled {
                 position: fixed !important;
                 left: 0;
-                top: 0;
+                top: 65px;
                 bottom: 0;
-                height: 100vh;
+                height: calc(100vh - 65px);
                 width: 16rem !important;
                 min-width: 16rem !important;
                 max-width: 80vw !important;
@@ -1429,12 +1406,6 @@
                 display: block !important;
                 text-align: left !important;
                 padding: 1rem 1rem 0.5rem !important;
-            }
-
-            .sidebar.mobile-show .sidebar-brand,
-            .sidebar.toggled.mobile-show .sidebar-brand {
-                padding: 1rem !important;
-                justify-content: flex-start !important;
             }
 
             /* Overlay when sidebar open */
@@ -1759,11 +1730,6 @@
 
             <!-- Sidebar -->
             <ul class="navbar-nav sidebar accordion" id="accordionSidebar">
-                <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
-                    <div class="sidebar-brand-icon">
-                        <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo" style="height: 36px;">
-                    </div>
-                </a>
 
                 <div class="sidebar-heading">Menu Utama</div>
 
@@ -1872,6 +1838,11 @@
                         <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                             <i class="fa fa-bars"></i>
                         </button>
+
+                        <a href="{{ route('dashboard') }}" class="topbar-brand d-flex align-items-center" style="text-decoration:none;gap:10px;">
+                            <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo" style="height:32px;border-radius:6px;">
+                            <span style="font-weight:700;font-size:14px;color:var(--text-primary);">Hibiscus Efsya</span>
+                        </a>
 
                         <ul class="navbar-nav ml-auto">
                             <!-- Notification Bell -->
