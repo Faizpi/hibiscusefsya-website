@@ -999,7 +999,7 @@
             </div>
         @endforeach
 
-        <div class="footer">Made with <span class="heart"><i class="fas fa-heart"></i></span> by Hibiscus Efsya &middot; &copy; {{ date('Y') }}</div>
+        <div class="footer">Made by Hibiscus Efsya &middot; &copy; {{ date('Y') }}</div>
     </div>
 
     <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">

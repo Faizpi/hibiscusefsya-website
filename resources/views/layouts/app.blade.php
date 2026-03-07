@@ -23,8 +23,8 @@
     <style>
         :root {
             --sidebar-bg: #ffffff;
-            --sidebar-hover: #eff6ff;
-            --sidebar-active: #3b82f6;
+            --sidebar-hover: #fdf2f8;
+            --sidebar-active: #db2777;
             --text-primary: #1f2937;
             --text-secondary: #6b7280;
             --text-muted: #9ca3af;
@@ -333,8 +333,8 @@
         }
 
         .notification-dropdown .notification-icon.bg-primary {
-            background: rgba(59, 130, 246, 0.15) !important;
-            color: #3b82f6;
+            background: rgba(219, 39, 119, 0.15) !important;
+            color: #db2777;
         }
 
         .notification-dropdown .notification-icon.bg-success {
@@ -537,7 +537,7 @@
         }
 
         .btn-primary:hover {
-            background: #2563eb;
+            background: #be185d;
         }
 
         .btn-success {
@@ -605,7 +605,7 @@
 
         .form-control:focus {
             border-color: var(--sidebar-active);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.1);
         }
 
         .form-control::placeholder {
@@ -641,8 +641,8 @@
         }
 
         .action-dropdown .dropdown-toggle:focus {
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.15);
+            border-color: #db2777;
         }
 
         .action-dropdown .dropdown-toggle::after {
@@ -680,7 +680,7 @@
         }
 
         .action-dropdown .dropdown-item.text-primary:hover {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(219, 39, 119, 0.1);
         }
 
         .action-dropdown .dropdown-item.text-success:hover {
@@ -725,7 +725,7 @@
 
         .select2-container--default.select2-container--focus .select2-selection--single {
             border-color: var(--sidebar-active) !important;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+            box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.1) !important;
         }
 
         .select2-dropdown {
@@ -814,7 +814,7 @@
         }
 
         .badge-primary {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(219, 39, 119, 0.1);
             color: var(--sidebar-active);
         }
 
@@ -857,7 +857,7 @@
         }
 
         .alert-info {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(219, 39, 119, 0.1);
             color: var(--sidebar-active);
         }
 
@@ -1940,7 +1940,7 @@
                                         </div>
                                     </div>
                                     <img class="img-profile rounded-circle"
-                                        src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3b82f6&color=fff&size=128">
+                                        src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=db2777&color=fff&size=128">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
                                     {{-- Profile untuk Admin / Spectator --}}

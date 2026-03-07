@@ -87,8 +87,8 @@
 
         .input-field:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            border-color: #db2777;
+            box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.1);
         }
 
         .input-field.is-invalid {
@@ -117,13 +117,13 @@
         }
 
         .password-toggle:hover {
-            color: #3b82f6;
+            color: #db2777;
         }
 
         .btn-submit {
             width: 100%;
             padding: 16px 24px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
             border: none;
             border-radius: 50px;
             color: #ffffff;
@@ -160,7 +160,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+            background: linear-gradient(135deg, #f472b6 0%, #db2777 50%, #be185d 100%);
         }
 
         .login-right-content {
@@ -211,7 +211,7 @@
         }
 
         .feature-badge i {
-            color: #3b82f6;
+            color: #db2777;
             margin-right: 10px;
             font-size: 1rem;
         }
@@ -298,7 +298,7 @@
         }
 
         .floating-card i {
-            color: #3b82f6;
+            color: #db2777;
             margin-right: 10px;
             font-size: 1rem;
         }

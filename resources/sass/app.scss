@@ -13,7 +13,7 @@
 
 // Background utama halaman
 body.auth-page {
-    background: #20a2e7;  /* fallback for old browsers */
+    background: #db2777;  /* fallback for old browsers */
     font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -59,12 +59,12 @@ body.auth-page {
     }
 
     .btn-primary {
-        background: #007bff;
+        background: #be185d;
         border: none;
         transition: background-color 0.3s ease;
 
         &:hover {
-            background: #0056b3;
+            background: #9d174d;
         }
     }
 
