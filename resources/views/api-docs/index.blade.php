@@ -12,16 +12,17 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --primary-light: #eff6ff;
-            --bg: #f8fafc;
+            --primary: #db2777;
+            --primary-dark: #be185d;
+            --primary-light: #fdf2f8;
+            --primary-soft: #fbcfe8;
+            --bg: #fafafa;
             --bg-white: #ffffff;
             --text: #1e293b;
             --text-secondary: #64748b;
             --text-muted: #94a3b8;
-            --border: #e2e8f0;
-            --border-light: #f1f5f9;
+            --border: #e5e7eb;
+            --border-light: #f3f4f6;
             --sidebar-w: 280px;
             --header-h: 56px;
             --green: #16a34a;
@@ -32,6 +33,7 @@
             --yellow-bg: #fffbeb;
             --red: #dc2626;
             --red-bg: #fef2f2;
+            --accent: #f472b6;
         }
 
         * {
@@ -58,6 +60,7 @@
             height: var(--header-h);
             background: var(--bg-white);
             border-bottom: 1px solid var(--border);
+            border-top: 3px solid var(--primary);
             display: flex;
             align-items: center;
             padding: 0 20px;
@@ -187,7 +190,7 @@
 
         .sidebar-search input:focus {
             border-color: var(--primary);
-            background: #fff;
+            background: var(--primary-light);
         }
 
         .sidebar-search .s-icon {
@@ -311,8 +314,9 @@
 
         /* HERO */
         .hero {
-            background: var(--bg-white);
-            border: 1px solid var(--border);
+            background: var(--primary-light);
+            border: 1px solid var(--primary-soft);
+            border-left: 4px solid var(--primary);
             border-radius: 10px;
             padding: 28px 32px;
             margin-bottom: 28px;
@@ -323,6 +327,7 @@
             font-size: 22px;
             font-weight: 700;
             margin-bottom: 6px;
+            color: var(--primary-dark);
         }
 
         .hero p {
@@ -341,8 +346,8 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: var(--bg);
-            border: 1px solid var(--border);
+            background: var(--bg-white);
+            border: 1px solid var(--primary-soft);
             padding: 5px 12px;
             border-radius: 6px;
             font-size: 12px;
@@ -430,7 +435,7 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 12px;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--primary-dark);
         }
 
         .role-item .rd {
@@ -475,8 +480,8 @@
             margin-left: auto;
             font-size: 11px;
             font-weight: 600;
-            color: var(--text-muted);
-            background: var(--bg);
+            color: var(--primary-dark);
+            background: var(--primary-light);
             padding: 3px 10px;
             border-radius: 12px;
         }
@@ -496,6 +501,7 @@
 
         .ep-card.open {
             border-color: var(--primary);
+            border-left: 3px solid var(--primary);
         }
 
         .ep-head {
@@ -591,8 +597,8 @@
             font-size: 10px;
             padding: 2px 8px;
             border-radius: 3px;
-            background: #f0e7fe;
-            color: #7c3aed;
+            background: var(--primary-light);
+            color: var(--primary-dark);
             font-weight: 600;
         }
 
@@ -705,6 +711,10 @@
             padding: 32px 0 24px;
             color: var(--text-muted);
             font-size: 12px;
+        }
+
+        .footer .heart {
+            color: var(--primary);
         }
 
         /* SCROLL TOP */
@@ -989,7 +999,7 @@
             </div>
         @endforeach
 
-        <div class="footer">&copy; {{ date('Y') }} Hibiscus Efsya. All rights reserved.</div>
+        <div class="footer">Made with <span class="heart"><i class="fas fa-heart"></i></span> by Hibiscus Efsya &middot; &copy; {{ date('Y') }}</div>
     </div>
 
     <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
