@@ -451,8 +451,15 @@
         }
 
         @keyframes dropdownFade {
-            from { opacity: 0; transform: translateY(-4px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .topbar .dropdown-item {
@@ -1818,7 +1825,6 @@
                 <li class="sidebar-close-btn">
                     <a href="{{ route('dashboard') }}" class="sidebar-logo">
                         <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo">
-                        <span>Hibiscus Efsya</span>
                     </a>
                     <button class="close-sidebar" id="sidebarClose" title="Tutup Menu">
                         <i class="fas fa-times"></i>
@@ -1929,7 +1935,8 @@
                                 <i class="fa fa-bars"></i>
                             </button>
                             <a href="{{ route('dashboard') }}" class="topbar-brand" style="text-decoration:none;">
-                                <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo" style="height:34px;border-radius:8px;">
+                                <img src="{{ asset('assets/img/logoHE11.png') }}" alt="Logo"
+                                    style="height:34px;border-radius:8px;">
                             </a>
                         </div>
 
