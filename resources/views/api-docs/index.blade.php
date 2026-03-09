@@ -12,10 +12,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #db2777;
-            --primary-dark: #be185d;
-            --primary-light: #fdf2f8;
-            --primary-soft: #fbcfe8;
+            --primary: #7C3AED;
+            --primary-dark: #6D28D9;
+            --primary-light: #EDE9FE;
+            --primary-soft: #DDD6FE;
             --bg: #fafafa;
             --bg-white: #ffffff;
             --text: #1e293b;
@@ -33,7 +33,7 @@
             --yellow-bg: #fffbeb;
             --red: #dc2626;
             --red-bg: #fef2f2;
-            --accent: #f472b6;
+            --accent: #A78BFA;
         }
 
         * {
@@ -407,7 +407,7 @@
         }
 
         .code-block .c-key {
-            color: #be185d;
+            color: #6D28D9;
         }
 
         .code-block .c-val {

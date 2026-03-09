@@ -22,7 +22,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #f472b6 0%, #db2777 50%, #be185d 100%);
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 35%, #C084FC 70%, #EC4899 100%);
             overflow: hidden;
             position: relative;
         }
@@ -147,7 +147,7 @@
         }
 
         .info-card i {
-            color: #db2777;
+            color: #7C3AED;
             font-size: 1.1rem;
             flex-shrink: 0;
         }

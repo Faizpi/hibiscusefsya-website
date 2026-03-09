@@ -490,7 +490,7 @@ class ApiDocController extends Controller
             [
                 'group' => 'Biaya (Expenses)',
                 'icon' => 'fa-file-invoice-dollar',
-                'color' => '#ec4899',
+                'color' => '#A78BFA',
                 'items' => [
                     [
                         'method' => 'GET',
