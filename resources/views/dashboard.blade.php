@@ -301,7 +301,7 @@
                         </div>
                         <div class="mt-3 text-center small">
                             <span class="mr-3">
-                                <i class="fas fa-square" style="color: #7C3AED;"></i> Penjualan
+                                <i class="fas fa-square" style="color: #3B82F6;"></i> Penjualan
                             </span>
                             <span class="mr-3">
                                 <i class="fas fa-square" style="color: #1cc88a;"></i> Pembelian
@@ -776,8 +776,8 @@
                                 {
                                     label: 'Penjualan',
                                     data: chartPenjualan,
-                                    borderColor: 'rgb(124, 58, 237)',
-                                    backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                                    borderColor: 'rgb(59, 130, 246)',
+                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
                                     tension: 0.3,
                                     fill: true
                                 },
@@ -892,8 +892,8 @@
                                 {
                                     label: 'Penjualan',
                                     data: gudangPenjualan,
-                                    backgroundColor: 'rgba(124, 58, 237, 0.8)',
-                                    borderColor: 'rgb(124, 58, 237)',
+                                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                                    borderColor: 'rgb(59, 130, 246)',
                                     borderWidth: 1
                                 },
                                 {
@@ -987,8 +987,8 @@
                         });
                     }
                 @endif
-                                                // ==================== END SALES QUANTITY CHART ====================
-                                            });
+                                                        // ==================== END SALES QUANTITY CHART ====================
+                                                    });
         </script>
     @endif
 

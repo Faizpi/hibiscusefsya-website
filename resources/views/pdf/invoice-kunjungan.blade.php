@@ -70,8 +70,8 @@
         }
 
         .tujuan-promo {
-            background: #DDD6FE;
-            color: #5B21B6;
+            background: #DBEAFE;
+            color: #1E40AF;
         }
 
         .info-section {

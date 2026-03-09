@@ -35,7 +35,7 @@
             justify-content: center;
             align-items: center;
             padding: 60px 40px;
-            background: linear-gradient(180deg, #ffffff 0%, #EDE9FE 50%, #DDD6FE 100%);
+            background: linear-gradient(180deg, #ffffff 0%, #EFF6FF 50%, #DBEAFE 100%);
             position: relative;
         }
 
@@ -87,8 +87,8 @@
 
         .input-field:focus {
             outline: none;
-            border-color: #7C3AED;
-            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
 
         .input-field.is-invalid {
@@ -117,13 +117,13 @@
         }
 
         .password-toggle:hover {
-            color: #7C3AED;
+            color: #3B82F6;
         }
 
         .btn-submit {
             width: 100%;
             padding: 16px 24px;
-            background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
             border: none;
             border-radius: 50px;
             color: #ffffff;
@@ -132,13 +132,13 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 15px;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
 
         .btn-submit:hover {
-            background: linear-gradient(135deg, #6D28D9 0%, #5B21B6 100%);
+            background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
 
         .btn-submit:active {
@@ -160,7 +160,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 35%, #C084FC 70%, #EC4899 100%);
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 35%, #C084FC 70%, #EC4899 100%);
         }
 
         .login-right-content {
@@ -211,7 +211,7 @@
         }
 
         .feature-badge i {
-            color: #7C3AED;
+            color: #3B82F6;
             margin-right: 10px;
             font-size: 1rem;
         }
@@ -298,7 +298,7 @@
         }
 
         .floating-card i {
-            color: #7C3AED;
+            color: #3B82F6;
             margin-right: 10px;
             font-size: 1rem;
         }

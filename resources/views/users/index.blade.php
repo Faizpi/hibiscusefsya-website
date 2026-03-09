@@ -80,7 +80,7 @@
                                     <td>
                                         @switch($user->role)
                                             @case('super_admin')
-                                                <span class="badge" style="background: #7c3aed; color: white;">
+                                                <span class="badge" style="background: #3B82F6; color: white;">
                                                     <i class="fas fa-crown mr-1"></i> Super Admin
                                                 </span>
                                                 @break

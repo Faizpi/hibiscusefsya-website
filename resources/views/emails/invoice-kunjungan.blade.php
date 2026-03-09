@@ -24,7 +24,7 @@
         }
 
         .invoice-header {
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
             padding: 24px;
             text-align: center;
             color: white;
@@ -134,8 +134,8 @@
             border-radius: 20px;
             font-size: 11px;
             font-weight: 600;
-            background: #ede9fe;
-            color: #7c3aed;
+            background: #dbeafe;
+            color: #3b82f6;
         }
 
         .items-section {

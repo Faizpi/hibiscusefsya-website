@@ -148,7 +148,7 @@ class ApiDocController extends Controller
             [
                 'group' => 'Gudang (Warehouse)',
                 'icon' => 'fa-warehouse',
-                'color' => '#8b5cf6',
+                'color' => '#3B82F6',
                 'items' => [
                     [
                         'method' => 'GET',
@@ -490,7 +490,7 @@ class ApiDocController extends Controller
             [
                 'group' => 'Biaya (Expenses)',
                 'icon' => 'fa-file-invoice-dollar',
-                'color' => '#A78BFA',
+                'color' => '#60A5FA',
                 'items' => [
                     [
                         'method' => 'GET',

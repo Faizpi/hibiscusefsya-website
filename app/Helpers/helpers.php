@@ -15,10 +15,10 @@ if (!function_exists('formatJson')) {
 
         // Apply syntax highlighting
         $pretty = e($pretty);
-        $pretty = preg_replace('/&quot;([^&]+?)&quot;\s*:/', '<span style="color:#6D28D9">"$1"</span>:', $pretty);
+        $pretty = preg_replace('/&quot;([^&]+?)&quot;\s*:/', '<span style="color:#1D4ED8">"$1"</span>:', $pretty);
         $pretty = preg_replace('/:\s*&quot;(.*?)&quot;/', ': <span style="color:#0369a1">"$1"</span>', $pretty);
         $pretty = preg_replace('/:\s*(\d+\.?\d*)/', ': <span style="color:#b45309">$1</span>', $pretty);
-        $pretty = preg_replace('/:\s*(true|false|null)/', ': <span style="color:#7c3aed">$1</span>', $pretty);
+        $pretty = preg_replace('/:\s*(true|false|null)/', ': <span style="color:#3b82f6">$1</span>', $pretty);
 
         return $pretty;
     }
