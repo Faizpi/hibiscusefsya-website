@@ -181,7 +181,7 @@
                         if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) {
                             $paths[] = $item->lampiran_path;
                         }
-                        $imagePaths = collect($paths)->filter(fn($p) => preg_match('/\.(jpg|jpeg|png|gif)$/i', $p));
+                        $imagePaths = collect($paths)->filter(function($p) { return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
@@ -257,7 +257,7 @@
                         if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) {
                             $paths[] = $item->lampiran_path;
                         }
-                        $imagePaths = collect($paths)->filter(fn($p) => preg_match('/\.(jpg|jpeg|png|gif)$/i', $p));
+                        $imagePaths = collect($paths)->filter(function($p) { return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
@@ -328,7 +328,7 @@
                         if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) {
                             $paths[] = $item->lampiran_path;
                         }
-                        $imagePaths = collect($paths)->filter(fn($p) => preg_match('/\.(jpg|jpeg|png|gif)$/i', $p));
+                        $imagePaths = collect($paths)->filter(function($p) { return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
@@ -405,7 +405,7 @@
                         if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) {
                             $paths[] = $item->lampiran_path;
                         }
-                        $imagePaths = collect($paths)->filter(fn($p) => preg_match('/\.(jpg|jpeg|png|gif)$/i', $p));
+                        $imagePaths = collect($paths)->filter(function($p) { return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
