@@ -66,6 +66,9 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::post('penjualan', 'PenjualanController@store');
     Route::post('penjualan/{id}/approve', 'PenjualanController@approve');
     Route::post('penjualan/{id}/cancel', 'PenjualanController@cancel');
+    Route::post('penjualan/{id}/uncancel', 'PenjualanController@uncancel');
+    Route::post('penjualan/{id}/mark-paid', 'PenjualanController@markAsPaid');
+    Route::post('penjualan/{id}/unmark-paid', 'PenjualanController@unmarkAsPaid');
 
     // Pembelian
     Route::get('pembelian', 'PembelianController@index');
@@ -73,6 +76,7 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::post('pembelian', 'PembelianController@store');
     Route::post('pembelian/{id}/approve', 'PembelianController@approve');
     Route::post('pembelian/{id}/cancel', 'PembelianController@cancel');
+    Route::post('pembelian/{id}/uncancel', 'PembelianController@uncancel');
 
     // Biaya
     Route::get('biaya', 'BiayaController@index');
@@ -80,6 +84,7 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::post('biaya', 'BiayaController@store');
     Route::post('biaya/{id}/approve', 'BiayaController@approve');
     Route::post('biaya/{id}/cancel', 'BiayaController@cancel');
+    Route::post('biaya/{id}/uncancel', 'BiayaController@uncancel');
 
     // Kunjungan
     Route::get('kunjungan', 'KunjunganController@index');
@@ -87,6 +92,7 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::post('kunjungan', 'KunjunganController@store');
     Route::post('kunjungan/{id}/approve', 'KunjunganController@approve');
     Route::post('kunjungan/{id}/cancel', 'KunjunganController@cancel');
+    Route::post('kunjungan/{id}/uncancel', 'KunjunganController@uncancel');
 
     // Pembayaran
     Route::get('pembayaran', 'PembayaranController@index');
@@ -94,6 +100,7 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::post('pembayaran', 'PembayaranController@store');
     Route::post('pembayaran/{id}/approve', 'PembayaranController@approve');
     Route::post('pembayaran/{id}/cancel', 'PembayaranController@cancel');
+    Route::post('pembayaran/{id}/uncancel', 'PembayaranController@uncancel');
 
     // Penerimaan Barang
     Route::get('penerimaan-barang/pembelian-by-gudang/{gudangId}', 'PenerimaanBarangController@getPembelianByGudang');

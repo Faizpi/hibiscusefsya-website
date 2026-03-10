@@ -145,4 +145,22 @@ class KunjunganController extends Controller
 
         return response()->json(['message' => 'Unauthorized'], 403);
     }
+
+    public function uncancel($id)
+    {
+        $kunjungan = Kunjungan::findOrFail($id);
+        $user = auth()->user();
+
+        if ($user->role !== 'super_admin') {
+            return response()->json(['message' => 'Hanya Super Admin yang dapat membatalkan pembatalan.'], 403);
+        }
+
+        if ($kunjungan->status !== 'Canceled') {
+            return response()->json(['message' => 'Transaksi ini tidak dalam status Canceled.'], 422);
+        }
+
+        $kunjungan->update(['status' => 'Pending']);
+
+        return response()->json(['message' => 'Kunjungan berhasil di-uncancel. Status kembali ke Pending.', 'data' => $kunjungan]);
+    }
 }

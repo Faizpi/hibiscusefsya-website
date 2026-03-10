@@ -13,7 +13,8 @@
 
 // Background utama halaman
 body.auth-page {
-    background: #3B82F6;  /* fallback for old browsers */
+    background: #3B82F6;
+    /* fallback for old browsers */
     font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -68,7 +69,8 @@ body.auth-page {
         }
     }
 
-    .form-check-label, .btn-link {
+    .form-check-label,
+    .btn-link {
         color: #f8f9fa;
     }
 }

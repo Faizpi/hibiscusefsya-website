@@ -419,15 +419,15 @@
                                                 {{--
                                                 <td>
                                                     @if($item->type == 'Penjualan')
-                                                        <span class="badge badge-primary">Penjualan</span>
+                                                    <span class="badge badge-primary">Penjualan</span>
                                                     @elseif($item->type == 'Pembelian')
-                                                        <span class="badge badge-success">Pembelian</span>
+                                                    <span class="badge badge-success">Pembelian</span>
                                                     @elseif($item->type == 'Biaya')
-                                                        <span class="badge badge-info">Biaya</span>
+                                                    <span class="badge badge-info">Biaya</span>
                                                     @elseif($item->type == 'Kunjungan')
-                                                        <span class="badge badge-secondary">Kunjungan</span>
+                                                    <span class="badge badge-secondary">Kunjungan</span>
                                                     @else
-                                                        <span class="badge badge-light">-</span>
+                                                    <span class="badge badge-light">-</span>
                                                     @endif
                                                 </td>
                                                 --}}
@@ -519,15 +519,15 @@
                                                 {{--
                                                 <td>
                                                     @if($item->type == 'Penjualan')
-                                                        <span class="badge badge-primary">Penjualan</span>
+                                                    <span class="badge badge-primary">Penjualan</span>
                                                     @elseif($item->type == 'Pembelian')
-                                                        <span class="badge badge-success">Pembelian</span>
+                                                    <span class="badge badge-success">Pembelian</span>
                                                     @elseif($item->type == 'Biaya')
-                                                        <span class="badge badge-info">Biaya</span>
+                                                    <span class="badge badge-info">Biaya</span>
                                                     @elseif($item->type == 'Kunjungan')
-                                                        <span class="badge badge-secondary">Kunjungan</span>
+                                                    <span class="badge badge-secondary">Kunjungan</span>
                                                     @else
-                                                        <span class="badge badge-light">-</span>
+                                                    <span class="badge badge-light">-</span>
                                                     @endif
                                                 </td>
                                                 --}}
@@ -580,8 +580,11 @@
             {{-- TAMPILAN UNTUK USER BIASA: WELCOME CARD --}}
             <div class="col-12">
                 <div class="card shadow mb-4">
-                    <div class="card-header py-3">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">Selamat Datang, {{ Auth::user()->name }}!</h6>
+                        <a href="{{ route('report.daily') }}" class="btn btn-sm btn-primary" target="_blank">
+                            <i class="fas fa-file-pdf mr-1"></i> Laporan Harian PDF
+                        </a>
                     </div>
                     <div class="card-body">
                         <p>Anda login sebagai User (Staf). Semua data yang Anda buat (Biaya, Penjualan, Pembelian) akan
@@ -991,8 +994,8 @@
                         });
                     }
                 @endif
-                                                        // ==================== END SALES QUANTITY CHART ====================
-                                                    });
+                                                                // ==================== END SALES QUANTITY CHART ====================
+                                                            });
         </script>
     @endif
 

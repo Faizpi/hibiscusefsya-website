@@ -85,6 +85,7 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
     Route::get('/home', 'DashboardController@index')->name('home');
+    Route::get('/report/daily', 'DashboardController@dailyReport')->name('report.daily');
 
     // --- BLUETOOTH PRINT JSON API ---
     Route::get('bluetooth/penjualan/{id}', 'BluetoothPrintController@penjualanJson')->name('bluetooth.penjualan');

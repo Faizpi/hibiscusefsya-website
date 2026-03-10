@@ -1411,8 +1411,8 @@
                 gap: 0.5rem !important;
             }
 
-            .page-header-mobile > h1,
-            .page-header-mobile > .h3 {
+            .page-header-mobile>h1,
+            .page-header-mobile>.h3 {
                 margin-bottom: 0 !important;
                 font-size: 1.35rem !important;
             }

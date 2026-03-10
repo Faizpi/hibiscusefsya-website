@@ -403,12 +403,11 @@
             }
 
             .logo-box img {
-                max-width: 140px;
+                max-width: 220px;
             }
 
             .login-right-content h2 {
-                font-size: 1.4rem;
-                margin-bottom: 8px;
+                display: none;
             }
 
             .login-right-content p {
@@ -460,11 +459,11 @@
             }
 
             .logo-box img {
-                max-width: 120px;
+                max-width: 200px;
             }
 
             .login-right-content h2 {
-                font-size: 1.25rem;
+                display: none;
             }
 
             .login-right-content p {

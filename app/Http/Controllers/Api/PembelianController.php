@@ -168,4 +168,22 @@ class PembelianController extends Controller
         $pembelian->update(['status' => 'Canceled']);
         return response()->json(['message' => 'Pembelian berhasil dibatalkan.']);
     }
+
+    public function uncancel($id)
+    {
+        $pembelian = Pembelian::findOrFail($id);
+        $user = auth()->user();
+
+        if ($user->role !== 'super_admin') {
+            return response()->json(['message' => 'Hanya Super Admin yang dapat membatalkan pembatalan.'], 403);
+        }
+
+        if ($pembelian->status !== 'Canceled') {
+            return response()->json(['message' => 'Transaksi ini tidak dalam status Canceled.'], 422);
+        }
+
+        $pembelian->update(['status' => 'Pending']);
+
+        return response()->json(['message' => 'Pembelian berhasil di-uncancel. Status kembali ke Pending.', 'data' => $pembelian]);
+    }
 }

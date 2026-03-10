@@ -834,4 +834,51 @@ class DashboardController extends Controller
         $pdf->setPaper('a4', 'landscape');
         return $pdf->download($fileBaseName . '.pdf');
     }
+
+    /**
+     * Laporan Harian PDF untuk Sales
+     */
+    public function dailyReport()
+    {
+        $user = Auth::user();
+        $today = Carbon::today();
+
+        $penjualans = Penjualan::where('user_id', $user->id)
+            ->whereDate('tgl_transaksi', $today)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $pembelians = Pembelian::where('user_id', $user->id)
+            ->whereDate('tgl_transaksi', $today)
+            ->with('gudang')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $biayas = Biaya::where('user_id', $user->id)
+            ->whereDate('tgl_transaksi', $today)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $kunjungans = Kunjungan::where('user_id', $user->id)
+            ->whereDate('tgl_kunjungan', $today)
+            ->with('kontak')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.daily-report', [
+            'penjualans' => $penjualans,
+            'pembelians' => $pembelians,
+            'biayas' => $biayas,
+            'kunjungans' => $kunjungans,
+            'salesName' => $user->name,
+            'date' => $today->format('Y-m-d'),
+            'generatedAt' => now()->format('d/m/Y H:i:s'),
+        ]);
+
+        $pdf->setPaper('a4', 'landscape');
+
+        $fileName = 'Laporan-Harian-' . $user->name . '-' . $today->format('Ymd') . '.pdf';
+
+        return $pdf->download($fileName);
+    }
 }

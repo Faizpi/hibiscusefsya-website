@@ -147,4 +147,22 @@ class PembayaranController extends Controller
             return response()->json(['message' => 'Gagal membatalkan pembayaran.'], 500);
         }
     }
+
+    public function uncancel($id)
+    {
+        $pembayaran = Pembayaran::findOrFail($id);
+        $user = auth()->user();
+
+        if ($user->role !== 'super_admin') {
+            return response()->json(['message' => 'Hanya Super Admin yang dapat membatalkan pembatalan.'], 403);
+        }
+
+        if ($pembayaran->status !== 'Canceled') {
+            return response()->json(['message' => 'Transaksi ini tidak dalam status Canceled.'], 422);
+        }
+
+        $pembayaran->update(['status' => 'Pending']);
+
+        return response()->json(['message' => 'Pembayaran berhasil di-uncancel. Status kembali ke Pending.', 'data' => $pembayaran]);
+    }
 }

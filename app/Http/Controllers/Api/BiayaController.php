@@ -136,4 +136,22 @@ class BiayaController extends Controller
         $biaya->update(['status' => 'Canceled']);
         return response()->json(['message' => 'Biaya berhasil dibatalkan.']);
     }
+
+    public function uncancel($id)
+    {
+        $biaya = Biaya::findOrFail($id);
+        $user = auth()->user();
+
+        if ($user->role !== 'super_admin') {
+            return response()->json(['message' => 'Hanya Super Admin yang dapat membatalkan pembatalan.'], 403);
+        }
+
+        if ($biaya->status !== 'Canceled') {
+            return response()->json(['message' => 'Transaksi ini tidak dalam status Canceled.'], 422);
+        }
+
+        $biaya->update(['status' => 'Pending']);
+
+        return response()->json(['message' => 'Biaya berhasil di-uncancel. Status kembali ke Pending.', 'data' => $biaya]);
+    }
 }

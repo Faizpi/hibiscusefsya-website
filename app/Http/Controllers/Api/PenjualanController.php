@@ -239,6 +239,65 @@ class PenjualanController extends Controller
         return response()->json(['message' => 'Penjualan berhasil dibatalkan.']);
     }
 
+    public function uncancel($id)
+    {
+        $penjualan = Penjualan::findOrFail($id);
+        $user = auth()->user();
+
+        if ($user->role !== 'super_admin') {
+            return response()->json(['message' => 'Hanya Super Admin yang dapat membatalkan pembatalan.'], 403);
+        }
+
+        if ($penjualan->status !== 'Canceled') {
+            return response()->json(['message' => 'Transaksi ini tidak dalam status Canceled.'], 422);
+        }
+
+        $approverId = $this->findApprover($user, $penjualan->gudang_id);
+
+        $penjualan->update([
+            'status' => 'Pending',
+            'approver_id' => $approverId,
+        ]);
+
+        return response()->json(['message' => 'Transaksi berhasil di-uncancel. Status kembali ke Pending.', 'data' => $penjualan]);
+    }
+
+    public function markAsPaid($id)
+    {
+        $penjualan = Penjualan::findOrFail($id);
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['admin', 'super_admin'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($penjualan->status !== 'Approved') {
+            return response()->json(['message' => 'Hanya transaksi Approved yang bisa ditandai Lunas.'], 422);
+        }
+
+        $penjualan->update(['status' => 'Lunas']);
+
+        return response()->json(['message' => 'Penjualan ditandai LUNAS.', 'data' => $penjualan]);
+    }
+
+    public function unmarkAsPaid($id)
+    {
+        $penjualan = Penjualan::findOrFail($id);
+        $user = auth()->user();
+
+        if ($user->role !== 'super_admin') {
+            return response()->json(['message' => 'Hanya Super Admin yang dapat melakukan ini.'], 403);
+        }
+
+        if ($penjualan->status !== 'Lunas') {
+            return response()->json(['message' => 'Transaksi ini tidak dalam status Lunas.'], 422);
+        }
+
+        $penjualan->update(['status' => 'Approved']);
+
+        return response()->json(['message' => 'Status penjualan dikembalikan ke Approved.', 'data' => $penjualan]);
+    }
+
     private function findApprover($user, $gudangId)
     {
         if ($user->role == 'user') {
