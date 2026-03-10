@@ -13,6 +13,7 @@ use App\GudangProduk;
 use App\Gudang;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 class DashboardController extends Controller
 {
@@ -87,5 +88,90 @@ class DashboardController extends Controller
             ->get(['id', 'nomor', 'pelanggan', 'grand_total', 'status', 'tgl_transaksi', 'user_id']);
 
         return response()->json($data);
+    }
+
+    /**
+     * Laporan Harian - semua aktivitas user hari ini
+     */
+    public function dailyReport(Request $request)
+    {
+        $user = auth()->user();
+        $date = $request->filled('date') ? Carbon::parse($request->date) : Carbon::today();
+
+        $penjualans = Penjualan::where('user_id', $user->id)
+            ->whereDate('tgl_transaksi', $date)
+            ->with('gudang:id,nama_gudang')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $pembelians = Pembelian::where('user_id', $user->id)
+            ->whereDate('tgl_transaksi', $date)
+            ->with('gudang:id,nama_gudang')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $biayas = Biaya::where('user_id', $user->id)
+            ->whereDate('tgl_transaksi', $date)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $kunjungans = Kunjungan::where('user_id', $user->id)
+            ->whereDate('tgl_kunjungan', $date)
+            ->with('kontak:id,nama')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json([
+            'date' => $date->format('Y-m-d'),
+            'sales_name' => $user->name,
+            'summary' => [
+                'total_penjualan' => $penjualans->count(),
+                'nilai_penjualan' => $penjualans->sum('grand_total'),
+                'total_pembelian' => $pembelians->count(),
+                'nilai_pembelian' => $pembelians->sum('grand_total'),
+                'total_biaya' => $biayas->count(),
+                'nilai_biaya' => $biayas->sum('grand_total'),
+                'total_kunjungan' => $kunjungans->count(),
+                'total_aktivitas' => $penjualans->count() + $pembelians->count() + $biayas->count() + $kunjungans->count(),
+            ],
+            'penjualans' => $penjualans,
+            'pembelians' => $pembelians,
+            'biayas' => $biayas,
+            'kunjungans' => $kunjungans,
+        ]);
+    }
+
+    /**
+     * Download lampiran file
+     */
+    public function downloadLampiran(Request $request)
+    {
+        $request->validate([
+            'path' => 'required|string',
+        ]);
+
+        $path = $request->path;
+
+        // Security: only allow access to lampiran folders
+        $allowedPrefixes = ['lampiran_penjualan/', 'lampiran_pembelian/', 'lampiran_biaya/', 'lampiran_kunjungan/'];
+        $isAllowed = false;
+        foreach ($allowedPrefixes as $prefix) {
+            if (strpos($path, $prefix) === 0) {
+                $isAllowed = true;
+                break;
+            }
+        }
+
+        if (!$isAllowed || strpos($path, '..') !== false) {
+            return response()->json(['message' => 'Path tidak valid.'], 403);
+        }
+
+        $fullPath = public_path('storage/' . $path);
+
+        if (!File::exists($fullPath)) {
+            return response()->json(['message' => 'File tidak ditemukan.'], 404);
+        }
+
+        return response()->download($fullPath);
     }
 }

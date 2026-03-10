@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class PenjualanController extends Controller
 {
@@ -173,6 +174,24 @@ class PenjualanController extends Controller
                 'grand_total' => $grandTotal,
                 'lampiran_paths' => json_encode([]),
             ]);
+
+            // Upload lampiran
+            $lampiranPaths = [];
+            if ($request->hasFile('lampiran')) {
+                $publicFolder = public_path('storage/lampiran_penjualan');
+                if (!File::exists($publicFolder)) {
+                    File::makeDirectory($publicFolder, 0755, true);
+                }
+                $counter = 1;
+                foreach ($request->file('lampiran') as $file) {
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = $nomor . '-' . $counter . '.' . $extension;
+                    $file->move($publicFolder, $filename);
+                    $lampiranPaths[] = 'lampiran_penjualan/' . $filename;
+                    $counter++;
+                }
+                $penjualan->update(['lampiran_paths' => $lampiranPaths]);
+            }
 
             foreach ($request->items as $item) {
                 $produk = Produk::findOrFail($item['produk_id']);

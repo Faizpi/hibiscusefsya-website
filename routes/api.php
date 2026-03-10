@@ -38,6 +38,8 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
 
     // Dashboard
     Route::get('dashboard', 'DashboardController@index');
+    Route::get('dashboard/daily-report', 'DashboardController@dailyReport');
+    Route::get('lampiran/download', 'DashboardController@downloadLampiran');
 
     // Gudang
     Route::get('gudang', 'GudangController@index');

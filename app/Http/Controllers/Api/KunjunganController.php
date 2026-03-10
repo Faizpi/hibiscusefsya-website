@@ -9,6 +9,7 @@ use App\Produk;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class KunjunganController extends Controller
 {
@@ -81,6 +82,24 @@ class KunjunganController extends Controller
                 'status' => 'Pending',
                 'lampiran_paths' => json_encode([]),
             ]);
+
+            // Upload lampiran
+            $lampiranPaths = [];
+            if ($request->hasFile('lampiran')) {
+                $publicFolder = public_path('storage/lampiran_kunjungan');
+                if (!File::exists($publicFolder)) {
+                    File::makeDirectory($publicFolder, 0755, true);
+                }
+                $counter = 1;
+                foreach ($request->file('lampiran') as $file) {
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = $nomor . '-' . $counter . '.' . $extension;
+                    $file->move($publicFolder, $filename);
+                    $lampiranPaths[] = 'lampiran_kunjungan/' . $filename;
+                    $counter++;
+                }
+                $kunjungan->update(['lampiran_paths' => $lampiranPaths]);
+            }
 
             // Items (jika ada produk yang dibawa)
             if ($request->filled('items')) {

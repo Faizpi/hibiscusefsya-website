@@ -82,11 +82,25 @@
             display: inline-block;
         }
 
-        .badge-success { background: #0e9f6e; }
-        .badge-warning { background: #c27803; }
-        .badge-secondary { background: #6b7280; }
-        .badge-primary { background: #1a56db; }
-        .badge-info { background: #0694a2; }
+        .badge-success {
+            background: #0e9f6e;
+        }
+
+        .badge-warning {
+            background: #c27803;
+        }
+
+        .badge-secondary {
+            background: #6b7280;
+        }
+
+        .badge-primary {
+            background: #1a56db;
+        }
+
+        .badge-info {
+            background: #0694a2;
+        }
 
         .lampiran-thumb {
             max-width: 55px;
@@ -181,7 +195,8 @@
                         if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) {
                             $paths[] = $item->lampiran_path;
                         }
-                        $imagePaths = collect($paths)->filter(function($p) { return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
+                        $imagePaths = collect($paths)->filter(function ($p) {
+                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
@@ -257,7 +272,8 @@
                         if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) {
                             $paths[] = $item->lampiran_path;
                         }
-                        $imagePaths = collect($paths)->filter(function($p) { return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
+                        $imagePaths = collect($paths)->filter(function ($p) {
+                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
@@ -328,7 +344,8 @@
                         if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) {
                             $paths[] = $item->lampiran_path;
                         }
-                        $imagePaths = collect($paths)->filter(function($p) { return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
+                        $imagePaths = collect($paths)->filter(function ($p) {
+                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
@@ -405,7 +422,8 @@
                         if ($item->lampiran_path && !in_array($item->lampiran_path, $paths)) {
                             $paths[] = $item->lampiran_path;
                         }
-                        $imagePaths = collect($paths)->filter(function($p) { return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
+                        $imagePaths = collect($paths)->filter(function ($p) {
+                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
@@ -455,31 +473,38 @@
         <table class="summary-table">
             <tr>
                 <td class="label">Total Penjualan</td>
-                <td>: {{ $penjualans->count() }} transaksi — Rp {{ number_format($penjualans->sum('grand_total'), 0, ',', '.') }}</td>
+                <td>: {{ $penjualans->count() }} transaksi — Rp
+                    {{ number_format($penjualans->sum('grand_total'), 0, ',', '.') }}</td>
             </tr>
             <tr>
                 <td class="label">Total Pembelian</td>
-                <td>: {{ $pembelians->count() }} transaksi — Rp {{ number_format($pembelians->sum('grand_total'), 0, ',', '.') }}</td>
+                <td>: {{ $pembelians->count() }} transaksi — Rp
+                    {{ number_format($pembelians->sum('grand_total'), 0, ',', '.') }}</td>
             </tr>
             <tr>
                 <td class="label">Total Biaya</td>
-                <td>: {{ $biayas->count() }} transaksi — Rp {{ number_format($biayas->sum('grand_total'), 0, ',', '.') }}</td>
+                <td>: {{ $biayas->count() }} transaksi — Rp
+                    {{ number_format($biayas->sum('grand_total'), 0, ',', '.') }}</td>
             </tr>
             <tr>
                 <td class="label">Total Kunjungan</td>
                 <td>: {{ $kunjungans->count() }} kunjungan</td>
             </tr>
             <tr>
-                <td class="label" style="border-top: 1px solid #ccc; padding-top: 5px;"><strong>Grand Total Aktivitas</strong></td>
+                <td class="label" style="border-top: 1px solid #ccc; padding-top: 5px;"><strong>Grand Total
+                        Aktivitas</strong></td>
                 <td style="border-top: 1px solid #ccc; padding-top: 5px;">
-                    <strong>: {{ $penjualans->count() + $pembelians->count() + $biayas->count() + $kunjungans->count() }} aktivitas</strong>
+                    <strong>:
+                        {{ $penjualans->count() + $pembelians->count() + $biayas->count() + $kunjungans->count() }}
+                        aktivitas</strong>
                 </td>
             </tr>
         </table>
     </div>
 
     <div class="footer">
-        Laporan Harian — {{ $salesName }} — {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} — Dicetak {{ $generatedAt }}
+        Laporan Harian — {{ $salesName }} — {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} — Dicetak
+        {{ $generatedAt }}
     </div>
 </body>
 

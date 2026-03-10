@@ -8,6 +8,7 @@ use App\BiayaItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class BiayaController extends Controller
 {
@@ -77,6 +78,24 @@ class BiayaController extends Controller
                 'grand_total' => $grandTotal,
                 'lampiran_paths' => json_encode([]),
             ]);
+
+            // Upload lampiran
+            $lampiranPaths = [];
+            if ($request->hasFile('lampiran')) {
+                $publicFolder = public_path('storage/lampiran_biaya');
+                if (!File::exists($publicFolder)) {
+                    File::makeDirectory($publicFolder, 0755, true);
+                }
+                $counter = 1;
+                foreach ($request->file('lampiran') as $file) {
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = $nomor . '-' . $counter . '.' . $extension;
+                    $file->move($publicFolder, $filename);
+                    $lampiranPaths[] = 'lampiran_biaya/' . $filename;
+                    $counter++;
+                }
+                $biaya->update(['lampiran_paths' => $lampiranPaths]);
+            }
 
             foreach ($request->items as $item) {
                 BiayaItem::create([
