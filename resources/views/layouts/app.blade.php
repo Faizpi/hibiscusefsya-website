@@ -1403,6 +1403,36 @@
             .sidebar.toggled~#content-wrapper {
                 margin-left: 0 !important;
             }
+
+            /* Tablet: Detail page header & action buttons */
+            .page-header-mobile {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.5rem !important;
+            }
+
+            .page-header-mobile > h1,
+            .page-header-mobile > .h3 {
+                margin-bottom: 0 !important;
+                font-size: 1.35rem !important;
+            }
+
+            .show-action-buttons {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 0.35rem !important;
+                margin-top: 0.25rem;
+            }
+
+            .show-action-buttons .btn {
+                font-size: 0.75rem !important;
+                padding: 0.35rem 0.6rem !important;
+                white-space: nowrap;
+            }
+
+            .show-action-buttons form.d-inline {
+                display: inline-flex !important;
+            }
         }
 
         /* ========== MOBILE (<=768px) ========== */

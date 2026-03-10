@@ -404,7 +404,7 @@
                             <table class="table table-bordered" id="adminMasterTable" width="100%" cellspacing="0">
                                 <thead>
                                     <tr>
-                                        <th>Tipe</th>
+                                        {{-- <th>Tipe</th> --}}
                                         <th>Nomor</th>
                                         <th>Tanggal</th>
                                         <th>Pembuat</th>
@@ -416,6 +416,7 @@
                                     @if(isset($allTransactions))
                                         @forelse($allTransactions as $item)
                                             <tr>
+                                                {{--
                                                 <td>
                                                     @if($item->type == 'Penjualan')
                                                         <span class="badge badge-primary">Penjualan</span>
@@ -429,6 +430,7 @@
                                                         <span class="badge badge-light">-</span>
                                                     @endif
                                                 </td>
+                                                --}}
                                                 <td>
                                                     <a href="{{ $item->route }}"><strong>{{ $item->number }}</strong></a>
                                                 </td>
@@ -464,7 +466,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" class="text-center">Belum ada transaksi sama sekali.</td>
+                                                <td colspan="5" class="text-center">Belum ada transaksi sama sekali.</td>
                                             </tr>
                                         @endforelse
                                     @endif
@@ -502,7 +504,7 @@
                             <table class="table table-bordered" id="adminMasterTable" width="100%" cellspacing="0">
                                 <thead>
                                     <tr>
-                                        <th>Tipe</th>
+                                        {{-- <th>Tipe</th> --}}
                                         <th>Nomor</th>
                                         <th>Tanggal</th>
                                         <th>Pembuat</th>
@@ -514,6 +516,7 @@
                                     @if(isset($allTransactions))
                                         @forelse($allTransactions as $item)
                                             <tr>
+                                                {{--
                                                 <td>
                                                     @if($item->type == 'Penjualan')
                                                         <span class="badge badge-primary">Penjualan</span>
@@ -527,6 +530,7 @@
                                                         <span class="badge badge-light">-</span>
                                                     @endif
                                                 </td>
+                                                --}}
                                                 <td>
                                                     <a href="{{ $item->route }}"><strong>{{ $item->number }}</strong></a>
                                                 </td>
@@ -554,7 +558,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" class="text-center">Tidak ada transaksi yang menunggu approval.</td>
+                                                <td colspan="5" class="text-center">Tidak ada transaksi yang menunggu approval.</td>
                                             </tr>
                                         @endforelse
                                     @endif

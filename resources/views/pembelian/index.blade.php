@@ -163,49 +163,6 @@
                                                 <i class="fas fa-eye fa-fw mr-2 text-info"></i> Lihat Detail
                                             </a>
 
-                                            {{-- APPROVE: Hanya jika Pending & Role Sesuai --}}
-                                            @if($item->status == 'Pending')
-                                                @php
-                                                    $canApprove = false;
-                                                    if ($role == 'super_admin') {
-                                                        $canApprove = true;
-                                                    } elseif ($role == 'admin') {
-                                                        // Admin bisa approve jika punya akses ke gudang ini
-                                                        $canApprove = auth()->user()->canAccessGudang($item->gudang_id);
-                                                    }
-                                                @endphp
-
-                                                @if($canApprove)
-                                                    <form action="{{ route('pembelian.approve', $item->id) }}" method="POST"
-                                                        class="d-inline">
-                                                        @csrf
-                                                        <button type="submit" class="dropdown-item">
-                                                            <i class="fas fa-check fa-fw mr-2 text-success"></i> Approve
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                            @endif
-
-                                            {{-- CANCEL: Hanya super_admin bisa cancel Approved/Lunas, admin hanya Pending --}}
-                                            @if(in_array($role, ['admin', 'super_admin']) && $item->status != 'Canceled')
-                                                @if($role == 'super_admin' || $item->status == 'Pending')
-                                                    <button type="button" class="dropdown-item" data-toggle="modal"
-                                                        data-target="#cancelModal"
-                                                        data-action="{{ route('pembelian.cancel', $item->id) }}">
-                                                        <i class="fas fa-ban fa-fw mr-2 text-secondary"></i> Batalkan
-                                                    </button>
-                                                @endif
-                                            @endif
-
-                                            {{-- UNCANCEL: Jika Canceled, super_admin bisa uncancel --}}
-                                            @if($item->status == 'Canceled' && $role == 'super_admin')
-                                                <button type="button" class="dropdown-item" data-toggle="modal"
-                                                    data-target="#uncancelModal"
-                                                    data-action="{{ route('pembelian.uncancel', $item->id) }}">
-                                                    <i class="fas fa-undo fa-fw mr-2 text-info"></i> Batalkan Pembatalan
-                                                </button>
-                                            @endif
-
                                             {{-- EDIT & DELETE: Super Admin saja --}}
                                             @if($role == 'super_admin')
                                                 <div class="dropdown-divider"></div>
@@ -259,51 +216,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-warning">
-                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle mr-2"></i>Konfirmasi Pembatalan</h5>
-                    <button class="close" type="button" data-dismiss="modal"><span>×</span></button>
-                </div>
-                <div class="modal-body">
-                    <p>Apakah Anda yakin ingin <strong>membatalkan</strong> transaksi ini?</p>
-                    <p class="text-muted mb-0"><small>Transaksi yang dibatalkan tidak dapat diproses kembali.</small></p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Tidak</button>
-                    <form id="cancelForm" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-warning">Ya, Batalkan</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Uncancel Modal --}}
-    <div class="modal fade" id="uncancelModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title"><i class="fas fa-undo mr-2"></i>Konfirmasi Batalkan Pembatalan</h5>
-                    <button class="close" type="button" data-dismiss="modal"><span>×</span></button>
-                </div>
-                <div class="modal-body">
-                    <p>Apakah Anda yakin ingin <strong>membatalkan pembatalan</strong> transaksi ini?</p>
-                    <p class="text-muted mb-0"><small>Status transaksi akan kembali ke <strong>Pending</strong> dan perlu
-                            disetujui ulang.</small></p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Tidak</button>
-                    <form id="uncancelForm" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-info">Ya, Batalkan Pembatalan</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    {{-- Cancel/Uncancel modals removed from index - use detail page instead --}}
 @endsection
 
 @push('scripts')
@@ -317,18 +230,6 @@
             modal.find('#deleteNomor').text(nomor);
         });
 
-        $('#cancelModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var action = button.data('action');
-            var modal = $(this);
-            modal.find('#cancelForm').attr('action', action);
-        });
 
-        $('#uncancelModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var action = button.data('action');
-            var modal = $(this);
-            modal.find('#uncancelForm').attr('action', action);
-        });
     </script>
 @endpush
