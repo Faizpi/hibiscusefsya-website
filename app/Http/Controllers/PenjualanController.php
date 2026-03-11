@@ -369,6 +369,8 @@ class PenjualanController extends Controller
                     'unit' => $request->unit[$index] ?? null,
                     'harga_satuan' => $price,
                     'diskon' => $disc,
+                    'batch_number' => $request->batch_number[$index] ?? null,
+                    'expired_date' => $request->expired_date[$index] ?? null,
                     'jumlah_baris' => ($qty * $price) * (1 - ($disc / 100)),
                 ]);
             }
@@ -622,6 +624,8 @@ class PenjualanController extends Controller
                     'unit' => $request->unit[$index] ?? null,
                     'harga_satuan' => $price,
                     'diskon' => $disc,
+                    'batch_number' => $request->batch_number[$index] ?? null,
+                    'expired_date' => $request->expired_date[$index] ?? null,
                     'jumlah_baris' => ($qty * $price) * (1 - ($disc / 100)),
                 ]);
             }

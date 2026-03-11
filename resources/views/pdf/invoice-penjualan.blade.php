@@ -268,11 +268,13 @@
         <thead>
             <tr>
                 <th style="width: 5%">No</th>
-                <th style="width: 35%">Produk</th>
-                <th style="width: 10%">Qty</th>
-                <th style="width: 15%">Harga</th>
-                <th style="width: 15%">Diskon</th>
-                <th style="width: 20%">Jumlah</th>
+                <th style="width: 25%">Produk</th>
+                <th style="width: 8%">Qty</th>
+                <th style="width: 12%">Harga</th>
+                <th style="width: 10%">Diskon</th>
+                <th style="width: 12%">Batch</th>
+                <th style="width: 10%">Exp</th>
+                <th style="width: 18%">Jumlah</th>
             </tr>
         </thead>
         <tbody>
@@ -284,6 +286,8 @@
                     <td>{{ $item->kuantitas }} Pcs</td>
                     <td>Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($item->diskon_per_item ?? 0, 0, ',', '.') }}</td>
+                    <td>{{ $item->batch_number ?? '-' }}</td>
+                    <td>{{ $item->expired_date ? $item->expired_date->format('d/m/Y') : '-' }}</td>
                     <td>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
                 </tr>
             @endforeach

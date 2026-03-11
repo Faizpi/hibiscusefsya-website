@@ -218,11 +218,13 @@
                                     <th style="width: 23%;">Produk</th>
                                     <th style="width: 3%;"></th>
                                     <th>Deskripsi</th>
-                                    <th style="width: 10%;">Qty</th>
-                                    <th style="width: 10%;">Unit</th>
-                                    <th style="width: 15%;">Harga</th>
-                                    <th style="width: 10%;">Disc%</th>
-                                    <th class="text-right" style="width: 15%;">Jumlah</th>
+                                    <th style="width: 8%;">Qty</th>
+                                    <th style="width: 8%;">Unit</th>
+                                    <th style="width: 12%;">Harga</th>
+                                    <th style="width: 8%;">Disc%</th>
+                                    <th style="width: 10%;">Batch</th>
+                                    <th style="width: 10%;">Exp</th>
+                                    <th class="text-right" style="width: 12%;">Jumlah</th>
                                     <th style="width: 5%;"></th>
                                 </tr>
                             </thead>
@@ -269,6 +271,10 @@
                                                     name="harga_satuan[]" value="{{ old('harga_satuan.' . $index) }}" required></td>
                                             <td><input type="number" class="form-control text-right product-disc" name="diskon[]"
                                                     value="{{ old('diskon.' . $index) }}" min="0"></td>
+                                            <td><input type="text" class="form-control product-batch" name="batch_number[]"
+                                                    value="{{ old('batch_number.' . $index) }}" placeholder="Batch"></td>
+                                            <td><input type="date" class="form-control product-exp" name="expired_date[]"
+                                                    value="{{ old('expired_date.' . $index) }}"></td>
                                             <td><input type="text" class="form-control text-right product-total" readonly></td>
                                             <td>@if($index > 0)<button type="button"
                                             class="btn btn-danger btn-sm remove-btn">X</button>@endif</td>
@@ -309,6 +315,9 @@
                                                 name="harga_satuan[]" value="0" required></td>
                                         <td><input type="number" class="form-control text-right product-disc" name="diskon[]"
                                                 value="0" min="0"></td>
+                                        <td><input type="text" class="form-control product-batch" name="batch_number[]"
+                                                placeholder="Batch"></td>
+                                        <td><input type="date" class="form-control product-exp" name="expired_date[]"></td>
                                         <td><input type="text" class="form-control text-right product-total" readonly></td>
                                         <td></td>
                                     </tr>
@@ -663,6 +672,8 @@
                     const unit = row.querySelector('.product-unit').value || 'Pcs';
                     const price = row.querySelector('.product-price').value || 0;
                     const disc = row.querySelector('.product-disc').value || 0;
+                    const batch = row.querySelector('.product-batch').value || '';
+                    const exp = row.querySelector('.product-exp').value || '';
                     const total = row.querySelector('.product-total').value || 0;
 
                     const card = document.createElement('div');
@@ -701,6 +712,14 @@
                         <div class="field-group">
                             <span class="field-label">Disc%</span>
                             <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">Batch</span>
+                            <input type="text" class="form-control product-batch-mobile" data-row="${index}" value="${batch}" placeholder="Batch">
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">Exp</span>
+                            <input type="date" class="form-control product-exp-mobile" data-row="${index}" value="${exp}">
                         </div>
                     </div>
                     <div class="total-row">
@@ -863,6 +882,12 @@
                                 totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-total').value) || 0);
                             }
                         }
+                    }
+                    if (e.target.classList.contains('product-batch-mobile')) {
+                        row.querySelector('.product-batch').value = e.target.value;
+                    }
+                    if (e.target.classList.contains('product-exp-mobile')) {
+                        row.querySelector('.product-exp').value = e.target.value;
                     }
                 });
 

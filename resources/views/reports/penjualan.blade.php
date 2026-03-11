@@ -2,7 +2,7 @@
 <table>
     <thead>
         <tr>
-            <td colspan="24"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
+            <td colspan="26"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
                     {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
         </tr>
         <tr>
@@ -24,6 +24,8 @@
             <th>Harga Satuan</th>
             <th>Kuantitas</th>
             <th>Diskon Item</th>
+            <th>Batch</th>
+            <th>Exp</th>
             <th>Jumlah Baris</th>
             <th>No Referensi</th>
             <th>Memo</th>
@@ -75,6 +77,8 @@
                         <td>{{ $detail->harga_satuan ?? 0 }}</td>
                         <td>{{ $detail->kuantitas ?? 0 }}</td>
                         <td>{{ $detail->diskon ?? 0 }}</td>
+                        <td>{{ $detail->batch_number ?? '-' }}</td>
+                        <td>{{ $detail->expired_date ? $detail->expired_date->format('d/m/Y') : '-' }}</td>
                         <td>{{ $detail->jumlah_baris ?? 0 }}</td>
                         @if($idx === 0)
                             <td>{{ $item->no_referensi ?? '-' }}</td>
@@ -107,6 +111,8 @@
                     <td>{{ $item->user->name ?? '-' }}</td>
                     <td>{{ $item->approver->name ?? '-' }}</td>
                     <td>{{ $item->status }}</td>
+                    <td>-</td>
+                    <td>-</td>
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>

@@ -228,6 +228,12 @@
                 @if($item->diskon_per_item > 0)
                 <tr><td class="lbl">Diskon</td><td class="val">- Rp {{ number_format($item->diskon_per_item,0,',','.') }}</td></tr>
                 @endif
+                @if($item->batch_number)
+                <tr><td class="lbl">Batch</td><td class="val">{{ $item->batch_number }}</td></tr>
+                @endif
+                @if($item->expired_date)
+                <tr><td class="lbl">Exp</td><td class="val">{{ $item->expired_date->format('d/m/Y') }}</td></tr>
+                @endif
                 <tr><td class="lbl" style="font-weight:bold">Jumlah</td>
                     <td class="val" style="font-weight:bold">Rp {{ number_format($item->jumlah_baris,0,',','.') }}</td>
                 </tr>

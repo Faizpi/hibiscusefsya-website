@@ -150,6 +150,16 @@ class PrintController extends Controller
                 $out .= $this->fmtJustify("Disc", ($item->diskon + 0) . "%");
             }
 
+            // Baris Batch (Jika ada)
+            if ($item->batch_number) {
+                $out .= $this->fmtJustify("Batch", $item->batch_number);
+            }
+
+            // Baris Expired (Jika ada)
+            if ($item->expired_date) {
+                $out .= $this->fmtJustify("Exp", $item->expired_date->format('d/m/Y'));
+            }
+
             // Baris Jumlah
             $out .= $this->fmtJustify("Jumlah", $this->rp($item->jumlah_baris));
 

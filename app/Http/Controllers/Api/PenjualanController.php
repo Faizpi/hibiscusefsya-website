@@ -206,6 +206,8 @@ class PenjualanController extends Controller
                     'satuan' => $produk->satuan,
                     'harga_satuan' => $item['harga_satuan'],
                     'diskon' => $disc,
+                    'batch_number' => $item['batch_number'] ?? null,
+                    'expired_date' => $item['expired_date'] ?? null,
                     'total' => $total,
                 ]);
             }

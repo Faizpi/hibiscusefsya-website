@@ -142,10 +142,12 @@
                                     <th width="20%">Produk</th>
                                     <th>Deskripsi</th>
                                     <th width="8%">Qty</th>
-                                    <th width="10%">Unit</th>
+                                    <th width="8%">Unit</th>
                                     <th width="12%">Harga</th>
-                                    <th width="10%">Disc%</th>
-                                    <th width="15%" class="text-right">Total</th>
+                                    <th width="8%">Disc%</th>
+                                    <th width="10%">Batch</th>
+                                    <th width="10%">Exp</th>
+                                    <th width="12%" class="text-right">Total</th>
                                     <th width="5%"></th>
                                 </tr>
                             </thead>
@@ -160,6 +162,8 @@
                                         $oldUnit = $isOld ? old('unit.' . $index) : $item->unit;
                                         $oldPrice = $isOld ? old('harga_satuan.' . $index) : $item->harga_satuan;
                                         $oldDisc = $isOld ? old('diskon.' . $index) : $item->diskon;
+                                        $oldBatch = $isOld ? old('batch_number.' . $index) : $item->batch_number;
+                                        $oldExp = $isOld ? old('expired_date.' . $index) : ($item->expired_date ? (is_string($item->expired_date) ? $item->expired_date : $item->expired_date->format('Y-m-d')) : '');
                                     @endphp
                                     <tr>
                                         <td>
@@ -182,6 +186,10 @@
                                                 name="harga_satuan[]" value="{{ $oldPrice }}" required></td>
                                         <td><input type="number" class="form-control text-right product-discount"
                                                 name="diskon[]" value="{{ $oldDisc }}" min="0" max="100"></td>
+                                        <td><input type="text" class="form-control product-batch"
+                                                name="batch_number[]" value="{{ $oldBatch }}" placeholder="Batch"></td>
+                                        <td><input type="date" class="form-control product-exp"
+                                                name="expired_date[]" value="{{ $oldExp }}"></td>
                                         <td><input type="text" class="form-control text-right product-line-total" readonly></td>
                                         <td>@if($index > 0 || count($items) > 1)<button type="button"
                                         class="btn btn-danger btn-sm remove-row-btn">X</button>@endif</td>
@@ -436,6 +444,8 @@
                     const unit = row.querySelector('.product-unit').value || 'Pcs';
                     const price = row.querySelector('.product-price').value || 0;
                     const disc = row.querySelector('.product-discount').value || 0;
+                    const batch = row.querySelector('.product-batch') ? row.querySelector('.product-batch').value || '' : '';
+                    const exp = row.querySelector('.product-exp') ? row.querySelector('.product-exp').value || '' : '';
                     const total = row.querySelector('.product-line-total').value || 0;
 
                     const card = document.createElement('div');
@@ -469,6 +479,14 @@
                                                                     <div class="field-group">
                                                                         <span class="field-label">Disc%</span>
                                                                         <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
+                                                                    </div>
+                                                                    <div class="field-group">
+                                                                        <span class="field-label">Batch</span>
+                                                                        <input type="text" class="form-control product-batch-mobile" data-row="${index}" value="${batch}" placeholder="Batch">
+                                                                    </div>
+                                                                    <div class="field-group">
+                                                                        <span class="field-label">Exp</span>
+                                                                        <input type="date" class="form-control product-exp-mobile" data-row="${index}" value="${exp}">
                                                                     </div>
                                                                 </div>
                                                                 <div class="total-row">
@@ -585,6 +603,14 @@
                             }
                         }
                     }
+                    if (e.target.classList.contains('product-batch-mobile')) {
+                        const batchInput = row.querySelector('.product-batch');
+                        if (batchInput) batchInput.value = e.target.value;
+                    }
+                    if (e.target.classList.contains('product-exp-mobile')) {
+                        const expInput = row.querySelector('.product-exp');
+                        if (expInput) expInput.value = e.target.value;
+                    }
                 });
 
                 mobileCardsContainer.addEventListener('click', function (e) {
@@ -658,6 +684,8 @@
                                                         <td><input type="text" class="form-control product-unit" name="unit[]" value="" readonly></td>
                                                         <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]" placeholder="0" required></td>
                                                         <td><input type="number" class="form-control text-right product-discount" name="diskon[]" placeholder="0" min="0" max="100"></td>
+                                                        <td><input type="text" class="form-control product-batch" name="batch_number[]" placeholder="Batch"></td>
+                                                        <td><input type="date" class="form-control product-exp" name="expired_date[]"></td>
                                                         <td><input type="text" class="form-control text-right product-line-total" readonly></td>
                                                         <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
                                                     `;

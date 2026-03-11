@@ -224,6 +224,8 @@
                                 <th class="text-center">Qty</th>
                                 <th class="text-right">Harga</th>
                                 <th class="text-center">Disc%</th>
+                                <th>Batch</th>
+                                <th>Exp</th>
                                 <th class="text-right">Total</th>
                             </tr>
                         </thead>
@@ -236,6 +238,8 @@
                                     <td class="text-center">{{ $item->kuantitas }} {{ $item->unit }}</td>
                                     <td class="text-right">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
                                     <td class="text-center">{{ $item->diskon }}%</td>
+                                    <td>{{ $item->batch_number ?? '-' }}</td>
+                                    <td>{{ $item->expired_date ? $item->expired_date->format('d/m/Y') : '-' }}</td>
                                     <td class="text-right">Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
                                 </tr>
                             @endforeach
@@ -265,6 +269,18 @@
                                     <div class="label">Disc</div>
                                     <div class="value">{{ $item->diskon }}%</div>
                                 </div>
+                                @if($item->batch_number)
+                                <div class="detail-item">
+                                    <div class="label">Batch</div>
+                                    <div class="value">{{ $item->batch_number }}</div>
+                                </div>
+                                @endif
+                                @if($item->expired_date)
+                                <div class="detail-item">
+                                    <div class="label">Exp</div>
+                                    <div class="value">{{ $item->expired_date->format('d/m/Y') }}</div>
+                                </div>
+                                @endif
                             </div>
                             <div class="item-total">
                                 <span class="total-label">Total</span>

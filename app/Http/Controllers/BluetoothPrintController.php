@@ -50,6 +50,8 @@ class BluetoothPrintController extends Controller
                 'unit' => $item->unit ?? 'Pcs',
                 'harga' => $item->harga_satuan,
                 'diskon' => $item->diskon ?? 0,
+                'batch' => $item->batch_number,
+                'exp' => $item->expired_date ? $item->expired_date->format('Y-m-d') : null,
                 'jumlah' => $item->jumlah_baris
             ];
         });

@@ -29,7 +29,13 @@ class PenjualanItem extends Model
         'unit',
         'harga_satuan',
         'diskon',
+        'batch_number',
+        'expired_date',
         'jumlah_baris',
+    ];
+
+    protected $casts = [
+        'expired_date' => 'date',
     ];
 
     public function penjualan()

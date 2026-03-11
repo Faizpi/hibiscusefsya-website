@@ -375,7 +375,7 @@ class ApiDocController extends Controller
                         'title' => 'Detail Penjualan',
                         'description' => 'Detail transaksi penjualan beserta items.',
                         'auth' => true,
-                        'response' => '{"id":1,"nomor":"INV-...","pelanggan":"...","items":[{"id":1,"produk_id":1,"nama_produk":"Produk A","kuantitas":10,"harga_satuan":10000,"diskon":0,"total":100000,"produk":{...}}],...}',
+                        'response' => '{"id":1,"nomor":"INV-...","pelanggan":"...","items":[{"id":1,"produk_id":1,"nama_produk":"Produk A","kuantitas":10,"harga_satuan":10000,"diskon":0,"batch_number":"B001","expired_date":"2026-12-31","total":100000,"produk":{...}}],...}',
                     ],
                     [
                         'method' => 'POST',
@@ -402,6 +402,8 @@ class ApiDocController extends Controller
                             ['name' => 'items[].kuantitas', 'type' => 'number', 'required' => true, 'description' => 'Jumlah (min: 1)'],
                             ['name' => 'items[].harga_satuan', 'type' => 'number', 'required' => true, 'description' => 'Harga per unit'],
                             ['name' => 'items[].diskon', 'type' => 'number', 'required' => false, 'description' => 'Diskon item (%)'],
+                            ['name' => 'items[].batch_number', 'type' => 'string', 'required' => false, 'description' => 'Nomor batch produk'],
+                            ['name' => 'items[].expired_date', 'type' => 'string (Y-m-d)', 'required' => false, 'description' => 'Tanggal kadaluarsa'],
                             ['name' => 'lampiran[]', 'type' => 'file', 'required' => false, 'description' => 'File lampiran (multipart/form-data). Max 2MB/file. Format: jpg,jpeg,png,pdf,zip,doc,docx'],
                         ],
                         'response' => '{"message":"Penjualan berhasil dibuat.","data":{"id":1,"nomor":"INV-...","status":"Pending",...,"items":[...]}}',

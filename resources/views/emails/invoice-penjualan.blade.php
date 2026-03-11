@@ -367,6 +367,16 @@
                                 <span style="color: #ef4444;"> -{{ $item->diskon }}%</span>
                             @endif
                         </div>
+                        @if($item->batch_number || $item->expired_date)
+                            <div class="item-meta" style="font-size: 11px; color: #9ca3af;">
+                                @if($item->batch_number)
+                                    Batch: {{ $item->batch_number }}
+                                @endif
+                                @if($item->expired_date)
+                                    &nbsp; Exp: {{ $item->expired_date->format('d/m/Y') }}
+                                @endif
+                            </div>
+                        @endif
                         <div class="item-total">
                             <span>Subtotal</span>
                             <span>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</span>

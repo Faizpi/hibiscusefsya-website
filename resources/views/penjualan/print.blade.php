@@ -228,6 +228,18 @@
                             <td class="val">{{ $item->diskon }}%</td>
                         </tr>
                     @endif
+                    @if($item->batch_number)
+                        <tr>
+                            <td>Batch</td>
+                            <td class="val">{{ $item->batch_number }}</td>
+                        </tr>
+                    @endif
+                    @if($item->expired_date)
+                        <tr>
+                            <td>Exp</td>
+                            <td class="val">{{ $item->expired_date->format('d/m/Y') }}</td>
+                        </tr>
+                    @endif
                     <tr>
                         <td><b>Jumlah</b></td>
                         <td class="val"><b>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</b></td>
