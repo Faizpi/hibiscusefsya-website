@@ -66,6 +66,7 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::get('penjualan', 'PenjualanController@index');
     Route::get('penjualan/{id}', 'PenjualanController@show');
     Route::post('penjualan', 'PenjualanController@store');
+    Route::put('penjualan/{id}', 'PenjualanController@update');
     Route::post('penjualan/{id}/approve', 'PenjualanController@approve');
     Route::post('penjualan/{id}/cancel', 'PenjualanController@cancel');
     Route::post('penjualan/{id}/uncancel', 'PenjualanController@uncancel');
@@ -76,6 +77,7 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::get('pembelian', 'PembelianController@index');
     Route::get('pembelian/{id}', 'PembelianController@show');
     Route::post('pembelian', 'PembelianController@store');
+    Route::put('pembelian/{id}', 'PembelianController@update');
     Route::post('pembelian/{id}/approve', 'PembelianController@approve');
     Route::post('pembelian/{id}/cancel', 'PembelianController@cancel');
     Route::post('pembelian/{id}/uncancel', 'PembelianController@uncancel');
@@ -84,6 +86,7 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::get('biaya', 'BiayaController@index');
     Route::get('biaya/{id}', 'BiayaController@show');
     Route::post('biaya', 'BiayaController@store');
+    Route::put('biaya/{id}', 'BiayaController@update');
     Route::post('biaya/{id}/approve', 'BiayaController@approve');
     Route::post('biaya/{id}/cancel', 'BiayaController@cancel');
     Route::post('biaya/{id}/uncancel', 'BiayaController@uncancel');
@@ -92,6 +95,7 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::get('kunjungan', 'KunjunganController@index');
     Route::get('kunjungan/{id}', 'KunjunganController@show');
     Route::post('kunjungan', 'KunjunganController@store');
+    Route::put('kunjungan/{id}', 'KunjunganController@update');
     Route::post('kunjungan/{id}/approve', 'KunjunganController@approve');
     Route::post('kunjungan/{id}/cancel', 'KunjunganController@cancel');
     Route::post('kunjungan/{id}/uncancel', 'KunjunganController@uncancel');

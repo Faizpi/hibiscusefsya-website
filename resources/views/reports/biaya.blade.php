@@ -130,7 +130,8 @@
     @foreach($statusGroups as $status => $group)
         <tr>
             <td colspan="3"><strong>{{ $status }}</strong></td>
-            <td colspan="17">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}</td>
+            <td colspan="17">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}
+            </td>
         </tr>
     @endforeach
     @php
@@ -139,7 +140,8 @@
     @foreach($jenisGroups as $jenis => $group)
         <tr>
             <td colspan="3"><strong>{{ ucfirst($jenis) }}</strong></td>
-            <td colspan="17">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}</td>
+            <td colspan="17">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}
+            </td>
         </tr>
     @endforeach
 </table>

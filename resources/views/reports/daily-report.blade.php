@@ -196,12 +196,14 @@
                             $paths[] = $item->lampiran_path;
                         }
                         $imagePaths = collect($paths)->filter(function ($p) {
-                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
+                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
+                        });
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
                         <td>{{ $item->custom_number }}</td>
-                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
+                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}
+                            {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                         <td>{{ $item->pelanggan ?? '-' }}</td>
                         <td class="text-right">Rp {{ number_format($item->grand_total, 0, ',', '.') }}</td>
                         <td>
@@ -273,12 +275,14 @@
                             $paths[] = $item->lampiran_path;
                         }
                         $imagePaths = collect($paths)->filter(function ($p) {
-                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
+                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
+                        });
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
                         <td>{{ $item->custom_number }}</td>
-                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
+                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}
+                            {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                         <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                         <td class="text-right">Rp {{ number_format($item->grand_total, 0, ',', '.') }}</td>
                         <td>
@@ -345,12 +349,14 @@
                             $paths[] = $item->lampiran_path;
                         }
                         $imagePaths = collect($paths)->filter(function ($p) {
-                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
+                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
+                        });
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
                         <td>{{ $item->custom_number }}</td>
-                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
+                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}
+                            {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                         <td>
                             @if($item->jenis_biaya == 'masuk')
                                 <span class="badge badge-info">Masuk</span>
@@ -423,12 +429,14 @@
                             $paths[] = $item->lampiran_path;
                         }
                         $imagePaths = collect($paths)->filter(function ($p) {
-                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p); });
+                            return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
+                        });
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
                         <td>{{ $item->custom_number }}</td>
-                        <td>{{ $item->tgl_kunjungan ? $item->tgl_kunjungan->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
+                        <td>{{ $item->tgl_kunjungan ? $item->tgl_kunjungan->format('d/m/Y') : '-' }}
+                            {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                         <td>{{ $item->tujuan ?? '-' }}</td>
                         <td>{{ $item->kontak->nama ?? '-' }}</td>
                         <td>
@@ -474,17 +482,20 @@
             <tr>
                 <td class="label">Total Penjualan</td>
                 <td>: {{ $penjualans->count() }} transaksi — Rp
-                    {{ number_format($penjualans->sum('grand_total'), 0, ',', '.') }}</td>
+                    {{ number_format($penjualans->sum('grand_total'), 0, ',', '.') }}
+                </td>
             </tr>
             <tr>
                 <td class="label">Total Pembelian</td>
                 <td>: {{ $pembelians->count() }} transaksi — Rp
-                    {{ number_format($pembelians->sum('grand_total'), 0, ',', '.') }}</td>
+                    {{ number_format($pembelians->sum('grand_total'), 0, ',', '.') }}
+                </td>
             </tr>
             <tr>
                 <td class="label">Total Biaya</td>
                 <td>: {{ $biayas->count() }} transaksi — Rp
-                    {{ number_format($biayas->sum('grand_total'), 0, ',', '.') }}</td>
+                    {{ number_format($biayas->sum('grand_total'), 0, ',', '.') }}
+                </td>
             </tr>
             <tr>
                 <td class="label">Total Kunjungan</td>

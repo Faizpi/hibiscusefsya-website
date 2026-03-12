@@ -155,7 +155,8 @@
     @foreach($typeGroups as $type => $group)
         <tr>
             <td colspan="3"><strong>{{ $type }}</strong></td>
-            <td colspan="14">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}</td>
+            <td colspan="14">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}
+            </td>
         </tr>
     @endforeach
     @php
@@ -164,7 +165,8 @@
     @foreach($statusGroups as $status => $group)
         <tr>
             <td colspan="3"><strong>{{ $status }}</strong></td>
-            <td colspan="14">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}</td>
+            <td colspan="14">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}
+            </td>
         </tr>
     @endforeach
 </table>
