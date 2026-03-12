@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'DejaVu Sans', sans-serif;
-            font-size: 9px;
+            font-size: 8px;
             color: #333;
             margin: 20px;
         }
@@ -26,7 +26,7 @@
         }
 
         .header .meta {
-            font-size: 9px;
+            font-size: 8px;
             color: #666;
         }
 
@@ -49,16 +49,16 @@
         th {
             background: #e8edf5;
             color: #1a56db;
-            padding: 4px 5px;
+            padding: 3px 4px;
             text-align: left;
-            font-size: 8px;
+            font-size: 7px;
             border: 1px solid #ccc;
         }
 
         td {
             border: 1px solid #ddd;
-            padding: 4px 5px;
-            font-size: 8px;
+            padding: 3px 4px;
+            font-size: 7px;
             vertical-align: top;
         }
 
@@ -78,7 +78,7 @@
             padding: 2px 6px;
             border-radius: 3px;
             color: #fff;
-            font-size: 7px;
+            font-size: 6px;
             display: inline-block;
         }
 
@@ -103,10 +103,10 @@
         }
 
         .lampiran-thumb {
-            max-width: 55px;
-            max-height: 40px;
+            max-width: 110px;
+            max-height: 85px;
             border: 1px solid #ccc;
-            margin: 1px;
+            margin: 2px;
         }
 
         .summary-box {

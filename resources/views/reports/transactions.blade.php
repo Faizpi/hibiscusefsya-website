@@ -3,18 +3,17 @@
 <table>
     <thead>
         <tr>
-            <td colspan="17"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
+            <td colspan="16"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
                     {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
         </tr>
         <tr>
             <th>No</th>
-            <th>Tipe</th>
             <th>No Transaksi</th>
             <th>Tgl Transaksi</th>
             <th>Jam</th>
             <th>Pembuat</th>
             <th>Approver</th>
-            <th>Gudang</th>
+            <th>Nama Kontak</th>
             <th>No Telepon</th>
             <th>Jenis Biaya</th>
             <th>Status</th>
@@ -52,13 +51,12 @@
                     <tr>
                         @if($idx === 0)
                             <td>{{ $no++ }}</td>
-                            <td>{{ $item->type }}</td>
                             <td>{{ $item->number }}</td>
                             <td>{{ $tanggal ? $tanggal->format('d/m/Y') : '-' }}</td>
                             <td>{{ $item->created_at ? $item->created_at->format('H:i') : '-' }}</td>
                             <td>{{ $item->user->name ?? '-' }}</td>
                             <td>{{ $item->approver->name ?? '-' }}</td>
-                            <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
+                            <td>{{ $item->display_contact_name ?? '-' }}</td>
                             <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                             <td>
                                 @if($item->type === 'Biaya')
@@ -69,7 +67,6 @@
                             </td>
                             <td>{{ $item->status }}</td>
                         @else
-                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -104,13 +101,12 @@
             @else
                 <tr>
                     <td>{{ $no++ }}</td>
-                    <td>{{ $item->type }}</td>
                     <td>{{ $item->number }}</td>
                     <td>{{ $tanggal ? $tanggal->format('d/m/Y') : '-' }}</td>
                     <td>{{ $item->created_at ? $item->created_at->format('H:i') : '-' }}</td>
                     <td>{{ $item->user->name ?? '-' }}</td>
                     <td>{{ $item->approver->name ?? '-' }}</td>
-                    <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
+                    <td>{{ $item->display_contact_name ?? '-' }}</td>
                     <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                     <td>
                         @if(isset($item->type) && $item->type === 'Biaya')
@@ -135,19 +131,19 @@
 {{-- RINGKASAN --}}
 <table>
     <tr>
-        <td colspan="17"></td>
+        <td colspan="16"></td>
     </tr>
     <tr>
         <td colspan="3"><strong>RINGKASAN</strong></td>
-        <td colspan="14"></td>
+        <td colspan="13"></td>
     </tr>
     <tr>
         <td colspan="3"><strong>Total Transaksi</strong></td>
-        <td colspan="14">{{ $transactions->count() }} transaksi</td>
+        <td colspan="13">{{ $transactions->count() }} transaksi</td>
     </tr>
     <tr>
         <td colspan="3"><strong>Total Grand Total</strong></td>
-        <td colspan="14">{{ number_format($transactions->sum('grand_total'), 0, ',', '.') }}</td>
+        <td colspan="13">{{ number_format($transactions->sum('grand_total'), 0, ',', '.') }}</td>
     </tr>
     @php
         $typeGroups = $transactions->groupBy('type');
@@ -155,7 +151,7 @@
     @foreach($typeGroups as $type => $group)
         <tr>
             <td colspan="3"><strong>{{ $type }}</strong></td>
-            <td colspan="14">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}
+            <td colspan="13">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}
             </td>
         </tr>
     @endforeach
@@ -165,7 +161,7 @@
     @foreach($statusGroups as $status => $group)
         <tr>
             <td colspan="3"><strong>{{ $status }}</strong></td>
-            <td colspan="14">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}
+            <td colspan="13">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}
             </td>
         </tr>
     @endforeach

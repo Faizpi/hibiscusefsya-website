@@ -75,7 +75,7 @@ class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithSty
             'penjualan' => 'G',
             'kunjungan' => 'G',
             'biaya' => 'H',
-            'all' => 'I',
+            'all' => 'H',
         ];
 
         $phoneColumn = $map[$this->exportType] ?? null;

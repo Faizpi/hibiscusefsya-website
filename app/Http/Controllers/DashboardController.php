@@ -657,6 +657,7 @@ class DashboardController extends Controller
             $penjualans->each(function ($item) use ($generateNumber, $kontakPhoneMap) {
                 $item->type = 'Penjualan';
                 $item->number = $generateNumber($item, 'INV');
+                $item->display_contact_name = $item->pelanggan ?: '-';
                 $item->no_telp_kontak = $kontakPhoneMap[$item->pelanggan] ?? '-';
             });
         }
@@ -692,6 +693,7 @@ class DashboardController extends Controller
             $pembelians->each(function ($item) use ($generateNumber) {
                 $item->type = 'Pembelian';
                 $item->number = $generateNumber($item, 'PR');
+                $item->display_contact_name = '-';
                 $item->no_telp_kontak = '-';
             });
         }
@@ -736,6 +738,7 @@ class DashboardController extends Controller
             $biayas->each(function ($item) use ($generateNumber, $kontakPhoneMap) {
                 $item->type = 'Biaya';
                 $item->number = $generateNumber($item, 'EXP');
+                $item->display_contact_name = $item->penerima ?: '-';
                 $item->no_telp_kontak = $kontakPhoneMap[$item->penerima] ?? '-';
             });
         }
@@ -775,6 +778,7 @@ class DashboardController extends Controller
             $kunjungans->each(function ($item) use ($generateNumber) {
                 $item->type = 'Kunjungan';
                 $item->number = $generateNumber($item, 'VST');
+                $item->display_contact_name = optional($item->kontak)->nama ?: '-';
                 $item->no_telp_kontak = $item->kontak->no_telp ?? '-';
             });
         }

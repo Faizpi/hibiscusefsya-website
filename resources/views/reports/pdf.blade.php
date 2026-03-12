@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'DejaVu Sans', sans-serif;
-            font-size: 9px;
+            font-size: 8px;
             color: #333;
         }
 
@@ -17,7 +17,7 @@
         }
 
         .meta {
-            font-size: 8px;
+            font-size: 7px;
             color: #666;
             margin-bottom: 15px;
         }
@@ -31,15 +31,15 @@
         th {
             background: #1a56db;
             color: #fff;
-            padding: 5px 4px;
+            padding: 4px 3px;
             text-align: left;
-            font-size: 8px;
+            font-size: 7px;
         }
 
         td {
             border: 1px solid #ddd;
-            padding: 4px;
-            font-size: 8px;
+            padding: 3px;
+            font-size: 7px;
             vertical-align: top;
         }
 
@@ -59,7 +59,7 @@
             padding: 2px 6px;
             border-radius: 3px;
             color: #fff;
-            font-size: 7px;
+            font-size: 6px;
         }
 
         .badge-success {
@@ -76,10 +76,10 @@
         }
 
         .lampiran-thumb {
-            max-width: 60px;
-            max-height: 45px;
+            max-width: 110px;
+            max-height: 85px;
             border: 1px solid #ccc;
-            margin: 1px;
+            margin: 2px;
         }
 
         .footer {
@@ -453,11 +453,10 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Tipe</th>
                     <th>No Transaksi</th>
                     <th>Tanggal / Jam</th>
                     <th>Pembuat</th>
-                    <th>Gudang</th>
+                    <th>Nama Kontak</th>
                     <th>No Telepon</th>
                     <th>Status</th>
                     <th>Produk</th>
@@ -490,16 +489,14 @@
                             <tr>
                                 @if($idx === 0)
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $item->type }}</td>
                                     <td>{{ $item->number }}</td>
                                     <td>{{ $tanggal ? $tanggal->format('d/m/Y') : '-' }}
                                         {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                                     <td>{{ $item->user->name ?? '-' }}</td>
-                                    <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
+                                    <td>{{ $item->display_contact_name ?? '-' }}</td>
                                     <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                                     <td>{{ $item->status }}</td>
                                 @else
-                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -553,12 +550,11 @@
                     @else
                         <tr>
                             <td>{{ $no++ }}</td>
-                            <td>{{ $item->type }}</td>
                             <td>{{ $item->number }}</td>
                             <td>{{ $tanggal ? $tanggal->format('d/m/Y') : '-' }}
                                 {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                             <td>{{ $item->user->name ?? '-' }}</td>
-                            <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
+                            <td>{{ $item->display_contact_name ?? '-' }}</td>
                             <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                             <td>-</td>
