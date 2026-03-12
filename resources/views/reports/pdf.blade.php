@@ -456,7 +456,7 @@
                     <th>No Transaksi</th>
                     <th>Tanggal / Jam</th>
                     <th>Pembuat</th>
-                    <th>Nama Kontak</th>
+                    <th>Pelanggan</th>
                     <th>No Telepon</th>
                     <th>Status</th>
                     <th>Produk</th>

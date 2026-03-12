@@ -13,7 +13,7 @@
             <th>Jam</th>
             <th>Pembuat</th>
             <th>Approver</th>
-            <th>Nama Kontak</th>
+            <th>Pelanggan</th>
             <th>No Telepon</th>
             <th>Jenis Biaya</th>
             <th>Status</th>
