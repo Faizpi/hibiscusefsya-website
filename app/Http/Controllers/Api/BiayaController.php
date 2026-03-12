@@ -327,19 +327,24 @@ class BiayaController extends Controller
 
     private function getAccessibleGudangIds($user)
     {
-        if ($user->role === 'super_admin') return null;
+        if ($user->role === 'super_admin')
+            return null;
 
         $gudangIds = [];
         if ($user->role === 'admin') {
             $gudangIds = $user->gudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) $gudangIds[] = $user->current_gudang_id;
-            if ($user->gudang_id) $gudangIds[] = $user->gudang_id;
+            if ($user->current_gudang_id)
+                $gudangIds[] = $user->current_gudang_id;
+            if ($user->gudang_id)
+                $gudangIds[] = $user->gudang_id;
         } elseif ($user->role === 'spectator') {
             $gudangIds = $user->spectatorGudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) $gudangIds[] = $user->current_gudang_id;
+            if ($user->current_gudang_id)
+                $gudangIds[] = $user->current_gudang_id;
         } else {
             $gudang = $user->getCurrentGudang();
-            if ($gudang) $gudangIds[] = $gudang->id;
+            if ($gudang)
+                $gudangIds[] = $gudang->id;
         }
         return array_unique($gudangIds);
     }

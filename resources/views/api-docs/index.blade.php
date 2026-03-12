@@ -826,8 +826,11 @@
             <a href="{{ url('/docs/json') }}" target="_blank" class="btn">
                 <i class="fas fa-code"></i> <span class="btn-text">JSON</span>
             </a>
-            <a href="{{ url('/docs/download') }}" class="btn btn-primary">
-                <i class="fas fa-download"></i> <span class="btn-text">Download</span>
+            <a href="{{ url('/docs/download') }}" class="btn">
+                <i class="fas fa-download"></i> <span class="btn-text">Download JSON</span>
+            </a>
+            <a href="{{ url('/docs/download/postman') }}" class="btn btn-primary">
+                <i class="fas fa-rocket"></i> <span class="btn-text">Postman Collection</span>
             </a>
         </div>
     </header>

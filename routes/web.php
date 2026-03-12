@@ -46,6 +46,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
 Route::get('/docs', 'ApiDocController@index')->name('api.docs');
 Route::get('/docs/json', 'ApiDocController@json')->name('api.docs.json');
 Route::get('/docs/download', 'ApiDocController@download')->name('api.docs.download');
+Route::get('/docs/download/postman', 'ApiDocController@downloadPostman')->name('api.docs.download.postman');
 
 // ========================================================================
 // PUBLIC ROUTES (Tanpa Login) - Untuk QR Code Invoice

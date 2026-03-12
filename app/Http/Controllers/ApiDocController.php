@@ -28,6 +28,186 @@ class ApiDocController extends Controller
         ]);
     }
 
+    public function downloadPostman()
+    {
+        $spec = $this->getApiSpec();
+        $baseUrl = rtrim(url('/'), '/');
+
+        $collection = [
+            'info' => [
+                'name' => $spec['info']['title'],
+                '_postman_id' => 'hibiscus-efsya-api-v1',
+                'description' => $spec['info']['description'],
+                'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+            ],
+            'item' => [],
+            'variable' => [
+                ['key' => 'base_url', 'value' => $baseUrl, 'type' => 'string'],
+                ['key' => 'token', 'value' => '', 'type' => 'string'],
+            ],
+        ];
+
+        foreach ($spec['endpoints'] as $group) {
+            $folder = ['name' => $group['group'], 'item' => []];
+            foreach ($group['items'] as $ep) {
+                $folder['item'][] = $this->buildPostmanItem($ep);
+            }
+            $collection['item'][] = $folder;
+        }
+
+        $json = json_encode($collection, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return response($json, 200, [
+            'Content-Type' => 'application/json',
+            'Content-Disposition' => 'attachment; filename="hibiscus-efsya-api-v1-postman.json"',
+        ]);
+    }
+
+    private function buildPostmanItem(array $ep)
+    {
+        $method = $ep['method'];
+        $hasFileUpload = false;
+        foreach ($ep['body'] ?? [] as $field) {
+            if (($field['type'] ?? '') === 'file') {
+                $hasFileUpload = true;
+                break;
+            }
+        }
+
+        $headers = [];
+        if ($ep['auth'] ?? true) {
+            $headers[] = ['key' => 'Authorization', 'value' => 'Bearer {{token}}', 'type' => 'text'];
+        }
+        if (!$hasFileUpload && in_array($method, ['POST', 'PUT', 'PATCH'])) {
+            $headers[] = ['key' => 'Content-Type', 'value' => 'application/json', 'type' => 'text'];
+        }
+        $headers[] = ['key' => 'Accept', 'value' => 'application/json', 'type' => 'text'];
+
+        // Build description with body schema (wajib/opsional)
+        $description = $ep['description'];
+        if (!empty($ep['roles'])) {
+            $description .= "\n\nRoles: " . implode(', ', $ep['roles']);
+        }
+        if (!empty($ep['body'])) {
+            $description .= "\n\n**Request Body:**\n";
+            foreach ($ep['body'] as $field) {
+                if (strpos($field['name'], '(') !== false) {
+                    continue;
+                }
+                $req = ($field['required'] ?? false) ? '[WAJIB]' : '[opsional]';
+                $description .= "\n- `{$field['name']}` ({$field['type']}) {$req}: {$field['description']}";
+            }
+        }
+
+        $path = $ep['path'];
+        $pathParts = array_values(array_filter(explode('/', ltrim($path, '/'))));
+        $urlObj = [
+            'raw' => '{{base_url}}' . $path,
+            'host' => ['{{base_url}}'],
+            'path' => $pathParts,
+        ];
+
+        if (!empty($ep['params'])) {
+            $queryArr = [];
+            foreach ($ep['params'] as $p) {
+                $queryArr[] = [
+                    'key' => $p['name'],
+                    'value' => '',
+                    'description' => (($p['required'] ?? false) ? '[WAJIB] ' : '[opsional] ') . ($p['description'] ?? ''),
+                    'disabled' => !($p['required'] ?? false),
+                ];
+            }
+            $urlObj['query'] = $queryArr;
+        }
+
+        $request = [
+            'method' => $method,
+            'header' => $headers,
+            'url' => $urlObj,
+            'description' => $description,
+        ];
+
+        if (!empty($ep['body']) && in_array($method, ['POST', 'PUT', 'PATCH'])) {
+            if ($hasFileUpload) {
+                $formdata = [];
+                foreach ($ep['body'] as $field) {
+                    $desc = (($field['required'] ?? false) ? '[WAJIB] ' : '[opsional] ') . ($field['description'] ?? '');
+                    if (($field['type'] ?? '') === 'file') {
+                        $formdata[] = ['key' => $field['name'], 'type' => 'file', 'src' => '', 'description' => $desc];
+                    } else {
+                        $val = $this->getExampleValue($field);
+                        $strVal = is_bool($val) ? ($val ? 'true' : 'false') : (string) $val;
+                        $formdata[] = ['key' => $field['name'], 'value' => $strVal, 'type' => 'text', 'description' => $desc];
+                    }
+                }
+                $request['body'] = ['mode' => 'formdata', 'formdata' => $formdata];
+            } else {
+                $bodyObj = $this->buildExampleBody($ep['body']);
+                $request['body'] = [
+                    'mode' => 'raw',
+                    'raw' => json_encode($bodyObj, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+                    'options' => ['raw' => ['language' => 'json']],
+                ];
+            }
+        }
+
+        return ['name' => $ep['title'], 'request' => $request, 'response' => []];
+    }
+
+    private function buildExampleBody(array $bodyFields)
+    {
+        $result = [];
+        $itemFields = [];
+
+        foreach ($bodyFields as $field) {
+            $name = $field['name'];
+            // Skip placeholder entries like "(sama seperti POST)"
+            if (strpos($name, '(') !== false) {
+                continue;
+            }
+            // Skip file fields
+            if (($field['type'] ?? '') === 'file' || strpos($name, 'lampiran') !== false) {
+                continue;
+            }
+            // Handle items[].field pattern
+            if (preg_match('/^items\[\]\.(.+)$/', $name, $m)) {
+                $itemFields[$m[1]] = $this->getExampleValue($field);
+                continue;
+            }
+            // Skip bare array notation
+            if (strpos($name, '[]') !== false) {
+                continue;
+            }
+            $result[$name] = $this->getExampleValue($field);
+        }
+
+        if (!empty($itemFields)) {
+            $result['items'] = [$itemFields];
+        }
+
+        return $result;
+    }
+
+    private function getExampleValue(array $field)
+    {
+        $type = $field['type'] ?? 'string';
+        $name = $field['name'] ?? '';
+
+        if ($type === 'integer' || $type === 'int') {
+            return strpos($name, '_id') !== false ? 1 : 0;
+        }
+        if ($type === 'number' || $type === 'float') {
+            return 0;
+        }
+        if ($type === 'boolean') {
+            return false;
+        }
+        if (strpos($type, 'Y-m-d') !== false || strpos($name, 'tgl') !== false || strpos($name, 'expired_date') !== false) {
+            return date('Y-m-d');
+        }
+        return '';
+    }
+
     private function getApiSpec()
     {
         return [
