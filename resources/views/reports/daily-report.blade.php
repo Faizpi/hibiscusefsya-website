@@ -179,7 +179,7 @@
                 <tr>
                     <th width="3%">No</th>
                     <th width="12%">Nomor</th>
-                    <th width="8%">Tanggal</th>
+                    <th width="10%">Tanggal / Jam</th>
                     <th width="12%">Pelanggan</th>
                     <th width="10%" class="text-right">Total</th>
                     <th width="5%">Status</th>
@@ -201,7 +201,7 @@
                     <tr>
                         <td>{{ $no++ }}</td>
                         <td>{{ $item->custom_number }}</td>
-                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
+                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                         <td>{{ $item->pelanggan ?? '-' }}</td>
                         <td class="text-right">Rp {{ number_format($item->grand_total, 0, ',', '.') }}</td>
                         <td>
@@ -256,7 +256,7 @@
                 <tr>
                     <th width="3%">No</th>
                     <th width="12%">Nomor</th>
-                    <th width="8%">Tanggal</th>
+                    <th width="10%">Tanggal / Jam</th>
                     <th width="12%">Gudang</th>
                     <th width="10%" class="text-right">Total</th>
                     <th width="5%">Status</th>
@@ -278,7 +278,7 @@
                     <tr>
                         <td>{{ $no++ }}</td>
                         <td>{{ $item->custom_number }}</td>
-                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
+                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                         <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                         <td class="text-right">Rp {{ number_format($item->grand_total, 0, ',', '.') }}</td>
                         <td>
@@ -327,7 +327,7 @@
                 <tr>
                     <th width="3%">No</th>
                     <th width="12%">Nomor</th>
-                    <th width="8%">Tanggal</th>
+                    <th width="10%">Tanggal / Jam</th>
                     <th width="6%">Jenis</th>
                     <th width="10%">Penerima</th>
                     <th width="10%" class="text-right">Total</th>
@@ -350,7 +350,7 @@
                     <tr>
                         <td>{{ $no++ }}</td>
                         <td>{{ $item->custom_number }}</td>
-                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
+                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                         <td>
                             @if($item->jenis_biaya == 'masuk')
                                 <span class="badge badge-info">Masuk</span>
@@ -406,7 +406,7 @@
                 <tr>
                     <th width="3%">No</th>
                     <th width="12%">Nomor</th>
-                    <th width="8%">Tanggal</th>
+                    <th width="10%">Tanggal / Jam</th>
                     <th width="8%">Tujuan</th>
                     <th width="10%">Kontak</th>
                     <th width="5%">Status</th>
@@ -428,7 +428,7 @@
                     <tr>
                         <td>{{ $no++ }}</td>
                         <td>{{ $item->custom_number }}</td>
-                        <td>{{ $item->tgl_kunjungan ? $item->tgl_kunjungan->format('d/m/Y') : '-' }}</td>
+                        <td>{{ $item->tgl_kunjungan ? $item->tgl_kunjungan->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                         <td>{{ $item->tujuan ?? '-' }}</td>
                         <td>{{ $item->kontak->nama ?? '-' }}</td>
                         <td>

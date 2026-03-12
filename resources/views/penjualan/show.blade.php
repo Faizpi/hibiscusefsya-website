@@ -270,16 +270,16 @@
                                     <div class="value">{{ $item->diskon }}%</div>
                                 </div>
                                 @if($item->batch_number)
-                                <div class="detail-item">
-                                    <div class="label">Batch</div>
-                                    <div class="value">{{ $item->batch_number }}</div>
-                                </div>
+                                    <div class="detail-item">
+                                        <div class="label">Batch</div>
+                                        <div class="value">{{ $item->batch_number }}</div>
+                                    </div>
                                 @endif
                                 @if($item->expired_date)
-                                <div class="detail-item">
-                                    <div class="label">Exp</div>
-                                    <div class="value">{{ $item->expired_date->format('d/m/Y') }}</div>
-                                </div>
+                                    <div class="detail-item">
+                                        <div class="label">Exp</div>
+                                        <div class="value">{{ $item->expired_date->format('d/m/Y') }}</div>
+                                    </div>
                                 @endif
                             </div>
                             <div class="item-total">

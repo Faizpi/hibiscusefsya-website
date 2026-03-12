@@ -106,3 +106,40 @@
         @endforeach
     </tbody>
 </table>
+
+{{-- RINGKASAN --}}
+<table>
+    <tr>
+        <td colspan="20"></td>
+    </tr>
+    <tr>
+        <td colspan="3"><strong>RINGKASAN</strong></td>
+        <td colspan="17"></td>
+    </tr>
+    <tr>
+        <td colspan="3"><strong>Total Transaksi</strong></td>
+        <td colspan="17">{{ $transactions->count() }} transaksi</td>
+    </tr>
+    <tr>
+        <td colspan="3"><strong>Total Grand Total</strong></td>
+        <td colspan="17">{{ number_format($transactions->sum('grand_total'), 0, ',', '.') }}</td>
+    </tr>
+    @php
+        $statusGroups = $transactions->groupBy('status');
+    @endphp
+    @foreach($statusGroups as $status => $group)
+        <tr>
+            <td colspan="3"><strong>{{ $status }}</strong></td>
+            <td colspan="17">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}</td>
+        </tr>
+    @endforeach
+    @php
+        $jenisGroups = $transactions->groupBy('jenis_biaya');
+    @endphp
+    @foreach($jenisGroups as $jenis => $group)
+        <tr>
+            <td colspan="3"><strong>{{ ucfirst($jenis) }}</strong></td>
+            <td colspan="17">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}</td>
+        </tr>
+    @endforeach
+</table>

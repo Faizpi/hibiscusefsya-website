@@ -669,7 +669,14 @@
                             <label for="gudang_id">Filter Gudang</label>
                             <select class="form-control" name="gudang_id" id="gudang_id">
                                 <option value="">Semua Gudang</option>
-                                @foreach(\App\Gudang::orderBy('nama_gudang')->get() as $gd)
+                                @php
+                                    if (auth()->user()->role === 'super_admin') {
+                                        $gudangList = \App\Gudang::orderBy('nama_gudang')->get();
+                                    } else {
+                                        $gudangList = auth()->user()->gudangs()->orderBy('nama_gudang')->get();
+                                    }
+                                @endphp
+                                @foreach($gudangList as $gd)
                                     <option value="{{ $gd->id }}">{{ $gd->nama_gudang }}</option>
                                 @endforeach
                             </select>
@@ -704,7 +711,19 @@
                             <label for="sales_id">Filter Sales</label>
                             <select class="form-control" name="sales_id" id="sales_id">
                                 <option value="">Semua Sales</option>
-                                @foreach(\App\User::where('role', 'user')->orderBy('name')->get() as $salesUser)
+                                @php
+                                    if (auth()->user()->role === 'super_admin') {
+                                        $salesList = \App\User::where('role', 'user')->orderBy('name')->get();
+                                    } else {
+                                        // Admin: hanya user dari gudang yang dia akses
+                                        $adminGudangIds = auth()->user()->gudangs()->pluck('gudangs.id');
+                                        $salesList = \App\User::where('role', 'user')
+                                            ->whereIn('gudang_id', $adminGudangIds)
+                                            ->orderBy('name')
+                                            ->get();
+                                    }
+                                @endphp
+                                @foreach($salesList as $salesUser)
                                     <option value="{{ $salesUser->id }}">{{ $salesUser->name }}</option>
                                 @endforeach
                             </select>

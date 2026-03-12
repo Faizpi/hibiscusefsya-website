@@ -131,3 +131,40 @@
         @endforeach
     </tbody>
 </table>
+
+{{-- RINGKASAN --}}
+<table>
+    <tr>
+        <td colspan="17"></td>
+    </tr>
+    <tr>
+        <td colspan="3"><strong>RINGKASAN</strong></td>
+        <td colspan="14"></td>
+    </tr>
+    <tr>
+        <td colspan="3"><strong>Total Transaksi</strong></td>
+        <td colspan="14">{{ $transactions->count() }} transaksi</td>
+    </tr>
+    <tr>
+        <td colspan="3"><strong>Total Grand Total</strong></td>
+        <td colspan="14">{{ number_format($transactions->sum('grand_total'), 0, ',', '.') }}</td>
+    </tr>
+    @php
+        $typeGroups = $transactions->groupBy('type');
+    @endphp
+    @foreach($typeGroups as $type => $group)
+        <tr>
+            <td colspan="3"><strong>{{ $type }}</strong></td>
+            <td colspan="14">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}</td>
+        </tr>
+    @endforeach
+    @php
+        $statusGroups = $transactions->groupBy('status');
+    @endphp
+    @foreach($statusGroups as $status => $group)
+        <tr>
+            <td colspan="3"><strong>{{ $status }}</strong></td>
+            <td colspan="14">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}</td>
+        </tr>
+    @endforeach
+</table>

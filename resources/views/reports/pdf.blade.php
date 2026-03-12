@@ -110,7 +110,7 @@
                 <tr>
                     <th width="3%">No</th>
                     <th width="9%">No Kunjungan</th>
-                    <th width="7%">Tanggal</th>
+                    <th width="9%">Tanggal / Jam</th>
                     <th width="7%">Tujuan</th>
                     <th width="8%">Sales</th>
                     <th width="7%">No Telepon</th>
@@ -137,7 +137,7 @@
                     <tr>
                         <td>{{ $no++ }}</td>
                         <td>{{ $item->number }}</td>
-                        <td>{{ $item->tgl_kunjungan ? $item->tgl_kunjungan->format('d/m/Y') : '-' }}</td>
+                        <td>{{ $item->tgl_kunjungan ? $item->tgl_kunjungan->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                         <td>{{ $item->tujuan ?? '-' }}</td>
                         <td>{{ $item->sales_nama ?? ($item->user->name ?? '-') }}</td>
                         <td>{{ $item->no_telp_kontak ?? '-' }}</td>
@@ -192,7 +192,7 @@
                 <tr>
                     <th width="3%">No</th>
                     <th width="9%">No Transaksi</th>
-                    <th width="7%">Tanggal</th>
+                    <th width="9%">Tanggal / Jam</th>
                     <th width="9%">Pelanggan</th>
                     <th width="8%">No Telepon</th>
                     <th width="7%">Gudang</th>
@@ -224,7 +224,7 @@
                                 @if($idx === 0)
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $item->number }}</td>
-                                    <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
+                                    <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                                     <td>{{ $item->pelanggan ?? '-' }}</td>
                                     <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
@@ -272,7 +272,7 @@
                         <tr>
                             <td>{{ $no++ }}</td>
                             <td>{{ $item->number }}</td>
-                            <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
+                            <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                             <td>{{ $item->pelanggan ?? '-' }}</td>
                             <td>{{ $item->no_telp_kontak ?? '-' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
@@ -300,7 +300,7 @@
                 <tr>
                     <th width="3%">No</th>
                     <th width="10%">No Transaksi</th>
-                    <th width="7%">Tanggal</th>
+                    <th width="9%">Tanggal / Jam</th>
                     <th width="8%">Gudang</th>
                     <th width="6%">Status</th>
                     <th width="15%">Produk</th>
@@ -320,7 +320,7 @@
                                 @if($idx === 0)
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $item->number }}</td>
-                                    <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
+                                    <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                                     <td>{{ $item->status }}</td>
                                 @else
@@ -347,7 +347,7 @@
                         <tr>
                             <td>{{ $no++ }}</td>
                             <td>{{ $item->number }}</td>
-                            <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
+                            <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                             <td>-</td>
@@ -369,7 +369,7 @@
                 <tr>
                     <th>No</th>
                     <th>No Transaksi</th>
-                    <th>Tanggal</th>
+                    <th>Tanggal / Jam</th>
                     <th>Jenis</th>
                     <th>Penerima</th>
                     <th>No Telepon</th>
@@ -391,7 +391,7 @@
                                 @if($idx === 0)
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $item->number }}</td>
-                                    <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
+                                    <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                                     <td>{{ ucfirst($item->jenis_biaya ?? '-') }}</td>
                                     <td>{{ $item->penerima ?? '-' }}</td>
                                     <td>{{ $item->no_telp_kontak ?? '-' }}</td>
@@ -423,7 +423,7 @@
                         <tr>
                             <td>{{ $no++ }}</td>
                             <td>{{ $item->number }}</td>
-                            <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
+                            <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                             <td>{{ ucfirst($item->jenis_biaya ?? '-') }}</td>
                             <td>{{ $item->penerima ?? '-' }}</td>
                             <td>{{ $item->no_telp_kontak ?? '-' }}</td>
@@ -448,7 +448,7 @@
                     <th>No</th>
                     <th>Tipe</th>
                     <th>No Transaksi</th>
-                    <th>Tanggal</th>
+                    <th>Tanggal / Jam</th>
                     <th>Pembuat</th>
                     <th>Gudang</th>
                     <th>No Telepon</th>
@@ -485,7 +485,7 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $item->type }}</td>
                                     <td>{{ $item->number }}</td>
-                                    <td>{{ $tanggal ? $tanggal->format('d/m/Y') : '-' }}</td>
+                                    <td>{{ $tanggal ? $tanggal->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                                     <td>{{ $item->user->name ?? '-' }}</td>
                                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                                     <td>{{ $item->no_telp_kontak ?? '-' }}</td>
@@ -547,7 +547,7 @@
                             <td>{{ $no++ }}</td>
                             <td>{{ $item->type }}</td>
                             <td>{{ $item->number }}</td>
-                            <td>{{ $tanggal ? $tanggal->format('d/m/Y') : '-' }}</td>
+                            <td>{{ $tanggal ? $tanggal->format('d/m/Y') : '-' }} {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                             <td>{{ $item->user->name ?? '-' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->no_telp_kontak ?? '-' }}</td>
@@ -564,6 +564,66 @@
             </tbody>
         </table>
     @endif
+
+    {{-- RINGKASAN --}}
+    <div style="margin-top: 20px; border: 1px solid #1a56db; border-radius: 5px; padding: 10px;">
+        <h3 style="color: #1a56db; margin: 0 0 8px 0; font-size: 11px;">Ringkasan</h3>
+        <table style="border: none;">
+            <tr>
+                <td style="border: none; font-weight: bold; width: 200px; font-size: 9px;">Total Transaksi</td>
+                <td style="border: none; font-size: 9px;">: {{ $transactions->count() }}
+                    {{ $exportType === 'kunjungan' ? 'kunjungan' : 'transaksi' }}</td>
+            </tr>
+            @if($exportType !== 'kunjungan')
+                <tr>
+                    <td style="border: none; font-weight: bold; font-size: 9px;">Total Grand Total</td>
+                    <td style="border: none; font-size: 9px;">: Rp
+                        {{ number_format($transactions->sum('grand_total'), 0, ',', '.') }}</td>
+                </tr>
+            @endif
+            @if($exportType === 'all')
+                @php $typeGroups = $transactions->groupBy('type'); @endphp
+                @foreach($typeGroups as $type => $group)
+                    <tr>
+                        <td style="border: none; font-weight: bold; font-size: 9px;">{{ $type }}</td>
+                        <td style="border: none; font-size: 9px;">: {{ $group->count() }} transaksi — Rp
+                            {{ number_format($group->sum('grand_total'), 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            @endif
+            @php $statusGroups = $transactions->groupBy('status'); @endphp
+            @foreach($statusGroups as $status => $group)
+                <tr>
+                    <td style="border: none; font-weight: bold; font-size: 9px;">{{ $status }}</td>
+                    <td style="border: none; font-size: 9px;">: {{ $group->count() }}
+                        {{ $exportType === 'kunjungan' ? 'kunjungan' : 'transaksi' }}
+                        @if($exportType !== 'kunjungan')
+                            — Rp {{ number_format($group->sum('grand_total'), 0, ',', '.') }}
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+            @if($exportType === 'biaya')
+                @php $jenisGroups = $transactions->groupBy('jenis_biaya'); @endphp
+                @foreach($jenisGroups as $jenis => $group)
+                    <tr>
+                        <td style="border: none; font-weight: bold; font-size: 9px;">{{ ucfirst($jenis) }}</td>
+                        <td style="border: none; font-size: 9px;">: {{ $group->count() }} transaksi — Rp
+                            {{ number_format($group->sum('grand_total'), 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            @endif
+            @if($exportType === 'kunjungan')
+                @php $tujuanGroups = $transactions->groupBy('tujuan'); @endphp
+                @foreach($tujuanGroups as $tujuan => $group)
+                    <tr>
+                        <td style="border: none; font-weight: bold; font-size: 9px;">{{ $tujuan }}</td>
+                        <td style="border: none; font-size: 9px;">: {{ $group->count() }} kunjungan</td>
+                    </tr>
+                @endforeach
+            @endif
+        </table>
+    </div>
 
     <div class="footer">
         Hibiscus Efsya - Laporan dicetak oleh {{ $generatedBy ?? '-' }} pada

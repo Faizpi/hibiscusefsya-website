@@ -74,3 +74,36 @@
         @endforeach
     </tbody>
 </table>
+
+{{-- RINGKASAN --}}
+<table>
+    <tr>
+        <td colspan="17"></td>
+    </tr>
+    <tr>
+        <td colspan="3"><strong>RINGKASAN</strong></td>
+        <td colspan="14"></td>
+    </tr>
+    <tr>
+        <td colspan="3"><strong>Total Kunjungan</strong></td>
+        <td colspan="14">{{ $transactions->count() }} kunjungan</td>
+    </tr>
+    @php
+        $statusGroups = $transactions->groupBy('status');
+    @endphp
+    @foreach($statusGroups as $status => $group)
+        <tr>
+            <td colspan="3"><strong>{{ $status }}</strong></td>
+            <td colspan="14">{{ $group->count() }} kunjungan</td>
+        </tr>
+    @endforeach
+    @php
+        $tujuanGroups = $transactions->groupBy('tujuan');
+    @endphp
+    @foreach($tujuanGroups as $tujuan => $group)
+        <tr>
+            <td colspan="3"><strong>{{ $tujuan }}</strong></td>
+            <td colspan="14">{{ $group->count() }} kunjungan</td>
+        </tr>
+    @endforeach
+</table>
