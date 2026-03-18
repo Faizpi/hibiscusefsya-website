@@ -39,6 +39,8 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     // Dashboard
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard/daily-report', 'DashboardController@dailyReport');
+    Route::get('dashboard/daily-report/pdf', 'DashboardController@dailyReportPdf');
+    Route::post('dashboard/export', 'DashboardController@export');
     Route::get('lampiran/download', 'DashboardController@downloadLampiran');
 
     // Gudang
@@ -46,6 +48,7 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::post('gudang/switch', 'GudangController@switchGudang');
     Route::get('gudang/stok', 'GudangController@stok');
     Route::get('gudang/stok-log', 'GudangController@stokLog');
+    Route::get('gudang/stok/export', 'GudangController@exportStok');
 
     // Produk
     Route::get('produk/stok/{gudangId}', 'ProdukController@stokByGudang');

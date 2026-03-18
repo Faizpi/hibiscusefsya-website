@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Gudang;
 use App\GudangProduk;
 use App\StokLog;
+use App\Exports\StokExport;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GudangController extends Controller
 {
@@ -84,6 +86,41 @@ class GudangController extends Controller
             $query->where('gudang_id', $currentGudang->id);
         }
 
-        return response()->json($query->latest()->paginate($request->per_page ?? 50));
+        return response()->json($query->latest()->paginate($request->per_page ?: 50));
+    }
+
+    /**
+     * Export stok ke Excel — sama persis dengan website
+     */
+    public function exportStok(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['admin', 'spectator', 'super_admin'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'gudang_id' => 'required|exists:gudangs,id',
+        ]);
+
+        $gudang = Gudang::findOrFail($request->gudang_id);
+
+        if ($user->role == 'admin' && !$user->canAccessGudang($gudang->id)) {
+            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        }
+
+        $stokData = GudangProduk::where('gudang_id', $gudang->id)
+            ->with('produk')
+            ->get();
+
+        $fileName = 'Stok_' . str_replace(' ', '_', $gudang->nama_gudang) . '_' . date('Y-m-d_His') . '.xlsx';
+
+        return Excel::download(
+            new StokExport($gudang, $stokData, $user->name),
+            $fileName,
+            \Maatwebsite\Excel\Excel::XLSX
+        );
     }
 }
+
