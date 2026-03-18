@@ -9,6 +9,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class PembayaranController extends Controller
 {
@@ -68,6 +69,23 @@ class PembayaranController extends Controller
             'status' => 'Pending',
             'lampiran_paths' => json_encode([]),
         ]);
+
+        $lampiranPaths = [];
+        if ($request->hasFile('lampiran')) {
+            $publicFolder = public_path('storage/lampiran_pembayaran');
+            if (!File::exists($publicFolder)) {
+                File::makeDirectory($publicFolder, 0755, true);
+            }
+            $counter = 1;
+            foreach ($request->file('lampiran') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $filename = $nomor . '-' . $counter . '.' . $extension;
+                $file->move($publicFolder, $filename);
+                $lampiranPaths[] = 'lampiran_pembayaran/' . $filename;
+                $counter++;
+            }
+            $pembayaran->update(['lampiran_paths' => $lampiranPaths]);
+        }
 
         return response()->json(['message' => 'Pembayaran berhasil dibuat.', 'data' => $pembayaran], 201);
     }

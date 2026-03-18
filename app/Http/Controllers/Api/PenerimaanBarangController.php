@@ -12,6 +12,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class PenerimaanBarangController extends Controller
 {
@@ -156,6 +157,24 @@ class PenerimaanBarangController extends Controller
                 if ($initialStatus === 'Approved' && $qtyDiterima > 0) {
                     $this->tambahStok($gudangId, $item['produk_id'], $qtyDiterima, $tipeStok);
                 }
+            }
+
+            // Upload lampiran
+            $lampiranPaths = [];
+            if ($request->hasFile('lampiran')) {
+                $publicFolder = public_path('storage/lampiran_penerimaan');
+                if (!File::exists($publicFolder)) {
+                    File::makeDirectory($publicFolder, 0755, true);
+                }
+                $counter = 1;
+                foreach ($request->file('lampiran') as $file) {
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = $nomor . '-' . $counter . '.' . $extension;
+                    $file->move($publicFolder, $filename);
+                    $lampiranPaths[] = 'lampiran_penerimaan/' . $filename;
+                    $counter++;
+                }
+                $penerimaan->update(['lampiran_paths' => $lampiranPaths]);
             }
 
             DB::commit();

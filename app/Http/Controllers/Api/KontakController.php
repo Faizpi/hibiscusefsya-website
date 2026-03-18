@@ -49,15 +49,19 @@ class KontakController extends Controller
             'no_telp' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'alamat' => 'nullable|string',
+            'kode_kontak' => 'nullable|string|max:50',
+            'pin' => 'nullable|string|size:6',
         ]);
 
         $user = auth()->user();
         $currentGudang = $user->getCurrentGudang();
 
         $kontak = Kontak::create([
+            'kode_kontak' => $request->kode_kontak,
             'nama' => $request->nama,
             'email' => $request->email,
             'no_telp' => $request->no_telp,
+            'pin' => $request->pin,
             'alamat' => $request->alamat,
             'diskon_persen' => $request->diskon_persen ?? 0,
             'gudang_id' => $request->gudang_id ?? ($currentGudang ? $currentGudang->id : null),
@@ -74,9 +78,11 @@ class KontakController extends Controller
             'nama' => 'required|string|max:255',
             'no_telp' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
+            'kode_kontak' => 'nullable|string|max:50',
+            'pin' => 'nullable|string|size:6',
         ]);
 
-        $kontak->update($request->only(['nama', 'email', 'no_telp', 'alamat', 'diskon_persen']));
+        $kontak->update($request->only(['nama', 'email', 'no_telp', 'alamat', 'diskon_persen', 'kode_kontak', 'pin']));
 
         return response()->json(['message' => 'Kontak berhasil diupdate.', 'data' => $kontak]);
     }
