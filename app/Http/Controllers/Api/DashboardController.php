@@ -192,10 +192,95 @@ class DashboardController extends Controller
     }
 
     /**
+     * Metadata filter export report untuk Flutter (mirror form dashboard web).
+     */
+    public function exportOptions(Request $request)
+    {
+        $user = auth()->user();
+        $role = $user->role;
+
+        $gudangs = collect();
+        $salesUsers = collect();
+
+        if ($role === 'super_admin') {
+            $gudangs = Gudang::orderBy('nama_gudang')
+                ->get(['id', 'nama_gudang']);
+
+            $salesUsers = User::where('role', 'user')
+                ->orderBy('name')
+                ->get(['id', 'name', 'gudang_id']);
+        } elseif ($role === 'admin') {
+            $adminGudangIds = $user->gudangs()->pluck('gudangs.id');
+
+            $gudangs = Gudang::whereIn('id', $adminGudangIds)
+                ->orderBy('nama_gudang')
+                ->get(['id', 'nama_gudang']);
+
+            $salesUsers = User::where('role', 'user')
+                ->whereIn('gudang_id', $adminGudangIds)
+                ->orderBy('name')
+                ->get(['id', 'name', 'gudang_id']);
+        }
+
+        return response()->json([
+            'role' => $role,
+            'permissions' => [
+                'can_export_full_report' => in_array($role, ['admin', 'super_admin']),
+                'can_export_daily_pdf' => true,
+            ],
+            'transaction_types' => [
+                ['value' => 'all', 'label' => 'Semua Transaksi'],
+                ['value' => 'penjualan', 'label' => 'Penjualan'],
+                ['value' => 'pembelian', 'label' => 'Pembelian'],
+                ['value' => 'biaya', 'label' => 'Biaya'],
+                ['value' => 'kunjungan', 'label' => 'Kunjungan'],
+            ],
+            'status_filters' => [
+                ['value' => 'all', 'label' => 'Semua Status'],
+                ['value' => 'Pending', 'label' => 'Pending'],
+                ['value' => 'Approved', 'label' => 'Approved'],
+                ['value' => 'Lunas', 'label' => 'Lunas'],
+                ['value' => 'Rejected', 'label' => 'Rejected'],
+                ['value' => 'Canceled', 'label' => 'Canceled'],
+            ],
+            'biaya_jenis_filters' => [
+                ['value' => '', 'label' => 'Semua Jenis'],
+                ['value' => 'masuk', 'label' => 'Masuk'],
+                ['value' => 'keluar', 'label' => 'Keluar'],
+            ],
+            'tujuan_kunjungan_filters' => [
+                ['value' => '', 'label' => 'Semua Tujuan'],
+                ['value' => 'Pemeriksaan Stock', 'label' => 'Pemeriksaan Stock'],
+                ['value' => 'Penagihan', 'label' => 'Penagihan'],
+                ['value' => 'Promo', 'label' => 'Promo'],
+            ],
+            'export_formats' => [
+                ['value' => 'pdf', 'label' => 'PDF'],
+                ['value' => 'excel', 'label' => 'Excel'],
+            ],
+            'gudang_options' => $gudangs,
+            'sales_options' => $salesUsers,
+            'defaults' => [
+                'transaction_type' => 'all',
+                'status_filter' => 'all',
+                'export_format' => 'excel',
+            ],
+        ]);
+    }
+
+    /**
      * Export Report PDF/Excel - sama persis dengan website
      */
     public function export(Request $request)
     {
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['admin', 'super_admin'])) {
+            return response()->json([
+                'message' => 'Akses ditolak. Hanya admin/super_admin yang dapat export laporan ini.'
+            ], 403);
+        }
+
         $request->validate([
             'date_from' => 'required|date',
             'date_to' => 'required|date|after_or_equal:date_from',
@@ -217,7 +302,6 @@ class DashboardController extends Controller
         $tujuanFilter = $request->tujuan_filter;
         $exportFormat = $request->export_format ?: 'excel';
         $salesId = $request->sales_id;
-        $user = auth()->user();
 
         $penjualans = collect();
         $pembelians = collect();

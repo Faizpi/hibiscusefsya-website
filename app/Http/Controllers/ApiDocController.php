@@ -345,11 +345,21 @@ class ApiDocController extends Controller
                         'response' => 'Binary PDF file download (Content-Type: application/pdf)',
                     ],
                     [
+                        'method' => 'GET',
+                        'path' => '/api/v1/dashboard/export/options',
+                        'title' => 'Metadata Filter Export Dashboard',
+                        'description' => 'Ambil opsi filter untuk form export agar Flutter bisa mirror isi form website: tipe transaksi, status, gudang, sales, jenis biaya, tujuan kunjungan, format export, default value, dan permission per role.',
+                        'auth' => true,
+                        'params' => [],
+                        'response' => '{"role":"admin","permissions":{"can_export_full_report":true,"can_export_daily_pdf":true},"transaction_types":[{"value":"all","label":"Semua Transaksi"}],"status_filters":[...],"biaya_jenis_filters":[...],"tujuan_kunjungan_filters":[...],"export_formats":[{"value":"pdf","label":"PDF"},{"value":"excel","label":"Excel"}],"gudang_options":[{"id":1,"nama_gudang":"Gudang Utama"}],"sales_options":[{"id":7,"name":"Sales A","gudang_id":1}],"defaults":{"transaction_type":"all","status_filter":"all","export_format":"excel"}}',
+                    ],
+                    [
                         'method' => 'POST',
                         'path' => '/api/v1/dashboard/export',
                         'title' => 'Export Laporan (PDF/Excel)',
-                        'description' => 'Export laporan transaksi dalam format PDF atau Excel. Mendukung filter lengkap: tanggal, tipe transaksi, status, gudang, sales, jenis biaya, tujuan kunjungan. Format output identik dengan website.',
+                        'description' => 'Export laporan transaksi dalam format PDF atau Excel. Mendukung filter lengkap: tanggal, tipe transaksi, status, gudang, sales, jenis biaya, tujuan kunjungan. Format output identik dengan website. Akses hanya untuk role admin dan super_admin.',
                         'auth' => true,
+                        'roles' => ['admin', 'super_admin'],
                         'body' => [
                             ['name' => 'date_from', 'type' => 'date', 'required' => true, 'description' => 'Tanggal mulai (YYYY-MM-DD)'],
                             ['name' => 'date_to', 'type' => 'date', 'required' => true, 'description' => 'Tanggal akhir (YYYY-MM-DD, >= date_from)'],

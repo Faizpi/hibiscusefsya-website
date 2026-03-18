@@ -40,6 +40,7 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard/daily-report', 'DashboardController@dailyReport');
     Route::get('dashboard/daily-report/pdf', 'DashboardController@dailyReportPdf');
+    Route::get('dashboard/export/options', 'DashboardController@exportOptions');
     Route::post('dashboard/export', 'DashboardController@export');
     Route::get('lampiran/download', 'DashboardController@downloadLampiran');
 
