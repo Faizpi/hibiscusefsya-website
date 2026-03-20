@@ -44,6 +44,10 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::post('dashboard/export', 'DashboardController@export');
     Route::get('lampiran/download', 'DashboardController@downloadLampiran');
 
+    // Print / QR Utilities for mobile detail screens
+    Route::get('print/{type}/{id}/qr', 'PrintController@qrData');
+    Route::get('print/{type}/{id}/bluetooth', 'PrintController@bluetoothData');
+
     // Gudang
     Route::get('gudang', 'GudangController@index');
     Route::post('gudang/switch', 'GudangController@switchGudang');
