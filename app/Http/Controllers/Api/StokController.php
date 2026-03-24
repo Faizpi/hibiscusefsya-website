@@ -21,11 +21,44 @@ class StokController extends Controller
 
         $currentGudang = $user->getCurrentGudang();
 
+        // Tentukan query gudang berdasarkan role user.
         if ($user->role === 'super_admin') {
-            $gudangs = Gudang::with('produkStok.produk')->get();
+            $gudangQuery = Gudang::query();
+        } elseif ($user->role === 'admin') {
+            $gudangQuery = $user->gudangs();
         } else {
-            $gudangs = $user->gudangs()->with('produkStok.produk')->get();
+            $gudangQuery = $user->spectatorGudangs();
         }
+
+        // Jika ada filter gudang_id, validasi aksesnya.
+        if ($request->filled('gudang_id')) {
+            $gudangId = (int) $request->gudang_id;
+
+            if ($user->role !== 'super_admin' && !$user->canAccessGudang($gudangId)) {
+                return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+            }
+
+            $gudangQuery->where('gudangs.id', $gudangId);
+        } elseif ($user->role !== 'super_admin' && $currentGudang) {
+            // Default non-super-admin: tampilkan gudang aktif agar konsisten dengan switch gudang di mobile.
+            $gudangQuery->where('gudangs.id', $currentGudang->id);
+        }
+
+        $gudangs = $gudangQuery
+            ->with(['produkStok' => function ($q) {
+                $q->with('produk');
+            }])
+            ->get();
+
+        // Normalisasi total stok agar tidak bergantung pada kolom legacy `stok`.
+        $gudangs->each(function ($gudang) {
+            $gudang->produkStok->each(function ($stok) {
+                $stokPenjualan = (int) ($stok->stok_penjualan ?? 0);
+                $stokGratis = (int) ($stok->stok_gratis ?? 0);
+                $stokSample = (int) ($stok->stok_sample ?? 0);
+                $stok->stok = $stokPenjualan + $stokGratis + $stokSample;
+            });
+        });
 
         return response()->json($gudangs);
     }
