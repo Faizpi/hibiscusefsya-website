@@ -26,6 +26,7 @@ class DashboardController extends Controller
         $user = auth()->user();
         $role = $user->role;
         $now = Carbon::now();
+        $gudangId = null;
 
         $data = [];
 
@@ -43,7 +44,7 @@ class DashboardController extends Controller
 
             $penjualanQuery = Penjualan::where('status', '!=', 'Canceled')->where('gudang_id', $gudangId);
             $pembelianQuery = Pembelian::where('status', '!=', 'Canceled')->where('gudang_id', $gudangId);
-            $biayaQuery = Biaya::where('status', '!=', 'Canceled');
+            $biayaQuery = Biaya::where('status', '!=', 'Canceled')->where('gudang_id', $gudangId);
 
             $data['current_gudang'] = $currentGudang ? $currentGudang->nama_gudang : null;
             $data['total_produk'] = GudangProduk::where('gudang_id', $gudangId)->count();
@@ -79,10 +80,15 @@ class DashboardController extends Controller
             ->whereYear('tgl_transaksi', $now->year)
             ->sum('grand_total');
 
+        $pendingPembelianQuery = Pembelian::where('status', 'Pending');
+        if (in_array($role, ['admin', 'spectator'])) {
+            $pendingPembelianQuery->where('gudang_id', $gudangId);
+        } elseif ($role != 'super_admin') {
+            $pendingPembelianQuery->where('user_id', $user->id);
+        }
+
         $data['pending_approval'] = (clone $penjualanQuery)->where('status', 'Pending')->count()
-            + Pembelian::where('status', 'Pending')->when($role != 'super_admin', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            })->count();
+            + $pendingPembelianQuery->count();
 
         // Recent transactions
         $data['recent_penjualan'] = (clone $penjualanQuery)

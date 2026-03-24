@@ -39,7 +39,19 @@ class KontakController extends Controller
 
     public function show($id)
     {
-        return response()->json(Kontak::findOrFail($id));
+        $user = auth()->user();
+        $kontak = Kontak::findOrFail($id);
+
+        if ($user->role !== 'super_admin') {
+            $currentGudang = $user->getCurrentGudang();
+            $allowedGudangId = $currentGudang ? $currentGudang->id : null;
+
+            if (!is_null($kontak->gudang_id) && $kontak->gudang_id != $allowedGudangId) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+        }
+
+        return response()->json($kontak);
     }
 
     public function store(Request $request)

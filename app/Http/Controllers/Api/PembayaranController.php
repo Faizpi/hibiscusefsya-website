@@ -34,10 +34,19 @@ class PembayaranController extends Controller
 
     public function show($id)
     {
-        return response()->json(
-            Pembayaran::with(['user:id,name', 'gudang:id,nama_gudang', 'penjualan.items', 'approver:id,name'])
-                ->findOrFail($id)
-        );
+        $user = auth()->user();
+        $pembayaran = Pembayaran::with(['user:id,name', 'gudang:id,nama_gudang', 'penjualan.items', 'approver:id,name'])
+            ->findOrFail($id);
+
+        if ($user->role == 'user' && $pembayaran->user_id != $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if (in_array($user->role, ['admin', 'spectator']) && !$user->canAccessGudang($pembayaran->gudang_id)) {
+            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        }
+
+        return response()->json($pembayaran);
     }
 
     public function store(Request $request)
@@ -52,6 +61,10 @@ class PembayaranController extends Controller
         ]);
 
         $penjualan = Penjualan::findOrFail($request->penjualan_id);
+
+        if ($user->role !== 'super_admin' && !$user->canAccessGudang($penjualan->gudang_id)) {
+            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        }
 
         $countToday = Pembayaran::where('user_id', $user->id)->whereDate('created_at', Carbon::today())->count();
         $noUrut = $countToday + 1;

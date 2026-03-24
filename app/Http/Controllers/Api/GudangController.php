@@ -106,7 +106,7 @@ class GudangController extends Controller
 
         $gudang = Gudang::findOrFail($request->gudang_id);
 
-        if ($user->role == 'admin' && !$user->canAccessGudang($gudang->id)) {
+        if ($user->role !== 'super_admin' && !$user->canAccessGudang($gudang->id)) {
             return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
         }
 

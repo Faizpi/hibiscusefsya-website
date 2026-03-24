@@ -43,8 +43,17 @@ class KunjunganController extends Controller
 
     public function show($id)
     {
+        $user = auth()->user();
         $kunjungan = Kunjungan::with(['user:id,name', 'gudang:id,nama_gudang', 'kontak', 'approver:id,name', 'items.produk:id,nama_produk,item_code,satuan'])
             ->findOrFail($id);
+
+        if ($user->role == 'user' && $kunjungan->user_id != $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if (in_array($user->role, ['admin', 'spectator']) && !$user->canAccessGudang($kunjungan->gudang_id)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
         return response()->json($kunjungan);
     }

@@ -57,6 +57,10 @@ class PembelianController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
+        if (in_array($user->role, ['admin', 'spectator']) && !$user->canAccessGudang($pembelian->gudang_id)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         return response()->json($pembelian);
     }
 
@@ -80,6 +84,10 @@ class PembelianController extends Controller
             'items.*.kuantitas' => 'required|numeric|min:1',
             'items.*.harga_satuan' => 'required|numeric|min:0',
         ]);
+
+        if ($user->role !== 'super_admin' && !$user->canAccessGudang($request->gudang_id)) {
+            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        }
 
         $subTotal = 0;
         foreach ($request->items as $item) {

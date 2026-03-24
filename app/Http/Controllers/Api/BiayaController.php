@@ -41,9 +41,20 @@ class BiayaController extends Controller
 
     public function show($id)
     {
-        return response()->json(
-            Biaya::with(['user:id,name', 'approver:id,name', 'items'])->findOrFail($id)
-        );
+        $user = auth()->user();
+        $biaya = Biaya::with(['user:id,name', 'approver:id,name', 'items'])->findOrFail($id);
+
+        if ($user->role !== 'super_admin') {
+            $gudangIds = $this->getAccessibleGudangIds($user) ?? [];
+            $hasGudangAccess = $biaya->gudang_id && in_array($biaya->gudang_id, $gudangIds);
+            $isRelated = $biaya->user_id == $user->id || $biaya->approver_id == $user->id;
+
+            if (!$hasGudangAccess && !$isRelated) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+        }
+
+        return response()->json($biaya);
     }
 
     public function store(Request $request)

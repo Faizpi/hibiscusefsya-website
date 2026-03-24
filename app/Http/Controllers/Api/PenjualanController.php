@@ -98,6 +98,10 @@ class PenjualanController extends Controller
             'items.*.diskon' => 'nullable|numeric|min:0|max:100',
         ]);
 
+        if ($user->role !== 'super_admin' && !$user->canAccessGudang($request->gudang_id)) {
+            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        }
+
         // Validasi stok
         $gudangId = $request->gudang_id;
         $stokErrors = [];

@@ -48,15 +48,24 @@ class PenerimaanBarangController extends Controller
 
     public function show($id)
     {
-        return response()->json(
-            PenerimaanBarang::with([
-                'user:id,name',
-                'approver:id,name',
-                'gudang:id,nama_gudang',
-                'pembelian:id,nomor',
-                'items.produk:id,nama_produk,item_code,satuan'
-            ])->findOrFail($id)
-        );
+        $user = auth()->user();
+        $penerimaan = PenerimaanBarang::with([
+            'user:id,name',
+            'approver:id,name',
+            'gudang:id,nama_gudang',
+            'pembelian:id,nomor',
+            'items.produk:id,nama_produk,item_code,satuan'
+        ])->findOrFail($id);
+
+        if ($user->role == 'user' && $penerimaan->user_id != $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if (in_array($user->role, ['admin', 'spectator']) && !$user->canAccessGudang($penerimaan->gudang_id)) {
+            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        }
+
+        return response()->json($penerimaan);
     }
 
     public function store(Request $request)
@@ -254,6 +263,11 @@ class PenerimaanBarangController extends Controller
 
     public function getPembelianByGudang($gudangId)
     {
+        $user = auth()->user();
+        if ($user->role !== 'super_admin' && !$user->canAccessGudang($gudangId)) {
+            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        }
+
         $pembelians = Pembelian::where('gudang_id', $gudangId)
             ->whereIn('status', ['Approved', 'Pending'])
             ->with('items.produk')
@@ -283,7 +297,16 @@ class PenerimaanBarangController extends Controller
 
     public function getPembelianDetail($id)
     {
+        $user = auth()->user();
         $pembelian = Pembelian::with('items.produk')->findOrFail($id);
+
+        if ($user->role == 'user' && $pembelian->user_id != $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if (in_array($user->role, ['admin', 'spectator']) && !$user->canAccessGudang($pembelian->gudang_id)) {
+            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        }
 
         $qtyDiterima = [];
         $penerimaanItems = PenerimaanBarangItem::whereHas('penerimaanBarang', function ($q) use ($id) {
