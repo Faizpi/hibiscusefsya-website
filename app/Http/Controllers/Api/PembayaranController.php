@@ -42,8 +42,11 @@ class PembayaranController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        if (in_array($user->role, ['admin', 'spectator']) && !$user->canAccessGudang($pembayaran->gudang_id)) {
-            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $pembayaran->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Tidak memiliki akses ke gudang aktif untuk data ini.'], 403);
+            }
         }
 
         return response()->json($pembayaran);
@@ -52,6 +55,10 @@ class PembayaranController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
+
+        if ($user->isSpectator()) {
+            return response()->json(['message' => 'Spectator tidak bisa membuat transaksi.'], 403);
+        }
 
         $request->validate([
             'penjualan_id' => 'required|exists:penjualans,id',
@@ -62,7 +69,12 @@ class PembayaranController extends Controller
 
         $penjualan = Penjualan::findOrFail($request->penjualan_id);
 
-        if ($user->role !== 'super_admin' && !$user->canAccessGudang($penjualan->gudang_id)) {
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $penjualan->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Gudang transaksi harus sesuai gudang aktif.'], 403);
+            }
+        } elseif ($user->role !== 'super_admin' && !$user->canAccessGudang($penjualan->gudang_id)) {
             return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
         }
 
@@ -112,8 +124,11 @@ class PembayaranController extends Controller
 
         $pembayaran = Pembayaran::findOrFail($id);
 
-        if ($user->role === 'admin' && !$user->canAccessGudang($pembayaran->gudang_id)) {
-            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $pembayaran->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa approve pembayaran di gudang aktif.'], 403);
+            }
         }
 
         if ($pembayaran->status === 'Canceled') {
@@ -152,6 +167,13 @@ class PembayaranController extends Controller
         }
 
         $pembayaran = Pembayaran::findOrFail($id);
+
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $pembayaran->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa cancel pembayaran di gudang aktif.'], 403);
+            }
+        }
 
         if ($pembayaran->status === 'Canceled') {
             return response()->json(['message' => 'Transaksi sudah dibatalkan.'], 422);

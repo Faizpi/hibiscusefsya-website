@@ -67,7 +67,8 @@ class PenjualanController extends Controller
         }
 
         if (in_array($user->role, ['admin', 'spectator'])) {
-            if (!$user->canAccessGudang($penjualan->gudang_id)) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $penjualan->gudang_id !== (int) $currentGudang->id) {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
         }
@@ -98,7 +99,12 @@ class PenjualanController extends Controller
             'items.*.diskon' => 'nullable|numeric|min:0|max:100',
         ]);
 
-        if ($user->role !== 'super_admin' && !$user->canAccessGudang($request->gudang_id)) {
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $request->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Gudang transaksi harus sesuai gudang aktif.'], 403);
+            }
+        } elseif ($user->role !== 'super_admin' && !$user->canAccessGudang($request->gudang_id)) {
             return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
         }
 
@@ -396,6 +402,13 @@ class PenjualanController extends Controller
             return response()->json(['message' => 'Hanya transaksi Pending yang bisa di-approve.'], 422);
         }
 
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $penjualan->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa approve transaksi di gudang aktif.'], 403);
+            }
+        }
+
         $penjualan->update([
             'status' => 'Approved',
             'approver_id' => $user->id,
@@ -417,6 +430,13 @@ class PenjualanController extends Controller
 
         if ($user->role == 'user' && $penjualan->user_id != $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $penjualan->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa cancel transaksi di gudang aktif.'], 403);
+            }
         }
 
         $penjualan->update(['status' => 'Canceled']);
@@ -458,6 +478,13 @@ class PenjualanController extends Controller
 
         if ($penjualan->status !== 'Approved') {
             return response()->json(['message' => 'Hanya transaksi Approved yang bisa ditandai Lunas.'], 422);
+        }
+
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $penjualan->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa ubah transaksi di gudang aktif.'], 403);
+            }
         }
 
         $penjualan->update(['status' => 'Lunas']);

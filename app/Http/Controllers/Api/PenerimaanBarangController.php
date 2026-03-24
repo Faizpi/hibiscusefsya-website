@@ -23,18 +23,13 @@ class PenerimaanBarangController extends Controller
 
         if ($user->role == 'super_admin') {
             // lihat semua
-        } elseif ($user->role == 'admin') {
-            $adminGudangIds = $user->gudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id)
-                $adminGudangIds[] = $user->current_gudang_id;
-            if ($user->gudang_id)
-                $adminGudangIds[] = $user->gudang_id;
-            $query->whereIn('gudang_id', array_unique($adminGudangIds));
-        } elseif ($user->role == 'spectator') {
-            $spectatorGudangIds = $user->spectatorGudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id)
-                $spectatorGudangIds[] = $user->current_gudang_id;
-            $query->whereIn('gudang_id', array_unique($spectatorGudangIds));
+        } elseif (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if ($currentGudang) {
+                $query->where('gudang_id', $currentGudang->id);
+            } else {
+                return response()->json(['data' => [], 'meta' => ['total' => 0]]);
+            }
         } else {
             $query->where('user_id', $user->id);
         }
@@ -61,8 +56,11 @@ class PenerimaanBarangController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        if (in_array($user->role, ['admin', 'spectator']) && !$user->canAccessGudang($penerimaan->gudang_id)) {
-            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $penerimaan->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Tidak memiliki akses ke gudang aktif untuk data ini.'], 403);
+            }
         }
 
         return response()->json($penerimaan);
@@ -92,7 +90,12 @@ class PenerimaanBarangController extends Controller
         ]);
 
         $gudangId = $request->gudang_id;
-        if ($user->role !== 'super_admin' && !$user->canAccessGudang($gudangId)) {
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $gudangId !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Gudang transaksi harus sesuai gudang aktif.'], 403);
+            }
+        } elseif ($user->role !== 'super_admin' && !$user->canAccessGudang($gudangId)) {
             return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
         }
 
@@ -207,6 +210,13 @@ class PenerimaanBarangController extends Controller
             return response()->json(['message' => 'Hanya transaksi Pending yang bisa di-approve.'], 422);
         }
 
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $penerimaan->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa approve transaksi di gudang aktif.'], 403);
+            }
+        }
+
         DB::beginTransaction();
         try {
             $penerimaan->update(['status' => 'Approved', 'approver_id' => $user->id]);
@@ -233,6 +243,13 @@ class PenerimaanBarangController extends Controller
         }
 
         $penerimaan = PenerimaanBarang::with('items')->findOrFail($id);
+
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $penerimaan->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa cancel transaksi di gudang aktif.'], 403);
+            }
+        }
 
         if ($penerimaan->status === 'Canceled') {
             return response()->json(['message' => 'Transaksi sudah dibatalkan.'], 422);
@@ -264,7 +281,12 @@ class PenerimaanBarangController extends Controller
     public function getPembelianByGudang($gudangId)
     {
         $user = auth()->user();
-        if ($user->role !== 'super_admin' && !$user->canAccessGudang($gudangId)) {
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $gudangId !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Tidak memiliki akses ke gudang aktif ini.'], 403);
+            }
+        } elseif ($user->role !== 'super_admin' && !$user->canAccessGudang($gudangId)) {
             return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
         }
 
@@ -304,8 +326,11 @@ class PenerimaanBarangController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        if (in_array($user->role, ['admin', 'spectator']) && !$user->canAccessGudang($pembelian->gudang_id)) {
-            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $pembelian->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Tidak memiliki akses ke gudang aktif untuk data ini.'], 403);
+            }
         }
 
         $qtyDiterima = [];

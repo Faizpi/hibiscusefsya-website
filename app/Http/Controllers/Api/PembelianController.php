@@ -57,8 +57,11 @@ class PembelianController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        if (in_array($user->role, ['admin', 'spectator']) && !$user->canAccessGudang($pembelian->gudang_id)) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $pembelian->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
         }
 
         return response()->json($pembelian);
@@ -85,7 +88,12 @@ class PembelianController extends Controller
             'items.*.harga_satuan' => 'required|numeric|min:0',
         ]);
 
-        if ($user->role !== 'super_admin' && !$user->canAccessGudang($request->gudang_id)) {
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $request->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Gudang transaksi harus sesuai gudang aktif.'], 403);
+            }
+        } elseif ($user->role !== 'super_admin' && !$user->canAccessGudang($request->gudang_id)) {
             return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
         }
 
@@ -367,6 +375,13 @@ class PembelianController extends Controller
             return response()->json(['message' => 'Hanya transaksi Pending yang bisa di-approve.'], 422);
         }
 
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $pembelian->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa approve transaksi di gudang aktif.'], 403);
+            }
+        }
+
         $pembelian->update(['status' => 'Approved', 'approver_id' => $user->id]);
 
         try {
@@ -385,6 +400,13 @@ class PembelianController extends Controller
 
         if ($user->role == 'user' && $pembelian->user_id != $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $pembelian->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa cancel transaksi di gudang aktif.'], 403);
+            }
         }
 
         $pembelian->update(['status' => 'Canceled']);

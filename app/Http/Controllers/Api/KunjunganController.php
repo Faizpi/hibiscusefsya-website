@@ -51,8 +51,11 @@ class KunjunganController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        if (in_array($user->role, ['admin', 'spectator']) && !$user->canAccessGudang($kunjungan->gudang_id)) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $kunjungan->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
         }
 
         return response()->json($kunjungan);
@@ -110,6 +113,13 @@ class KunjunganController extends Controller
         $approverId = null;
         $initialStatus = 'Pending';
         $gudangId = $request->gudang_id;
+
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || ($gudangId && (int) $gudangId !== (int) $currentGudang->id)) {
+                return response()->json(['message' => 'Gudang transaksi harus sesuai gudang aktif.'], 403);
+            }
+        }
 
         if ($user->role == 'user') {
             $gudang = $user->getCurrentGudang();
@@ -313,6 +323,13 @@ class KunjunganController extends Controller
             return response()->json(['message' => 'Hanya transaksi Pending yang bisa di-approve.'], 422);
         }
 
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $kunjungan->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa approve transaksi di gudang aktif.'], 403);
+            }
+        }
+
         $kunjungan->update(['status' => 'Approved', 'approver_id' => $user->id]);
 
         try {
@@ -331,6 +348,13 @@ class KunjunganController extends Controller
 
         if ($kunjungan->status === 'Canceled') {
             return response()->json(['message' => 'Transaksi sudah dibatalkan.'], 422);
+        }
+
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $kunjungan->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa cancel transaksi di gudang aktif.'], 403);
+            }
         }
 
         if ($user->role === 'super_admin') {

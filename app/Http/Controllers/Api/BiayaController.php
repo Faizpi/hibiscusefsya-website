@@ -19,13 +19,22 @@ class BiayaController extends Controller
         $user = auth()->user();
         $query = Biaya::with(['user:id,name', 'approver:id,name', 'gudang:id,nama_gudang']);
 
-        $gudangIds = $this->getAccessibleGudangIds($user);
-        if ($gudangIds !== null) {
-            $query->where(function ($q) use ($gudangIds, $user) {
-                $q->whereIn('gudang_id', $gudangIds)
-                    ->orWhere('user_id', $user->id)
-                    ->orWhere('approver_id', $user->id);
-            });
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if ($currentGudang) {
+                $query->where('gudang_id', $currentGudang->id);
+            } else {
+                return response()->json(['data' => [], 'meta' => ['total' => 0]]);
+            }
+        } else {
+            $gudangIds = $this->getAccessibleGudangIds($user);
+            if ($gudangIds !== null) {
+                $query->where(function ($q) use ($gudangIds, $user) {
+                    $q->whereIn('gudang_id', $gudangIds)
+                        ->orWhere('user_id', $user->id)
+                        ->orWhere('approver_id', $user->id);
+                });
+            }
         }
 
         if ($request->filled('status')) {
@@ -44,7 +53,12 @@ class BiayaController extends Controller
         $user = auth()->user();
         $biaya = Biaya::with(['user:id,name', 'approver:id,name', 'items'])->findOrFail($id);
 
-        if ($user->role !== 'super_admin') {
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $biaya->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+        } elseif ($user->role !== 'super_admin') {
             $gudangIds = $this->getAccessibleGudangIds($user) ?? [];
             $hasGudangAccess = $biaya->gudang_id && in_array($biaya->gudang_id, $gudangIds);
             $isRelated = $biaya->user_id == $user->id || $biaya->approver_id == $user->id;
@@ -283,6 +297,13 @@ class BiayaController extends Controller
             return response()->json(['message' => 'Transaksi sudah disetujui.'], 422);
         }
 
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $biaya->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa approve transaksi di gudang aktif.'], 403);
+            }
+        }
+
         $biaya->update(['status' => 'Approved', 'approver_id' => $user->id]);
 
         try {
@@ -302,6 +323,13 @@ class BiayaController extends Controller
         }
 
         $biaya = Biaya::findOrFail($id);
+
+        if ($user->role === 'admin') {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $biaya->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Hanya bisa cancel transaksi di gudang aktif.'], 403);
+            }
+        }
 
         if ($biaya->status === 'Canceled') {
             return response()->json(['message' => 'Transaksi sudah dibatalkan.'], 422);
