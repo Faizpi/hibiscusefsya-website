@@ -78,6 +78,9 @@ Route::prefix('invoice')->name('public.invoice.')->group(function () {
     Route::get('penerimaan-barang/{uuid}/download', 'PublicInvoiceController@downloadPenerimaanBarang')->name('penerimaan.download');
 });
 
+// Public struk view (thermal print layout) via UUID
+Route::get('struk/{type}/{uuid}', 'PublicReceiptController@show')->name('public.struk.show');
+
 // ========================================================================
 // GRUP 1: User yang Sudah Login (Semua Role)
 // ========================================================================

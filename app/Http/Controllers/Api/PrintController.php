@@ -44,6 +44,7 @@ class PrintController extends Controller
             'type' => $type,
             'id' => $model->id,
             'uuid' => $model->uuid,
+            'receipt_url' => url('struk/' . $publicPath . '/' . $model->uuid),
             'invoice_url' => url('invoice/' . $publicPath . '/' . $model->uuid),
             'download_url' => url('invoice/' . $publicPath . '/' . $model->uuid . '/download'),
             'qr_payload' => url('invoice/' . $publicPath . '/' . $model->uuid),
