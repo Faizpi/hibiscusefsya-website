@@ -41,37 +41,37 @@ class PublicReceiptController extends Controller
                 'model' => Penjualan::class,
                 'view' => 'penjualan.print',
                 'var' => 'penjualan',
-                'with' => ['kontak', 'gudang', 'user', 'items.produk'],
+                'with' => ['gudang', 'user', 'approver', 'items.produk'],
             ],
             'pembelian' => [
                 'model' => Pembelian::class,
                 'view' => 'pembelian.print',
                 'var' => 'pembelian',
-                'with' => ['kontak', 'gudang', 'user', 'items.produk'],
+                'with' => ['gudang', 'user', 'approver', 'items.produk'],
             ],
             'biaya' => [
                 'model' => Biaya::class,
                 'view' => 'biaya.print',
                 'var' => 'biaya',
-                'with' => ['kontak', 'gudang', 'user', 'items.produk'],
+                'with' => ['gudang', 'user', 'approver', 'items.produk'],
             ],
             'kunjungan' => [
                 'model' => Kunjungan::class,
                 'view' => 'kunjungan.print',
                 'var' => 'kunjungan',
-                'with' => ['kontak', 'gudang', 'user', 'items.produk'],
+                'with' => ['kontak', 'gudang', 'user', 'approver', 'items.produk'],
             ],
             'pembayaran' => [
                 'model' => Pembayaran::class,
                 'view' => 'pembayaran.print',
                 'var' => 'pembayaran',
-                'with' => ['penjualan.kontak', 'gudang', 'user'],
+                'with' => ['penjualan', 'gudang', 'user', 'approver'],
             ],
             'penerimaan-barang' => [
                 'model' => PenerimaanBarang::class,
                 'view' => 'penerimaan-barang.print',
                 'var' => 'penerimaan',
-                'with' => ['pembelian.kontak', 'gudang', 'user', 'items.produk'],
+                'with' => ['pembelian', 'gudang', 'user', 'approver', 'items.produk'],
             ],
         ];
 
