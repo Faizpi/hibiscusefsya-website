@@ -317,10 +317,10 @@ class ApiDocController extends Controller
                         'method' => 'GET',
                         'path' => '/api/v1/dashboard',
                         'title' => 'Dashboard Summary',
-                        'description' => 'Data ringkasan dashboard: total penjualan/pembelian/biaya bulan ini, pending approval, recent transactions. Data difilter sesuai role user.',
+                        'description' => 'Data ringkasan dashboard: total penjualan/pembelian/biaya/kunjungan bulan ini, pending approval, dan recent activity gabungan (penjualan, pembelian, biaya, kunjungan). Data difilter sesuai role user.',
                         'auth' => true,
                         'params' => [],
-                        'response' => '{"penjualan_bulan_ini":15,"total_penjualan_bulan_ini":50000000,"pembelian_bulan_ini":8,"total_pembelian_bulan_ini":30000000,"biaya_bulan_ini":5000000,"pending_approval":3,"recent_penjualan":[...]}',
+                        'response' => '{"penjualan_bulan_ini":15,"total_penjualan_bulan_ini":50000000,"pembelian_bulan_ini":8,"total_pembelian_bulan_ini":30000000,"biaya_bulan_ini":5000000,"kunjungan_bulan_ini":12,"pending_approval":3,"recent_penjualan":[...],"recent_kunjungan":[...],"recent_activity":[{"type":"penjualan|pembelian|biaya|kunjungan","title":"...","subtitle":"...","status":"Pending|Approved|Canceled","created_at":"..."}]}',
                     ],
                     [
                         'method' => 'GET',
@@ -918,9 +918,9 @@ class ApiDocController extends Controller
                         'method' => 'GET',
                         'path' => '/api/v1/kunjungan/{id}',
                         'title' => 'Detail Kunjungan',
-                        'description' => 'Detail kunjungan beserta items produk yang dibawa.',
+                        'description' => 'Detail kunjungan beserta items produk yang dibawa. Field qty tersedia konsisten pada items.jumlah dan items.kuantitas. Field items.tipe_stok diturunkan dari tujuan (Promo Gratis=gratis, Promo Sample=sample, Pemeriksaan Stock=penjualan).',
                         'auth' => true,
-                        'response' => '{"id":1,"nomor":"VST-...","tujuan":"...","kontak":{"id":1,"nama":"..."},"items":[{"produk_id":1,"nama_produk":"...","kuantitas":5,...}],...}',
+                        'response' => '{"id":1,"nomor":"VST-...","tujuan":"...","kontak":{"id":1,"nama":"..."},"items":[{"produk_id":1,"nama_produk":"...","jumlah":5,"kuantitas":5,"tipe_stok":"gratis|sample|penjualan",...}],...}',
                     ],
                     [
                         'method' => 'POST',
@@ -1205,7 +1205,7 @@ class ApiDocController extends Controller
                         'method' => 'GET',
                         'path' => '/api/v1/lampiran/download',
                         'title' => 'Download Lampiran',
-                        'description' => 'Download file lampiran dari transaksi. Path didapat dari field lampiran_paths pada data transaksi.',
+                        'description' => 'Download file lampiran dari transaksi. Path didapat dari field lampiran_paths pada data transaksi. Untuk preview gambar langsung di mobile/web bisa gunakan URL publik /storage/{path}.',
                         'auth' => true,
                         'params' => [
                             ['name' => 'path', 'type' => 'string', 'required' => true, 'description' => 'Path lampiran dari lampiran_paths. Contoh: lampiran_penjualan/INV-xxx-1.jpg'],

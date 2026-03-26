@@ -58,7 +58,33 @@ class KunjunganController extends Controller
             }
         }
 
+        $derivedTipeStok = $this->deriveTipeStokByTujuan($kunjungan->tujuan);
+        $kunjungan->items->transform(function ($item) use ($derivedTipeStok) {
+            $qty = (int) ($item->jumlah ?? 0);
+            $item->setAttribute('kuantitas', $qty);
+            $item->setAttribute('jumlah', $qty);
+            if (!empty($derivedTipeStok)) {
+                $item->setAttribute('tipe_stok', $derivedTipeStok);
+            }
+
+            return $item;
+        });
+
         return response()->json($kunjungan);
+    }
+
+    private function deriveTipeStokByTujuan(?string $tujuan): ?string
+    {
+        switch ($tujuan) {
+            case 'Promo Gratis':
+                return 'gratis';
+            case 'Promo Sample':
+                return 'sample';
+            case 'Pemeriksaan Stock':
+                return 'penjualan';
+            default:
+                return null;
+        }
     }
 
     public function store(Request $request)
