@@ -187,7 +187,7 @@ class PembelianController extends Controller
                 'diskon_akhir' => $diskonAkhir,
                 'tax_percentage' => $request->tax_percentage ?? 0,
                 'grand_total' => $grandTotal,
-                'lampiran_paths' => json_encode([]),
+                'lampiran_paths' => [],
             ]);
 
             // Upload lampiran

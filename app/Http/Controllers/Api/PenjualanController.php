@@ -185,7 +185,7 @@ class PenjualanController extends Controller
                 'diskon_akhir' => $diskonAkhir,
                 'tax_percentage' => $pajakPersen,
                 'grand_total' => $grandTotal,
-                'lampiran_paths' => json_encode([]),
+                'lampiran_paths' => [],
             ]);
 
             // Upload lampiran

@@ -92,7 +92,7 @@ class PembayaranController extends Controller
             'jumlah_bayar' => $request->jumlah_bayar,
             'keterangan' => $request->keterangan,
             'status' => 'Pending',
-            'lampiran_paths' => json_encode([]),
+            'lampiran_paths' => [],
         ]);
 
         $lampiranPaths = [];

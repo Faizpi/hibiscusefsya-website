@@ -34,6 +34,7 @@ class DashboardController extends Controller
             $penjualanQuery = Penjualan::where('status', '!=', 'Canceled');
             $pembelianQuery = Pembelian::where('status', '!=', 'Canceled');
             $biayaQuery = Biaya::where('status', '!=', 'Canceled');
+            $kunjunganQuery = Kunjungan::where('status', '!=', 'Canceled');
 
             $data['total_produk'] = Produk::count();
             $data['total_user'] = User::count();
@@ -45,6 +46,7 @@ class DashboardController extends Controller
             $penjualanQuery = Penjualan::where('status', '!=', 'Canceled')->where('gudang_id', $gudangId);
             $pembelianQuery = Pembelian::where('status', '!=', 'Canceled')->where('gudang_id', $gudangId);
             $biayaQuery = Biaya::where('status', '!=', 'Canceled')->where('gudang_id', $gudangId);
+            $kunjunganQuery = Kunjungan::where('status', '!=', 'Canceled')->where('gudang_id', $gudangId);
 
             $data['current_gudang'] = $currentGudang ? $currentGudang->nama_gudang : null;
             $data['total_produk'] = GudangProduk::where('gudang_id', $gudangId)->count();
@@ -52,6 +54,7 @@ class DashboardController extends Controller
             $penjualanQuery = Penjualan::where('status', '!=', 'Canceled')->where('user_id', $user->id);
             $pembelianQuery = Pembelian::where('status', '!=', 'Canceled')->where('user_id', $user->id);
             $biayaQuery = Biaya::where('status', '!=', 'Canceled')->where('user_id', $user->id);
+            $kunjunganQuery = Kunjungan::where('status', '!=', 'Canceled')->where('user_id', $user->id);
         }
 
         // Summary counts
@@ -80,6 +83,11 @@ class DashboardController extends Controller
             ->whereYear('tgl_transaksi', $now->year)
             ->sum('grand_total');
 
+        $data['kunjungan_bulan_ini'] = (clone $kunjunganQuery)
+            ->whereMonth('tgl_kunjungan', $now->month)
+            ->whereYear('tgl_kunjungan', $now->year)
+            ->count();
+
         $pendingPembelianQuery = Pembelian::where('status', 'Pending');
         if (in_array($role, ['admin', 'spectator'])) {
             $pendingPembelianQuery->where('gudang_id', $gudangId);
@@ -95,7 +103,54 @@ class DashboardController extends Controller
             ->with('user:id,name')
             ->latest()
             ->take(5)
-            ->get(['id', 'nomor', 'pelanggan', 'grand_total', 'status', 'tgl_transaksi', 'user_id']);
+            ->get(['id', 'nomor', 'pelanggan', 'grand_total', 'status', 'tgl_transaksi', 'user_id', 'created_at']);
+
+        $data['recent_kunjungan'] = (clone $kunjunganQuery)
+            ->with(['kontak:id,nama', 'user:id,name'])
+            ->latest()
+            ->take(5)
+            ->get(['id', 'nomor', 'kontak_id', 'status', 'tgl_kunjungan', 'user_id', 'created_at']);
+
+        $recentPenjualan = collect($data['recent_penjualan'])->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'tipe' => 'Penjualan',
+                'nomor' => $item['nomor'],
+                'pelanggan' => $item['pelanggan'],
+                'grand_total' => $item['grand_total'],
+                'status' => $item['status'],
+                'tgl_transaksi' => $item['tgl_transaksi'],
+                'user_id' => $item['user_id'],
+                'user' => $item['user'] ?? null,
+                'created_at_sort' => $item['created_at'] ?? $item['tgl_transaksi'],
+            ];
+        });
+
+        $recentKunjungan = collect($data['recent_kunjungan'])->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'tipe' => 'Kunjungan',
+                'nomor' => $item['nomor'],
+                'pelanggan' => isset($item['kontak']['nama']) ? $item['kontak']['nama'] : null,
+                'grand_total' => 0,
+                'status' => $item['status'],
+                'tgl_transaksi' => $item['tgl_kunjungan'],
+                'user_id' => $item['user_id'],
+                'user' => $item['user'] ?? null,
+                'kontak' => $item['kontak'] ?? null,
+                'created_at_sort' => $item['created_at'] ?? $item['tgl_kunjungan'],
+            ];
+        });
+
+        $data['recent_activity'] = $recentPenjualan
+            ->concat($recentKunjungan)
+            ->sortByDesc('created_at_sort')
+            ->take(15)
+            ->map(function ($item) {
+                unset($item['created_at_sort']);
+                return $item;
+            })
+            ->values();
 
         return response()->json($data);
     }

@@ -149,7 +149,7 @@ class BiayaController extends Controller
                 'approver_id' => $approverId,
                 'tax_percentage' => $pajakPersen,
                 'grand_total' => $grandTotal,
-                'lampiran_paths' => json_encode([]),
+                'lampiran_paths' => [],
             ]);
 
             // Upload lampiran

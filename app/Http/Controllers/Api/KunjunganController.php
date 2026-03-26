@@ -169,7 +169,7 @@ class KunjunganController extends Controller
                 'memo' => $request->memo,
                 'status' => $initialStatus,
                 'approver_id' => $approverId,
-                'lampiran_paths' => json_encode([]),
+                'lampiran_paths' => [],
             ]);
 
             // Upload lampiran
