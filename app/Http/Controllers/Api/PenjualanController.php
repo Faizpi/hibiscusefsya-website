@@ -223,7 +223,7 @@ class PenjualanController extends Controller
                     'diskon' => $disc,
                     'batch_number' => $item['batch_number'] ?? null,
                     'expired_date' => $item['expired_date'] ?? null,
-                    'total' => $total,
+                    'jumlah_baris' => $total,
                 ]);
             }
 
@@ -377,7 +377,7 @@ class PenjualanController extends Controller
                     'diskon' => $disc,
                     'batch_number' => $item['batch_number'] ?? null,
                     'expired_date' => $item['expired_date'] ?? null,
-                    'total' => $total,
+                    'jumlah_baris' => $total,
                 ]);
             }
 

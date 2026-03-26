@@ -223,7 +223,7 @@ class PembelianController extends Controller
                     'satuan' => $produk->satuan,
                     'harga_satuan' => $item['harga_satuan'],
                     'diskon' => $disc,
-                    'total' => $total,
+                    'jumlah_baris' => $total,
                 ]);
             }
 
@@ -350,7 +350,7 @@ class PembelianController extends Controller
                     'satuan' => $produk->satuan,
                     'harga_satuan' => $item['harga_satuan'],
                     'diskon' => $disc,
-                    'total' => $total,
+                    'jumlah_baris' => $total,
                 ]);
             }
 
