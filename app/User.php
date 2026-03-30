@@ -16,6 +16,7 @@ use Illuminate\Notifications\Notifiable;
  * @property string|null $no_telp
  * @property int|null $gudang_id
  * @property int|null $current_gudang_id
+ * @property bool $receives_transaction_email
  * @property \Carbon\Carbon|null $email_verified_at
  * @property string|null $remember_token
  * @property \Carbon\Carbon $created_at
@@ -42,6 +43,7 @@ class User extends Authenticatable
         'no_telp',
         'gudang_id',
         'current_gudang_id',
+        'receives_transaction_email',
     ];
 
     /**
@@ -61,6 +63,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'receives_transaction_email' => 'boolean',
     ];
 
     public function gudang()

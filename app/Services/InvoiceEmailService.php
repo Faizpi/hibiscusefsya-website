@@ -168,13 +168,17 @@ class InvoiceEmailService
     {
         $emails = [];
 
-        // Super admin selalu dapat notifikasi
-        $superAdmins = User::where('role', 'super_admin')->pluck('email')->toArray();
+        // Super admin yang di-enable tetap dapat notifikasi dari semua gudang
+        $superAdmins = User::where('role', 'super_admin')
+            ->where('receives_transaction_email', true)
+            ->pluck('email')
+            ->toArray();
         $emails = array_merge($emails, $superAdmins);
 
         // Admin yang pegang gudang tersebut (via single relation OR pivot table)
         if ($gudangId) {
             $gudangAdmins = User::where('role', 'admin')
+                ->where('receives_transaction_email', true)
                 ->where(function ($query) use ($gudangId) {
                     $query->where('gudang_id', $gudangId)
                         ->orWhereHas('gudangs', function ($subQuery) use ($gudangId) {

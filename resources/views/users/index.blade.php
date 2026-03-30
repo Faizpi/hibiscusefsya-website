@@ -67,6 +67,7 @@
                                 <th>Email</th>
                                 <th>Role</th>
                                 <th>Gudang</th>
+                                <th class="text-center" width="180">Penerima Email</th>
                                 <th class="text-center" width="80">Aksi</th>
                             </tr>
                         </thead>
@@ -141,6 +142,33 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        @if(in_array($user->role, ['super_admin', 'admin']))
+                                            <form method="POST" action="{{ route('users.update-email-recipient', $user->id) }}" class="d-inline-block">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="role" value="{{ request('role') }}">
+                                                <input type="hidden" name="search" value="{{ request('search') }}">
+                                                <input type="hidden" name="page" value="{{ request('page') }}">
+                                                <div class="custom-control custom-checkbox d-inline-block text-left">
+                                                    <input
+                                                        type="checkbox"
+                                                        class="custom-control-input"
+                                                        id="receives_transaction_email_{{ $user->id }}"
+                                                        name="receives_transaction_email"
+                                                        value="1"
+                                                        {{ $user->receives_transaction_email ? 'checked' : '' }}
+                                                        onchange="this.form.submit()"
+                                                    >
+                                                    <label class="custom-control-label small" for="receives_transaction_email_{{ $user->id }}">
+                                                        {{ $user->receives_transaction_email ? 'Aktif' : 'Nonaktif' }}
+                                                    </label>
+                                                </div>
+                                            </form>
+                                        @else
+                                            <span class="text-muted small">Tidak berlaku</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
                                         <div class="dropdown action-dropdown">
                                             <button class="btn btn-sm dropdown-toggle no-caret" type="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -165,7 +193,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4">
+                                    <td colspan="6" class="text-center py-4">
                                         <i class="fas fa-users fa-2x text-muted mb-2"></i>
                                         <p class="text-muted mb-0">Belum ada data user.</p>
                                     </td>

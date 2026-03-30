@@ -194,6 +194,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:super_admin'])->group(function () {
 
         // Manajemen User & Role
+        Route::patch('users/{user}/email-recipient', 'UserController@updateEmailRecipient')->name('users.update-email-recipient');
         Route::resource('users', 'UserController');
 
         // Master Data Inti

@@ -281,4 +281,22 @@ class UserController extends Controller
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
+
+    public function updateEmailRecipient(Request $request, User $user)
+    {
+        if (!in_array($user->role, ['super_admin', 'admin'])) {
+            return redirect()->route('users.index', $request->only('role', 'search', 'page'))
+                ->with('error', 'Pengaturan penerima email hanya berlaku untuk Super Admin dan Admin.');
+        }
+
+        $request->validate([
+            'receives_transaction_email' => ['nullable', 'boolean'],
+        ]);
+
+        $user->receives_transaction_email = $request->boolean('receives_transaction_email');
+        $user->save();
+
+        return redirect()->route('users.index', $request->only('role', 'search', 'page'))
+            ->with('success', 'Pengaturan email untuk user ' . $user->name . ' berhasil diperbarui.');
+    }
 }
