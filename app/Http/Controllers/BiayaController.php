@@ -50,14 +50,27 @@ class BiayaController extends Controller
         $user = Auth::user();
         $query = Biaya::with(['user', 'approver', 'gudang']);
 
-        // Filter berdasarkan gudang_id pada biaya
-        $gudangIds = $this->getAccessibleGudangIds($user);
-        if ($gudangIds !== null) {
-            $query->where(function ($q) use ($gudangIds, $user) {
-                $q->whereIn('gudang_id', $gudangIds)
-                    ->orWhere('user_id', $user->id)
-                    ->orWhere('approver_id', $user->id);
-            });
+        // Super admin: lihat semua data.
+        // Admin/Spectator: strict ke gudang aktif yang dipilih dari switch gudang.
+        if ($user->role === 'super_admin') {
+            // no filter
+        } elseif (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if ($currentGudang) {
+                $query->where('gudang_id', $currentGudang->id);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        } else {
+            // User biasa mempertahankan behavior existing.
+            $gudangIds = $this->getAccessibleGudangIds($user);
+            if ($gudangIds !== null) {
+                $query->where(function ($q) use ($gudangIds, $user) {
+                    $q->whereIn('gudang_id', $gudangIds)
+                        ->orWhere('user_id', $user->id)
+                        ->orWhere('approver_id', $user->id);
+                });
+            }
         }
 
         // Filter jenis_biaya jika ada

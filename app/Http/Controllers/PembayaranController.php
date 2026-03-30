@@ -21,27 +21,14 @@ class PembayaranController extends Controller
 
         if ($user->role == 'super_admin') {
             // Super admin dapat melihat semua pembayaran
-        } elseif ($user->role == 'admin') {
-            // Admin dapat melihat pembayaran di gudang yang dia kelola
-            $adminGudangIds = $user->gudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) {
-                $adminGudangIds[] = $user->current_gudang_id;
+        } elseif (in_array($user->role, ['admin', 'spectator'])) {
+            // Admin/Spectator strict ke gudang aktif dari switch gudang.
+            $currentGudang = $user->getCurrentGudang();
+            if ($currentGudang) {
+                $query->where('gudang_id', $currentGudang->id);
+            } else {
+                $query->whereRaw('1 = 0');
             }
-            if ($user->gudang_id) {
-                $adminGudangIds[] = $user->gudang_id;
-            }
-            $adminGudangIds = array_unique($adminGudangIds);
-
-            $query->whereIn('gudang_id', $adminGudangIds);
-        } elseif ($user->role == 'spectator') {
-            // Spectator dapat melihat pembayaran di gudang yang dia akses
-            $spectatorGudangIds = $user->spectatorGudangs->pluck('id')->toArray();
-            if ($user->current_gudang_id) {
-                $spectatorGudangIds[] = $user->current_gudang_id;
-            }
-            $spectatorGudangIds = array_unique($spectatorGudangIds);
-
-            $query->whereIn('gudang_id', $spectatorGudangIds);
         } else {
             // User biasa hanya melihat pembayaran miliknya sendiri
             $query->where('user_id', $user->id);

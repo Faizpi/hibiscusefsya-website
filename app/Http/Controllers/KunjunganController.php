@@ -31,13 +31,13 @@ class KunjunganController extends Controller
         if ($user->role == 'super_admin') {
             // Super admin lihat semua
         } elseif (in_array($user->role, ['admin', 'spectator'])) {
-            // Admin/Spectator: lihat data pada gudang yang dia akses, atau yang dia buat, atau yang ditunjuk ke dia
-            $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
-            $query->where(function ($q) use ($user, $accessibleGudangIds) {
-                $q->whereIn('gudang_id', $accessibleGudangIds)
-                    ->orWhere('approver_id', $user->id)
-                    ->orWhere('user_id', $user->id);
-            });
+            // Admin/Spectator strict ke gudang aktif dari switch gudang.
+            $currentGudang = $user->getCurrentGudang();
+            if ($currentGudang) {
+                $query->where('gudang_id', $currentGudang->id);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
         } else {
             // User biasa hanya lihat miliknya
             $query->where('user_id', $user->id);
@@ -104,12 +104,12 @@ class KunjunganController extends Controller
         if ($user->role == 'super_admin') {
             // Super admin sees all
         } elseif (in_array($user->role, ['admin', 'spectator'])) {
-            $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
-            $chartQuery->where(function ($q) use ($user, $accessibleGudangIds) {
-                $q->whereIn('kunjungans.gudang_id', $accessibleGudangIds)
-                    ->orWhere('kunjungans.approver_id', $user->id)
-                    ->orWhere('kunjungans.user_id', $user->id);
-            });
+            $currentGudang = $user->getCurrentGudang();
+            if ($currentGudang) {
+                $chartQuery->where('kunjungans.gudang_id', $currentGudang->id);
+            } else {
+                $chartQuery->whereRaw('1 = 0');
+            }
         } else {
             $chartQuery->where('kunjungans.user_id', $user->id);
         }
