@@ -1873,22 +1873,16 @@
                 <hr class="sidebar-divider">
                 <div class="sidebar-heading">Transaksi</div>
 
+                <li class="nav-item {{ Route::is('kunjungan.*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('kunjungan.index') }}" title="Kunjungan">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Kunjungan</span>
+                    </a>
+                </li>
                 <li class="nav-item {{ Route::is('penjualan.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('penjualan.index') }}" title="Penjualan">
                         <i class="fas fa-file-invoice-dollar"></i>
                         <span>Penjualan</span>
-                    </a>
-                </li>
-                <li class="nav-item {{ Route::is('pembelian.*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('pembelian.index') }}" title="Pembelian">
-                        <i class="fas fa-shopping-bag"></i>
-                        <span>Pembelian</span>
-                    </a>
-                </li>
-                <li class="nav-item {{ Route::is('biaya.*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('biaya.index') }}" title="Biaya">
-                        <i class="fas fa-wallet"></i>
-                        <span>Biaya</span>
                     </a>
                 </li>
                 <li class="nav-item {{ Route::is('pembayaran.*') ? 'active' : '' }}">
@@ -1897,16 +1891,22 @@
                         <span>Pembayaran</span>
                     </a>
                 </li>
+                <li class="nav-item {{ Route::is('biaya.*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('biaya.index') }}" title="Biaya">
+                        <i class="fas fa-wallet"></i>
+                        <span>Biaya</span>
+                    </a>
+                </li>
+                <li class="nav-item {{ Route::is('pembelian.*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('pembelian.index') }}" title="Pembelian">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Pembelian</span>
+                    </a>
+                </li>
                 <li class="nav-item {{ Route::is('penerimaan-barang.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('penerimaan-barang.index') }}" title="Penerimaan Barang">
                         <i class="fas fa-truck-loading"></i>
                         <span>Penerimaan Barang</span>
-                    </a>
-                </li>
-                <li class="nav-item {{ Route::is('kunjungan.*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('kunjungan.index') }}" title="Kunjungan">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>Kunjungan</span>
                     </a>
                 </li>
 
