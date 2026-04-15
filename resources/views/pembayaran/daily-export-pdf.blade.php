@@ -76,9 +76,12 @@
             font-style: italic;
         }
 
-        .lampiran-item {
-            margin-bottom: 2px;
-            word-break: break-all;
+        .lampiran-thumb {
+            max-width: 100px;
+            max-height: 75px;
+            border: 1px solid #d1d5db;
+            margin: 2px;
+            object-fit: cover;
         }
     </style>
 </head>
@@ -129,9 +132,17 @@
                         <td class="text-right">Rp {{ number_format($item->jumlah_tagihan, 0, ',', '.') }}</td>
                         <td>{{ $item->koordinat ?? '-' }}</td>
                         <td>
-                            @if(count($lampiranPaths) > 0)
-                                @foreach($lampiranPaths as $lampiran)
-                                    <div class="lampiran-item">{{ basename($lampiran) }}</div>
+                            @php
+                                $imagePaths = collect($lampiranPaths)->filter(function ($path) {
+                                    return preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $path);
+                                });
+                            @endphp
+                            @if($imagePaths->count() > 0)
+                                @foreach($imagePaths as $lampiran)
+                                    @php $fullPath = public_path('storage/' . $lampiran); @endphp
+                                    @if(file_exists($fullPath))
+                                        <img src="{{ $fullPath }}" class="lampiran-thumb" alt="Lampiran">
+                                    @endif
                                 @endforeach
                             @else
                                 -
