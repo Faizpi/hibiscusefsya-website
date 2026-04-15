@@ -77,7 +77,8 @@
     @foreach($statusGroups as $status => $group)
         <tr>
             <td colspan="3"><strong>{{ $status }}</strong></td>
-            <td colspan="7">{{ $group->count() }} pembayaran  Rp {{ number_format($group->sum('jumlah_bayar'), 0, ',', '.') }}</td>
+            <td colspan="7">{{ $group->count() }} pembayaran — Rp
+                {{ number_format($group->sum('jumlah_bayar'), 0, ',', '.') }}</td>
         </tr>
     @endforeach
 </table>
