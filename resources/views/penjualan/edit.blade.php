@@ -37,22 +37,29 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Pelanggan *</label>
-                                        <div class="input-group">
-                                            <select class="form-control" id="kontak-select" name="pelanggan" required>
-                                                <option value="">Pilih kontak...</option>
-                                                @foreach($kontaks as $kontak)
-                                                    <option value="{{ $kontak->nama }}" data-email="{{ $kontak->email }}"
-                                                        data-alamat="{{ $kontak->alamat }}"
-                                                        data-diskon="{{ $kontak->diskon_persen }}" {{ old('pelanggan', $penjualan->pelanggan) == $kontak->nama ? 'selected' : '' }}>
-                                                        {{ $kontak->nama }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <div class="input-group-append">
+                                        <div class="d-flex align-items-stretch">
+                                            <div class="flex-grow-1">
+                                                <select class="form-control" id="kontak-select" name="pelanggan" required>
+                                                    <option value="">Pilih kontak...</option>
+                                                    @foreach($kontaks as $kontak)
+                                                        <option value="{{ $kontak->nama }}" data-email="{{ $kontak->email }}"
+                                                            data-alamat="{{ $kontak->alamat }}"
+                                                            data-diskon="{{ $kontak->diskon_persen }}" {{ old('pelanggan', $penjualan->pelanggan) == $kontak->nama ? 'selected' : '' }}>
+                                                            {{ $kontak->nama }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="btn-group ml-2 flex-shrink-0" role="group">
                                                 <a href="{{ route('kontak.create') }}" class="btn btn-outline-primary"
                                                     target="_blank" rel="noopener" title="Buat Kontak Baru">
                                                     <i class="fas fa-user-plus"></i>
                                                 </a>
+                                                <button type="button" class="btn btn-outline-info"
+                                                    onclick="scanKontak(document.getElementById('kontak-select'))"
+                                                    title="Scan Barcode/QR Kontak">
+                                                    <i class="fas fa-camera"></i>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -344,13 +351,13 @@
             }
 
             const productDropdownHtml = `
-                                                        <select class="form-control product-select" name="produk_id[]" required>
-                                                            <option value="">Pilih...</option>
-                                                            @foreach($produks as $produk)
-                                                                <option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-harga-grosir="{{ $produk->harga_grosir ?? 0 }}" data-deskripsi="{{ $produk->deskripsi }}" data-satuan="{{ $produk->satuan ?? 'Pcs' }}">{{ $produk->nama_produk }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    `;
+                                                            <select class="form-control product-select" name="produk_id[]" required>
+                                                                <option value="">Pilih...</option>
+                                                                @foreach($produks as $produk)
+                                                                    <option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-harga-grosir="{{ $produk->harga_grosir ?? 0 }}" data-deskripsi="{{ $produk->deskripsi }}" data-satuan="{{ $produk->satuan ?? 'Pcs' }}">{{ $produk->nama_produk }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        `;
 
             // Function untuk get tipe harga yang dipilih
             function getTipeHarga() {
@@ -460,48 +467,48 @@
                     card.className = 'product-card-mobile';
                     card.dataset.rowIndex = index;
                     card.innerHTML = `
-                                                                    <div class="card-header-mobile">
-                                                                        <select class="form-control product-select-mobile" data-row="${index}">
-                                                                            <option value="">Pilih...</option>
-                                                                            ${productOptionsHtml}
-                                                                        </select>
-                                                                        ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
-                                                                    </div>
-                                                                    <div class="card-body-mobile">
-                                                                        <div class="field-group full-width">
-                                                                            <span class="field-label">Deskripsi</span>
-                                                                            <input type="text" class="form-control product-desc-mobile" data-row="${index}" value="${desc}" placeholder="Deskripsi">
+                                                                        <div class="card-header-mobile">
+                                                                            <select class="form-control product-select-mobile" data-row="${index}">
+                                                                                <option value="">Pilih...</option>
+                                                                                ${productOptionsHtml}
+                                                                            </select>
+                                                                            ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
                                                                         </div>
-                                                                        <div class="field-group">
-                                                                            <span class="field-label">Qty</span>
-                                                                            <input type="number" class="form-control product-qty-mobile" data-row="${index}" value="${qty}" min="1">
+                                                                        <div class="card-body-mobile">
+                                                                            <div class="field-group full-width">
+                                                                                <span class="field-label">Deskripsi</span>
+                                                                                <input type="text" class="form-control product-desc-mobile" data-row="${index}" value="${desc}" placeholder="Deskripsi">
+                                                                            </div>
+                                                                            <div class="field-group">
+                                                                                <span class="field-label">Qty</span>
+                                                                                <input type="number" class="form-control product-qty-mobile" data-row="${index}" value="${qty}" min="1">
+                                                                            </div>
+                                                                            <div class="field-group">
+                                                                                <span class="field-label">Unit</span>
+                                                                                <input type="text" class="form-control product-unit-mobile" data-row="${index}" value="${unit}" readonly>
+                                                                            </div>
+                                                                            <div class="field-group">
+                                                                                <span class="field-label">Harga</span>
+                                                                                <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
+                                                                            </div>
+                                                                            <div class="field-group">
+                                                                                <span class="field-label">Disc%</span>
+                                                                                <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
+                                                                            </div>
+                                                                            <div class="field-group">
+                                                                                <span class="field-label">Batch</span>
+                                                                                <input type="text" class="form-control product-batch-mobile" data-row="${index}" value="${batch}" placeholder="Batch">
+                                                                            </div>
+                                                                            <div class="field-group">
+                                                                                <span class="field-label">Exp</span>
+                                                                                <input type="date" class="form-control product-exp-mobile" data-row="${index}" value="${exp}">
+                                                                            </div>
                                                                         </div>
-                                                                        <div class="field-group">
-                                                                            <span class="field-label">Unit</span>
-                                                                            <input type="text" class="form-control product-unit-mobile" data-row="${index}" value="${unit}" readonly>
+                                                                        <div class="total-row">
+                                                                            <span class="total-label">Total</span>
+                                                                            <span class="total-value">${formatRupiah(total)}</span>
                                                                         </div>
-                                                                        <div class="field-group">
-                                                                            <span class="field-label">Harga</span>
-                                                                            <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
-                                                                        </div>
-                                                                        <div class="field-group">
-                                                                            <span class="field-label">Disc%</span>
-                                                                            <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
-                                                                        </div>
-                                                                        <div class="field-group">
-                                                                            <span class="field-label">Batch</span>
-                                                                            <input type="text" class="form-control product-batch-mobile" data-row="${index}" value="${batch}" placeholder="Batch">
-                                                                        </div>
-                                                                        <div class="field-group">
-                                                                            <span class="field-label">Exp</span>
-                                                                            <input type="date" class="form-control product-exp-mobile" data-row="${index}" value="${exp}">
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="total-row">
-                                                                        <span class="total-label">Total</span>
-                                                                        <span class="total-value">${formatRupiah(total)}</span>
-                                                                    </div>
-                                                                `;
+                                                                    `;
                     mobileCardsContainer.appendChild(card);
 
                     // Set selected product
@@ -686,17 +693,17 @@
             addRowBtn.addEventListener('click', function () {
                 const newRow = tableBody.insertRow();
                 newRow.innerHTML = `
-                                                            <td>${productDropdownHtml}</td>
-                                                            <td><input type="text" class="form-control product-description" name="deskripsi[]"></td>
-                                                            <td><input type="number" class="form-control product-quantity" name="kuantitas[]" value="1" min="1"></td>
-                                                            <td><input type="text" class="form-control product-unit" name="unit[]" value="" readonly></td>
-                                                            <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]" placeholder="0" required></td>
-                                                            <td><input type="number" class="form-control text-right product-discount" name="diskon[]" placeholder="0" min="0" max="100"></td>
-                                                            <td><input type="text" class="form-control product-batch" name="batch_number[]" placeholder="Batch"></td>
-                                                            <td><input type="date" class="form-control product-exp" name="expired_date[]"></td>
-                                                            <td><input type="text" class="form-control text-right product-line-total" readonly></td>
-                                                            <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
-                                                        `;
+                                                                <td>${productDropdownHtml}</td>
+                                                                <td><input type="text" class="form-control product-description" name="deskripsi[]"></td>
+                                                                <td><input type="number" class="form-control product-quantity" name="kuantitas[]" value="1" min="1"></td>
+                                                                <td><input type="text" class="form-control product-unit" name="unit[]" value="" readonly></td>
+                                                                <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]" placeholder="0" required></td>
+                                                                <td><input type="number" class="form-control text-right product-discount" name="diskon[]" placeholder="0" min="0" max="100"></td>
+                                                                <td><input type="text" class="form-control product-batch" name="batch_number[]" placeholder="Batch"></td>
+                                                                <td><input type="date" class="form-control product-exp" name="expired_date[]"></td>
+                                                                <td><input type="text" class="form-control text-right product-line-total" readonly></td>
+                                                                <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
+                                                            `;
                 const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
                 if (kontakOption) newRow.querySelector('.product-discount').value = kontakOption.dataset.diskon || 0;
                 // Init Select2 untuk dropdown baru

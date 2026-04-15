@@ -332,7 +332,7 @@ class PembayaranController extends Controller
     }
 
     /**
-     * Export pembayaran harian ke PDF
+     * Export tagihan harian invoice penjualan (Approved, belum Lunas) ke PDF
      */
     public function exportHarianPdf(Request $request)
     {
@@ -345,9 +345,9 @@ class PembayaranController extends Controller
             ? Carbon::parse($request->tanggal)
             : Carbon::today();
 
-        $query = Pembayaran::with(['penjualan', 'gudang', 'user'])
-            ->whereDate('tgl_pembayaran', $tanggal->toDateString())
-            ->where('status', '!=', 'Canceled');
+        $query = Penjualan::with(['gudang'])
+            ->where('status', 'Approved')
+            ->whereDate('tgl_transaksi', $tanggal->toDateString());
 
         if ($user->role == 'super_admin') {
             // Super admin dapat melihat semua pembayaran
@@ -362,14 +362,28 @@ class PembayaranController extends Controller
             $query->where('user_id', $user->id);
         }
 
-        $pembayarans = $query->orderBy('tgl_pembayaran')
+        $invoices = $query->orderBy('tgl_transaksi')
             ->orderBy('created_at')
-            ->get();
+            ->get()
+            ->map(function ($penjualan) {
+                $totalBayarApproved = Pembayaran::where('penjualan_id', $penjualan->id)
+                    ->where('status', 'Approved')
+                    ->sum('jumlah_bayar');
 
-        $totalJumlah = $pembayarans->sum('jumlah_bayar');
+                $penjualan->total_bayar_approved = $totalBayarApproved;
+                $penjualan->jumlah_tagihan = max(((float) $penjualan->grand_total) - ((float) $totalBayarApproved), 0);
+
+                return $penjualan;
+            })
+            ->filter(function ($penjualan) {
+                return $penjualan->jumlah_tagihan > 0;
+            })
+            ->values();
+
+        $totalJumlah = $invoices->sum('jumlah_tagihan');
 
         $pdf = PDF::loadView('pembayaran.daily-export-pdf', [
-            'pembayarans' => $pembayarans,
+            'invoices' => $invoices,
             'tanggal' => $tanggal,
             'generatedBy' => $user->name,
             'generatedAt' => Carbon::now(),
@@ -378,7 +392,7 @@ class PembayaranController extends Controller
 
         $pdf->setPaper('a4', 'landscape');
 
-        return $pdf->download('Pembayaran-Harian-' . $tanggal->format('Ymd') . '.pdf');
+        return $pdf->download('Tagihan-Invoice-Harian-' . $tanggal->format('Ymd') . '.pdf');
     }
 
     public function approve(Pembayaran $pembayaran)

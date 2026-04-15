@@ -51,23 +51,30 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="kontak_id">Pelanggan *</label>
-                                <div class="input-group">
-                                    <select class="form-control @error('kontak_id') is-invalid @enderror" id="kontak_id"
-                                        name="kontak_id" required>
-                                        <option value="">Pilih kontak...</option>
-                                        @foreach($kontaks as $kontak)
-                                            <option value="{{ $kontak->id }}" data-nama="{{ $kontak->nama }}"
-                                                data-kode="{{ $kontak->kode_kontak }}" data-email="{{ $kontak->email }}"
-                                                data-alamat="{{ $kontak->alamat }}" {{ old('kontak_id', $kunjungan->kontak_id) == $kontak->id ? 'selected' : '' }}>
-                                                [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <div class="input-group-append">
+                                <div class="d-flex align-items-stretch">
+                                    <div class="flex-grow-1">
+                                        <select class="form-control @error('kontak_id') is-invalid @enderror" id="kontak_id"
+                                            name="kontak_id" required>
+                                            <option value="">Pilih kontak...</option>
+                                            @foreach($kontaks as $kontak)
+                                                <option value="{{ $kontak->id }}" data-nama="{{ $kontak->nama }}"
+                                                    data-kode="{{ $kontak->kode_kontak }}" data-email="{{ $kontak->email }}"
+                                                    data-alamat="{{ $kontak->alamat }}" {{ old('kontak_id', $kunjungan->kontak_id) == $kontak->id ? 'selected' : '' }}>
+                                                    [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="btn-group ml-2 flex-shrink-0" role="group">
                                         <a href="{{ route('kontak.create') }}" class="btn btn-outline-primary"
                                             target="_blank" rel="noopener" title="Buat Kontak Baru">
                                             <i class="fas fa-user-plus"></i>
                                         </a>
+                                        <button type="button" class="btn btn-outline-info"
+                                            onclick="scanKontak(document.getElementById('kontak_id'))"
+                                            title="Scan Barcode/QR Kontak">
+                                            <i class="fas fa-camera"></i>
+                                        </button>
                                     </div>
                                 </div>
                                 <input type="hidden" name="sales_nama" id="sales_nama_hidden"
@@ -387,33 +394,33 @@
             // Tambah baris produk
             $('#btn-add-produk').on('click', function () {
                 const newRow = `
-                                <div class="row produk-row mb-2 align-items-center">
-                                    <div class="col-md-7">
-                                        <select class="form-control produk-select" name="produk_id[]">
-                                            <option value="">Pilih produk...</option>
-                                            @foreach($produks as $produk)
-                                                <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}" data-stok-sample="{{ $stokSampleMap[$produk->id] ?? 0 }}">
-                                                    [{{ $produk->item_code }}] {{ $produk->nama_produk }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <small class="text-muted stok-gratis-info"></small>
+                                    <div class="row produk-row mb-2 align-items-center">
+                                        <div class="col-md-7">
+                                            <select class="form-control produk-select" name="produk_id[]">
+                                                <option value="">Pilih produk...</option>
+                                                @foreach($produks as $produk)
+                                                    <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}" data-stok-sample="{{ $stokSampleMap[$produk->id] ?? 0 }}">
+                                                        [{{ $produk->item_code }}] {{ $produk->nama_produk }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-muted stok-gratis-info"></small>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
+                                                <i class="fas fa-camera"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="col-md-2">
-                                        <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
-                                            <i class="fas fa-camera"></i>
-                                        </button>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            `;
+                                `;
                 $('#produk-container').append(newRow);
                 initProdukSelect2();
                 updateRemoveButtons();
