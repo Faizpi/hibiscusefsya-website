@@ -55,15 +55,23 @@
                             <div class="form-group">
                                 <label for="penerima">Penerima (Kontak)</label>
                                 {{-- Dropdown Kontak --}}
-                                <select class="form-control @error('penerima') is-invalid @enderror" id="kontak-select"
-                                    name="penerima">
-                                    <option value="">Pilih kontak...</option>
-                                    @foreach($kontaks as $kontak)
-                                        <option value="{{ $kontak->nama }}" data-alamat="{{ $kontak->alamat }}" {{ old('penerima', $biaya->penerima) == $kontak->nama ? 'selected' : '' }}>
-                                            {{ $kontak->nama }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-control @error('penerima') is-invalid @enderror" id="kontak-select"
+                                        name="penerima">
+                                        <option value="">Pilih kontak...</option>
+                                        @foreach($kontaks as $kontak)
+                                            <option value="{{ $kontak->nama }}" data-alamat="{{ $kontak->alamat }}" {{ old('penerima', $biaya->penerima) == $kontak->nama ? 'selected' : '' }}>
+                                                {{ $kontak->nama }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="input-group-append">
+                                        <a href="{{ route('kontak.create') }}" class="btn btn-outline-primary"
+                                            target="_blank" rel="noopener" title="Buat Kontak Baru">
+                                            <i class="fas fa-user-plus"></i>
+                                        </a>
+                                    </div>
+                                </div>
                                 @error('penerima') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="form-group">

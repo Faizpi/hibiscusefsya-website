@@ -37,16 +37,24 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Pelanggan *</label>
-                                        <select class="form-control" id="kontak-select" name="pelanggan" required>
-                                            <option value="">Pilih kontak...</option>
-                                            @foreach($kontaks as $kontak)
-                                                <option value="{{ $kontak->nama }}" data-email="{{ $kontak->email }}"
-                                                    data-alamat="{{ $kontak->alamat }}"
-                                                    data-diskon="{{ $kontak->diskon_persen }}" {{ old('pelanggan', $penjualan->pelanggan) == $kontak->nama ? 'selected' : '' }}>
-                                                    {{ $kontak->nama }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <div class="input-group">
+                                            <select class="form-control" id="kontak-select" name="pelanggan" required>
+                                                <option value="">Pilih kontak...</option>
+                                                @foreach($kontaks as $kontak)
+                                                    <option value="{{ $kontak->nama }}" data-email="{{ $kontak->email }}"
+                                                        data-alamat="{{ $kontak->alamat }}"
+                                                        data-diskon="{{ $kontak->diskon_persen }}" {{ old('pelanggan', $penjualan->pelanggan) == $kontak->nama ? 'selected' : '' }}>
+                                                        {{ $kontak->nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <div class="input-group-append">
+                                                <a href="{{ route('kontak.create') }}" class="btn btn-outline-primary"
+                                                    target="_blank" rel="noopener" title="Buat Kontak Baru">
+                                                    <i class="fas fa-user-plus"></i>
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">

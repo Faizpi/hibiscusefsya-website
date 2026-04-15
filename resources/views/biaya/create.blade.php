@@ -95,6 +95,10 @@
                                         @endforeach
                                     </select>
                                     <div class="input-group-append">
+                                        <a href="{{ route('kontak.create') }}" class="btn btn-outline-primary"
+                                            target="_blank" rel="noopener" title="Buat Kontak Baru">
+                                            <i class="fas fa-user-plus"></i>
+                                        </a>
                                         <button type="button" class="btn btn-outline-info"
                                             onclick="scanKontak(document.getElementById('penerima'))"
                                             title="Scan Barcode/QR Kontak">

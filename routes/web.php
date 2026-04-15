@@ -151,6 +151,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('pembayaran/{pembayaran}/lampiran/{index}', 'PembayaranController@deleteLampiran')->name('pembayaran.deleteLampiran');
     Route::get('pembayaran/get-penjualan/{id}', 'PembayaranController@getPenjualanDetail')->name('pembayaran.getPenjualan');
     Route::get('pembayaran/get-penjualan-by-gudang/{gudangId}', 'PembayaranController@getPenjualanByGudang')->name('pembayaran.getPenjualanByGudang');
+    Route::get('pembayaran/export-harian-pdf', 'PembayaranController@exportHarianPdf')->name('pembayaran.exportHarianPdf');
     Route::resource('pembayaran', 'PembayaranController');
 
     // 6. Modul Penerimaan Barang (Barang Masuk)

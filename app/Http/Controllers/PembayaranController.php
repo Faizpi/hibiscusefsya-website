@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class PembayaranController extends Controller
 {
@@ -328,6 +329,56 @@ class PembayaranController extends Controller
         $pembayaran->load(['user', 'approver', 'penjualan', 'gudang']);
 
         return view('pembayaran.print', compact('pembayaran'));
+    }
+
+    /**
+     * Export pembayaran harian ke PDF
+     */
+    public function exportHarianPdf(Request $request)
+    {
+        $request->validate([
+            'tanggal' => 'nullable|date',
+        ]);
+
+        $user = Auth::user();
+        $tanggal = $request->filled('tanggal')
+            ? Carbon::parse($request->tanggal)
+            : Carbon::today();
+
+        $query = Pembayaran::with(['penjualan', 'gudang', 'user'])
+            ->whereDate('tgl_pembayaran', $tanggal->toDateString())
+            ->where('status', '!=', 'Canceled');
+
+        if ($user->role == 'super_admin') {
+            // Super admin dapat melihat semua pembayaran
+        } elseif (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if ($currentGudang) {
+                $query->where('gudang_id', $currentGudang->id);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        } else {
+            $query->where('user_id', $user->id);
+        }
+
+        $pembayarans = $query->orderBy('tgl_pembayaran')
+            ->orderBy('created_at')
+            ->get();
+
+        $totalJumlah = $pembayarans->sum('jumlah_bayar');
+
+        $pdf = PDF::loadView('pembayaran.daily-export-pdf', [
+            'pembayarans' => $pembayarans,
+            'tanggal' => $tanggal,
+            'generatedBy' => $user->name,
+            'generatedAt' => Carbon::now(),
+            'totalJumlah' => $totalJumlah,
+        ]);
+
+        $pdf->setPaper('a4', 'landscape');
+
+        return $pdf->download('Pembayaran-Harian-' . $tanggal->format('Ymd') . '.pdf');
     }
 
     public function approve(Pembayaran $pembayaran)

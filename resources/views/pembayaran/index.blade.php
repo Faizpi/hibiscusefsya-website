@@ -4,11 +4,22 @@
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-2 mb-sm-0 text-gray-800">Pembayaran</h1>
-        @if(auth()->user()->role !== 'spectator')
-            <a href="{{ route('pembayaran.create') }}" class="btn btn-primary shadow-sm">
-                <i class="fas fa-plus fa-sm text-white-50"></i> Buat Pembayaran Baru
-            </a>
-        @endif
+        <div class="d-flex flex-wrap align-items-center">
+            <form action="{{ route('pembayaran.exportHarianPdf') }}" method="GET" class="form-inline mr-2 mb-2 mb-sm-0">
+                <label for="tanggal_export" class="mr-2 mb-0 small text-muted">Tanggal</label>
+                <input type="date" id="tanggal_export" name="tanggal" class="form-control form-control-sm mr-2"
+                    value="{{ request('tanggal', now()->format('Y-m-d')) }}">
+                <button type="submit" class="btn btn-sm btn-danger shadow-sm">
+                    <i class="fas fa-file-pdf fa-sm text-white-50"></i> Export Harian PDF
+                </button>
+            </form>
+
+            @if(auth()->user()->role !== 'spectator')
+                <a href="{{ route('pembayaran.create') }}" class="btn btn-primary shadow-sm mb-2 mb-sm-0">
+                    <i class="fas fa-plus fa-sm text-white-50"></i> Buat Pembayaran Baru
+                </a>
+            @endif
+        </div>
     </div>
 
     @if (session('success'))

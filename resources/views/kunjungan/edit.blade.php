@@ -51,17 +51,25 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="kontak_id">Pelanggan *</label>
-                                <select class="form-control @error('kontak_id') is-invalid @enderror" id="kontak_id"
-                                    name="kontak_id" required>
-                                    <option value="">Pilih kontak...</option>
-                                    @foreach($kontaks as $kontak)
-                                        <option value="{{ $kontak->id }}" data-nama="{{ $kontak->nama }}"
-                                            data-kode="{{ $kontak->kode_kontak }}" data-email="{{ $kontak->email }}"
-                                            data-alamat="{{ $kontak->alamat }}" {{ old('kontak_id', $kunjungan->kontak_id) == $kontak->id ? 'selected' : '' }}>
-                                            [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-control @error('kontak_id') is-invalid @enderror" id="kontak_id"
+                                        name="kontak_id" required>
+                                        <option value="">Pilih kontak...</option>
+                                        @foreach($kontaks as $kontak)
+                                            <option value="{{ $kontak->id }}" data-nama="{{ $kontak->nama }}"
+                                                data-kode="{{ $kontak->kode_kontak }}" data-email="{{ $kontak->email }}"
+                                                data-alamat="{{ $kontak->alamat }}" {{ old('kontak_id', $kunjungan->kontak_id) == $kontak->id ? 'selected' : '' }}>
+                                                [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="input-group-append">
+                                        <a href="{{ route('kontak.create') }}" class="btn btn-outline-primary"
+                                            target="_blank" rel="noopener" title="Buat Kontak Baru">
+                                            <i class="fas fa-user-plus"></i>
+                                        </a>
+                                    </div>
+                                </div>
                                 <input type="hidden" name="sales_nama" id="sales_nama_hidden"
                                     value="{{ old('sales_nama', $kunjungan->sales_nama) }}">
                                 @error('kontak_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
