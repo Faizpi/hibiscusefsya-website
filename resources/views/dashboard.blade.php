@@ -630,6 +630,7 @@
                                 <option value="pembelian">Pembelian</option>
                                 <option value="biaya">Biaya</option>
                                 <option value="kunjungan">Kunjungan</option>
+                                <option value="pembayaran">Pembayaran</option>
                             </select>
                         </div>
 

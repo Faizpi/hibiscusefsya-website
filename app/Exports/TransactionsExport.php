@@ -29,6 +29,7 @@ class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithSty
         $viewName = 'reports.transactions';
 
         // Gunakan view berbeda berdasarkan tipe
+
         if ($this->exportType == 'penjualan') {
             $viewName = 'reports.penjualan';
         } elseif ($this->exportType == 'pembelian') {
@@ -37,6 +38,8 @@ class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithSty
             $viewName = 'reports.biaya';
         } elseif ($this->exportType == 'kunjungan') {
             $viewName = 'reports.kunjungan';
+        } elseif ($this->exportType == 'pembayaran') {
+            $viewName = 'reports.pembayaran';
         }
 
         return view($viewName, [
@@ -54,7 +57,8 @@ class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithSty
             'penjualan' => 'Laporan Penjualan',
             'pembelian' => 'Laporan Pembelian',
             'biaya' => 'Laporan Biaya',
-            'kunjungan' => 'Laporan Kunjungan'
+            'kunjungan' => 'Laporan Kunjungan',
+            'pembayaran' => 'Laporan Pembayaran',
         ];
 
         return $titles[$this->exportType] ?? 'Laporan Transaksi';
@@ -71,11 +75,13 @@ class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithSty
     public function columnFormats(): array
     {
         // Phone number column position varies per export type
+
         $map = [
             'penjualan' => 'G',
             'kunjungan' => 'G',
             'biaya' => 'H',
             'all' => 'H',
+            'pembayaran' => 'F',
         ];
 
         $phoneColumn = $map[$this->exportType] ?? null;

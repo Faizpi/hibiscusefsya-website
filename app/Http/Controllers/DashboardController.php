@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Penjualan;
 use App\PenjualanItem;
 use App\Pembelian;
+use App\Pembayaran;
 use App\Biaya;
 use App\Kunjungan;
 use App\User;
@@ -586,7 +587,7 @@ class DashboardController extends Controller
         $request->validate([
             'date_from' => 'required|date',
             'date_to' => 'required|date|after_or_equal:date_from',
-            'transaction_type' => 'required|in:all,penjualan,pembelian,biaya,kunjungan',
+            'transaction_type' => 'required|in:all,penjualan,pembelian,biaya,kunjungan,pembayaran',
             'status_filter' => 'nullable|in:all,Pending,Approved,Rejected,Canceled,Lunas',
             'gudang_id' => 'nullable|exists:gudangs,id',
             'biaya_jenis' => 'nullable|in:masuk,keluar',
@@ -610,6 +611,15 @@ class DashboardController extends Controller
         $pembelians = collect();
         $biayas = collect();
         $kunjungans = collect();
+        $pembayarans = collect();
+
+        $isAdminOrSpectator = in_array($user->role, ['admin', 'spectator']);
+        $accessibleGudangIds = collect();
+        if ($isAdminOrSpectator) {
+            $accessibleGudangIds = $user->role === 'admin'
+                ? $user->gudangs()->pluck('gudangs.id')
+                : $user->spectatorGudangs()->pluck('gudangs.id');
+        }
 
         // Map kontak nama → no_telp untuk kolom telepon di report
         $kontakPhoneMap = \App\Kontak::whereNotNull('no_telp')
@@ -629,16 +639,15 @@ class DashboardController extends Controller
             $query = Penjualan::with('user', 'gudang', 'approver', 'items.produk')
                 ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo]);
 
-            // Role-based filtering: Admin hanya bisa export dari gudang yang dia akses
-            if ($user->role == 'admin') {
-                $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
+            // Role-based filtering: Admin/Spectator hanya bisa export dari gudang yang dia akses
+            if ($isAdminOrSpectator) {
                 $query->whereIn('gudang_id', $accessibleGudangIds);
             }
 
             // Gudang filter
             if ($gudangId) {
-                // Validasi admin hanya bisa pilih gudang yang dia akses
-                if ($user->role == 'admin' && !$user->canAccessGudang($gudangId)) {
+                // Validasi admin/spectator hanya bisa pilih gudang yang dia akses
+                if ($isAdminOrSpectator && !$user->canAccessGudang($gudangId)) {
                     abort(403, 'Tidak memiliki akses ke gudang ini');
                 }
                 $query->where('gudang_id', $gudangId);
@@ -667,15 +676,14 @@ class DashboardController extends Controller
             $query = Pembelian::with('user', 'gudang', 'approver', 'items.produk')
                 ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo]);
 
-            if ($user->role == 'admin') {
-                $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
+            if ($isAdminOrSpectator) {
                 $query->whereIn('gudang_id', $accessibleGudangIds);
             }
 
             // Gudang filter
             if ($gudangId) {
-                // Validasi admin hanya bisa pilih gudang yang dia akses
-                if ($user->role == 'admin' && !$user->canAccessGudang($gudangId)) {
+                // Validasi admin/spectator hanya bisa pilih gudang yang dia akses
+                if ($isAdminOrSpectator && !$user->canAccessGudang($gudangId)) {
                     abort(403, 'Tidak memiliki akses ke gudang ini');
                 }
                 $query->where('gudang_id', $gudangId);
@@ -704,8 +712,7 @@ class DashboardController extends Controller
                 ->whereBetween('tgl_transaksi', [$dateFrom, $dateTo]);
 
             // Role-based filtering menggunakan gudang_id pada biaya
-            if ($user->role == 'admin') {
-                $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
+            if ($isAdminOrSpectator) {
                 $query->where(function ($q) use ($accessibleGudangIds, $user) {
                     $q->whereIn('gudang_id', $accessibleGudangIds)
                         ->orWhere('user_id', $user->id)
@@ -715,7 +722,7 @@ class DashboardController extends Controller
 
             // Gudang filter
             if ($gudangId) {
-                if ($user->role == 'admin' && !$user->canAccessGudang($gudangId)) {
+                if ($isAdminOrSpectator && !$user->canAccessGudang($gudangId)) {
                     abort(403, 'Tidak memiliki akses ke gudang ini');
                 }
                 $query->where('gudang_id', $gudangId);
@@ -748,14 +755,13 @@ class DashboardController extends Controller
             $query = Kunjungan::with('user', 'gudang', 'approver', 'items.produk', 'kontak')
                 ->whereBetween('tgl_kunjungan', [$dateFrom, $dateTo]);
 
-            if ($user->role == 'admin') {
-                $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
+            if ($isAdminOrSpectator) {
                 $query->whereIn('gudang_id', $accessibleGudangIds);
             }
 
             // Gudang filter
             if ($gudangId) {
-                if ($user->role == 'admin' && !$user->canAccessGudang($gudangId)) {
+                if ($isAdminOrSpectator && !$user->canAccessGudang($gudangId)) {
                     abort(403, 'Tidak memiliki akses ke gudang ini');
                 }
                 $query->where('gudang_id', $gudangId);
@@ -783,13 +789,54 @@ class DashboardController extends Controller
             });
         }
 
+        // PEMBAYARAN
+        if (in_array($transactionType, ['all', 'pembayaran'])) {
+            $query = Pembayaran::with('user', 'gudang', 'approver', 'penjualan')
+                ->whereBetween('tgl_pembayaran', [$dateFrom, $dateTo]);
+
+            if ($isAdminOrSpectator) {
+                $query->whereIn('gudang_id', $accessibleGudangIds);
+            }
+
+            if ($gudangId) {
+                if ($isAdminOrSpectator && !$user->canAccessGudang($gudangId)) {
+                    abort(403, 'Tidak memiliki akses ke gudang ini');
+                }
+                $query->where('gudang_id', $gudangId);
+            }
+
+            if ($statusFilter != 'all') {
+                $query->where('status', $statusFilter);
+            }
+
+            if ($salesId) {
+                $query->where('user_id', $salesId);
+            }
+
+            $pembayarans = $query->get();
+            $pembayarans->each(function ($item) use ($generateNumber, $kontakPhoneMap) {
+                $item->type = 'Pembayaran';
+                $item->number = $item->nomor ?: $generateNumber($item, 'PAY');
+                $item->display_contact_name = optional($item->penjualan)->pelanggan ?: '-';
+                $item->no_telp_kontak = optional($item->penjualan)->no_telp_kontak
+                    ?: ($kontakPhoneMap[optional($item->penjualan)->pelanggan] ?? '-');
+                $item->grand_total = (float) $item->jumlah_bayar;
+                $item->tgl_transaksi = $item->tgl_pembayaran;
+
+                if (empty($item->lampiran_path) && !empty($item->bukti_bayar)) {
+                    $item->lampiran_path = $item->bukti_bayar;
+                }
+            });
+        }
+
         // Determine export type and file name
         $typeLabel = [
             'all' => 'Semua_Transaksi',
             'penjualan' => 'Penjualan',
             'pembelian' => 'Pembelian',
             'biaya' => 'Biaya',
-            'kunjungan' => 'Kunjungan'
+            'kunjungan' => 'Kunjungan',
+            'pembayaran' => 'Pembayaran'
         ];
 
         $gudangLabel = '';
@@ -808,7 +855,12 @@ class DashboardController extends Controller
 
         // Prepare data
         if ($transactionType == 'all') {
-            $exportData = $penjualans->concat($pembelians)->concat($biayas)->concat($kunjungans)->sortBy('created_at');
+            $exportData = $penjualans
+                ->concat($pembelians)
+                ->concat($biayas)
+                ->concat($kunjungans)
+                ->concat($pembayarans)
+                ->sortBy('created_at');
         } else {
             $exportData = ${$transactionType . 's'};
         }

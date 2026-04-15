@@ -77,8 +77,8 @@
         }
 
         .lampiran-thumb {
-            max-width: 100px;
-            max-height: 75px;
+            max-width: 150px;
+            max-height: 110px;
             border: 1px solid #d1d5db;
             margin: 2px;
             object-fit: cover;
@@ -103,14 +103,15 @@
             <thead>
                 <tr>
                     <th width="4%">No</th>
-                    <th width="13%">Nomor Invoice</th>
-                    <th width="10%">Tgl Transaksi</th>
-                    <th width="10%">Syarat Bayar</th>
-                    <th width="10%">Jatuh Tempo</th>
-                    <th width="13%">Nama Toko</th>
-                    <th width="12%" class="text-right">Jumlah</th>
-                    <th width="14%">Koordinat</th>
-                    <th width="14%">Lampiran</th>
+                    <th width="12%">Nomor Invoice</th>
+                    <th width="9%">Tgl Transaksi</th>
+                    <th width="9%">Syarat Bayar</th>
+                    <th width="9%">Jatuh Tempo</th>
+                    <th width="12%">Nama Toko</th>
+                    <th width="11%">Lokasi</th>
+                    <th width="11%" class="text-right">Jumlah</th>
+                    <th width="11%">Koordinat</th>
+                    <th width="12%">Lampiran</th>
                 </tr>
             </thead>
             <tbody>
@@ -129,6 +130,7 @@
                         <td>{{ $item->syarat_pembayaran ?? '-' }}</td>
                         <td>{{ $item->tgl_jatuh_tempo ? $item->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
                         <td>{{ $item->pelanggan ?? '-' }}</td>
+                        <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
                         <td class="text-right">Rp {{ number_format($item->jumlah_tagihan, 0, ',', '.') }}</td>
                         <td>{{ $item->koordinat ?? '-' }}</td>
                         <td>
@@ -151,7 +153,7 @@
                     </tr>
                 @endforeach
                 <tr class="total-row">
-                    <td colspan="6" class="text-right">Total</td>
+                    <td colspan="7" class="text-right">Total</td>
                     <td class="text-right">Rp {{ number_format($totalJumlah, 0, ',', '.') }}</td>
                     <td colspan="2"></td>
                 </tr>

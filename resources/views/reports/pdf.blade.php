@@ -370,6 +370,60 @@
     @elseif($exportType === 'biaya')
         {{-- BIAYA --}}
         <table>
+                @elseif($exportType === 'pembayaran')
+                    {{-- PEMBAYARAN --}}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="3%">No</th>
+                                <th width="10%">No Pembayaran</th>
+                                <th width="10%">Tgl Pembayaran</th>
+                                <th width="10%">Gudang</th>
+                                <th width="12%">Pelanggan</th>
+                                <th width="10%">No Telepon</th>
+                                <th width="10%">Jumlah Bayar</th>
+                                <th width="8%">Status</th>
+                                <th width="12%">Penjualan (Invoice)</th>
+                                <th width="15%">Lampiran</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $no = 1; @endphp
+                            @foreach($transactions as $item)
+                                @php
+                                    $paths = $item->lampiran_paths ?? [];
+                                    if ($item->lampiran_path && !in_array($item->lampiran_path, $paths))
+                                        $paths[] = $item->lampiran_path;
+                                    $imagePaths = collect($paths)->filter(function ($p) {
+                                        return preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $p);
+                                    });
+                                @endphp
+                                <tr>
+                                    <td>{{ $no++ }}</td>
+                                    <td>{{ $item->number }}</td>
+                                    <td>{{ $item->tgl_pembayaran ? $item->tgl_pembayaran->format('d/m/Y') : '-' }}</td>
+                                    <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
+                                    <td>{{ $item->display_contact_name ?? '-' }}</td>
+                                    <td>{{ $item->no_telp_kontak ?? '-' }}</td>
+                                    <td class="text-right">{{ number_format($item->jumlah_bayar ?? 0, 0, ',', '.') }}</td>
+                                    <td>{{ $item->status }}</td>
+                                    <td>{{ optional($item->penjualan)->nomor ?? '-' }}</td>
+                                    <td>
+                                        @if($imagePaths->count() > 0)
+                                            @foreach($imagePaths as $imgPath)
+                                                @php $fullPath = public_path('storage/' . $imgPath); @endphp
+                                                @if(file_exists($fullPath))
+                                                    <img src="{{ $fullPath }}" class="lampiran-thumb">
+                                                @endif
+                                            @endforeach
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
             <thead>
                 <tr>
                     <th>No</th>
