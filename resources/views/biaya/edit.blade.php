@@ -57,8 +57,8 @@
                                 {{-- Dropdown Kontak --}}
                                 <div class="d-flex align-items-stretch">
                                     <div class="flex-grow-1">
-                                        <select class="form-control @error('penerima') is-invalid @enderror" id="kontak-select"
-                                            name="penerima">
+                                        <select class="form-control @error('penerima') is-invalid @enderror"
+                                            id="kontak-select" name="penerima">
                                             <option value="">Pilih kontak...</option>
                                             @foreach($kontaks as $kontak)
                                                 <option value="{{ $kontak->nama }}" data-alamat="{{ $kontak->alamat }}" {{ old('penerima', $biaya->penerima) == $kontak->nama ? 'selected' : '' }}>
@@ -72,7 +72,7 @@
                                             target="_blank" rel="noopener" title="Buat Kontak Baru">
                                             <i class="fas fa-user-plus"></i>
                                         </a>
-                                        <button type="button" class="btn btn-outline-info"
+                                        <button type="button" class="btn btn-outline-primary"
                                             onclick="scanKontak(document.getElementById('kontak-select'))"
                                             title="Scan Barcode/QR Kontak">
                                             <i class="fas fa-camera"></i>
@@ -353,29 +353,29 @@
                     card.className = 'product-card-mobile';
                     card.dataset.rowIndex = index;
                     card.innerHTML = `
-                            <div class="card-header-mobile">
-                                <span class="item-number">Item ${index + 1}</span>
-                                ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
-                            </div>
-                            <div class="card-body-mobile">
-                                <div class="field-group full-width">
-                                    <span class="field-label">Akun Biaya</span>
-                                    <input type="text" class="form-control kategori-mobile" data-row="${index}" value="${kategori}" placeholder="Contoh: Biaya Kantor">
+                                <div class="card-header-mobile">
+                                    <span class="item-number">Item ${index + 1}</span>
+                                    ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
                                 </div>
-                                <div class="field-group full-width">
-                                    <span class="field-label">Deskripsi</span>
-                                    <input type="text" class="form-control deskripsi-mobile" data-row="${index}" value="${deskripsi}" placeholder="Deskripsi">
+                                <div class="card-body-mobile">
+                                    <div class="field-group full-width">
+                                        <span class="field-label">Akun Biaya</span>
+                                        <input type="text" class="form-control kategori-mobile" data-row="${index}" value="${kategori}" placeholder="Contoh: Biaya Kantor">
+                                    </div>
+                                    <div class="field-group full-width">
+                                        <span class="field-label">Deskripsi</span>
+                                        <input type="text" class="form-control deskripsi-mobile" data-row="${index}" value="${deskripsi}" placeholder="Deskripsi">
+                                    </div>
+                                    <div class="field-group full-width">
+                                        <span class="field-label">Jumlah</span>
+                                        <input type="number" class="form-control text-right jumlah-mobile" data-row="${index}" value="${jumlah}">
+                                    </div>
                                 </div>
-                                <div class="field-group full-width">
-                                    <span class="field-label">Jumlah</span>
-                                    <input type="number" class="form-control text-right jumlah-mobile" data-row="${index}" value="${jumlah}">
+                                <div class="total-row">
+                                    <span class="total-label">Jumlah</span>
+                                    <span class="total-value">${formatRupiah(jumlah)}</span>
                                 </div>
-                            </div>
-                            <div class="total-row">
-                                <span class="total-label">Jumlah</span>
-                                <span class="total-value">${formatRupiah(jumlah)}</span>
-                            </div>
-                        `;
+                            `;
                     mobileCardsContainer.appendChild(card);
                 });
             }
@@ -443,11 +443,11 @@
             addRowBtn.addEventListener('click', function () {
                 const newRow = tableBody.insertRow();
                 newRow.innerHTML = `
-                        <td><input type="text" class="form-control" name="kategori[]" placeholder="Contoh: Biaya Internet"></td>
-                        <td><input type="text" class="form-control" name="deskripsi_akun[]"></td>
-                        <td><input type="number" class="form-control text-right expense-amount" name="total[]" placeholder="0" required></td>
-                        <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
-                    `;
+                            <td><input type="text" class="form-control" name="kategori[]" placeholder="Contoh: Biaya Internet"></td>
+                            <td><input type="text" class="form-control" name="deskripsi_akun[]"></td>
+                            <td><input type="number" class="form-control text-right expense-amount" name="total[]" placeholder="0" required></td>
+                            <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
+                        `;
                 syncMobileCards();
             });
 
