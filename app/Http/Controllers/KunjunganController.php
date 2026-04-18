@@ -226,6 +226,10 @@ class KunjunganController extends Controller
             'lampiran.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
             'jumlah' => 'nullable|array',
             'jumlah.*' => 'integer|min:1',
+            'batch_number' => 'nullable|array',
+            'batch_number.*' => 'nullable|string|max:100',
+            'expired_date' => 'nullable|array',
+            'expired_date.*' => 'nullable|date',
             'keterangan' => 'nullable|array',
             'keterangan.*' => 'nullable|string|max:255',
         ];
@@ -380,6 +384,8 @@ class KunjunganController extends Controller
                             'kunjungan_id' => $kunjungan->id,
                             'produk_id' => $produkId,
                             'jumlah' => $request->jumlah[$index] ?? 1,
+                            'batch_number' => $request->batch_number[$index] ?? null,
+                            'expired_date' => $request->expired_date[$index] ?? null,
                             'keterangan' => $request->keterangan[$index] ?? null,
                         ]);
                     }
@@ -474,6 +480,10 @@ class KunjunganController extends Controller
             'produk_id.*' => 'exists:produks,id',
             'jumlah' => 'nullable|array',
             'jumlah.*' => 'integer|min:1',
+            'batch_number' => 'nullable|array',
+            'batch_number.*' => 'nullable|string|max:100',
+            'expired_date' => 'nullable|array',
+            'expired_date.*' => 'nullable|date',
             'keterangan' => 'nullable|array',
             'keterangan.*' => 'nullable|string|max:255',
         ]);
@@ -536,6 +546,8 @@ class KunjunganController extends Controller
                         'kunjungan_id' => $kunjungan->id,
                         'produk_id' => $produkId,
                         'jumlah' => $request->jumlah[$index] ?? 1,
+                        'batch_number' => $request->batch_number[$index] ?? null,
+                        'expired_date' => $request->expired_date[$index] ?? null,
                         'keterangan' => $request->keterangan[$index] ?? null,
                     ]);
                 }

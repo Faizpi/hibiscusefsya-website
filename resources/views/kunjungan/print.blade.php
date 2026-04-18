@@ -205,8 +205,10 @@
                         <td colspan="3" style="font-size: 10pt; line-height: 1.4;">
                             <strong>{{ optional($item->produk)->item_code ?? '-' }} -
                                 {{ optional($item->produk)->nama_produk ?? '-' }}</strong>
-                            <br><span style="font-size: 8pt;">Qty:
-                                {{ $item->jumlah }}{{ $item->keterangan ? ' | ' . $item->keterangan : '' }}</span>
+                            <br><span style="font-size: 8pt;">Qty: {{ $item->jumlah }}
+                                @if($item->batch_number) | Batch: {{ $item->batch_number }} @endif
+                                @if($item->expired_date) | Exp: {{ $item->expired_date->format('d/m/Y') }} @endif
+                                {{ $item->keterangan ? ' | ' . $item->keterangan : '' }}</span>
                         </td>
                     </tr>
                 @endforeach

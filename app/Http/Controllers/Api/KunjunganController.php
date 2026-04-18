@@ -112,6 +112,9 @@ class KunjunganController extends Controller
             $rules['items'] = 'nullable|array';
         }
 
+        $rules['items.*.batch_number'] = 'nullable|string|max:100';
+        $rules['items.*.expired_date'] = 'nullable|date';
+
         $request->validate($rules);
 
         // Validasi stok untuk Promo Gratis dan Promo Sample
@@ -225,6 +228,8 @@ class KunjunganController extends Controller
                             'kunjungan_id' => $kunjungan->id,
                             'produk_id' => $produk->id,
                             'jumlah' => $item['jumlah'] ?? $item['kuantitas'] ?? 1,
+                            'batch_number' => $item['batch_number'] ?? null,
+                            'expired_date' => $item['expired_date'] ?? null,
                             'keterangan' => $item['keterangan'] ?? null,
                         ]);
                     }
@@ -267,6 +272,8 @@ class KunjunganController extends Controller
             'memo' => 'nullable|string',
             'items' => 'nullable|array',
             'items.*.produk_id' => 'exists:produks,id',
+            'items.*.batch_number' => 'nullable|string|max:100',
+            'items.*.expired_date' => 'nullable|date',
         ]);
 
         // Handle lampiran append
@@ -327,6 +334,8 @@ class KunjunganController extends Controller
                         'kunjungan_id' => $kunjungan->id,
                         'produk_id' => $item['produk_id'],
                         'jumlah' => $item['jumlah'] ?? $item['kuantitas'] ?? 1,
+                        'batch_number' => $item['batch_number'] ?? null,
+                        'expired_date' => $item['expired_date'] ?? null,
                         'keterangan' => $item['keterangan'] ?? null,
                     ]);
                 }

@@ -170,8 +170,10 @@
                                         <tr>
                                             <th width="5%">#</th>
                                             <th width="15%">Kode Produk</th>
-                                            <th width="50%">Nama Produk</th>
+                                            <th width="40%">Nama Produk</th>
                                             <th width="10%">Qty</th>
+                                            <th width="15%">Batch</th>
+                                            <th width="15%">Expired</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -181,6 +183,8 @@
                                                 <td><code>{{ optional($item->produk)->item_code ?? '-' }}</code></td>
                                                 <td>{{ optional($item->produk)->nama_produk ?? '-' }}</td>
                                                 <td>{{ $item->jumlah ?? 1 }}</td>
+                                                <td>{{ $item->batch_number ?? '-' }}</td>
+                                                <td>{{ $item->expired_date ? $item->expired_date->format('d/m/Y') : '-' }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

@@ -776,6 +776,12 @@ class BluetoothThermalPrinter {
                 body += (index + 1) + '. ' + item.kode + '\n';
                 body += '   ' + item.nama + '\n';
                 body += '   Qty: ' + item.qty;
+                if (item.batch) {
+                    body += ' | Batch: ' + item.batch;
+                }
+                if (item.exp) {
+                    body += ' | Exp: ' + item.exp;
+                }
                 if (item.keterangan) {
                     body += ' | ' + item.keterangan;
                 }

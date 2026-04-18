@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $kunjungan_id
  * @property int $produk_id
  * @property int|null $jumlah
+ * @property string|null $batch_number
+ * @property \Carbon\Carbon|null $expired_date
  * @property string|null $keterangan
  * @property-read \App\Kunjungan $kunjungan
  * @property-read \App\Produk $produk
@@ -21,7 +23,13 @@ class KunjunganItem extends Model
         'kunjungan_id',
         'produk_id',
         'jumlah',
+        'batch_number',
+        'expired_date',
         'keterangan',
+    ];
+
+    protected $casts = [
+        'expired_date' => 'date',
     ];
 
     public function kunjungan()

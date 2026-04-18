@@ -190,6 +190,8 @@ class BluetoothPrintController extends Controller
                     'kode' => optional($item->produk)->item_code ?? '-',
                     'nama' => optional($item->produk)->nama_produk ?? '-',
                     'qty' => $item->jumlah ?? 1,
+                    'batch' => $item->batch_number,
+                    'exp' => $item->expired_date ? $item->expired_date->format('Y-m-d') : null,
                     'keterangan' => $item->keterangan ?? '',
                 ];
             })->toArray();
