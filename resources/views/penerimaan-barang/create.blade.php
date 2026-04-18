@@ -188,7 +188,7 @@
 
                     <div id="items-container" style="display: none;">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-sm" id="items-table">
+                            <table class="table table-bordered table-sm table-product-grid" id="items-table">
                                 <thead class="thead-light">
                                     <tr>
                                         <th width="8%">Kode</th>

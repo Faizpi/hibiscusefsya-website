@@ -98,7 +98,7 @@
 
                         <h6 class="font-weight-bold">Referensi Invoice Pembelian</h6>
                         @if($penerimaan->pembelian)
-                            <table class="table table-bordered table-sm">
+                            <table class="table table-bordered table-sm table-product-grid">
                                 <tr>
                                     <td width="30%"><strong>Nomor Invoice</strong></td>
                                     <td>

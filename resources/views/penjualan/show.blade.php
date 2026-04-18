@@ -215,7 +215,7 @@
             <div class="card-body">
                 {{-- DESKTOP TABLE --}}
                 <div class="table-responsive desktop-product-table">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered table-product-grid">
                         <thead class="thead-light">
                             <tr>
                                 <th>Item Code</th>

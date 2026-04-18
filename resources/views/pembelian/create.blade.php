@@ -175,7 +175,7 @@
 
                     {{-- TABEL PRODUK (DESKTOP) --}}
                     <div class="table-responsive mt-3 desktop-product-table">
-                        <table class="table table-bordered">
+                        <table class="table table-bordered table-product-grid">
                             <thead class="thead-light">
                                 <tr>
                                     <th width="22%">Produk</th>

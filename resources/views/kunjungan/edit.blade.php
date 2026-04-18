@@ -204,7 +204,7 @@
 
                     {{-- PRODUK ITEMS --}}
                     <h5 class="text-primary mb-3"><i class="fas fa-boxes"></i> Produk Terkait</h5>
-                    <div class="row mb-2 font-weight-bold bg-light border rounded py-2 d-none d-md-flex">
+                    <div class="row produk-grid-header d-none d-md-flex">
                         <div class="col-md-4">Produk</div>
                         <div class="col-md-2">Qty</div>
                         <div class="col-md-2">Batch</div>
@@ -214,7 +214,7 @@
                     </div>
                     <div id="produk-container">
                         @forelse($kunjungan->items as $index => $item)
-                            <div class="row produk-row mb-2 align-items-center">
+                            <div class="row produk-row produk-grid-row mb-0 align-items-center">
                                 <div class="col-md-4">
                                     <select class="form-control produk-select" name="produk_id[]">
                                         <option value="">Pilih produk...</option>
@@ -256,7 +256,7 @@
                                 </div>
                             </div>
                         @empty
-                            <div class="row produk-row mb-2 align-items-center">
+                            <div class="row produk-row produk-grid-row mb-0 align-items-center">
                                 <div class="col-md-4">
                                     <select class="form-control produk-select" name="produk_id[]">
                                         <option value="">Pilih produk...</option>
@@ -417,39 +417,39 @@
             // Tambah baris produk
             $('#btn-add-produk').on('click', function () {
                 const newRow = `
-                                                    <div class="row produk-row mb-2 align-items-center">
-                                                        <div class="col-md-4">
-                                                            <select class="form-control produk-select" name="produk_id[]">
-                                                                <option value="">Pilih produk...</option>
-                                                                @foreach($produks as $produk)
-                                                                    <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}" data-stok-sample="{{ $stokSampleMap[$produk->id] ?? 0 }}">
-                                                                        [{{ $produk->item_code }}] {{ $produk->nama_produk }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                            <small class="text-muted stok-gratis-info"></small>
+                                                        <div class="row produk-row produk-grid-row mb-0 align-items-center">
+                                                            <div class="col-md-4">
+                                                                <select class="form-control produk-select" name="produk_id[]">
+                                                                    <option value="">Pilih produk...</option>
+                                                                    @foreach($produks as $produk)
+                                                                        <option value="{{ $produk->id }}" data-kode="{{ $produk->item_code }}" data-stok-gratis="{{ $stokGratisMap[$produk->id] ?? 0 }}" data-stok-sample="{{ $stokSampleMap[$produk->id] ?? 0 }}">
+                                                                            [{{ $produk->item_code }}] {{ $produk->nama_produk }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                                <small class="text-muted stok-gratis-info"></small>
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <input type="text" class="form-control produk-batch" name="batch_number[]" placeholder="Batch">
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <input type="date" class="form-control produk-exp" name="expired_date[]">
+                                                            </div>
+                                                            <div class="col-md-1">
+                                                                <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
+                                                                    <i class="fas fa-camera"></i>
+                                                                </button>
+                                                            </div>
+                                                            <div class="col-md-1">
+                                                                <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
+                                                                    <i class="fas fa-times"></i>
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-md-2">
-                                                            <input type="number" class="form-control produk-qty" name="jumlah[]" value="1" min="1" placeholder="Qty">
-                                                        </div>
-                                                        <div class="col-md-2">
-                                                            <input type="text" class="form-control produk-batch" name="batch_number[]" placeholder="Batch">
-                                                        </div>
-                                                        <div class="col-md-2">
-                                                            <input type="date" class="form-control produk-exp" name="expired_date[]">
-                                                        </div>
-                                                        <div class="col-md-1">
-                                                            <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
-                                                                <i class="fas fa-camera"></i>
-                                                            </button>
-                                                        </div>
-                                                        <div class="col-md-1">
-                                                            <button type="button" class="btn btn-danger btn-sm btn-remove-produk">
-                                                                <i class="fas fa-times"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                `;
+                                                    `;
                 $('#produk-container').append(newRow);
                 initProdukSelect2();
                 updateRemoveButtons();

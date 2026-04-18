@@ -1014,8 +1014,8 @@
                         });
                     }
                 @endif
-                                                                        // ==================== END SALES QUANTITY CHART ====================
-                                                                    });
+                                                                                // ==================== END SALES QUANTITY CHART ====================
+                                                                            });
         </script>
     @endif
 

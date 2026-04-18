@@ -45,9 +45,11 @@ class StokController extends Controller
         }
 
         $gudangs = $gudangQuery
-            ->with(['produkStok' => function ($q) {
-                $q->with('produk');
-            }])
+            ->with([
+                'produkStok' => function ($q) {
+                    $q->with('produk');
+                }
+            ])
             ->get();
 
         // Normalisasi total stok agar tidak bergantung pada kolom legacy `stok`.

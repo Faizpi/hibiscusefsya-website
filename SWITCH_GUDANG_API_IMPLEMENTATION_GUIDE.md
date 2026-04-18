@@ -1,12 +1,12 @@
 # Switch Gudang API Implementation Guide
 
-Dokumen ini merangkum dampak fitur **switch gudang** untuk role **admin** dan **spectator**, perbaikan API yang sudah diterapkan, dan langkah penerapan perubahan di GitHub.
+Dokumen ini merangkum dampak fitur **switch gudang** untuk role **admin** dan **spectator** serta perbaikan API yang sudah diterapkan.
 
 ## Policy Inti (Strict Mode)
 
-- Untuk role **admin** dan **spectator**, akses bersifat **single-gudang aktif**.
-- Artinya endpoint list/detail/action hanya boleh memproses data dengan `gudang_id == current_gudang_id`.
-- Assignment multi-gudang tetap dipakai untuk memilih gudang saat switch, tapi sesudah switch, API hanya melayani gudang aktif.
+-   Untuk role **admin** dan **spectator**, akses bersifat **single-gudang aktif**.
+-   Artinya endpoint list/detail/action hanya boleh memproses data dengan `gudang_id == current_gudang_id`.
+-   Assignment multi-gudang tetap dipakai untuk memilih gudang saat switch, tapi sesudah switch, API hanya melayani gudang aktif.
 
 ## 1) Area yang Terdampak oleh Switch Gudang
 
@@ -115,47 +115,6 @@ Ditambahkan guard akses gudang:
 -   Untuk request stok, rekomendasi tetap kirim `gudang_id` eksplisit saat dibutuhkan:
     -   `GET /api/v1/stok?gudang_id={currentGudangId}`
 
-## 5) Cara Penerapan di GitHub
-
-### Opsi A (langsung ke `main`)
-
-```bash
-git checkout main
-git pull origin main
-git add app/Http/Controllers/Api/*.php SWITCH_GUDANG_API_IMPLEMENTATION_GUIDE.md
-git commit -m "Harden warehouse switch API scope for admin/spectator"
-git push origin main
-```
-
-### Opsi B (via branch + Pull Request)
-
-```bash
-git checkout -b fix/switch-gudang-api-scope
-git add app/Http/Controllers/Api/*.php SWITCH_GUDANG_API_IMPLEMENTATION_GUIDE.md
-git commit -m "Harden warehouse switch API scope for admin/spectator"
-git push origin fix/switch-gudang-api-scope
-```
-
-Lalu buat Pull Request ke `main` dengan ringkasan:
-
--   Perbaikan scope gudang untuk admin/spectator.
--   Penambahan guard akses di endpoint detail/create.
--   Konsistensi dashboard terhadap gudang aktif.
-
-## 6) Deploy Setelah Merge
-
-```bash
-ssh -p 65002 u983003565@145.79.14.218 "cd /home/u983003565/domains/hibiscusefsya.com/public_html/sales && git pull origin main && php artisan cache:clear"
-```
-
-Jika ada perubahan konfigurasi/route yang besar, jalankan juga:
-
-```bash
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-```
-
-## 7) Catatan Keamanan
+## 5) Catatan Keamanan
 
 Jika endpoint detail/create tidak memiliki guard `canAccessGudang`, user admin/spectator bisa mengakses data lintas gudang hanya dengan menebak ID resource. Perbaikan ini menutup celah tersebut dan menyamakan perilaku API dengan konsep switch gudang.
