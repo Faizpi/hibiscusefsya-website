@@ -901,6 +901,7 @@ class DashboardController extends Controller
 
         $penjualans = Penjualan::where('user_id', $user->id)
             ->whereDate('tgl_transaksi', $today)
+            ->with('items.produk')
             ->orderBy('created_at', 'asc')
             ->get();
 

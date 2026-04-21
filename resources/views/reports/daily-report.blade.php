@@ -156,6 +156,20 @@
             font-size: 7px;
             word-break: break-all;
         }
+
+        .item-detail-line {
+            line-height: 1.25;
+            margin-bottom: 2px;
+        }
+
+        .item-detail-line:last-child {
+            margin-bottom: 0;
+        }
+
+        .tempo-date {
+            color: #666;
+            font-size: 6px;
+        }
     </style>
 </head>
 
@@ -178,13 +192,17 @@
             <thead>
                 <tr>
                     <th width="3%">No</th>
-                    <th width="12%">Nomor</th>
-                    <th width="10%">Tanggal / Jam</th>
-                    <th width="12%">Pelanggan</th>
-                    <th width="10%" class="text-right">Total</th>
+                    <th width="11%">Nomor</th>
+                    <th width="8%">Tanggal / Jam</th>
+                    <th width="10%">Pelanggan</th>
+                    <th width="7%">Tipe Penjualan</th>
+                    <th width="9%">Tempo</th>
+                    <th width="16%">Detail Barang</th>
+                    <th width="5%" class="text-center">Jml Barang</th>
+                    <th width="8%" class="text-right">Total</th>
                     <th width="5%">Status</th>
-                    <th width="15%">Koordinat</th>
-                    <th width="20%">Lampiran</th>
+                    <th width="8%">Koordinat</th>
+                    <th width="10%">Lampiran</th>
                 </tr>
             </thead>
             <tbody>
@@ -198,6 +216,13 @@
                         $imagePaths = collect($paths)->filter(function ($p) {
                             return preg_match('/\.(jpg|jpeg|png|gif)$/i', $p);
                         });
+                        $itemDetails = collect($item->items ?? [])->map(function ($detail) {
+                            $namaProduk = optional($detail->produk)->nama_produk ?: ('Produk #' . $detail->produk_id);
+                            $qty = number_format((float) ($detail->kuantitas ?? 0), 0, ',', '.');
+                            $unit = trim($detail->unit ?: (optional($detail->produk)->satuan ?? ''));
+                            return $namaProduk . ' (' . $qty . ($unit ? ' ' . $unit : '') . ')';
+                        });
+                        $totalQty = (float) collect($item->items ?? [])->sum('kuantitas');
                     @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
@@ -205,6 +230,23 @@
                         <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}
                             {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                         <td>{{ $item->pelanggan ?? '-' }}</td>
+                        <td>{{ ucfirst($item->tipe_harga ?? 'retail') }}</td>
+                        <td>
+                            {{ $item->syarat_pembayaran ?? '-' }}
+                            @if($item->tgl_jatuh_tempo)
+                                <br><span class="tempo-date">{{ $item->tgl_jatuh_tempo->format('d/m/Y') }}</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($itemDetails->count() > 0)
+                                @foreach($itemDetails as $detailLine)
+                                    <div class="item-detail-line">{{ $detailLine }}</div>
+                                @endforeach
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td class="text-center">{{ number_format($totalQty, 0, ',', '.') }}</td>
                         <td class="text-right">Rp {{ number_format($item->grand_total, 0, ',', '.') }}</td>
                         <td>
                             @if($item->status == 'Approved')
