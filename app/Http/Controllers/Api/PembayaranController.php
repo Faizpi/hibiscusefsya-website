@@ -13,6 +13,81 @@ use Illuminate\Support\Facades\File;
 
 class PembayaranController extends Controller
 {
+    public function getPenjualanByGudang($gudangId)
+    {
+        $user = auth()->user();
+
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $gudangId !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Tidak memiliki akses ke gudang aktif ini.'], 403);
+            }
+        } elseif ($user->role !== 'super_admin' && !$user->canAccessGudang($gudangId)) {
+            return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+        }
+
+        $penjualans = Penjualan::where('gudang_id', $gudangId)
+            ->whereIn('status', ['Approved', 'Lunas'])
+            ->orderByDesc('tgl_transaksi')
+            ->get()
+            ->map(function ($penjualan) {
+                $sudahDibayar = (float) Pembayaran::where('penjualan_id', $penjualan->id)
+                    ->where('status', 'Approved')
+                    ->sum('jumlah_bayar');
+                $sisaTagihan = max(0, (float) ($penjualan->grand_total ?? 0) - $sudahDibayar);
+
+                if ($sisaTagihan <= 0) {
+                    return null;
+                }
+
+                return [
+                    'id' => $penjualan->id,
+                    'nomor' => $penjualan->nomor ?? 'INV-' . $penjualan->id,
+                    'pelanggan' => $penjualan->pelanggan ?? '-',
+                    'tgl_transaksi' => optional($penjualan->tgl_transaksi)->format('Y-m-d'),
+                    'grand_total' => $penjualan->grand_total,
+                    'sisa_tagihan' => $sisaTagihan,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return response()->json($penjualans);
+    }
+
+    public function getPenjualanDetail($id)
+    {
+        $user = auth()->user();
+        $penjualan = Penjualan::with(['items.produk', 'gudang:id,nama_gudang'])->findOrFail($id);
+
+        if ($user->role == 'user' && $penjualan->user_id != $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if (!$currentGudang || (int) $penjualan->gudang_id !== (int) $currentGudang->id) {
+                return response()->json(['message' => 'Tidak memiliki akses ke gudang aktif untuk data ini.'], 403);
+            }
+        }
+
+        return response()->json([
+            'id' => $penjualan->id,
+            'nomor' => $penjualan->nomor,
+            'pelanggan' => $penjualan->pelanggan,
+            'grand_total' => $penjualan->grand_total,
+            'gudang_id' => $penjualan->gudang_id,
+            'items' => $penjualan->items->map(function ($item) {
+                return [
+                    'produk_id' => $item->produk_id,
+                    'nama_produk' => $item->nama_produk,
+                    'kuantitas' => $item->kuantitas,
+                    'harga_satuan' => $item->harga_satuan,
+                ];
+            })->values(),
+        ]);
+    }
+
     public function index(Request $request)
     {
         $user = auth()->user();

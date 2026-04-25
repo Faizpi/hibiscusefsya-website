@@ -110,6 +110,8 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
 
     // Pembayaran
     Route::get('pembayaran', 'PembayaranController@index');
+    Route::get('pembayaran/penjualan-by-gudang/{gudangId}', 'PembayaranController@getPenjualanByGudang');
+    Route::get('pembayaran/penjualan-detail/{id}', 'PembayaranController@getPenjualanDetail');
     Route::get('pembayaran/{id}', 'PembayaranController@show');
     Route::post('pembayaran', 'PembayaranController@store');
     Route::post('pembayaran/{id}/approve', 'PembayaranController@approve');
