@@ -203,10 +203,18 @@ class BiayaController extends Controller
         $biaya = Biaya::findOrFail($id);
 
         // Pengecualian Khusus Lampiran: Boleh diakses pemilik transaksi jika hanya upload lampiran
-        if ($request->hasFile('lampiran') && count($request->except(['_method', 'lampiran'])) === 0) {
+        $keys = array_keys($request->all());
+        $isOnlyLampiran = empty(array_diff($keys, ['_method', 'lampiran']));
+
+        if ($isOnlyLampiran) {
             if ($user->role == 'user' && $biaya->user_id != $user->id) {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
+
+            if (!$request->hasFile('lampiran')) {
+                return response()->json(['message' => 'File lampiran tidak valid atau ukurannya terlalu besar (Maksimal 2MB).'], 422);
+            }
+
             $lampiranPaths = $biaya->lampiran_paths ?? [];
             $publicFolder = public_path('storage/lampiran_biaya');
             if (!File::exists($publicFolder)) {
