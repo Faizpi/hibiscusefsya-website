@@ -249,12 +249,33 @@ class PenjualanController extends Controller
     public function update(Request $request, $id)
     {
         $user = auth()->user();
+        $penjualan = Penjualan::findOrFail($id);
+
+        // Pengecualian Khusus Lampiran: Boleh diakses pemilik transaksi jika hanya upload lampiran
+        if ($request->hasFile('lampiran') && count($request->except(['_method', 'lampiran'])) === 0) {
+            if ($user->role == 'user' && $penjualan->user_id != $user->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+            $lampiranPaths = $penjualan->lampiran_paths ?? [];
+            $publicFolder = public_path('storage/lampiran_penjualan');
+            if (!File::exists($publicFolder)) {
+                File::makeDirectory($publicFolder, 0755, true);
+            }
+            $counter = count($lampiranPaths) + 1;
+            foreach ($request->file('lampiran') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $filename = $penjualan->nomor . '-' . $counter . '.' . $extension;
+                $file->move($publicFolder, $filename);
+                $lampiranPaths[] = 'lampiran_penjualan/' . $filename;
+                $counter++;
+            }
+            $penjualan->update(['lampiran_paths' => $lampiranPaths]);
+            return response()->json(['message' => 'Lampiran berhasil ditambahkan.', 'data' => $penjualan->load('items')]);
+        }
 
         if ($user->role !== 'super_admin') {
             return response()->json(['message' => 'Hanya Super Admin yang dapat mengubah data penjualan.'], 403);
         }
-
-        $penjualan = Penjualan::findOrFail($id);
 
         $request->validate([
             'pelanggan' => 'required|string',

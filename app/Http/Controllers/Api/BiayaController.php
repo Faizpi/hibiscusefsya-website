@@ -200,12 +200,33 @@ class BiayaController extends Controller
     public function update(Request $request, $id)
     {
         $user = auth()->user();
+        $biaya = Biaya::findOrFail($id);
+
+        // Pengecualian Khusus Lampiran: Boleh diakses pemilik transaksi jika hanya upload lampiran
+        if ($request->hasFile('lampiran') && count($request->except(['_method', 'lampiran'])) === 0) {
+            if ($user->role == 'user' && $biaya->user_id != $user->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+            $lampiranPaths = $biaya->lampiran_paths ?? [];
+            $publicFolder = public_path('storage/lampiran_biaya');
+            if (!File::exists($publicFolder)) {
+                File::makeDirectory($publicFolder, 0755, true);
+            }
+            $counter = count($lampiranPaths) + 1;
+            foreach ($request->file('lampiran') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $filename = $biaya->nomor . '-' . $counter . '.' . $extension;
+                $file->move($publicFolder, $filename);
+                $lampiranPaths[] = 'lampiran_biaya/' . $filename;
+                $counter++;
+            }
+            $biaya->update(['lampiran_paths' => $lampiranPaths]);
+            return response()->json(['message' => 'Lampiran berhasil ditambahkan.', 'data' => $biaya->load('items')]);
+        }
 
         if ($user->role !== 'super_admin') {
             return response()->json(['message' => 'Hanya Super Admin yang dapat mengubah data biaya.'], 403);
         }
-
-        $biaya = Biaya::findOrFail($id);
 
         $request->validate([
             'bayar_dari' => 'required|string',
