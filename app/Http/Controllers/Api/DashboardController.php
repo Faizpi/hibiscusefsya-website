@@ -78,14 +78,31 @@ class DashboardController extends Controller
             ->whereYear('tgl_transaksi', $now->year)
             ->sum('grand_total');
 
-        $data['biaya_bulan_ini'] = (clone $biayaQuery)
+        $data['biaya_masuk_bulan_ini'] = (clone $biayaQuery)
             ->whereMonth('tgl_transaksi', $now->month)
             ->whereYear('tgl_transaksi', $now->year)
+            ->where('jenis_biaya', 'masuk')
             ->sum('grand_total');
+
+        $data['biaya_keluar_bulan_ini'] = (clone $biayaQuery)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->whereYear('tgl_transaksi', $now->year)
+            ->where('jenis_biaya', 'keluar')
+            ->sum('grand_total');
+
+        // Keep legacy field for backward compat
+        $data['biaya_bulan_ini'] = $data['biaya_masuk_bulan_ini'] + $data['biaya_keluar_bulan_ini'];
 
         $data['kunjungan_bulan_ini'] = (clone $kunjunganQuery)
             ->whereMonth('tgl_kunjungan', $now->month)
             ->whereYear('tgl_kunjungan', $now->year)
+            ->count();
+
+        $data['canceled_bulan_ini'] = (clone $penjualanQuery)
+            ->withoutGlobalScopes()
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->whereYear('tgl_transaksi', $now->year)
+            ->where('status', 'Canceled')
             ->count();
 
         $pendingPembelianQuery = Pembelian::where('status', 'Pending');
