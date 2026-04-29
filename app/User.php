@@ -14,6 +14,7 @@ use Illuminate\Notifications\Notifiable;
  * @property string $role
  * @property string|null $alamat
  * @property string|null $no_telp
+ * @property string|null $avatar
  * @property int|null $gudang_id
  * @property int|null $current_gudang_id
  * @property bool $receives_transaction_email
@@ -41,6 +42,7 @@ class User extends Authenticatable
         'role',
         'alamat',
         'no_telp',
+        'avatar',
         'gudang_id',
         'current_gudang_id',
         'receives_transaction_email',
@@ -65,6 +67,17 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'receives_transaction_email' => 'boolean',
     ];
+
+    /**
+     * Get full URL for avatar. Returns null if no avatar set.
+     */
+    public function avatarUrl(): ?string
+    {
+        if (!$this->avatar) {
+            return null;
+        }
+        return asset('storage/' . $this->avatar);
+    }
 
     public function gudang()
     {

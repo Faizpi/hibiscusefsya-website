@@ -75,7 +75,19 @@
                             @forelse ($users as $user)
                                 <tr data-role="{{ $user->role }}">
                                     <td>
-                                        <strong>{{ $user->name }}</strong>
+                                        <div class="d-flex align-items-center">
+                                            {{-- Avatar --}}
+                                            <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;margin-right:10px;background:linear-gradient(135deg,#3B82F6,#8B5CF6);display:flex;align-items:center;justify-content:center;">
+                                                @if($user->avatar)
+                                                    <img src="{{ $user->avatarUrl() }}" alt="{{ $user->name }}" style="width:100%;height:100%;object-fit:cover;">
+                                                @else
+                                                    <span style="color:#fff;font-weight:700;font-size:0.875rem;">{{ strtoupper(substr($user->name,0,1)) }}</span>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <strong>{{ $user->name }}</strong>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>{{ $user->email }}</td>
                                     <td>

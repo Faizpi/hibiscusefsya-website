@@ -35,6 +35,8 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
     Route::get('profile', 'AuthController@profile');
     Route::put('profile', 'AuthController@updateProfile');
     Route::post('change-password', 'AuthController@changePassword');
+    Route::post('profile/avatar', 'AuthController@uploadAvatar');
+    Route::delete('profile/avatar', 'AuthController@deleteAvatar');
 
     // Dashboard
     Route::get('dashboard', 'DashboardController@index');

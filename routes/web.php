@@ -95,6 +95,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profil', 'ProfileController@show')->name('profil.show');
     Route::put('/profil', 'ProfileController@update')->name('profil.update');
     Route::post('/profil/change-password', 'ProfileController@changePassword')->name('profil.change-password');
+    Route::post('/profil/avatar', 'ProfileController@uploadAvatar')->name('profil.avatar');
+    Route::delete('/profil/avatar', 'ProfileController@deleteAvatar')->name('profil.avatar.delete');
 
     // --- BLUETOOTH PRINT JSON API ---
     Route::get('bluetooth/penjualan/{id}', 'BluetoothPrintController@penjualanJson')->name('bluetooth.penjualan');

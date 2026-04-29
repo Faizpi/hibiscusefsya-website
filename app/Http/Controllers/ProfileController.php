@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -35,6 +36,115 @@ class ProfileController extends Controller
 
         return redirect()->route('profil.show')
             ->with('success', 'Profil berhasil diperbarui.');
+    }
+
+    /**
+     * Upload & compress avatar foto profil.
+     */
+    public function uploadAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'], // max 5MB input
+        ]);
+
+        $user = auth()->user();
+
+        // Hapus avatar lama jika ada
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $file = $request->file('avatar');
+
+        // Compress & resize menggunakan PHP GD (built-in, tanpa library tambahan)
+        $compressed = $this->compressImage($file);
+
+        $filename = 'avatars/' . $user->id . '_' . time() . '.jpg';
+        Storage::disk('public')->put($filename, $compressed);
+
+        $user->update(['avatar' => $filename]);
+
+        return redirect()->route('profil.show')
+            ->with('success', 'Foto profil berhasil diperbarui.');
+    }
+
+    /**
+     * Compress image using GD: resize to max 400x400, quality 80 JPEG.
+     */
+    private function compressImage($file): string
+    {
+        $mime = $file->getMimeType();
+        $path = $file->getRealPath();
+
+        // Create image resource from uploaded file
+        switch ($mime) {
+            case 'image/jpeg':
+            case 'image/jpg':
+                $src = imagecreatefromjpeg($path);
+                break;
+            case 'image/png':
+                $src = imagecreatefrompng($path);
+                break;
+            case 'image/webp':
+                $src = imagecreatefromwebp($path);
+                break;
+            default:
+                $src = imagecreatefromjpeg($path);
+        }
+
+        $origW = imagesx($src);
+        $origH = imagesy($src);
+
+        // Resize to max 400x400, keeping aspect ratio
+        $maxSize = 400;
+        if ($origW > $maxSize || $origH > $maxSize) {
+            if ($origW > $origH) {
+                $newW = $maxSize;
+                $newH = (int) round($origH * $maxSize / $origW);
+            } else {
+                $newH = $maxSize;
+                $newW = (int) round($origW * $maxSize / $origH);
+            }
+        } else {
+            $newW = $origW;
+            $newH = $origH;
+        }
+
+        $dst = imagecreatetruecolor($newW, $newH);
+
+        // Handle transparency for PNG
+        if ($mime === 'image/png') {
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+            $white = imagecolorallocate($dst, 255, 255, 255);
+            imagefill($dst, 0, 0, $white);
+        }
+
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+
+        // Output to buffer as JPEG quality 82
+        ob_start();
+        imagejpeg($dst, null, 82);
+        $data = ob_get_clean();
+
+        imagedestroy($src);
+        imagedestroy($dst);
+
+        return $data;
+    }
+
+    /**
+     * Hapus avatar profil (reset ke default huruf).
+     */
+    public function deleteAvatar()
+    {
+        $user = auth()->user();
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+            $user->update(['avatar' => null]);
+        }
+        return redirect()->route('profil.show')
+            ->with('success', 'Foto profil berhasil dihapus.');
     }
 
     /**

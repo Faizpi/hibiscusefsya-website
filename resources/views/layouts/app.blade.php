@@ -2214,7 +2214,12 @@
                                         </div>
                                     </div>
                                     <img class="img-profile rounded-circle"
-                                        src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3B82F6&color=fff&size=128">
+                                        @if(Auth::user()->avatar)
+                                            src="{{ Auth::user()->avatarUrl() }}"
+                                        @else
+                                            src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3B82F6&color=fff&size=128"
+                                        @endif
+                                        alt="{{ Auth::user()->name }}" style="object-fit:cover;">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
                                     {{-- Profile untuk Admin / Spectator --}}
