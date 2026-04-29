@@ -37,13 +37,13 @@
         <div class="col-lg-4 mb-4">
 
             {{-- Avatar Card --}}
-            <div class="card mb-3" style="border-radius:16px;overflow:hidden;">
-                {{-- Banner gradient (dekoratif saja, tidak menutup avatar) --}}
-                <div style="background:linear-gradient(135deg,#3B82F6,#8B5CF6);height:70px;"></div>
+            <div class="card mb-3" style="border-radius:16px;overflow:hidden;position:relative;border:none;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+                {{-- Banner gradient (posisi absolute di belakang) --}}
+                <div style="position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(135deg,#3B82F6,#8B5CF6);z-index:1;"></div>
 
-                <div class="card-body text-center" style="padding-top:0;position:relative;z-index:2;">
+                <div class="card-body text-center" style="padding-top:80px;position:relative;z-index:2;">
                     {{-- Avatar circle -- ditarik ke atas overlap banner --}}
-                    <div class="profile-avatar-wrapper" style="position:relative;display:inline-block;margin:-44px auto 12px;z-index:10;">
+                    <div class="profile-avatar-wrapper" style="position:relative;display:inline-block;margin-top:-44px;margin-bottom:12px;z-index:10;">
                         <div id="avatarCircle" style="
                             width:88px;height:88px;border-radius:50%;
                             overflow:hidden;
