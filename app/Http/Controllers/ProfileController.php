@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -44,23 +43,28 @@ class ProfileController extends Controller
     public function uploadAvatar(Request $request)
     {
         $request->validate([
-            'avatar' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'], // max 5MB input
+            'avatar' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ]);
 
         $user = auth()->user();
 
         // Hapus avatar lama jika ada
         if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
+            $oldPath = public_path('storage/' . $user->avatar);
+            if (file_exists($oldPath)) @unlink($oldPath);
         }
 
         $file = $request->file('avatar');
-
-        // Compress & resize menggunakan PHP GD (built-in, tanpa library tambahan)
         $compressed = $this->compressImage($file);
 
-        $filename = 'avatars/' . $user->id . '_' . time() . '.jpg';
-        Storage::disk('public')->put($filename, $compressed);
+        // Simpan langsung ke public/storage/avatars/ (sesuai struktur server)
+        $avatarsDir = public_path('storage/avatars');
+        if (!is_dir($avatarsDir)) {
+            mkdir($avatarsDir, 0755, true);
+        }
+
+        $filename   = 'avatars/' . $user->id . '_' . time() . '.jpg';
+        file_put_contents(public_path('storage/' . $filename), $compressed);
 
         $user->update(['avatar' => $filename]);
 
@@ -140,7 +144,8 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
         if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
+            $path = public_path('storage/' . $user->avatar);
+            if (file_exists($path)) @unlink($path);
             $user->update(['avatar' => null]);
         }
         return redirect()->route('profil.show')

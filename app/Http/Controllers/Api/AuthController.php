@@ -7,7 +7,6 @@ use App\PersonalAccessToken;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -130,7 +129,12 @@ class AuthController extends Controller
     {
         $user = auth()->user();
 
-        // Support dua cara: file upload langsung ATAU base64 string
+        // Pastikan direktori avatars ada
+        $avatarsDir = public_path('storage/avatars');
+        if (!is_dir($avatarsDir)) {
+            mkdir($avatarsDir, 0755, true);
+        }
+
         if ($request->hasFile('avatar')) {
             $request->validate([
                 'avatar' => 'required|image|mimes:jpeg,jpg,png,webp|max:5120',
@@ -138,18 +142,18 @@ class AuthController extends Controller
 
             // Hapus avatar lama
             if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
+                $oldPath = public_path('storage/' . $user->avatar);
+                if (file_exists($oldPath)) @unlink($oldPath);
             }
 
             $file       = $request->file('avatar');
             $compressed = $this->compressImage($file->getRealPath(), $file->getMimeType());
             $filename   = 'avatars/' . $user->id . '_' . time() . '.jpg';
-            Storage::disk('public')->put($filename, $compressed);
+            file_put_contents(public_path('storage/' . $filename), $compressed);
             $user->update(['avatar' => $filename]);
+
         } elseif ($request->filled('avatar_base64')) {
-            // Base64 encoded image
             $base64 = $request->input('avatar_base64');
-            // Strip data URI prefix if present
             if (str_contains($base64, ',')) {
                 $base64 = explode(',', $base64, 2)[1];
             }
@@ -159,18 +163,19 @@ class AuthController extends Controller
             }
 
             if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
+                $oldPath = public_path('storage/' . $user->avatar);
+                if (file_exists($oldPath)) @unlink($oldPath);
             }
 
-            // Write to temp, then compress
             $tmpPath = sys_get_temp_dir() . '/avatar_' . $user->id . '.jpg';
             file_put_contents($tmpPath, $imageData);
             $compressed = $this->compressImage($tmpPath, 'image/jpeg');
             @unlink($tmpPath);
 
             $filename = 'avatars/' . $user->id . '_' . time() . '.jpg';
-            Storage::disk('public')->put($filename, $compressed);
+            file_put_contents(public_path('storage/' . $filename), $compressed);
             $user->update(['avatar' => $filename]);
+
         } else {
             return response()->json(['message' => 'Tidak ada file avatar yang dikirim.'], 422);
         }
@@ -189,7 +194,8 @@ class AuthController extends Controller
     {
         $user = auth()->user();
         if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
+            $path = public_path('storage/' . $user->avatar);
+            if (file_exists($path)) @unlink($path);
             $user->update(['avatar' => null]);
         }
         return response()->json(['message' => 'Avatar berhasil dihapus.', 'user' => $this->formatUser($user)]);
