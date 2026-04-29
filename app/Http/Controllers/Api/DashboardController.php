@@ -12,6 +12,7 @@ use App\User;
 use App\Produk;
 use App\GudangProduk;
 use App\Gudang;
+use App\Pembayaran;
 use App\Exports\TransactionsExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -318,6 +319,7 @@ class DashboardController extends Controller
                 ['value' => 'pembelian', 'label' => 'Pembelian'],
                 ['value' => 'biaya', 'label' => 'Biaya'],
                 ['value' => 'kunjungan', 'label' => 'Kunjungan'],
+                ['value' => 'pembayaran', 'label' => 'Pembayaran'],
             ],
             'status_filters' => [
                 ['value' => 'all', 'label' => 'Semua Status'],
@@ -368,7 +370,7 @@ class DashboardController extends Controller
         $request->validate([
             'date_from' => 'required|date',
             'date_to' => 'required|date|after_or_equal:date_from',
-            'transaction_type' => 'required|in:all,penjualan,pembelian,biaya,kunjungan',
+            'transaction_type' => 'required|in:all,penjualan,pembelian,biaya,kunjungan,pembayaran',
             'status_filter' => 'nullable|in:all,Pending,Approved,Rejected,Canceled,Lunas',
             'gudang_id' => 'nullable|exists:gudangs,id',
             'biaya_jenis' => 'nullable|in:masuk,keluar',
@@ -391,6 +393,7 @@ class DashboardController extends Controller
         $pembelians = collect();
         $biayas = collect();
         $kunjungans = collect();
+        $pembayarans = collect();
 
         // Map kontak nama -> no_telp
         $kontakPhoneMap = Kontak::whereNotNull('no_telp')
@@ -539,13 +542,45 @@ class DashboardController extends Controller
             });
         }
 
+        // PEMBAYARAN
+        if (in_array($transactionType, ['all', 'pembayaran'])) {
+            $query = Pembayaran::with('user', 'approver', 'gudang', 'penjualan')
+                ->whereBetween('tgl_pembayaran', [$dateFrom, $dateTo]);
+
+            if ($user->role == 'admin') {
+                $accessibleGudangIds = $user->gudangs()->pluck('gudangs.id');
+                $query->whereIn('gudang_id', $accessibleGudangIds);
+            }
+            if ($gudangId) {
+                if ($user->role == 'admin' && !$user->canAccessGudang($gudangId)) {
+                    return response()->json(['message' => 'Tidak memiliki akses ke gudang ini.'], 403);
+                }
+                $query->where('gudang_id', $gudangId);
+            }
+            if ($statusFilter != 'all') {
+                $query->where('status', $statusFilter);
+            }
+            if ($salesId) {
+                $query->where('user_id', $salesId);
+            }
+
+            $pembayarans = $query->get();
+            $pembayarans->each(function ($item) use ($generateNumber) {
+                $item->type = 'Pembayaran';
+                $item->number = $generateNumber($item, 'PAY');
+                $item->display_contact_name = optional($item->penjualan)->pelanggan ?: '-';
+                $item->no_telp_kontak = '-';
+            });
+        }
+
         // Build file name
         $typeLabel = [
             'all' => 'Semua_Transaksi',
             'penjualan' => 'Penjualan',
             'pembelian' => 'Pembelian',
             'biaya' => 'Biaya',
-            'kunjungan' => 'Kunjungan'
+            'kunjungan' => 'Kunjungan',
+            'pembayaran' => 'Pembayaran'
         ];
 
         $gudangLabel = '';
@@ -564,13 +599,15 @@ class DashboardController extends Controller
 
         // Prepare export data
         if ($transactionType == 'all') {
-            $exportData = $penjualans->concat($pembelians)->concat($biayas)->concat($kunjungans)->sortBy('created_at');
+            $exportData = $penjualans->concat($pembelians)->concat($biayas)->concat($kunjungans)->concat($pembayarans)->sortBy('created_at');
         } elseif ($transactionType == 'penjualan') {
             $exportData = $penjualans;
         } elseif ($transactionType == 'pembelian') {
             $exportData = $pembelians;
         } elseif ($transactionType == 'biaya') {
             $exportData = $biayas;
+        } elseif ($transactionType == 'pembayaran') {
+            $exportData = $pembayarans;
         } else {
             $exportData = $kunjungans;
         }

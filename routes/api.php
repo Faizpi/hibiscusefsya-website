@@ -112,6 +112,7 @@ Route::prefix('v1')->namespace('Api')->middleware('api.token')->group(function (
 
     // Pembayaran
     Route::get('pembayaran', 'PembayaranController@index');
+    Route::get('pembayaran/export-harian-pdf', 'PembayaranController@exportHarianPdf');
     Route::get('pembayaran/penjualan-by-gudang/{gudangId}', 'PembayaranController@getPenjualanByGudang');
     Route::get('pembayaran/penjualan-detail/{id}', 'PembayaranController@getPenjualanDetail');
     Route::get('pembayaran/{id}', 'PembayaranController@show');

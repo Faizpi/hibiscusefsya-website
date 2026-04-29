@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class PembayaranController extends Controller
 {
@@ -292,5 +293,66 @@ class PembayaranController extends Controller
         $pembayaran->update(['status' => 'Pending']);
 
         return response()->json(['message' => 'Pembayaran berhasil di-uncancel. Status kembali ke Pending.', 'data' => $pembayaran]);
+    }
+
+    public function exportHarianPdf(Request $request)
+    {
+        $request->validate([
+            'tanggal' => 'nullable|date',
+        ]);
+
+        $user = auth()->user();
+        $tanggal = $request->filled('tanggal')
+            ? Carbon::parse($request->tanggal)
+            : Carbon::today();
+
+        $query = Penjualan::with(['gudang'])
+            ->where('status', 'Approved')
+            ->whereDate('tgl_transaksi', $tanggal->toDateString());
+
+        if ($user->role == 'super_admin') {
+            // Super admin dapat melihat semua
+        } elseif (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+            if ($currentGudang) {
+                $query->where('gudang_id', $currentGudang->id);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        } else {
+            $query->where('user_id', $user->id);
+        }
+
+        $invoices = $query->orderBy('tgl_transaksi')
+            ->orderBy('created_at')
+            ->get()
+            ->map(function ($penjualan) {
+                $totalBayarApproved = Pembayaran::where('penjualan_id', $penjualan->id)
+                    ->where('status', 'Approved')
+                    ->sum('jumlah_bayar');
+
+                $penjualan->total_bayar_approved = $totalBayarApproved;
+                $penjualan->jumlah_tagihan = max(((float) $penjualan->grand_total) - ((float) $totalBayarApproved), 0);
+
+                return $penjualan;
+            })
+            ->filter(function ($penjualan) {
+                return $penjualan->jumlah_tagihan > 0;
+            })
+            ->values();
+
+        $totalJumlah = $invoices->sum('jumlah_tagihan');
+
+        $pdf = PDF::loadView('pembayaran.daily-export-pdf', [
+            'invoices' => $invoices,
+            'tanggal' => $tanggal,
+            'generatedBy' => $user->name,
+            'generatedAt' => Carbon::now(),
+            'totalJumlah' => $totalJumlah,
+        ]);
+
+        $pdf->setPaper('a4', 'landscape');
+
+        return $pdf->download('Tagihan-Invoice-Harian-' . $tanggal->format('Ymd') . '.pdf');
     }
 }
