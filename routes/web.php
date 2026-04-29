@@ -91,6 +91,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', 'DashboardController@index')->name('home');
     Route::get('/report/daily', 'DashboardController@dailyReport')->name('report.daily');
 
+    // Profil (semua user yang login)
+    Route::get('/profil', 'ProfileController@show')->name('profil.show');
+    Route::put('/profil', 'ProfileController@update')->name('profil.update');
+    Route::post('/profil/change-password', 'ProfileController@changePassword')->name('profil.change-password');
+
     // --- BLUETOOTH PRINT JSON API ---
     Route::get('bluetooth/penjualan/{id}', 'BluetoothPrintController@penjualanJson')->name('bluetooth.penjualan');
     Route::get('bluetooth/pembelian/{id}', 'BluetoothPrintController@pembelianJson')->name('bluetooth.pembelian');

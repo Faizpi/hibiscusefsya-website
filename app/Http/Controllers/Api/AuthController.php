@@ -102,12 +102,20 @@ class AuthController extends Controller
         $user = auth()->user();
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'alamat' => 'nullable|string',
+            'name'    => 'sometimes|string|max:255',
+            'alamat'  => 'nullable|string',
             'no_telp' => 'nullable|string|max:20',
         ]);
 
-        $user->update($request->only('name', 'alamat', 'no_telp'));
+        // Hanya update no_telp dan alamat (nama bersifat readonly di UI)
+        $data = $request->only('no_telp', 'alamat');
+
+        // Izinkan update nama jika dikirim (kompatibilitas mundur)
+        if ($request->filled('name')) {
+            $data['name'] = $request->name;
+        }
+
+        $user->update($data);
 
         return response()->json(['message' => 'Profil berhasil diupdate.', 'user' => $user]);
     }

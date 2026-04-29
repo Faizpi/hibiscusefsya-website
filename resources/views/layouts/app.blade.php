@@ -2120,6 +2120,16 @@
                         </a>
                     </li>
                 @endif
+
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading">Akun</div>
+
+                <li class="nav-item {{ Route::is('profil.*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('profil.show') }}" title="Profil Saya">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Profil Saya</span>
+                    </a>
+                </li>
             </ul>
             <!-- End Sidebar -->
 
@@ -2253,6 +2263,11 @@
                                         <div class="dropdown-divider"></div>
                                     @endif
 
+                                    <a class="dropdown-item" href="{{ route('profil.show') }}">
+                                        <i class="fas fa-user-circle mr-2" style="color:#3B82F6;"></i>
+                                        Profil Saya
+                                    </a>
+                                    <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                                         <i class="fas fa-sign-out-alt mr-2"></i>
                                         Keluar
