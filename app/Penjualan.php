@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
  * @property string $uuid
  * @property int|null $gudang_id
  * @property string|null $pelanggan
- * @property string|null $email
+ * @property string|null $no_telepon
  * @property string|null $alamat_penagihan
  * @property string|null $koordinat
  * @property \Carbon\Carbon|null $tgl_transaksi
@@ -46,7 +46,7 @@ class Penjualan extends Model
         'gudang_id',
         'tipe_harga',
         'pelanggan',
-        'email',
+        'no_telepon',
         'alamat_penagihan',
         'koordinat',
         'tgl_transaksi',

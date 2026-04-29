@@ -13,7 +13,7 @@
             <th>Tgl Jatuh Tempo</th>
             <th>Pelanggan</th>
             <th>No Telepon</th>
-            <th>Email</th>
+            <th>Nomor Telepon</th>
             <th>Alamat Penagihan</th>
             <th>Syarat Pembayaran</th>
             <th>Gudang</th>
@@ -48,7 +48,7 @@
                             <td>{{ $item->tgl_jatuh_tempo ? \Carbon\Carbon::parse($item->tgl_jatuh_tempo)->format('d/m/Y') : '-' }}</td>
                             <td>{{ $item->pelanggan ?? '-' }}</td>
                             <td>{{ $item->no_telp_kontak ?? '-' }}</td>
-                            <td>{{ $item->email ?? '-' }}</td>
+                            <td>{{ $item->no_telepon ?? '-' }}</td>
                             <td>{{ $item->alamat_penagihan ?? '-' }}</td>
                             <td>{{ $item->syarat_pembayaran ?? '-' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
@@ -104,7 +104,7 @@
                     <td>{{ $item->tgl_jatuh_tempo ? \Carbon\Carbon::parse($item->tgl_jatuh_tempo)->format('d/m/Y') : '-' }}</td>
                     <td>{{ $item->pelanggan ?? '-' }}</td>
                     <td>{{ $item->no_telp_kontak ?? '-' }}</td>
-                    <td>{{ $item->email ?? '-' }}</td>
+                    <td>{{ $item->no_telepon ?? '-' }}</td>
                     <td>{{ $item->alamat_penagihan ?? '-' }}</td>
                     <td>{{ $item->syarat_pembayaran ?? '-' }}</td>
                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>

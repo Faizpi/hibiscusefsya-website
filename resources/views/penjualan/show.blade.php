@@ -89,8 +89,8 @@
                                 <td>: {{ $penjualan->pelanggan }}</td>
                             </tr>
                             <tr>
-                                <td><strong>Email</strong></td>
-                                <td>: {{ $penjualan->email ?? '-' }}</td>
+                                <td><strong>Nomor Telepon</strong></td>
+                                <td>: {{ $penjualan->no_telepon ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Tgl. Transaksi</strong></td>

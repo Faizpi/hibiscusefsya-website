@@ -13,7 +13,7 @@
             <th>Tujuan</th>
             <th>Sales Nama</th>
             <th>No Telepon</th>
-            <th>Sales Email</th>
+            <th>No Telepon Sales</th>
             <th>Sales Alamat</th>
             <th>Gudang</th>
             <th>Koordinat</th>
@@ -38,7 +38,7 @@
                         <td>{{ $item->tujuan }}</td>
                         <td>{{ $item->sales_nama ?? '-' }}</td>
                         <td>{{ $item->no_telp_kontak ?? '-' }}</td>
-                        <td>{{ $item->sales_email ?? '-' }}</td>
+                        <td>{{ $item->sales_no_telepon ?? '-' }}</td>
                         <td>{{ $item->sales_alamat ?? '-' }}</td>
                         <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                         <td>{{ $item->koordinat ?? '-' }}</td>
@@ -59,7 +59,7 @@
                     <td>{{ $item->tujuan }}</td>
                     <td>{{ $item->sales_nama ?? '-' }}</td>
                     <td>{{ $item->no_telp_kontak ?? '-' }}</td>
-                    <td>{{ $item->sales_email ?? '-' }}</td>
+                    <td>{{ $item->sales_no_telepon ?? '-' }}</td>
                     <td>{{ $item->sales_alamat ?? '-' }}</td>
                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                     <td>{{ $item->koordinat ?? '-' }}</td>

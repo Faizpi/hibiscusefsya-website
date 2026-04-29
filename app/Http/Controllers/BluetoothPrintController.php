@@ -203,7 +203,7 @@ class BluetoothPrintController extends Controller
             'waktu' => $data->created_at->format('H:i'),
             'tujuan' => $data->tujuan,
             'sales_nama' => $data->sales_nama,
-            'sales_email' => $data->sales_email ?? '-',
+            'sales_no_telepon' => $data->sales_no_telepon ?? '-',
             'sales_alamat' => $data->sales_alamat ?? '-',
             'pembuat' => optional($data->user)->name ?? '-',
             'approver' => ($data->status != 'Pending' && $data->approver) ? $data->approver->name : '-',

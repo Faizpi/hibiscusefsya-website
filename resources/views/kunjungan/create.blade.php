@@ -59,7 +59,7 @@
                                             <option value="">Pilih kontak...</option>
                                             @foreach($kontaks as $kontak)
                                                 <option value="{{ $kontak->id }}" data-nama="{{ $kontak->nama }}"
-                                                    data-kode="{{ $kontak->kode_kontak }}" data-email="{{ $kontak->email }}"
+                                                    data-kode="{{ $kontak->kode_kontak }}" data-no-telp="{{ $kontak->no_telp }}"
                                                     data-alamat="{{ $kontak->alamat }}" {{ old('kontak_id') == $kontak->id ? 'selected' : '' }}>
                                                     [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
                                                 </option>
@@ -84,11 +84,11 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="sales_email">Email</label>
-                                <input type="email" class="form-control @error('sales_email') is-invalid @enderror"
-                                    id="sales_email" name="sales_email" value="{{ old('sales_email') }}"
-                                    placeholder="email@contoh.com">
-                                @error('sales_email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <label for="sales_no_telepon">Nomor Telepon</label>
+                                <input type="tel" class="form-control @error('sales_no_telepon') is-invalid @enderror"
+                                    id="sales_no_telepon" name="sales_no_telepon" value="{{ old('sales_no_telepon') }}"
+                                    placeholder="cth: 08123456789">
+                                @error('sales_no_telepon') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="form-group">
@@ -276,7 +276,7 @@
             // Predefined elements
             const kontakSelect = document.getElementById('kontak_id');
             const salesNamaHidden = document.getElementById('sales_nama_hidden');
-            const salesEmailInput = document.getElementById('sales_email');
+            const salesNoTeleponInput = document.getElementById('sales_no_telepon');
             const salesAlamatInput = document.getElementById('sales_alamat');
             const tujuanSelect = document.getElementById('tujuan');
 
@@ -333,7 +333,7 @@
                 // Auto-fill email dan alamat saat kontak dipilih
                 const selectedOption = this.options[this.selectedIndex];
                 salesNamaHidden.value = selectedOption.dataset.nama || '';
-                salesEmailInput.value = selectedOption.dataset.email || '';
+                salesNoTeleponInput.value = selectedOption.dataset.noTelp || '';
                 salesAlamatInput.value = selectedOption.dataset.alamat || '';
             });
 

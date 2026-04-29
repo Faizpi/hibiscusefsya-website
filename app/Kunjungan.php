@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
  * @property int|null $no_urut_harian
  * @property string|null $nomor
  * @property string|null $sales_nama
- * @property string|null $sales_email
+ * @property string|null $sales_no_telepon
  * @property string|null $sales_alamat
  * @property \Carbon\Carbon|null $tgl_kunjungan
  * @property string|null $tujuan
@@ -42,7 +42,7 @@ class Kunjungan extends Model
         'no_urut_harian',
         'nomor',
         'sales_nama',
-        'sales_email',
+        'sales_no_telepon',
         'sales_alamat',
         'tgl_kunjungan',
         'tujuan',

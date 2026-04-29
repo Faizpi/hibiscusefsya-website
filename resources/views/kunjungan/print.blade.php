@@ -179,11 +179,11 @@
                 <td class="colon">:</td>
                 <td class="value">{{ $kunjungan->sales_nama }}</td>
             </tr>
-            @if($kunjungan->sales_email)
+            @if($kunjungan->sales_no_telepon)
                 <tr>
-                    <td class="label">Email</td>
+                    <td class="label">No. Telepon</td>
                     <td class="colon">:</td>
-                    <td class="value">{{ $kunjungan->sales_email }}</td>
+                    <td class="value">{{ $kunjungan->sales_no_telepon }}</td>
                 </tr>
             @endif
             @if($kunjungan->sales_alamat)

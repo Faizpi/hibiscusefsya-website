@@ -132,8 +132,8 @@
                                 <td>: {{ $kunjungan->sales_nama }}</td>
                             </tr>
                             <tr>
-                                <td><strong>Email</strong></td>
-                                <td>: {{ $kunjungan->sales_email ?? '-' }}</td>
+                                <td><strong>No. Telepon</strong></td>
+                                <td>: {{ $kunjungan->sales_no_telepon ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Alamat</strong></td>

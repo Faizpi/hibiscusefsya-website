@@ -100,7 +100,7 @@ class KunjunganController extends Controller
             'tgl_kunjungan' => 'required|date',
             'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Promo Gratis,Promo Sample',
             'sales_nama' => 'nullable|string|max:255',
-            'sales_email' => 'nullable|email|max:255',
+            'sales_no_telepon' => 'nullable|string|max:30',
             'sales_alamat' => 'nullable|string',
         ];
 
@@ -190,7 +190,7 @@ class KunjunganController extends Controller
                 'nomor' => $nomor,
                 'no_urut_harian' => $noUrut,
                 'sales_nama' => $request->sales_nama ?? $user->name,
-                'sales_email' => $request->sales_email ?? $user->email,
+                'sales_no_telepon' => $request->sales_no_telepon ?? $user->no_telp ?? null,
                 'sales_alamat' => $request->sales_alamat ?? $user->alamat,
                 'tgl_kunjungan' => $request->tgl_kunjungan,
                 'tujuan' => $request->tujuan,
@@ -298,7 +298,7 @@ class KunjunganController extends Controller
         $request->validate([
             'kontak_id' => 'required|exists:kontaks,id',
             'sales_nama' => 'required|string|max:255',
-            'sales_email' => 'nullable|email|max:255',
+            'sales_no_telepon' => 'nullable|string|max:30',
             'sales_alamat' => 'nullable|string',
             'tujuan' => 'required|in:Pemeriksaan Stock,Penagihan,Promo Gratis,Promo Sample',
             'memo' => 'nullable|string',
@@ -349,7 +349,7 @@ class KunjunganController extends Controller
         $kunjungan->update([
             'kontak_id' => $request->kontak_id,
             'sales_nama' => $request->sales_nama,
-            'sales_email' => $request->sales_email,
+            'sales_no_telepon' => $request->sales_no_telepon,
             'sales_alamat' => $request->sales_alamat,
             'tujuan' => $request->tujuan,
             'koordinat' => $request->koordinat,

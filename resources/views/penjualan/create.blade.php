@@ -50,7 +50,7 @@
                                                     @foreach($kontaks as $kontak)
                                                         <option value="{{ $kontak->nama }}" data-id="{{ $kontak->id }}"
                                                             data-kode="{{ $kontak->kode_kontak }}"
-                                                            data-email="{{ $kontak->email }}"
+                                                            data-no-telp="{{ $kontak->no_telp }}"
                                                             data-alamat="{{ $kontak->alamat }}"
                                                             data-diskon="{{ $kontak->diskon_persen }}" {{ old('pelanggan') == $kontak->nama ? 'selected' : '' }}>
                                                             [{{ $kontak->kode_kontak }}] {{ $kontak->nama }}
@@ -76,10 +76,10 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="email">Email</label>
-                                        <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                            id="email-input" name="email" value="{{ old('email') }}">
-                                        @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        <label for="no_telepon">Nomor Telepon</label>
+                                        <input type="tel" class="form-control @error('no_telepon') is-invalid @enderror"
+                                            id="no-telepon-input" name="no_telepon" value="{{ old('no_telepon') }}" placeholder="cth: 08123456789">
+                                        @error('no_telepon') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                 </div>
                             </div>
@@ -443,7 +443,7 @@
             const grandTotalTop = document.getElementById('grand-total-display');
 
             const kontakSelect = document.getElementById('kontak-select');
-            const emailInput = document.getElementById('email-input');
+            const noTeleponInput = document.getElementById('no-telepon-input');
             const alamatInput = document.getElementById('alamat-input');
             const gudangSelect = document.getElementById('gudang_id');
 
@@ -601,9 +601,9 @@
                 allowClear: true,
                 width: '100%'
             }).on('select2:select', function (e) {
-                // Trigger autofill email & alamat
+                // Trigger autofill nomor telepon & alamat
                 const selectedOption = this.options[this.selectedIndex];
-                emailInput.value = selectedOption.dataset.email || '';
+                noTeleponInput.value = selectedOption.dataset.noTelp || '';
                 alamatInput.value = selectedOption.dataset.alamat || '';
 
                 const disc = selectedOption.dataset.diskon || 0;
@@ -613,7 +613,7 @@
                 // Hitung ulang baris karena diskon berubah
                 Array.from(tableBody.rows).forEach(row => calculateRow(row));
             }).on('select2:clear', function (e) {
-                emailInput.value = '';
+                noTeleponInput.value = '';
                 alamatInput.value = '';
             });
 
@@ -961,7 +961,7 @@
             if (kontakSelect) {
                 kontakSelect.addEventListener('change', function () {
                     const selectedOption = this.options[this.selectedIndex];
-                    emailInput.value = selectedOption.dataset.email || '';
+                    noTeleponInput.value = selectedOption.dataset.noTelp || '';
                     alamatInput.value = selectedOption.dataset.alamat || '';
 
                     const disc = selectedOption.dataset.diskon || 0;

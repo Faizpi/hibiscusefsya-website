@@ -42,7 +42,7 @@
                                                 <select class="form-control" id="kontak-select" name="pelanggan" required>
                                                     <option value="">Pilih kontak...</option>
                                                     @foreach($kontaks as $kontak)
-                                                        <option value="{{ $kontak->nama }}" data-email="{{ $kontak->email }}"
+                                                        <option value="{{ $kontak->nama }}" data-no-telp="{{ $kontak->no_telp }}"
                                                             data-alamat="{{ $kontak->alamat }}"
                                                             data-diskon="{{ $kontak->diskon_persen }}" {{ old('pelanggan', $penjualan->pelanggan) == $kontak->nama ? 'selected' : '' }}>
                                                             {{ $kontak->nama }}
@@ -65,8 +65,8 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group"><label>Email</label><input type="email" class="form-control"
-                                            id="email-input" name="email" value="{{ old('email', $penjualan->email) }}">
+                                    <div class="form-group"><label>Nomor Telepon</label><input type="tel" class="form-control"
+                                            id="no-telepon-input" name="no_telepon" value="{{ old('no_telepon', $penjualan->no_telepon) }}" placeholder="cth: 08123456789">
                                     </div>
                                 </div>
                             </div>
@@ -312,7 +312,7 @@
             const taxInput = document.getElementById('tax_percentage_input');
             const discAkhirInput = document.getElementById('diskon_akhir_input');
             const kontakSelect = document.getElementById('kontak-select');
-            const emailInput = document.getElementById('email-input');
+            const noTeleponInput = document.getElementById('no-telepon-input');
             const alamatInput = document.getElementById('alamat-input');
 
             // Product Options HTML for mobile cards
@@ -338,7 +338,7 @@
             if (kontakSelect) {
                 kontakSelect.addEventListener('change', function () {
                     const selectedOption = this.options[this.selectedIndex];
-                    emailInput.value = selectedOption.dataset.email || '';
+                    noTeleponInput.value = selectedOption.dataset.noTelp || '';
                     alamatInput.value = selectedOption.dataset.alamat || '';
                     tableBody.querySelectorAll('tr').forEach(row => {
                         const diskonInput = row.querySelector('.product-discount');

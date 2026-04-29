@@ -377,10 +377,10 @@
                     <span class="label">Nama</span>
                     <span class="value">{{ $kunjungan->sales_nama }}</span>
                 </div>
-                @if($kunjungan->sales_email)
+                @if($kunjungan->sales_no_telepon)
                     <div class="info-row">
-                        <span class="label">Email</span>
-                        <span class="value">{{ $kunjungan->sales_email }}</span>
+                        <span class="label">No. Telepon</span>
+                        <span class="value">{{ $kunjungan->sales_no_telepon }}</span>
                     </div>
                 @endif
                 @if($kunjungan->sales_alamat)
