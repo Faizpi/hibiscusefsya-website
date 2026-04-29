@@ -98,11 +98,16 @@ class DashboardController extends Controller
             ->whereYear('tgl_kunjungan', $now->year)
             ->count();
 
-        $data['canceled_bulan_ini'] = (clone $penjualanQuery)
-            ->withoutGlobalScopes()
+        // Query canceled (harus fresh, karena penjualanQuery sudah filter status != Canceled)
+        $canceledQuery = Penjualan::where('status', 'Canceled');
+        if (in_array($role, ['admin', 'spectator'])) {
+            $canceledQuery->where('gudang_id', $gudangId);
+        } elseif ($role != 'super_admin') {
+            $canceledQuery->where('user_id', $user->id);
+        }
+        $data['canceled_bulan_ini'] = (clone $canceledQuery)
             ->whereMonth('tgl_transaksi', $now->month)
             ->whereYear('tgl_transaksi', $now->year)
-            ->where('status', 'Canceled')
             ->count();
 
         $pendingPembelianQuery = Pembelian::where('status', 'Pending');
