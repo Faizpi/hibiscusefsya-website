@@ -69,14 +69,27 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get full URL for avatar. Returns null if no avatar set.
+     * Append computed attributes to JSON output.
      */
-    public function avatarUrl(): ?string
+    protected $appends = ['avatar_url'];
+
+    /**
+     * Get full URL for avatar as an Eloquent accessor (appended to JSON).
+     */
+    public function getAvatarUrlAttribute(): ?string
     {
         if (!$this->avatar) {
             return null;
         }
         return asset('storage/' . $this->avatar);
+    }
+
+    /**
+     * @deprecated Use getAvatarUrlAttribute() / $user->avatar_url instead.
+     */
+    public function avatarUrl(): ?string
+    {
+        return $this->avatar_url;
     }
 
     public function gudang()
