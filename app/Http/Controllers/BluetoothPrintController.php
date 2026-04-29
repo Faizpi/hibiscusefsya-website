@@ -70,6 +70,7 @@ class BluetoothPrintController extends Controller
             'koordinat' => $data->koordinat ?? '',
             'memo' => $data->memo ?? '',
             'sales' => optional($data->user)->name ?? '-',
+            'sales_no_telp' => optional($data->user)->no_telp ?? '',
             'approver' => ($data->status != 'Pending' && $data->approver) ? $data->approver->name : '-',
             'gudang' => optional($data->gudang)->nama_gudang ?? '-',
             'status' => $status,

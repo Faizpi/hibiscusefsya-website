@@ -58,7 +58,7 @@ class PenjualanController extends Controller
     public function show($id)
     {
         $user = auth()->user();
-        $penjualan = Penjualan::with(['user:id,name', 'gudang:id,nama_gudang', 'approver:id,name', 'items.produk:id,nama_produk,item_code,satuan'])
+        $penjualan = Penjualan::with(['user:id,name,no_telp', 'gudang:id,nama_gudang', 'approver:id,name', 'items.produk:id,nama_produk,item_code,satuan'])
             ->findOrFail($id);
 
         // Authorization check
