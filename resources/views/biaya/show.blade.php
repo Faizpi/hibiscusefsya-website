@@ -139,16 +139,16 @@
                             @endphp
                             <tr>
                                 <td><strong>Subtotal</strong></td>
-                                <td>: Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                                <td>: {{ format_rupiah($subtotal) }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Pajak ({{ $biaya->tax_percentage }}%)</strong></td>
-                                <td>: Rp {{ number_format($taxAmount, 0, ',', '.') }}</td>
+                                <td>: {{ format_rupiah($taxAmount) }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Grand Total</strong></td>
                                 <td>: <span class="font-weight-bold text-primary" style="font-size: 1.25rem;">Rp
-                                        {{ number_format($biaya->grand_total, 0, ',', '.') }}</span></td>
+                                        {{ format_rupiah($biaya->grand_total) }}</span></td>
                             </tr>
                             <tr>
                                 <td><strong>Tag</strong></td>
@@ -195,7 +195,7 @@
                                 <tr>
                                     <td>{{ $item->kategori }}</td>
                                     <td>{{ $item->deskripsi ?? '-' }}</td>
-                                    <td class="text-right">Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
+                                    <td class="text-right">{{ format_rupiah($item->jumlah) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -212,7 +212,7 @@
                             @endif
                             <div class="item-total">
                                 <span class="total-label">Jumlah</span>
-                                <span class="total-value">Rp {{ number_format($item->jumlah, 0, ',', '.') }}</span>
+                                <span class="total-value">{{ format_rupiah($item->jumlah) }}</span>
                             </div>
                         </div>
                     @endforeach

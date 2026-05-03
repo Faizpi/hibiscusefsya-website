@@ -173,9 +173,9 @@
                                     <td>{{ $item->produk->nama_produk }} ({{ $item->produk->item_code }})</td>
                                     <td>{{ $item->deskripsi ?? '-' }}</td>
                                     <td class="text-center">{{ $item->kuantitas }} {{ $item->unit }}</td>
-                                    <td class="text-right">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                                    <td class="text-right">{{ format_rupiah($item->harga_satuan) }}</td>
                                     <td class="text-center">{{ $item->diskon }}%</td>
-                                    <td class="text-right">Rp {{ number_format($totalRow, 0, ',', '.') }}</td>
+                                    <td class="text-right">{{ format_rupiah($totalRow) }}</td>
                                 </tr>
                             @endforeach
             </tbody>
@@ -203,7 +203,7 @@
                                 </div>
                                 <div class="detail-item">
                                     <div class="label">Harga</div>
-                                    <div class="value">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</div>
+                                    <div class="value">{{ format_rupiah($item->harga_satuan) }}</div>
                                 </div>
                                 <div class="detail-item">
                                     <div class="label">Disc</div>
@@ -212,7 +212,7 @@
                             </div>
                             <div class="item-total">
                                 <span class="total-label">Total</span>
-                                <span class="total-value">Rp {{ number_format($totalRowMobile, 0, ',', '.') }}</span>
+                                <span class="total-value">{{ format_rupiah($totalRowMobile) }}</span>
                             </div>
                         </div>
                     @endforeach
@@ -224,12 +224,12 @@
                         <table class="table table-sm table-borderless text-right">
                             <tr>
                                 <td>Subtotal</td>
-                                <td class="font-weight-bold">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                                <td class="font-weight-bold">{{ format_rupiah($subtotal) }}</td>
                             </tr>
                             @if($pembelian->diskon_akhir > 0)
                                 <tr>
                                     <td>Diskon Akhir</td>
-                                    <td class="text-danger">- Rp {{ number_format($pembelian->diskon_akhir, 0, ',', '.') }}</td>
+                                    <td class="text-danger">- {{ format_rupiah($pembelian->diskon_akhir) }}</td>
                                 </tr>
                             @endif
                         <tr>
@@ -238,12 +238,12 @@
                                     $pajakNominal = $kenaPajak * ($pembelian->tax_percentage / 100);
                                 @endphp
                                 <td>Pajak ({{ $pembelian->tax_percentage }}%)</td>
-                                <td>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+                                <td>{{ format_rupiah($pajakNominal) }}</td>
                             </tr>
 
                                                            <tr class="border-top">
                                 <td class="h4 font-weight-bold">Grand Total</td>
-                                <td class="h4 font-weight-bold text-primary">Rp {{ number_format($pembelian->grand_total, 0, ',', '.') }}</td>
+                                <td class="h4 font-weight-bold text-primary">{{ format_rupiah($pembelian->grand_total) }}</td>
                             </tr>
                         </table>
                     </div>

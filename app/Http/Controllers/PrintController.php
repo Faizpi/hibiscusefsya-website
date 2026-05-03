@@ -26,7 +26,7 @@ class PrintController extends Controller
 
     private function rp($val)
     {
-        return "Rp " . number_format($val, 0, ',', '.');
+        return "Rp " . number_format($val, 2, ',', '.');
     }
 
     // ========================================================================

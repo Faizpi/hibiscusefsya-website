@@ -284,11 +284,11 @@
                     <td>{{ $item->produk->nama_produk ?? '-' }} <br><small
                             style="color:#999">({{ $item->produk->item_code ?? '-' }})</small></td>
                     <td>{{ $item->kuantitas }} Pcs</td>
-                    <td>Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($item->diskon_per_item ?? 0, 0, ',', '.') }}</td>
+                    <td>{{ format_rupiah($item->harga_satuan) }}</td>
+                    <td>{{ format_rupiah($item->diskon_per_item ?? 0) }}</td>
                     <td>{{ $item->batch_number ?? '-' }}</td>
                     <td>{{ $item->expired_date ? $item->expired_date->format('d/m/Y') : '-' }}</td>
-                    <td>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
+                    <td>{{ format_rupiah($item->jumlah_baris) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -304,23 +304,23 @@
             @endphp
             <tr>
                 <td>Subtotal</td>
-                <td>Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                <td>{{ format_rupiah($subtotal) }}</td>
             </tr>
             @if($penjualan->diskon_akhir > 0)
                 <tr>
                     <td>Diskon Akhir</td>
-                    <td>- Rp {{ number_format($penjualan->diskon_akhir, 0, ',', '.') }}</td>
+                    <td>- {{ format_rupiah($penjualan->diskon_akhir) }}</td>
                 </tr>
             @endif
             @if($penjualan->tax_percentage > 0)
                 <tr>
                     <td>Pajak ({{ $penjualan->tax_percentage }}%)</td>
-                    <td>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+                    <td>{{ format_rupiah($pajakNominal) }}</td>
                 </tr>
             @endif
             <tr>
                 <td class="grand-total">GRAND TOTAL</td>
-                <td class="grand-total">Rp {{ number_format($penjualan->grand_total, 0, ',', '.') }}</td>
+                <td class="grand-total">{{ format_rupiah($penjualan->grand_total) }}</td>
             </tr>
         </table>
     </div>

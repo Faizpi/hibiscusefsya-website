@@ -169,7 +169,8 @@
             <tr>
                 <td class="label">Disetujui</td>
                 <td class="colon">:</td>
-                <td class="value">{{ $pembayaran->status == 'Pending' ? '-' : ($pembayaran->approver->name ?? '-') }}</td>
+                <td class="value">{{ $pembayaran->status == 'Pending' ? '-' : ($pembayaran->approver->name ?? '-') }}
+                </td>
             </tr>
             <tr>
                 <td class="label">Gudang</td>
@@ -190,21 +191,21 @@
                 <td colspan="3"><b>Referensi Invoice:</b></td>
             </tr>
             @if($pembayaran->penjualan)
-            <tr>
-                <td class="label">No. Invoice</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pembayaran->penjualan->custom_number }}</td>
-            </tr>
-            <tr>
-                <td class="label">Pelanggan</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pembayaran->penjualan->pelanggan ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td class="label">Total Invoice</td>
-                <td class="colon">:</td>
-                <td class="value">Rp {{ number_format($pembayaran->penjualan->grand_total, 0, ',', '.') }}</td>
-            </tr>
+                <tr>
+                    <td class="label">No. Invoice</td>
+                    <td class="colon">:</td>
+                    <td class="value">{{ $pembayaran->penjualan->custom_number }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Pelanggan</td>
+                    <td class="colon">:</td>
+                    <td class="value">{{ $pembayaran->penjualan->pelanggan ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Total Invoice</td>
+                    <td class="colon">:</td>
+                    <td class="value">{{ format_rupiah($pembayaran->penjualan->grand_total) }}</td>
+                </tr>
             @endif
         </table>
 
@@ -213,13 +214,13 @@
         <table>
             <tr>
                 <td class="grand-total">JUMLAH BAYAR</td>
-                <td class="val grand-total">Rp {{ number_format($pembayaran->jumlah_bayar, 0, ',', '.') }}</td>
+                <td class="val grand-total">{{ format_rupiah($pembayaran->jumlah_bayar) }}</td>
             </tr>
         </table>
 
         @if($pembayaran->keterangan)
-        <div class="divider"></div>
-        <p style="font-size: 8pt;"><b>Keterangan:</b> {{ $pembayaran->keterangan }}</p>
+            <div class="divider"></div>
+            <p style="font-size: 8pt;"><b>Keterangan:</b> {{ $pembayaran->keterangan }}</p>
         @endif
 
         <div class="qr-section">

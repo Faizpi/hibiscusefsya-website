@@ -300,7 +300,7 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $item->kategori ?? '-' }}</td>
                     <td>{{ $item->deskripsi ?? '-' }}</td>
-                    <td>Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
+                    <td>{{ format_rupiah($item->jumlah) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -316,17 +316,17 @@
             @endphp
             <tr>
                 <td>Subtotal</td>
-                <td>Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                <td>{{ format_rupiah($subtotal) }}</td>
             </tr>
             @if($biaya->tax_percentage > 0)
                 <tr>
                     <td>Pajak ({{ $biaya->tax_percentage }}%)</td>
-                    <td>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+                    <td>{{ format_rupiah($pajakNominal) }}</td>
                 </tr>
             @endif
             <tr>
                 <td class="grand-total">GRAND TOTAL</td>
-                <td class="grand-total">Rp {{ number_format($biaya->grand_total, 0, ',', '.') }}</td>
+                <td class="grand-total">{{ format_rupiah($biaya->grand_total) }}</td>
             </tr>
         </table>
     </div>

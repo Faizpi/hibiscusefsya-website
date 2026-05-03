@@ -338,7 +338,7 @@
                         <div class="item-name">{{ $item->nama_biaya ?? 'Item Biaya' }}</div>
                         <div class="item-total">
                             <span>Nominal</span>
-                            <span>Rp {{ number_format($item->nominal, 0, ',', '.') }}</span>
+                            <span>{{ format_rupiah($item->nominal) }}</span>
                         </div>
                     </div>
                 @endforeach
@@ -347,17 +347,17 @@
             <div class="totals-card">
                 <div class="total-row">
                     <span>Subtotal</span>
-                    <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                    <span>{{ format_rupiah($subtotal) }}</span>
                 </div>
                 @if(($transaksi->tax_percentage ?? 0) > 0)
                     <div class="total-row">
                         <span>Pajak ({{ $transaksi->tax_percentage }}%)</span>
-                        <span>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
+                        <span>{{ format_rupiah($pajakNominal) }}</span>
                     </div>
                 @endif
                 <div class="total-row grand {{ $jenisBiaya }}">
                     <span>Grand Total</span>
-                    <span>Rp {{ number_format($transaksi->grand_total, 0, ',', '.') }}</span>
+                    <span>{{ format_rupiah($transaksi->grand_total) }}</span>
                 </div>
             </div>
 

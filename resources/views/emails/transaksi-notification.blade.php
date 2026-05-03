@@ -276,7 +276,7 @@
         @if($type != 'kunjungan')
             <div class="total-box total-{{ $notificationType }}">
                 <div style="font-size: 14px; opacity: 0.9;">Total {{ $label }}</div>
-                <div class="amount">Rp {{ number_format($transaksi->grand_total ?? 0, 0, ',', '.') }}</div>
+                <div class="amount">{{ format_rupiah($transaksi->grand_total ?? 0) }}</div>
             </div>
         @endif
 

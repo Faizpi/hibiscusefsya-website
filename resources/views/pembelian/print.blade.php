@@ -212,7 +212,7 @@
                     </tr>
                     <tr>
                         <td>Harga</td>
-                        <td class="val">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                        <td class="val">{{ format_rupiah($item->harga_satuan) }}</td>
                     </tr>
                     @if($item->diskon > 0)
                         <tr>
@@ -222,7 +222,7 @@
                     @endif
                     <tr>
                         <td><b>Jumlah</b></td>
-                        <td class="val"><b>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</b></td>
+                        <td class="val"><b>{{ format_rupiah($item->jumlah_baris) }}</b></td>
                     </tr>
                 </table>
             </div>
@@ -233,13 +233,13 @@
         <table>
             <tr>
                 <td>Subtotal</td>
-                <td class="val">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                <td class="val">{{ format_rupiah($subtotal) }}</td>
             </tr>
 
             @if(($pembelian->diskon_akhir ?? 0) > 0)
                 <tr>
                     <td>Diskon</td>
-                    <td class="val">- Rp {{ number_format($pembelian->diskon_akhir, 0, ',', '.') }}</td>
+                    <td class="val">- {{ format_rupiah($pembelian->diskon_akhir) }}</td>
                 </tr>
             @endif
 
@@ -250,13 +250,13 @@
                 @endphp
                 <tr>
                     <td>Pajak ({{ $pembelian->tax_percentage }}%)</td>
-                    <td class="val">Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+                    <td class="val">{{ format_rupiah($pajakNominal) }}</td>
                 </tr>
             @endif
 
             <tr>
                 <td class="grand-total">GRAND TOTAL</td>
-                <td class="val grand-total">Rp {{ number_format($pembelian->grand_total, 0, ',', '.') }}</td>
+                <td class="val grand-total">{{ format_rupiah($pembelian->grand_total) }}</td>
             </tr>
         </table>
 

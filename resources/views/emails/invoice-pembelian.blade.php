@@ -342,11 +342,11 @@
                         </div>
                         <div class="item-meta">
                             {{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × Rp
-                            {{ number_format($item->harga_satuan, 0, ',', '.') }}
+                            {{ format_rupiah($item->harga_satuan) }}
                         </div>
                         <div class="item-total">
                             <span>Subtotal</span>
-                            <span>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</span>
+                            <span>{{ format_rupiah($item->jumlah_baris) }}</span>
                         </div>
                     </div>
                 @endforeach
@@ -355,23 +355,23 @@
             <div class="totals-card">
                 <div class="total-row">
                     <span>Subtotal</span>
-                    <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                    <span>{{ format_rupiah($subtotal) }}</span>
                 </div>
                 @if(($transaksi->diskon_akhir ?? 0) > 0)
                     <div class="total-row discount">
                         <span>Diskon</span>
-                        <span>- Rp {{ number_format($transaksi->diskon_akhir, 0, ',', '.') }}</span>
+                        <span>- {{ format_rupiah($transaksi->diskon_akhir) }}</span>
                     </div>
                 @endif
                 @if(($transaksi->tax_percentage ?? 0) > 0)
                     <div class="total-row">
                         <span>Pajak ({{ $transaksi->tax_percentage }}%)</span>
-                        <span>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
+                        <span>{{ format_rupiah($pajakNominal) }}</span>
                     </div>
                 @endif
                 <div class="total-row grand">
                     <span>Grand Total</span>
-                    <span>Rp {{ number_format($transaksi->grand_total, 0, ',', '.') }}</span>
+                    <span>{{ format_rupiah($transaksi->grand_total) }}</span>
                 </div>
             </div>
 

@@ -185,7 +185,7 @@
                 <tr>
                     <td class="label-col">Total Invoice</td>
                     <td class="colon-col">:</td>
-                    <td class="value-col">Rp {{ number_format($pembayaran->penjualan->grand_total, 0, ',', '.') }}</td>
+                    <td class="value-col">{{ format_rupiah($pembayaran->penjualan->grand_total) }}</td>
                 </tr>
             </table>
         @else
@@ -194,7 +194,7 @@
 
         <div class="amount-box">
             <div class="amount-label">JUMLAH PEMBAYARAN</div>
-            <div class="amount-value">Rp {{ number_format($pembayaran->jumlah_bayar, 0, ',', '.') }}</div>
+            <div class="amount-value">{{ format_rupiah($pembayaran->jumlah_bayar) }}</div>
         </div>
 
         @if($pembayaran->keterangan)

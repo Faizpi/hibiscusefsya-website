@@ -36,7 +36,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Bulan Ini</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($totalBulanIni ?? 0, 0, ',', '.') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ format_rupiah($totalBulanIni ?? 0) }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-calendar-alt fa-2x text-gray-300"></i></div>
                     </div>
@@ -51,7 +51,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total 30 Hari</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($total30Hari ?? 0, 0, ',', '.') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ format_rupiah($total30Hari ?? 0) }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-chart-line fa-2x text-gray-300"></i></div>
                     </div>
@@ -66,7 +66,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Approved</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($totalApproved ?? 0, 0, ',', '.') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ format_rupiah($totalApproved ?? 0) }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-check-circle fa-2x text-gray-300"></i></div>
                     </div>
@@ -81,7 +81,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Approval</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ number_format($totalPending ?? 0, 0, ',', '.') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ format_rupiah($totalPending ?? 0) }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
                     </div>
@@ -130,7 +130,7 @@
                                 </td>
                                 <td>{{ $item->user->name }}</td>
                                 <td>{{ $item->metode_pembayaran }}</td>
-                                <td class="text-right font-weight-bold">Rp {{ number_format($item->jumlah_bayar, 0, ',', '.') }}</td>
+                                <td class="text-right font-weight-bold">{{ format_rupiah($item->jumlah_bayar) }}</td>
                                 <td class="text-center">
                                     @if($item->status == 'Approved') <span class="badge badge-success">Approved</span>
                                     @elseif($item->status == 'Pending') <span class="badge badge-warning">Pending</span>

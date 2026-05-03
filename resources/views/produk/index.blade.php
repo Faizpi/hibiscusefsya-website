@@ -58,7 +58,7 @@
                                             {{ $item->item_nama ?? $item->nama_produk }}
                                         </a>
                                     </td>
-                                    <td class="text-right">Rp {{ number_format($item->harga, 0, ',', '.') }}</td>
+                                    <td class="text-right">{{ format_rupiah($item->harga) }}</td>
                                     <td class="text-center">
                                         <div class="dropdown">
                                             <button class="btn btn-sm dropdown-toggle no-caret" type="button"

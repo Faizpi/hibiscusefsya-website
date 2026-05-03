@@ -23,3 +23,15 @@ if (!function_exists('formatJson')) {
         return $pretty;
     }
 }
+
+if (!function_exists('format_rupiah')) {
+    /**
+     * Format numeric values into Indonesian Rupiah with 2 decimal digits.
+     */
+    function format_rupiah($value, $prefix = 'Rp ')
+    {
+        $amount = is_numeric($value) ? (float) $value : 0.0;
+
+        return $prefix . number_format($amount, 2, ',', '.');
+    }
+}

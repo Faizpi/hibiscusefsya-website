@@ -349,7 +349,7 @@
 
             // --- REMOVED: Approver autofill (sudah otomatis dari backend) ---
 
-            const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+            const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(angka);
 
             const calculateTotalExpense = (skipMobileSync = false) => {
                 let subtotal = 0;

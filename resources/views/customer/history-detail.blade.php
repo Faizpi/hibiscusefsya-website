@@ -92,7 +92,7 @@
                                 </td>
                                 <td class="text-center">{{ $item->kuantitas ?? 0 }}</td>
                                 <td>{{ $item->unit ?? ($item->produk->satuan ?? 'Pcs') }}</td>
-                                <td class="text-right">Rp {{ number_format($item->harga_satuan ?? 0, 0, ',', '.') }}</td>
+                                <td class="text-right">{{ format_rupiah($item->harga_satuan ?? 0) }}</td>
                                 <td class="text-right">
                                     @if(($item->diskon ?? 0) > 0)
                                         <span style="color: #dc2626;">{{ $item->diskon }}%</span>
@@ -100,7 +100,7 @@
                                         -
                                     @endif
                                 </td>
-                                <td class="text-right font-bold">Rp {{ number_format($lineTotal, 0, ',', '.') }}</td>
+                                <td class="text-right font-bold">{{ format_rupiah($lineTotal) }}</td>
                             </tr>
                         @empty
                             <tr>
@@ -112,14 +112,14 @@
                         <tr>
                             <td colspan="5" class="text-right" style="color: #6b7280; padding: 12px 18px;">Subtotal</td>
                             <td class="text-right" style="padding: 12px 18px;">Rp
-                                {{ number_format($subtotal, 0, ',', '.') }}</td>
+                                {{ format_rupiah($subtotal) }}</td>
                         </tr>
                         @if(($penjualan->tax_percentage ?? 0) > 0)
                             <tr>
                                 <td colspan="5" class="text-right" style="color: #6b7280; padding: 12px 18px;">Pajak
                                     ({{ $penjualan->tax_percentage }}%)</td>
                                 <td class="text-right" style="padding: 12px 18px;">Rp
-                                    {{ number_format(($penjualan->grand_total ?? 0) - $subtotal, 0, ',', '.') }}</td>
+                                    {{ format_rupiah(($penjualan->grand_total ?? 0) - $subtotal) }}</td>
                             </tr>
                         @endif
                         <tr style="background: #f9fafb;">
@@ -127,7 +127,7 @@
                             </td>
                             <td class="text-right"
                                 style="font-weight: 700; padding: 14px 18px; font-size: 1.05rem; color: #1e40af;">
-                                Rp {{ number_format($penjualan->grand_total ?? 0, 0, ',', '.') }}
+                                {{ format_rupiah($penjualan->grand_total ?? 0) }}
                             </td>
                         </tr>
                     </tfoot>
@@ -150,13 +150,13 @@
                                         {{ $item->produk->nama_produk ?? '-' }}</div>
                                     <div style="font-size: 0.82rem; color: #6b7280; margin-top: 3px;">
                                         {{ $item->kuantitas ?? 0 }} x Rp
-                                        {{ number_format($item->harga_satuan ?? 0, 0, ',', '.') }}
+                                        {{ format_rupiah($item->harga_satuan ?? 0) }}
                                         @if(($item->diskon ?? 0) > 0) <span style="color: #dc2626;">(-
                                         {{ $item->diskon }}%)</span> @endif
                                     </div>
                                 </div>
                                 <div class="font-bold" style="font-size: 0.95rem; color: #111827;">Rp
-                                    {{ number_format($lineTotal2, 0, ',', '.') }}</div>
+                                    {{ format_rupiah($lineTotal2) }}</div>
                             </div>
                         </div>
                     @empty
@@ -166,18 +166,18 @@
                     <div class="mobile-total-section">
                         <div class="mobile-total-row">
                             <span>Subtotal</span>
-                            <span>Rp {{ number_format($subtotal2, 0, ',', '.') }}</span>
+                            <span>{{ format_rupiah($subtotal2) }}</span>
                         </div>
                         @if(($penjualan->tax_percentage ?? 0) > 0)
                             <div class="mobile-total-row">
                                 <span>Pajak ({{ $penjualan->tax_percentage }}%)</span>
-                                <span>Rp {{ number_format(($penjualan->grand_total ?? 0) - $subtotal2, 0, ',', '.') }}</span>
+                                <span>{{ format_rupiah(($penjualan->grand_total ?? 0) - $subtotal2) }}</span>
                             </div>
                         @endif
                         <div class="mobile-grand-total">
                             <span>Grand Total</span>
                             <span style="color: #1e40af;">Rp
-                                {{ number_format($penjualan->grand_total ?? 0, 0, ',', '.') }}</span>
+                                {{ format_rupiah($penjualan->grand_total ?? 0) }}</span>
                         </div>
                     </div>
                 </div>

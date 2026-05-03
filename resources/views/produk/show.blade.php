@@ -44,10 +44,18 @@
                                         <td>{{ $produk->item_nama ?? $produk->nama_produk }}</td>
                                     </tr>
                                     <tr>
-                                        <td><strong>Harga</strong></td>
+                                        <td><strong>Harga Retail</strong></td>
                                         <td>:</td>
-                                        <td><span class="text-success font-weight-bold">Rp
-                                                {{ number_format($produk->harga ?? 0, 0, ',', '.') }}</span></td>
+                                        <td><span
+                                                class="text-success font-weight-bold">{{ format_rupiah($produk->harga ?? 0) }}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Harga Grosir</strong></td>
+                                        <td>:</td>
+                                        <td><span
+                                                class="text-primary font-weight-bold">{{ format_rupiah($produk->harga_grosir ?? 0) }}</span>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td><strong>Satuan</strong></td>
@@ -185,7 +193,9 @@
                     </div>
                     <div class="card-body text-center">
                         @php
-                            $qrData = "PRODUK\nKode: {$itemKode}\nNama: " . ($produk->item_nama ?? $produk->nama_produk) . "\nHarga: Rp " . number_format($produk->harga ?? 0, 0, ',', '.');
+                            $qrData = "PRODUK\nKode: {$itemKode}\nNama: " . ($produk->item_nama ?? $produk->nama_produk)
+                                . "\nHarga Retail: " . format_rupiah($produk->harga ?? 0)
+                                . "\nHarga Grosir: " . format_rupiah($produk->harga_grosir ?? 0);
                             $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' . urlencode($qrData);
                         @endphp
                         <img src="{{ $qrUrl }}" alt="QR Code" class="img-fluid mb-2" style="max-width: 150px;">

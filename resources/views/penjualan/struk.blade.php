@@ -224,9 +224,9 @@
 
             <table class="details-table">
                 <tr><td class="lbl">Qty</td><td class="val">{{ $item->kuantitas }} Pcs</td></tr>
-                <tr><td class="lbl">Harga</td><td class="val">Rp {{ number_format($item->harga_satuan,0,',','.') }}</td></tr>
+                <tr><td class="lbl">Harga</td><td class="val">Rp {{ number_format($item->harga_satuan, 2, ',', '.') }}</td></tr>
                 @if($item->diskon_per_item > 0)
-                <tr><td class="lbl">Diskon</td><td class="val">- Rp {{ number_format($item->diskon_per_item,0,',','.') }}</td></tr>
+                <tr><td class="lbl">Diskon</td><td class="val">- Rp {{ number_format($item->diskon_per_item, 2, ',', '.') }}</td></tr>
                 @endif
                 @if($item->batch_number)
                 <tr><td class="lbl">Batch</td><td class="val">{{ $item->batch_number }}</td></tr>
@@ -235,7 +235,7 @@
                 <tr><td class="lbl">Exp</td><td class="val">{{ $item->expired_date->format('d/m/Y') }}</td></tr>
                 @endif
                 <tr><td class="lbl" style="font-weight:bold">Jumlah</td>
-                    <td class="val" style="font-weight:bold">Rp {{ number_format($item->jumlah_baris,0,',','.') }}</td>
+                    <td class="val" style="font-weight:bold">{{ format_rupiah($item->jumlah_baris) }}</td>
                 </tr>
             </table>
         </div>
@@ -245,20 +245,20 @@
 
     <!-- TOTAL -->
     <table class="total-table">
-        <tr><td class="lbl">Subtotal</td><td class="val">Rp {{ number_format($penjualan->items->sum('jumlah_baris'),0,',','.') }}</td></tr>
+        <tr><td class="lbl">Subtotal</td><td class="val">Rp {{ number_format($penjualan->items->sum('jumlah_baris'), 2, ',', '.') }}</td></tr>
         @if($penjualan->diskon_akhir > 0)
-            <tr><td class="lbl">Diskon</td><td class="val">- Rp {{ number_format($penjualan->diskon_akhir,0,',','.') }}</td></tr>
+            <tr><td class="lbl">Diskon</td><td class="val">- Rp {{ number_format($penjualan->diskon_akhir, 2, ',', '.') }}</td></tr>
         @endif
         @if($penjualan->tax_percentage > 0)
         @php
             $kenaPajak = max(0, $penjualan->items->sum('jumlah_baris') - $penjualan->diskon_akhir);
             $pajakNominal = $kenaPajak * ($penjualan->tax_percentage / 100);
         @endphp
-            <tr><td class="lbl">Pajak ({{ $penjualan->tax_percentage }}%)</td><td class="val">Rp {{ number_format($pajakNominal,0,',','.') }}</td></tr>
+            <tr><td class="lbl">Pajak ({{ $penjualan->tax_percentage }}%)</td><td class="val">Rp {{ number_format($pajakNominal, 2, ',', '.') }}</td></tr>
         @endif
         <tr>
             <td class="lbl grand-total">GRAND TOTAL</td>
-            <td class="val grand-total">Rp {{ number_format($penjualan->grand_total,0,',','.') }}</td>
+            <td class="val grand-total">Rp {{ number_format($penjualan->grand_total, 2, ',', '.') }}</td>
         </tr>
     </table>
 

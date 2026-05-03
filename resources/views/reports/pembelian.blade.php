@@ -134,7 +134,7 @@
     </tr>
     <tr>
         <td colspan="3"><strong>Total Grand Total</strong></td>
-        <td colspan="20">{{ number_format($transactions->sum('grand_total'), 0, ',', '.') }}</td>
+        <td colspan="20">{{ format_rupiah($transactions->sum('grand_total')) }}</td>
     </tr>
     @php
         $statusGroups = $transactions->groupBy('status');
@@ -142,7 +142,7 @@
     @foreach($statusGroups as $status => $group)
         <tr>
             <td colspan="3"><strong>{{ $status }}</strong></td>
-            <td colspan="20">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}
+            <td colspan="20">{{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
             </td>
         </tr>
     @endforeach

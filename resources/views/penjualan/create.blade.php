@@ -619,7 +619,7 @@
 
             // --- 2. LOGIKA KALKULASI (AUTO UPDATE) ---
             function formatRupiah(num) {
-                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
             }
 
             function calculateRow(row, skipMobileSync = false) {
@@ -627,7 +627,7 @@
                 const price = parseFloat(row.querySelector('.product-price').value) || 0;
                 const disc = parseFloat(row.querySelector('.product-disc').value) || 0;
                 const total = (qty * price) * (1 - (disc / 100));
-                row.querySelector('.product-total').value = total.toFixed(0);
+                row.querySelector('.product-total').value = total.toFixed(2);
                 calculateGrandTotal();
 
                 // Hanya sync mobile cards jika tidak di-skip (untuk mencegah rebuild saat input)

@@ -69,7 +69,7 @@
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 Penjualan (Bulan Ini)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($penjualanBulanIni, 0, ',', '.') }}
+                                {{ format_rupiah($penjualanBulanIni) }}
                             </div>
                             <div class="text-xs text-muted mt-1">
                                 {{ $penjualanCountBulanIni ?? 0 }} transaksi
@@ -89,7 +89,7 @@
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Pembelian (Bulan Ini)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($pembelianNominalBulanIni ?? 0, 0, ',', '.') }}
+                                {{ format_rupiah($pembelianNominalBulanIni ?? 0) }}
                             </div>
                             <div class="text-xs text-muted mt-1">
                                 {{ $pembelianBulanIni }} transaksi
@@ -153,7 +153,7 @@
                                 <i class="fas fa-arrow-down"></i> Biaya Masuk (Bulan Ini)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($biayaMasukBulanIni ?? 0, 0, ',', '.') }}
+                                {{ format_rupiah($biayaMasukBulanIni ?? 0) }}
                             </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-hand-holding-usd fa-2x text-gray-300"></i></div>
@@ -171,7 +171,7 @@
                                 <i class="fas fa-arrow-up"></i> Biaya Keluar (Bulan Ini)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
-                                {{ number_format($biayaKeluarBulanIni ?? 0, 0, ',', '.') }}
+                                {{ format_rupiah($biayaKeluarBulanIni ?? 0) }}
                             </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-money-bill-wave fa-2x text-gray-300"></i></div>
@@ -458,7 +458,7 @@
                                                 </td>
                                                 <td class="text-right">
                                                     @if(isset($item->grand_total))
-                                                        Rp {{ number_format($item->grand_total, 0, ',', '.') }}
+                                                        {{ format_rupiah($item->grand_total) }}
                                                     @else
                                                         -
                                                     @endif
@@ -550,7 +550,7 @@
                                                 </td>
                                                 <td class="text-right">
                                                     @if(isset($item->grand_total))
-                                                        Rp {{ number_format($item->grand_total, 0, ',', '.') }}
+                                                        {{ format_rupiah($item->grand_total) }}
                                                     @else
                                                         -
                                                     @endif
@@ -1014,8 +1014,8 @@
                         });
                     }
                 @endif
-                                                                                // ==================== END SALES QUANTITY CHART ====================
-                                                                            });
+                                                                                        // ==================== END SALES QUANTITY CHART ====================
+                                                                                    });
         </script>
     @endif
 

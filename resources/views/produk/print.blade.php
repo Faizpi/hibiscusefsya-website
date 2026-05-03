@@ -12,7 +12,7 @@
         $barcodeSvg = (strlen($eanData) === 12 || strlen($eanData) === 13)
             ? $dns1d->getBarcodeSVG($eanData, 'EAN13', 2, 80, 'black', false)
             : null;
-        $qrData = "PRODUK\nKode: {$itemKode}\nNama: {$itemNama}\nHarga: Rp " . number_format($produk->harga ?? 0, 0, ',', '.');
+        $qrData = "PRODUK\nKode: {$itemKode}\nNama: {$itemNama}\nHarga: " . format_rupiah($produk->harga ?? 0);
         $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . urlencode($qrData);
     @endphp
     <title>Print Barcode Produk - {{ $itemKode }}</title>
@@ -179,7 +179,7 @@
             @endif
             <div class="code">{{ $itemKode }}</div>
             <div class="nama">{{ $itemNama }}</div>
-            <div class="harga">Rp {{ number_format($produk->harga ?? 0, 0, ',', '.') }}</div>
+            <div class="harga">{{ format_rupiah($produk->harga ?? 0) }}</div>
         </div>
 
         <div class="divider"></div>

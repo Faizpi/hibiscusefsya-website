@@ -29,8 +29,16 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="harga">Harga Retail *</label>
-                                <input type="number" step="0.01" class="form-control @error('harga') is-invalid @enderror"
-                                    id="harga" name="harga" value="{{ old('harga') }}" required>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Rp</span>
+                                    </div>
+                                    <input type="number" step="0.01"
+                                        class="form-control @error('harga') is-invalid @enderror" id="harga" name="harga"
+                                        value="{{ old('harga') }}" required>
+                                </div>
+                                <small class="text-muted d-block mt-1" id="harga-preview">Preview:
+                                    {{ format_rupiah(old('harga', 0)) }}</small>
                                 @error('harga')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -41,8 +49,16 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="harga_grosir">Harga Grosir</label>
-                                <input type="number" step="0.01" class="form-control @error('harga_grosir') is-invalid @enderror"
-                                    id="harga_grosir" name="harga_grosir" value="{{ old('harga_grosir', 0) }}">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Rp</span>
+                                    </div>
+                                    <input type="number" step="0.01"
+                                        class="form-control @error('harga_grosir') is-invalid @enderror" id="harga_grosir"
+                                        name="harga_grosir" value="{{ old('harga_grosir', 0) }}">
+                                </div>
+                                <small class="text-muted d-block mt-1" id="harga-grosir-preview">Preview:
+                                    {{ format_rupiah(old('harga_grosir', 0)) }}</small>
                                 @error('harga_grosir')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -78,3 +94,36 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const currencyFormatter = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            const updatePreview = (inputId, previewId) => {
+                const input = document.getElementById(inputId);
+                const preview = document.getElementById(previewId);
+                if (!input || !preview) return;
+
+                const value = parseFloat(input.value) || 0;
+                preview.textContent = 'Preview: ' + currencyFormatter.format(value).replace(/\u00A0/g, ' ');
+            };
+
+            ['harga', 'harga_grosir'].forEach(function (field) {
+                const input = document.getElementById(field);
+                const previewId = field === 'harga' ? 'harga-preview' : 'harga-grosir-preview';
+                if (!input) return;
+
+                updatePreview(field, previewId);
+                input.addEventListener('input', function () {
+                    updatePreview(field, previewId);
+                });
+            });
+        });
+    </script>
+@endpush

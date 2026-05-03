@@ -210,7 +210,7 @@
                                                         <small class="text-muted">+{{ $trx->items->count() - 3 }} lainnya</small>
                                                     @endif
                                                 </td>
-                                                <td class="text-right">Rp {{ number_format($trx->grand_total, 0, ',', '.') }}</td>
+                                                <td class="text-right">{{ format_rupiah($trx->grand_total) }}</td>
                                                 <td class="text-center">
                                                     @if($trx->status === 'approved')
                                                         <span class="badge badge-success">Approved</span>

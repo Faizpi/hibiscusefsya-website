@@ -395,14 +395,14 @@
                         </div>
                         <div class="item-meta">
                             <span>{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × Rp
-                                {{ number_format($item->harga_satuan, 0, ',', '.') }}</span>
+                                {{ number_format($item->harga_satuan, 2, ',', '.') }}</span>
                             @if($item->diskon > 0)
                                 <span style="color: var(--danger);">-{{ $item->diskon }}%</span>
                             @endif
                         </div>
                         <div class="item-total">
                             <span>Subtotal</span>
-                            <span>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</span>
+                            <span>Rp {{ number_format($item->jumlah_baris, 2, ',', '.') }}</span>
                         </div>
                     </div>
                 @endforeach
@@ -411,23 +411,23 @@
             <div class="totals-card">
                 <div class="total-row">
                     <span>Subtotal</span>
-                    <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                    <span>{{ format_rupiah($subtotal) }}</span>
                 </div>
                 @if(($pembelian->diskon_akhir ?? 0) > 0)
                     <div class="total-row discount">
                         <span>Diskon</span>
-                        <span>- Rp {{ number_format($pembelian->diskon_akhir, 0, ',', '.') }}</span>
+                        <span>- {{ format_rupiah($pembelian->diskon_akhir) }}</span>
                     </div>
                 @endif
                 @if(($pembelian->tax_percentage ?? 0) > 0)
                     <div class="total-row">
                         <span>Pajak ({{ $pembelian->tax_percentage }}%)</span>
-                        <span>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
+                        <span>{{ format_rupiah($pajakNominal) }}</span>
                     </div>
                 @endif
                 <div class="total-row grand">
                     <span>Grand Total</span>
-                    <span>Rp {{ number_format($pembelian->grand_total, 0, ',', '.') }}</span>
+                    <span>{{ format_rupiah($pembelian->grand_total) }}</span>
                 </div>
             </div>
 

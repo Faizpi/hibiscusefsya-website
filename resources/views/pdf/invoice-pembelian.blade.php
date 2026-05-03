@@ -278,9 +278,9 @@
                     <td>{{ $item->produk->nama_produk ?? '-' }} <br><small
                             style="color:#999">({{ $item->produk->item_code ?? '-' }})</small></td>
                     <td>{{ $item->kuantitas }} Pcs</td>
-                    <td>Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($item->diskon_per_item ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
+                    <td>{{ format_rupiah($item->harga_satuan) }}</td>
+                    <td>{{ format_rupiah($item->diskon_per_item ?? 0) }}</td>
+                    <td>{{ format_rupiah($item->jumlah_baris) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -296,23 +296,23 @@
             @endphp
             <tr>
                 <td>Subtotal</td>
-                <td>Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                <td>{{ format_rupiah($subtotal) }}</td>
             </tr>
             @if($pembelian->diskon_akhir > 0)
                 <tr>
                     <td>Diskon Akhir</td>
-                    <td>- Rp {{ number_format($pembelian->diskon_akhir, 0, ',', '.') }}</td>
+                    <td>- {{ format_rupiah($pembelian->diskon_akhir) }}</td>
                 </tr>
             @endif
             @if($pembelian->tax_percentage > 0)
                 <tr>
                     <td>Pajak ({{ $pembelian->tax_percentage }}%)</td>
-                    <td>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+                    <td>{{ format_rupiah($pajakNominal) }}</td>
                 </tr>
             @endif
             <tr>
                 <td class="grand-total">GRAND TOTAL</td>
-                <td class="grand-total">Rp {{ number_format($pembelian->grand_total, 0, ',', '.') }}</td>
+                <td class="grand-total">{{ format_rupiah($pembelian->grand_total) }}</td>
             </tr>
         </table>
     </div>

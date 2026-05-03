@@ -208,7 +208,7 @@
                     </tr>
                     <tr>
                         <td>Harga</td>
-                        <td class="val">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                        <td class="val">{{ format_rupiah($item->harga_satuan) }}</td>
                     </tr>
                     @if($item->diskon > 0)
                         <tr>
@@ -230,7 +230,7 @@
                     @endif
                     <tr>
                         <td><b>Jumlah</b></td>
-                        <td class="val"><b>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</b></td>
+                        <td class="val"><b>{{ format_rupiah($item->jumlah_baris) }}</b></td>
                     </tr>
                 </table>
             </div>
@@ -241,23 +241,23 @@
         <table>
             <tr>
                 <td>Subtotal</td>
-                <td class="val">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                <td class="val">{{ format_rupiah($subtotal) }}</td>
             </tr>
             @if($penjualan->diskon_akhir > 0)
                 <tr>
                     <td>Diskon</td>
-                    <td class="val">- Rp {{ number_format($penjualan->diskon_akhir, 0, ',', '.') }}</td>
+                    <td class="val">- {{ format_rupiah($penjualan->diskon_akhir) }}</td>
                 </tr>
             @endif
             @if($penjualan->tax_percentage > 0)
                 <tr>
                     <td>Pajak ({{ $penjualan->tax_percentage }}%)</td>
-                    <td class="val">Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+                    <td class="val">{{ format_rupiah($pajakNominal) }}</td>
                 </tr>
             @endif
             <tr>
                 <td class="grand-total">GRAND TOTAL</td>
-                <td class="val grand-total">Rp {{ number_format($penjualan->grand_total, 0, ',', '.') }}</td>
+                <td class="val grand-total">{{ format_rupiah($penjualan->grand_total) }}</td>
             </tr>
         </table>
 

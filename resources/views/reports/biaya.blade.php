@@ -67,11 +67,13 @@
                         @endif
                         <td>{{ $detail->kategori ?? '-' }}</td>
                         <td>{{ $detail->deskripsi ?? '-' }}</td>
-                        <td>{{ number_format($detail->jumlah ?? 0, 0, ',', '.') }}</td>
+                        <td>{{ format_rupiah($detail->jumlah ?? 0) }}</td>
+                        </td>
                         @if($idx === 0)
                             <td>{{ $item->memo ?? '-' }}</td>
                             <td>{{ $item->tax_percentage ?? 0 }}</td>
-                            <td>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</td>
+                            <td>{{ format_rupiah($item->grand_total ?? 0) }}</td>
+                            </td>
                         @else
                             <td></td>
                             <td></td>
@@ -100,7 +102,7 @@
                     <td>-</td>
                     <td>{{ $item->memo ?? '-' }}</td>
                     <td>{{ $item->tax_percentage ?? 0 }}</td>
-                    <td>{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</td>
+                    <td>{{ format_rupiah($item->grand_total ?? 0) }}</td>
                 </tr>
             @endif
         @endforeach
@@ -122,7 +124,8 @@
     </tr>
     <tr>
         <td colspan="3"><strong>Total Grand Total</strong></td>
-        <td colspan="17">{{ number_format($transactions->sum('grand_total'), 0, ',', '.') }}</td>
+        <td colspan="17">{{ format_rupiah($transactions->sum('grand_total')) }}</td>
+        </td>
     </tr>
     @php
         $statusGroups = $transactions->groupBy('status');
@@ -130,7 +133,7 @@
     @foreach($statusGroups as $status => $group)
         <tr>
             <td colspan="3"><strong>{{ $status }}</strong></td>
-            <td colspan="17">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}
+            <td colspan="17">{{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
             </td>
         </tr>
     @endforeach
@@ -140,7 +143,7 @@
     @foreach($jenisGroups as $jenis => $group)
         <tr>
             <td colspan="3"><strong>{{ ucfirst($jenis) }}</strong></td>
-            <td colspan="17">{{ $group->count() }} transaksi — {{ number_format($group->sum('grand_total'), 0, ',', '.') }}
+            <td colspan="17">{{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
             </td>
         </tr>
     @endforeach

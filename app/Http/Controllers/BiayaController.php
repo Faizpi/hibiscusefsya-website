@@ -232,9 +232,10 @@ class BiayaController extends Controller
             $subTotal += $jumlah ?? 0;
         }
 
-        $pajakPersen = $request->tax_percentage ?? 0;
-        $jumlahPajak = $subTotal * ($pajakPersen / 100);
-        $grandTotal = $subTotal + $jumlahPajak;
+        $subTotal = round($subTotal, 2);
+        $pajakPersen = (float) ($request->tax_percentage ?? 0);
+        $jumlahPajak = round($subTotal * ($pajakPersen / 100), 2);
+        $grandTotal = round($subTotal + $jumlahPajak, 2);
 
         $countToday = Biaya::where('user_id', Auth::id())
             ->whereDate('created_at', Carbon::today())
@@ -301,7 +302,7 @@ class BiayaController extends Controller
                     'biaya_id' => $biayaInduk->id,
                     'kategori' => $kategori,
                     'deskripsi' => $request->deskripsi_akun[$index] ?? null,
-                    'jumlah' => $request->total[$index] ?? 0,
+                    'jumlah' => round((float) ($request->total[$index] ?? 0), 2),
                 ]);
             }
             DB::commit();
@@ -568,9 +569,10 @@ class BiayaController extends Controller
         foreach ($request->total as $index => $jumlah) {
             $subTotal += $jumlah ?? 0;
         }
-        $pajakPersen = $request->tax_percentage ?? 0;
-        $jumlahPajak = $subTotal * ($pajakPersen / 100);
-        $grandTotal = $subTotal + $jumlahPajak;
+        $subTotal = round($subTotal, 2);
+        $pajakPersen = (float) ($request->tax_percentage ?? 0);
+        $jumlahPajak = round($subTotal * ($pajakPersen / 100), 2);
+        $grandTotal = round($subTotal + $jumlahPajak, 2);
 
         // Tentukan approver otomatis berdasarkan role user (sama seperti store)
         $approverId = null;
@@ -632,7 +634,7 @@ class BiayaController extends Controller
                     'biaya_id' => $biaya->id,
                     'kategori' => $kategori,
                     'deskripsi' => $request->deskripsi_akun[$index] ?? null,
-                    'jumlah' => $request->total[$index] ?? 0,
+                    'jumlah' => round((float) ($request->total[$index] ?? 0), 2),
                 ]);
             }
             DB::commit();

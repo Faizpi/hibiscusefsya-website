@@ -55,7 +55,7 @@
                                 <td class="text-center">
                                     <span class="badge badge-secondary">{{ $trx->items->count() }} produk</span>
                                 </td>
-                                <td class="text-right font-bold">Rp {{ number_format($trx->grand_total ?? 0, 0, ',', '.') }}</td>
+                                <td class="text-right font-bold">{{ format_rupiah($trx->grand_total ?? 0) }}</td>
                                 <td class="text-center">
                                     @if($trx->status == 'Lunas')
                                         <span class="badge badge-success">Lunas</span>
@@ -105,7 +105,7 @@
                             <span class="mobile-trx-meta">{{ $trx->user->name ?? '-' }} &middot;
                                 {{ $trx->gudang->nama_gudang ?? '-' }} &middot; {{ $trx->items->count() }}
                                 produk</span>
-                            <span class="mobile-trx-total">Rp {{ number_format($trx->grand_total ?? 0, 0, ',', '.') }}</span>
+                            <span class="mobile-trx-total">{{ format_rupiah($trx->grand_total ?? 0) }}</span>
                         </div>
                     </div>
                 </a>

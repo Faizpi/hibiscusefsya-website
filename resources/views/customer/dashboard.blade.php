@@ -31,7 +31,7 @@
         <div class="card stat-card">
             <div class="card-body">
                 <div class="stat-label">Total Nilai</div>
-                <div class="stat-value">Rp {{ number_format($totalNilai, 0, ',', '.') }}</div>
+                <div class="stat-value">{{ format_rupiah($totalNilai) }}</div>
             </div>
         </div>
     </div>
@@ -61,7 +61,8 @@
                     <tr>
                         <td class="profile-label" style="border-bottom: none;">Lokasi Gudang</td>
                         <td class="profile-value" style="border-bottom: none;">
-                            {{ optional($kontak->gudang)->nama_gudang ?? '-' }}</td>
+                            {{ optional($kontak->gudang)->nama_gudang ?? '-' }}
+                        </td>
                     </tr>
                 </table>
             </div>
@@ -91,7 +92,7 @@
                                 <div class="trx-date">{{ $trx->tgl_transaksi ? $trx->tgl_transaksi->format('d M Y') : '-' }}</div>
                             </div>
                             <div style="text-align: right;">
-                                <div class="trx-amount">Rp {{ number_format($trx->grand_total ?? 0, 0, ',', '.') }}</div>
+                                <div class="trx-amount">{{ format_rupiah($trx->grand_total ?? 0) }}</div>
                                 @if($trx->status == 'Lunas')
                                     <span class="badge badge-success">Lunas</span>
                                 @elseif($trx->status == 'Approved')

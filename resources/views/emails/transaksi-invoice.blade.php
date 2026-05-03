@@ -151,7 +151,7 @@
 
         <div class="total-box">
             <div style="font-size: 14px; opacity: 0.9;">Total Pembayaran</div>
-            <div class="amount">Rp {{ number_format($transaksi->grand_total, 0, ',', '.') }}</div>
+            <div class="amount">{{ format_rupiah($transaksi->grand_total) }}</div>
         </div>
 
         <div class="note">

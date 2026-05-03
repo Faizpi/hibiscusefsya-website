@@ -223,9 +223,9 @@
 
             <table class="details-table">
                 <tr><td class="lbl">Qty</td><td class="val">{{ $item->kuantitas }} Pcs</td></tr>
-                <tr><td class="lbl">Harga</td><td class="val">Rp {{ number_format($item->harga_satuan,0,',','.') }}</td></tr>
+                <tr><td class="lbl">Harga</td><td class="val">{{ format_rupiah($item->harga_satuan) }}</td></tr>
                 <tr><td class="lbl" style="font-weight:bold">Jumlah</td>
-                    <td class="val" style="font-weight:bold">Rp {{ number_format($item->jumlah_baris,0,',','.') }}</td>
+                    <td class="val" style="font-weight:bold">{{ format_rupiah($item->jumlah_baris) }}</td>
                 </tr>
             </table>
         </div>
@@ -235,20 +235,20 @@
 
     <!-- TOTAL -->
     <table class="total-table">
-        <tr><td class="lbl">Subtotal</td><td class="val">Rp {{ number_format($pembelian->items->sum('jumlah_baris'),0,',','.') }}</td></tr>
+        <tr><td class="lbl">Subtotal</td><td class="val">{{ format_rupiah($pembelian->items->sum('jumlah_baris')) }}</td></tr>
         @if($pembelian->diskon_akhir > 0)
-            <tr><td class="lbl">Diskon</td><td class="val">- Rp {{ number_format($pembelian->diskon_akhir,0,',','.') }}</td></tr>
+            <tr><td class="lbl">Diskon</td><td class="val">- {{ format_rupiah($pembelian->diskon_akhir) }}</td></tr>
         @endif
         @if($pembelian->tax_percentage > 0)
         @php
             $kenaPajak = max(0, $pembelian->items->sum('jumlah_baris') - $pembelian->diskon_akhir);
             $pajakNominal = $kenaPajak * ($pembelian->tax_percentage / 100);
         @endphp
-            <tr><td class="lbl">Pajak ({{ $pembelian->tax_percentage }}%)</td><td class="val">Rp {{ number_format($pajakNominal,0,',','.') }}</td></tr>
+            <tr><td class="lbl">Pajak ({{ $pembelian->tax_percentage }}%)</td><td class="val">{{ format_rupiah($pajakNominal) }}</td></tr>
         @endif
         <tr>
             <td class="lbl grand-total">GRAND TOTAL</td>
-            <td class="val grand-total">Rp {{ number_format($pembelian->grand_total,0,',','.') }}</td>
+            <td class="val grand-total">{{ format_rupiah($pembelian->grand_total) }}</td>
         </tr>
     </table>
 

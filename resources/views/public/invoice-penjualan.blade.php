@@ -397,7 +397,7 @@
                         </div>
                         <div class="item-meta">
                             <span>{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × Rp
-                                {{ number_format($item->harga_satuan, 0, ',', '.') }}</span>
+                                {{ format_rupiah($item->harga_satuan) }}</span>
                             @if($item->diskon > 0)
                                 <span style="color: var(--danger);">-{{ $item->diskon }}%</span>
                             @endif
@@ -414,7 +414,7 @@
                         @endif
                         <div class="item-total">
                             <span>Subtotal</span>
-                            <span>Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</span>
+                            <span>{{ format_rupiah($item->jumlah_baris) }}</span>
                         </div>
                     </div>
                 @endforeach
@@ -423,23 +423,23 @@
             <div class="totals-card">
                 <div class="total-row">
                     <span>Subtotal</span>
-                    <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                    <span>{{ format_rupiah($subtotal) }}</span>
                 </div>
                 @if($penjualan->diskon_akhir > 0)
                     <div class="total-row discount">
                         <span>Diskon</span>
-                        <span>- Rp {{ number_format($penjualan->diskon_akhir, 0, ',', '.') }}</span>
+                        <span>- {{ format_rupiah($penjualan->diskon_akhir) }}</span>
                     </div>
                 @endif
                 @if($penjualan->tax_percentage > 0)
                     <div class="total-row">
                         <span>Pajak ({{ $penjualan->tax_percentage }}%)</span>
-                        <span>Rp {{ number_format($pajakNominal, 0, ',', '.') }}</span>
+                        <span>{{ format_rupiah($pajakNominal) }}</span>
                     </div>
                 @endif
                 <div class="total-row grand">
                     <span>Grand Total</span>
-                    <span>Rp {{ number_format($penjualan->grand_total, 0, ',', '.') }}</span>
+                    <span>{{ format_rupiah($penjualan->grand_total) }}</span>
                 </div>
             </div>
 

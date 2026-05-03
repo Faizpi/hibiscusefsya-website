@@ -254,7 +254,7 @@
         <div class="invoice-body">
             <div class="amount-section">
                 <div class="amount-label">Jumlah Pembayaran</div>
-                <div class="amount-value">Rp {{ number_format($pembayaran->jumlah_bayar, 0, ',', '.') }}</div>
+                <div class="amount-value">{{ format_rupiah($pembayaran->jumlah_bayar) }}</div>
             </div>
 
             <div class="info-card">
@@ -282,23 +282,23 @@
             <div class="info-card">
                 <div class="info-card-title"><i class="fas fa-file-invoice"></i> Referensi Invoice</div>
                 @if($pembayaran->penjualan)
-                <div class="info-row">
-                    <span class="label">No. Invoice</span>
-                    <span class="value">{{ $pembayaran->penjualan->custom_number }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Pelanggan</span>
-                    <span class="value">{{ $pembayaran->penjualan->pelanggan ?? '-' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Total Invoice</span>
-                    <span class="value">Rp {{ number_format($pembayaran->penjualan->grand_total, 0, ',', '.') }}</span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">No. Invoice</span>
+                        <span class="value">{{ $pembayaran->penjualan->custom_number }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Pelanggan</span>
+                        <span class="value">{{ $pembayaran->penjualan->pelanggan ?? '-' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Total Invoice</span>
+                        <span class="value">{{ format_rupiah($pembayaran->penjualan->grand_total) }}</span>
+                    </div>
                 @else
-                <div class="info-row">
-                    <span class="label">Status</span>
-                    <span class="value">Invoice tidak tersedia</span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">Status</span>
+                        <span class="value">Invoice tidak tersedia</span>
+                    </div>
                 @endif
             </div>
 
@@ -313,18 +313,18 @@
                     <span class="value">{{ $pembayaran->gudang->nama_gudang ?? '-' }}</span>
                 </div>
                 @if($pembayaran->approver)
-                <div class="info-row">
-                    <span class="label">Disetujui oleh</span>
-                    <span class="value">{{ $pembayaran->approver->name }}</span>
-                </div>
+                    <div class="info-row">
+                        <span class="label">Disetujui oleh</span>
+                        <span class="value">{{ $pembayaran->approver->name }}</span>
+                    </div>
                 @endif
             </div>
 
             @if($pembayaran->keterangan)
-            <div class="info-card">
-                <div class="info-card-title"><i class="fas fa-sticky-note"></i> Keterangan</div>
-                <p style="font-size: 13px; color: var(--text-secondary);">{{ $pembayaran->keterangan }}</p>
-            </div>
+                <div class="info-card">
+                    <div class="info-card-title"><i class="fas fa-sticky-note"></i> Keterangan</div>
+                    <p style="font-size: 13px; color: var(--text-secondary);">{{ $pembayaran->keterangan }}</p>
+                </div>
             @endif
 
             <div class="qr-section">

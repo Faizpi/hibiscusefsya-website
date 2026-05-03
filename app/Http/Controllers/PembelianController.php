@@ -189,10 +189,11 @@ class PembelianController extends Controller
             $subTotal += ($qty * $price) * (1 - ($disc / 100));
         }
 
-        $diskonAkhir = $request->diskon_akhir ?? 0;
-        $kenaPajak = max(0, $subTotal - $diskonAkhir);
-        $pajakPersen = $request->tax_percentage ?? 0;
-        $grandTotal = $kenaPajak + ($kenaPajak * ($pajakPersen / 100));
+        $diskonAkhir = round((float) ($request->diskon_akhir ?? 0), 2);
+        $subTotal = round($subTotal, 2);
+        $kenaPajak = round(max(0, $subTotal - $diskonAkhir), 2);
+        $pajakPersen = (float) ($request->tax_percentage ?? 0);
+        $grandTotal = round($kenaPajak + ($kenaPajak * ($pajakPersen / 100)), 2);
 
         $countToday = Pembelian::where('user_id', Auth::id())
             ->whereDate('created_at', Carbon::today())
@@ -305,7 +306,7 @@ class PembelianController extends Controller
                 $qty = $request->kuantitas[$index];
                 $price = $request->harga_satuan[$index];
                 $disc = $request->diskon[$index] ?? 0;
-                $jumlahBaris = ($qty * $price) * (1 - ($disc / 100));
+                $jumlahBaris = round(($qty * $price) * (1 - ($disc / 100)), 2);
 
                 PembelianItem::create([
                     'pembelian_id' => $pembelianInduk->id,
@@ -451,10 +452,11 @@ class PembelianController extends Controller
             $disc = $request->diskon[$index] ?? 0;
             $subTotal += ($qty * $price) * (1 - ($disc / 100));
         }
-        $diskonAkhir = $request->diskon_akhir ?? 0;
-        $kenaPajak = max(0, $subTotal - $diskonAkhir);
-        $pajakPersen = $request->tax_percentage ?? 0;
-        $grandTotal = $kenaPajak + ($kenaPajak * ($pajakPersen / 100));
+        $diskonAkhir = round((float) ($request->diskon_akhir ?? 0), 2);
+        $subTotal = round($subTotal, 2);
+        $kenaPajak = round(max(0, $subTotal - $diskonAkhir), 2);
+        $pajakPersen = (float) ($request->tax_percentage ?? 0);
+        $grandTotal = round($kenaPajak + ($kenaPajak * ($pajakPersen / 100)), 2);
 
         // Tentukan approver jika status pending
         $approverId = $pembelian->approver_id; // Keep existing
@@ -509,7 +511,7 @@ class PembelianController extends Controller
                 $qty = $request->kuantitas[$index];
                 $price = $request->harga_satuan[$index];
                 $disc = $request->diskon[$index] ?? 0;
-                $jumlahBaris = ($qty * $price) * (1 - ($disc / 100));
+                $jumlahBaris = round(($qty * $price) * (1 - ($disc / 100)), 2);
 
                 PembelianItem::create([
                     'pembelian_id' => $pembelian->id,

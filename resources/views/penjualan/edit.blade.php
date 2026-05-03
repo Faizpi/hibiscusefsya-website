@@ -403,14 +403,14 @@
                 initSelect2(this);
             });
 
-            const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+            const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(angka);
 
             const calculateRow = (row, skipMobileSync = false) => {
                 const quantity = parseFloat(row.querySelector('.product-quantity').value) || 0;
                 const price = parseFloat(row.querySelector('.product-price').value) || 0;
                 const discount = parseFloat(row.querySelector('.product-discount').value) || 0;
                 const total = quantity * price * (1 - (discount / 100));
-                row.querySelector('.product-line-total').value = total.toFixed(0);
+                row.querySelector('.product-line-total').value = total.toFixed(2);
                 calculateGrandTotal();
 
                 // Hanya sync mobile cards jika tidak di-skip (untuk mencegah rebuild saat input)

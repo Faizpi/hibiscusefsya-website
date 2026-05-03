@@ -131,7 +131,7 @@
                         <td>{{ $item->tgl_jatuh_tempo ? $item->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
                         <td>{{ $item->pelanggan ?? '-' }}</td>
                         <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
-                        <td class="text-right">Rp {{ number_format($item->jumlah_tagihan, 0, ',', '.') }}</td>
+                        <td class="text-right">{{ format_rupiah($item->jumlah_tagihan) }}</td>
                         <td>{{ $item->koordinat ?? '-' }}</td>
                         <td>
                             @php
@@ -154,7 +154,7 @@
                 @endforeach
                 <tr class="total-row">
                     <td colspan="7" class="text-right">Total</td>
-                    <td class="text-right">Rp {{ number_format($totalJumlah, 0, ',', '.') }}</td>
+                    <td class="text-right">{{ format_rupiah($totalJumlah) }}</td>
                     <td colspan="2"></td>
                 </tr>
             </tbody>

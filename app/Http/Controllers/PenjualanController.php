@@ -248,10 +248,11 @@ class PenjualanController extends Controller
             $subTotal += ($qty * $price) * (1 - ($disc / 100));
         }
 
-        $diskonAkhir = $request->diskon_akhir ?? 0;
-        $kenaPajak = max(0, $subTotal - $diskonAkhir);
-        $pajakPersen = $request->tax_percentage ?? 0;
-        $grandTotal = $kenaPajak + ($kenaPajak * ($pajakPersen / 100));
+        $diskonAkhir = round((float) ($request->diskon_akhir ?? 0), 2);
+        $subTotal = round($subTotal, 2);
+        $kenaPajak = round(max(0, $subTotal - $diskonAkhir), 2);
+        $pajakPersen = (float) ($request->tax_percentage ?? 0);
+        $grandTotal = round($kenaPajak + ($kenaPajak * ($pajakPersen / 100)), 2);
 
         // Generate nomor urut
         $countToday = Penjualan::where('user_id', Auth::id())
@@ -371,7 +372,7 @@ class PenjualanController extends Controller
                     'diskon' => $disc,
                     'batch_number' => $request->batch_number[$index] ?? null,
                     'expired_date' => $request->expired_date[$index] ?? null,
-                    'jumlah_baris' => ($qty * $price) * (1 - ($disc / 100)),
+                    'jumlah_baris' => round(($qty * $price) * (1 - ($disc / 100)), 2),
                 ]);
             }
 
@@ -530,10 +531,11 @@ class PenjualanController extends Controller
             $subTotal += ($qty * $price) * (1 - ($disc / 100));
         }
 
-        $diskonAkhir = $request->diskon_akhir ?? 0;
-        $kenaPajak = max(0, $subTotal - $diskonAkhir);
-        $pajakPersen = $request->tax_percentage ?? 0;
-        $grandTotal = $kenaPajak + ($kenaPajak * ($pajakPersen / 100));
+        $diskonAkhir = round((float) ($request->diskon_akhir ?? 0), 2);
+        $subTotal = round($subTotal, 2);
+        $kenaPajak = round(max(0, $subTotal - $diskonAkhir), 2);
+        $pajakPersen = (float) ($request->tax_percentage ?? 0);
+        $grandTotal = round($kenaPajak + ($kenaPajak * ($pajakPersen / 100)), 2);
 
         // Hitung jatuh tempo dan tentukan status berdasarkan metode pembayaran
         $term = $request->syarat_pembayaran;
@@ -626,7 +628,7 @@ class PenjualanController extends Controller
                     'diskon' => $disc,
                     'batch_number' => $request->batch_number[$index] ?? null,
                     'expired_date' => $request->expired_date[$index] ?? null,
-                    'jumlah_baris' => ($qty * $price) * (1 - ($disc / 100)),
+                    'jumlah_baris' => round(($qty * $price) * (1 - ($disc / 100)), 2),
                 ]);
             }
 

@@ -161,23 +161,23 @@
                             </tr>
                             <tr>
                                 <td><strong>Subtotal</strong></td>
-                                <td>: Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                                <td>: {{ format_rupiah($subtotal) }}</td>
                             </tr>
                             @if($penjualan->diskon_akhir > 0)
                                 <tr>
                                     <td><strong>Diskon Akhir</strong></td>
-                                    <td class="text-danger">: - Rp {{ number_format($penjualan->diskon_akhir, 0, ',', '.') }}
+                                    <td class="text-danger">: - {{ format_rupiah($penjualan->diskon_akhir) }}
                                     </td>
                                 </tr>
                             @endif
                             <tr>
                                 <td><strong>Pajak ({{ $penjualan->tax_percentage }}%)</strong></td>
-                                <td>: Rp {{ number_format($taxAmount, 0, ',', '.') }}</td>
+                                <td>: {{ format_rupiah($taxAmount) }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Grand Total</strong></td>
-                                <td>: <span class="font-weight-bold text-primary" style="font-size: 1.25rem;">Rp
-                                        {{ number_format($penjualan->grand_total, 0, ',', '.') }}</span></td>
+                                <td>: <span class="font-weight-bold text-primary"
+                                        style="font-size: 1.25rem;">{{ format_rupiah($penjualan->grand_total) }}</span></td>
                             </tr>
                             <tr>
                                 <td><strong>No. Referensi</strong></td>
@@ -236,11 +236,11 @@
                                     <td>{{ $item->produk->nama_produk }}</td>
                                     <td>{{ $item->deskripsi ?? '-' }}</td>
                                     <td class="text-center">{{ $item->kuantitas }} {{ $item->unit }}</td>
-                                    <td class="text-right">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                                    <td class="text-right">{{ format_rupiah($item->harga_satuan) }}</td>
                                     <td class="text-center">{{ $item->diskon }}%</td>
                                     <td>{{ $item->batch_number ?? '-' }}</td>
                                     <td>{{ $item->expired_date ? $item->expired_date->format('d/m/Y') : '-' }}</td>
-                                    <td class="text-right">Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</td>
+                                    <td class="text-right">{{ format_rupiah($item->jumlah_baris) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -263,7 +263,7 @@
                                 </div>
                                 <div class="detail-item">
                                     <div class="label">Harga</div>
-                                    <div class="value">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</div>
+                                    <div class="value">{{ format_rupiah($item->harga_satuan) }}</div>
                                 </div>
                                 <div class="detail-item">
                                     <div class="label">Disc</div>
@@ -284,7 +284,7 @@
                             </div>
                             <div class="item-total">
                                 <span class="total-label">Total</span>
-                                <span class="total-value">Rp {{ number_format($item->jumlah_baris, 0, ',', '.') }}</span>
+                                <span class="total-value">{{ format_rupiah($item->jumlah_baris) }}</span>
                             </div>
                         </div>
                     @endforeach

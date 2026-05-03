@@ -2179,7 +2179,7 @@
                                                         </div>
                                                         <div class="notification-meta">
                                                             <div class="notification-amount">Rp
-                                                                {{ number_format($notif['amount'] ?? 0, 0, ',', '.') }}
+                                                                {{ format_rupiah($notif['amount'] ?? 0) }}
                                                             </div>
                                                             <div class="notification-time">
                                                                 {{ $notif['time']->diffForHumans(null, true, true) }}
@@ -2213,13 +2213,10 @@
                                         <div class="user-role">{{ ucfirst(str_replace('_', ' ', Auth::user()->role)) }}
                                         </div>
                                     </div>
-                                    <img class="img-profile rounded-circle"
-                                        @if(Auth::user()->avatar)
-                                            src="{{ Auth::user()->avatarUrl() }}"
-                                        @else
+                                    <img class="img-profile rounded-circle" @if(Auth::user()->avatar)
+                                    src="{{ Auth::user()->avatarUrl() }}" @else
                                             src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3B82F6&color=fff&size=128"
-                                        @endif
-                                        alt="{{ Auth::user()->name }}" style="object-fit:cover;">
+                                        @endif alt="{{ Auth::user()->name }}" style="object-fit:cover;">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
                                     {{-- Profile untuk Admin / Spectator --}}

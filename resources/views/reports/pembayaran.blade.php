@@ -28,7 +28,7 @@
                 <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
                 <td>{{ $item->display_contact_name ?? '-' }}</td>
                 <td>{{ $item->no_telp_kontak ?? '-' }}</td>
-                <td>{{ number_format($item->jumlah_bayar ?? 0, 0, ',', '.') }}</td>
+                <td>{{ format_rupiah($item->jumlah_bayar ?? 0) }}</td>
                 <td>{{ $item->status }}</td>
                 <td>{{ optional($item->penjualan)->nomor ?? '-' }}</td>
                 <td>
@@ -71,14 +71,14 @@
     </tr>
     <tr>
         <td colspan="3"><strong>Total Jumlah Bayar</strong></td>
-        <td colspan="7">{{ number_format($transactions->sum('jumlah_bayar'), 0, ',', '.') }}</td>
+        <td colspan="7">{{ number_format($transactions->sum('jumlah_bayar'), 2, ',', '.') }}</td>
     </tr>
     @php $statusGroups = $transactions->groupBy('status'); @endphp
     @foreach($statusGroups as $status => $group)
         <tr>
             <td colspan="3"><strong>{{ $status }}</strong></td>
             <td colspan="7">{{ $group->count() }} pembayaran — Rp
-                {{ number_format($group->sum('jumlah_bayar'), 0, ',', '.') }}
+                {{ number_format($group->sum('jumlah_bayar'), 2, ',', '.') }}
             </td>
         </tr>
     @endforeach

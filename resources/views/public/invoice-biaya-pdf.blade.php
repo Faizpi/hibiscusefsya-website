@@ -204,7 +204,7 @@
                     @endif
                     <tr>
                         <td><b>Jumlah</b></td>
-                        <td class="val"><b>Rp {{ number_format($item->jumlah, 0, ',', '.') }}</b></td>
+                        <td class="val"><b>{{ format_rupiah($item->jumlah) }}</b></td>
                     </tr>
                 </table>
             </div>
@@ -215,17 +215,17 @@
         <table>
             <tr>
                 <td>Subtotal</td>
-                <td class="val">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                <td class="val">{{ format_rupiah($subtotal) }}</td>
             </tr>
             @if(($biaya->tax_percentage ?? 0) > 0)
                 <tr>
                     <td>Pajak ({{ $biaya->tax_percentage }}%)</td>
-                    <td class="val">Rp {{ number_format($pajakNominal, 0, ',', '.') }}</td>
+                    <td class="val">{{ format_rupiah($pajakNominal) }}</td>
                 </tr>
             @endif
             <tr>
                 <td class="grand-total">GRAND TOTAL</td>
-                <td class="val grand-total">Rp {{ number_format($biaya->grand_total, 0, ',', '.') }}</td>
+                <td class="val grand-total">{{ format_rupiah($biaya->grand_total) }}</td>
             </tr>
         </table>
 

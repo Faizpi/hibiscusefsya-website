@@ -261,7 +261,7 @@
                 </tr>
                 <tr>
                     <td class="lbl" style="font-weight:bold">Jumlah</td>
-                    <td class="val" style="font-weight:bold">Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
+                    <td class="val" style="font-weight:bold">{{ format_rupiah($item->jumlah) }}</td>
                 </tr>
             </table>
         </div>
@@ -273,7 +273,7 @@
     <table class="total-table">
         <tr>
             <td class="lbl grand-total">TOTAL BIAYA</td>
-            <td class="val grand-total">Rp {{ number_format($biaya->items->sum('jumlah'), 0, ',', '.') }}</td>
+            <td class="val grand-total">{{ format_rupiah($biaya->items->sum('jumlah')) }}</td>
         </tr>
     </table>
 

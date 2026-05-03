@@ -498,7 +498,7 @@
                 initSelect2(this);
             });
 
-            function formatRupiah(num) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num); }
+            function formatRupiah(num) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num); }
 
             function calculateTotal(skipMobileSync = false) {
                 let subtotal = 0;
@@ -507,7 +507,7 @@
                     let price = parseFloat(row.querySelector('.product-price').value) || 0;
                     let disc = parseFloat(row.querySelector('.product-disc').value) || 0;
                     let total = (qty * price) * (1 - (disc / 100));
-                    row.querySelector('.product-total').value = total.toFixed(0);
+                    row.querySelector('.product-total').value = total.toFixed(2);
                     subtotal += total;
                 });
 
