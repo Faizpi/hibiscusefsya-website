@@ -341,8 +341,7 @@
                             @endif
                         </div>
                         <div class="item-meta">
-                            {{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × Rp
-                            {{ format_rupiah($item->harga_satuan) }}
+                            {{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × {{ format_rupiah($item->harga_satuan) }}
                         </div>
                         <div class="item-total">
                             <span>Subtotal</span>

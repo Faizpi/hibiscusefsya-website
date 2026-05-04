@@ -49,7 +49,7 @@ class BluetoothThermalPrinter {
 
     // Format currency to Rupiah
     formatRupiah(amount) {
-        return 'Rp ' + new Intl.NumberFormat('id-ID').format(amount);
+        return 'Rp' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
     }
 
     // Create divider line

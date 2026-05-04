@@ -5,7 +5,7 @@
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Buat Penagihan Penjualan</h1>
             {{-- TOTAL ATAS (ID: grand-total-display) --}}
-            <h3 class="font-weight-bold text-right text-primary" id="grand-total-display">Total Rp0,00</h3>
+            <h3 class="font-weight-bold text-right text-primary" id="grand-total-display">Total {{ format_rupiah(0) }}</h3>
         </div>
 
         {{-- Penampil Error --}}
@@ -78,7 +78,8 @@
                                     <div class="form-group">
                                         <label for="no_telepon">Nomor Telepon</label>
                                         <input type="tel" class="form-control @error('no_telepon') is-invalid @enderror"
-                                            id="no-telepon-input" name="no_telepon" value="{{ old('no_telepon') }}" placeholder="cth: 08123456789">
+                                            id="no-telepon-input" name="no_telepon" value="{{ old('no_telepon') }}"
+                                            placeholder="cth: 08123456789">
                                         @error('no_telepon') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                 </div>
@@ -377,7 +378,7 @@
                                 <tbody>
                                     <tr>
                                         <td><strong>Subtotal</strong></td>
-                                        <td id="subtotal-display">Rp0</td>
+                                        <td id="subtotal-display">{{ format_rupiah(0) }}</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -404,11 +405,11 @@
                                     </tr>
                                     <tr>
                                         <td>Jumlah Pajak</td>
-                                        <td id="tax-amount-display">Rp0</td>
+                                        <td id="tax-amount-display">{{ format_rupiah(0) }}</td>
                                     </tr>
                                     <tr class="border-top">
                                         <td class="h5"><strong>Total</strong></td>
-                                        <td class="h5" id="grand-total-bottom">Rp0</td>
+                                        <td class="h5" id="grand-total-bottom">{{ format_rupiah(0) }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -464,12 +465,12 @@
                 }
             @endif
 
-                            // Semua produk dengan data lengkap
-                            const allProduks = [
+                                    // Semua produk dengan data lengkap
+                                    const allProduks = [
                 @foreach($produks as $p)
                     { id: {{ $p->id }}, nama: "{{ addslashes($p->nama_produk) }}", harga: {{ $p->harga }}, hargaGrosir: {{ $p->harga_grosir ?? 0 }}, deskripsi: "{{ addslashes($p->deskripsi ?? '') }}", satuan: "{{ $p->satuan ?? 'Pcs' }}" },
                 @endforeach
-                            ];
+                                    ];
 
             // Function untuk get tipe harga yang dipilih
             function getTipeHarga() {
@@ -619,7 +620,7 @@
 
             // --- 2. LOGIKA KALKULASI (AUTO UPDATE) ---
             function formatRupiah(num) {
-                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+                return 'Rp' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
             }
 
             function calculateRow(row, skipMobileSync = false) {
@@ -688,53 +689,53 @@
                     card.className = 'product-card-mobile';
                     card.dataset.rowIndex = index;
                     card.innerHTML = `
-                                        <div class="card-header-mobile">
-                                            <div class="d-flex flex-grow-1">
-                                                <select class="form-control product-select-mobile" data-row="${index}">
-                                                    <option value="">Pilih...</option>
-                                                    ${productOptionsHtml}
-                                                </select>
-                                                <button type="button" class="btn btn-outline-info btn-sm ml-1 btn-scan-produk-mobile" data-row="${index}" title="Scan Barcode">
-                                                    <i class="fas fa-camera"></i>
-                                                </button>
-                                            </div>
-                                            ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm ml-1 remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
-                                        </div>
-                                        <div class="card-body-mobile">
-                                            <div class="field-group full-width">
-                                                <span class="field-label">Deskripsi</span>
-                                                <input type="text" class="form-control product-desc-mobile" data-row="${index}" value="${desc}" placeholder="Deskripsi">
-                                            </div>
-                                            <div class="field-group">
-                                                <span class="field-label">Qty</span>
-                                                <input type="number" class="form-control product-qty-mobile" data-row="${index}" value="${qty}" min="1">
-                                            </div>
-                                            <div class="field-group">
-                                                <span class="field-label">Unit</span>
-                                                <input type="text" class="form-control product-unit-mobile" data-row="${index}" value="${unit}" readonly>
-                                            </div>
-                                            <div class="field-group">
-                                                <span class="field-label">Harga</span>
-                                                <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
-                                            </div>
-                                            <div class="field-group">
-                                                <span class="field-label">Disc%</span>
-                                                <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
-                                            </div>
-                                            <div class="field-group">
-                                                <span class="field-label">Batch</span>
-                                                <input type="text" class="form-control product-batch-mobile" data-row="${index}" value="${batch}" placeholder="Batch">
-                                            </div>
-                                            <div class="field-group">
-                                                <span class="field-label">Exp</span>
-                                                <input type="date" class="form-control product-exp-mobile" data-row="${index}" value="${exp}">
-                                            </div>
-                                        </div>
-                                        <div class="total-row">
-                                            <span class="total-label">Total</span>
-                                            <span class="total-value">${formatRupiah(total)}</span>
-                                        </div>
-                                    `;
+                                                <div class="card-header-mobile">
+                                                    <div class="d-flex flex-grow-1">
+                                                        <select class="form-control product-select-mobile" data-row="${index}">
+                                                            <option value="">Pilih...</option>
+                                                            ${productOptionsHtml}
+                                                        </select>
+                                                        <button type="button" class="btn btn-outline-info btn-sm ml-1 btn-scan-produk-mobile" data-row="${index}" title="Scan Barcode">
+                                                            <i class="fas fa-camera"></i>
+                                                        </button>
+                                                    </div>
+                                                    ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm ml-1 remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
+                                                </div>
+                                                <div class="card-body-mobile">
+                                                    <div class="field-group full-width">
+                                                        <span class="field-label">Deskripsi</span>
+                                                        <input type="text" class="form-control product-desc-mobile" data-row="${index}" value="${desc}" placeholder="Deskripsi">
+                                                    </div>
+                                                    <div class="field-group">
+                                                        <span class="field-label">Qty</span>
+                                                        <input type="number" class="form-control product-qty-mobile" data-row="${index}" value="${qty}" min="1">
+                                                    </div>
+                                                    <div class="field-group">
+                                                        <span class="field-label">Unit</span>
+                                                        <input type="text" class="form-control product-unit-mobile" data-row="${index}" value="${unit}" readonly>
+                                                    </div>
+                                                    <div class="field-group">
+                                                        <span class="field-label">Harga</span>
+                                                        <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
+                                                    </div>
+                                                    <div class="field-group">
+                                                        <span class="field-label">Disc%</span>
+                                                        <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
+                                                    </div>
+                                                    <div class="field-group">
+                                                        <span class="field-label">Batch</span>
+                                                        <input type="text" class="form-control product-batch-mobile" data-row="${index}" value="${batch}" placeholder="Batch">
+                                                    </div>
+                                                    <div class="field-group">
+                                                        <span class="field-label">Exp</span>
+                                                        <input type="date" class="form-control product-exp-mobile" data-row="${index}" value="${exp}">
+                                                    </div>
+                                                </div>
+                                                <div class="total-row">
+                                                    <span class="total-label">Total</span>
+                                                    <span class="total-value">${formatRupiah(total)}</span>
+                                                </div>
+                                            `;
                     mobileCardsContainer.appendChild(card);
 
                     // Set selected product

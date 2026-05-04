@@ -68,7 +68,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 Penjualan (Bulan Ini)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ format_rupiah($penjualanBulanIni) }}
                             </div>
                             <div class="text-xs text-muted mt-1">
@@ -88,7 +88,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Pembelian (Bulan Ini)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ format_rupiah($pembelianNominalBulanIni ?? 0) }}
                             </div>
                             <div class="text-xs text-muted mt-1">
@@ -152,7 +152,7 @@
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 <i class="fas fa-arrow-down"></i> Biaya Masuk (Bulan Ini)
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ format_rupiah($biayaMasukBulanIni ?? 0) }}
                             </div>
                         </div>
@@ -170,7 +170,7 @@
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
                                 <i class="fas fa-arrow-up"></i> Biaya Keluar (Bulan Ini)
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ format_rupiah($biayaKeluarBulanIni ?? 0) }}
                             </div>
                         </div>
@@ -789,7 +789,7 @@
 
                 // Helper format Rupiah
                 function formatRupiah(value) {
-                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+                    return 'Rp' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
                 }
 
                 // LINE CHART: Tren 6 Bulan
@@ -847,11 +847,11 @@
                                     ticks: {
                                         callback: function (value) {
                                             if (value >= 1000000) {
-                                                return 'Rp ' + (value / 1000000).toFixed(1) + 'jt';
+                                                return 'Rp' + (value / 1000000).toFixed(1) + 'jt';
                                             } else if (value >= 1000) {
-                                                return 'Rp ' + (value / 1000).toFixed(0) + 'rb';
+                                                return 'Rp' + (value / 1000).toFixed(0) + 'rb';
                                             }
-                                            return 'Rp ' + value;
+                                            return 'Rp' + value;
                                         }
                                     }
                                 }
@@ -953,11 +953,11 @@
                                     ticks: {
                                         callback: function (value) {
                                             if (value >= 1000000) {
-                                                return 'Rp ' + (value / 1000000).toFixed(1) + 'jt';
+                                                return 'Rp' + (value / 1000000).toFixed(1) + 'jt';
                                             } else if (value >= 1000) {
-                                                return 'Rp ' + (value / 1000).toFixed(0) + 'rb';
+                                                return 'Rp' + (value / 1000).toFixed(0) + 'rb';
                                             }
-                                            return 'Rp ' + value;
+                                            return 'Rp' + value;
                                         }
                                     }
                                 }
@@ -1014,8 +1014,8 @@
                         });
                     }
                 @endif
-                                                                                        // ==================== END SALES QUANTITY CHART ====================
-                                                                                    });
+                                                                                                        // ==================== END SALES QUANTITY CHART ====================
+                                                                                                    });
         </script>
     @endif
 

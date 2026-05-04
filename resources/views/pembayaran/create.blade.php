@@ -4,7 +4,7 @@
     <div class="container-fluid">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Buat Pembayaran</h1>
-            <h3 class="font-weight-bold text-right text-primary" id="total-display">Total: Rp 0</h3>
+            <h3 class="font-weight-bold text-right text-primary" id="total-display">Total: {{ format_rupiah(0) }}</h3>
         </div>
 
         @if ($errors->any())
@@ -103,8 +103,8 @@
                                     id="jumlah_bayar" name="jumlah_bayar" value="{{ old('jumlah_bayar') }}" min="1"
                                     required>
                                 @error('jumlah_bayar') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                <small class="text-muted">Total piutang terpilih: <span id="total-piutang">Rp
-                                        0</span></small>
+                                <small class="text-muted">Total piutang terpilih: <span
+                                        id="total-piutang">{{ format_rupiah(0) }}</span></small>
                             </div>
                         </div>
                     </div>
@@ -184,7 +184,8 @@
                                     <tfoot>
                                         <tr class="bg-light font-weight-bold">
                                             <td colspan="6" class="text-right">Total Piutang Terpilih:</td>
-                                            <td class="text-right text-primary" id="total-selected">Rp 0</td>
+                                            <td class="text-right text-primary" id="total-selected">{{ format_rupiah(0) }}
+                                            </td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -209,7 +210,7 @@
     <script>
         $(document).ready(function () {
             function formatRupiah(angka) {
-                return 'Rp ' + new Intl.NumberFormat('id-ID').format(angka);
+                return 'Rp' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(angka);
             }
 
             function loadInvoices(gudangId) {

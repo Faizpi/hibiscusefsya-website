@@ -394,7 +394,7 @@
                             @endif
                         </div>
                         <div class="item-meta">
-                            <span>{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × Rp
+                            <span>{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} ×
                                 {{ format_rupiah($item->harga_satuan) }}</span>
                             @if($item->diskon > 0)
                                 <span style="color: var(--danger);">-{{ $item->diskon }}%</span>

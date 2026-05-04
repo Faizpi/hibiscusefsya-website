@@ -111,15 +111,13 @@
                     <tfoot>
                         <tr>
                             <td colspan="5" class="text-right" style="color: #6b7280; padding: 12px 18px;">Subtotal</td>
-                            <td class="text-right" style="padding: 12px 18px;">Rp
-                                {{ format_rupiah($subtotal) }}</td>
+                            <td class="text-right" style="padding: 12px 18px;">{{ format_rupiah($subtotal) }}</td>
                         </tr>
                         @if(($penjualan->tax_percentage ?? 0) > 0)
                             <tr>
                                 <td colspan="5" class="text-right" style="color: #6b7280; padding: 12px 18px;">Pajak
                                     ({{ $penjualan->tax_percentage }}%)</td>
-                                <td class="text-right" style="padding: 12px 18px;">Rp
-                                    {{ format_rupiah(($penjualan->grand_total ?? 0) - $subtotal) }}</td>
+                                <td class="text-right" style="padding: 12px 18px;">{{ format_rupiah(($penjualan->grand_total ?? 0) - $subtotal) }}</td>
                             </tr>
                         @endif
                         <tr style="background: #f9fafb;">
@@ -149,14 +147,12 @@
                                     <div class="font-bold" style="color: #111827; font-size: 0.95rem;">
                                         {{ $item->produk->nama_produk ?? '-' }}</div>
                                     <div style="font-size: 0.82rem; color: #6b7280; margin-top: 3px;">
-                                        {{ $item->kuantitas ?? 0 }} x Rp
-                                        {{ format_rupiah($item->harga_satuan ?? 0) }}
+                                        {{ $item->kuantitas ?? 0 }} x {{ format_rupiah($item->harga_satuan ?? 0) }}
                                         @if(($item->diskon ?? 0) > 0) <span style="color: #dc2626;">(-
                                         {{ $item->diskon }}%)</span> @endif
                                     </div>
                                 </div>
-                                <div class="font-bold" style="font-size: 0.95rem; color: #111827;">Rp
-                                    {{ format_rupiah($lineTotal2) }}</div>
+                                <div class="font-bold" style="font-size: 0.95rem; color: #111827;">{{ format_rupiah($lineTotal2) }}</div>
                             </div>
                         </div>
                     @empty
@@ -176,8 +172,7 @@
                         @endif
                         <div class="mobile-grand-total">
                             <span>Grand Total</span>
-                            <span style="color: #1e40af;">Rp
-                                {{ format_rupiah($penjualan->grand_total ?? 0) }}</span>
+                            <span style="color: #1e40af;">{{ format_rupiah($penjualan->grand_total ?? 0) }}</span>
                         </div>
                     </div>
                 </div>

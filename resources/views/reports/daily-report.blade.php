@@ -523,20 +523,17 @@
         <table class="summary-table">
             <tr>
                 <td class="label">Total Penjualan</td>
-                <td>: {{ $penjualans->count() }} transaksi — Rp
-                    {{ format_rupiah($penjualans->sum('grand_total')) }}
+                <td>: {{ $penjualans->count() }} transaksi — {{ format_rupiah($penjualans->sum('grand_total')) }}
                 </td>
             </tr>
             <tr>
                 <td class="label">Total Pembelian</td>
-                <td>: {{ $pembelians->count() }} transaksi — Rp
-                    {{ format_rupiah($pembelians->sum('grand_total')) }}
+                <td>: {{ $pembelians->count() }} transaksi — {{ format_rupiah($pembelians->sum('grand_total')) }}
                 </td>
             </tr>
             <tr>
                 <td class="label">Total Biaya</td>
-                <td>: {{ $biayas->count() }} transaksi — Rp
-                    {{ format_rupiah($biayas->sum('grand_total')) }}
+                <td>: {{ $biayas->count() }} transaksi — {{ format_rupiah($biayas->sum('grand_total')) }}
                 </td>
             </tr>
             <tr>

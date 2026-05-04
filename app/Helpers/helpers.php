@@ -25,7 +25,7 @@ if (!function_exists('formatJson')) {
 }
 
 if (!function_exists('format_rupiah')) {
-    function format_rupiah($value, $prefix = ' ')
+    function format_rupiah($value, $prefix = 'Rp')
     {
         $amount = is_numeric($value) ? (float) $value : 0.0;
 

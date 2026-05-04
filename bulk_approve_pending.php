@@ -42,7 +42,7 @@ foreach ($penjualans as $p) {
     $p->status = 'Approved';
     $p->approver_id = 1; // super_admin
     $p->save();
-    echo "  [OK] {$p->nomor} | {$p->tgl_transaksi->format('d/m/Y')} | {$p->pelanggan} | {$p->syarat_pembayaran} | Rp " . number_format($p->grand_total, 0, ',', '.') . "\n";
+    echo "  [OK] {$p->nomor} | {$p->tgl_transaksi->format('d/m/Y')} | {$p->pelanggan} | {$p->syarat_pembayaran} | Rp" . number_format($p->grand_total, 2, ',', '.') . "\n";
 }
 
 echo "Penjualan di-approve: {$penjualans->count()}\n\n";
@@ -62,7 +62,7 @@ foreach ($pembelians as $p) {
     $p->status = 'Approved';
     $p->approver_id = 1;
     $p->save();
-    echo "  [OK] {$p->nomor} | {$p->tgl_transaksi->format('d/m/Y')} | {$p->syarat_pembayaran} | Rp " . number_format($p->grand_total, 0, ',', '.') . "\n";
+    echo "  [OK] {$p->nomor} | {$p->tgl_transaksi->format('d/m/Y')} | {$p->syarat_pembayaran} | Rp" . number_format($p->grand_total, 2, ',', '.') . "\n";
 }
 
 echo "Pembelian di-approve: {$pembelians->count()}\n\n";
@@ -81,7 +81,7 @@ foreach ($biayas as $b) {
     $b->status = 'Approved';
     $b->approver_id = 1;
     $b->save();
-    echo "  [OK] {$b->nomor} | {$b->tgl_transaksi->format('d/m/Y')} | Rp " . number_format($b->grand_total, 0, ',', '.') . "\n";
+    echo "  [OK] {$b->nomor} | {$b->tgl_transaksi->format('d/m/Y')} | Rp" . number_format($b->grand_total, 2, ',', '.') . "\n";
 }
 
 echo "Biaya di-approve: {$biayas->count()}\n\n";

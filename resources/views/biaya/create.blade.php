@@ -5,7 +5,7 @@
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Buat Biaya</h1>
             {{-- TOTAL ATAS (ID: grand-total-display) --}}
-            <h3 class="font-weight-bold text-right text-primary" id="grand-total-display">Total Rp0,00</h3>
+            <h3 class="font-weight-bold text-right text-primary" id="grand-total-display">Total {{ format_rupiah(0) }}</h3>
         </div>
 
         {{-- PENAMPIL ERROR VALIDASI --}}
@@ -271,7 +271,7 @@
                                 <tbody>
                                     <tr>
                                         <td><strong>Subtotal</strong></td>
-                                        <td id="subtotal-display">Rp0</td>
+                                        <td id="subtotal-display">{{ format_rupiah(0) }}</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -290,12 +290,12 @@
                                     </tr>
                                     <tr>
                                         <td>Jumlah Pajak</td>
-                                        <td id="tax-amount-display">Rp0</td>
+                                        <td id="tax-amount-display">{{ format_rupiah(0) }}</td>
                                     </tr>
                                     {{-- TOTAL BAWAH (ID: grand-total-bottom) --}}
                                     <tr class="border-top">
                                         <td class="h5"><strong>Total</strong></td>
-                                        <td class="h5" id="grand-total-bottom">Rp0</td>
+                                        <td class="h5" id="grand-total-bottom">{{ format_rupiah(0) }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -349,7 +349,7 @@
 
             // --- REMOVED: Approver autofill (sudah otomatis dari backend) ---
 
-            const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(angka);
+            const formatRupiah = (angka) => 'Rp' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(angka);
 
             const calculateTotalExpense = (skipMobileSync = false) => {
                 let subtotal = 0;
@@ -388,29 +388,29 @@
                     card.className = 'product-card-mobile';
                     card.dataset.rowIndex = index;
                     card.innerHTML = `
-                                                            <div class="card-header-mobile">
-                                                                <span class="item-number">Item ${index + 1}</span>
-                                                                ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
-                                                            </div>
-                                                            <div class="card-body-mobile">
-                                                                <div class="field-group full-width">
-                                                                    <span class="field-label">Akun Biaya</span>
-                                                                    <input type="text" class="form-control kategori-mobile" data-row="${index}" value="${kategori}" placeholder="Contoh: Biaya Listrik">
-                                                                </div>
-                                                                <div class="field-group full-width">
-                                                                    <span class="field-label">Deskripsi</span>
-                                                                    <input type="text" class="form-control deskripsi-mobile" data-row="${index}" value="${deskripsi}" placeholder="Deskripsi">
-                                                                </div>
-                                                                <div class="field-group full-width">
-                                                                    <span class="field-label">Jumlah</span>
-                                                                    <input type="number" class="form-control text-right jumlah-mobile" data-row="${index}" value="${jumlah}">
-                                                                </div>
-                                                            </div>
-                                                            <div class="total-row">
-                                                                <span class="total-label">Jumlah</span>
-                                                                <span class="total-value">${formatRupiah(jumlah)}</span>
-                                                            </div>
-                                                        `;
+                                                                    <div class="card-header-mobile">
+                                                                        <span class="item-number">Item ${index + 1}</span>
+                                                                        ${rows.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn-mobile" data-row="${index}"><i class="fas fa-times"></i></button>` : ''}
+                                                                    </div>
+                                                                    <div class="card-body-mobile">
+                                                                        <div class="field-group full-width">
+                                                                            <span class="field-label">Akun Biaya</span>
+                                                                            <input type="text" class="form-control kategori-mobile" data-row="${index}" value="${kategori}" placeholder="Contoh: Biaya Listrik">
+                                                                        </div>
+                                                                        <div class="field-group full-width">
+                                                                            <span class="field-label">Deskripsi</span>
+                                                                            <input type="text" class="form-control deskripsi-mobile" data-row="${index}" value="${deskripsi}" placeholder="Deskripsi">
+                                                                        </div>
+                                                                        <div class="field-group full-width">
+                                                                            <span class="field-label">Jumlah</span>
+                                                                            <input type="number" class="form-control text-right jumlah-mobile" data-row="${index}" value="${jumlah}">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="total-row">
+                                                                        <span class="total-label">Jumlah</span>
+                                                                        <span class="total-value">${formatRupiah(jumlah)}</span>
+                                                                    </div>
+                                                                `;
                     mobileCardsContainer.appendChild(card);
                 });
             }
@@ -481,11 +481,11 @@
             addRowBtn.addEventListener('click', function () {
                 const newRow = tableBody.insertRow();
                 newRow.innerHTML = `
-                                                        <td><input type="text" class="form-control" name="kategori[]" placeholder="Contoh: Biaya Listrik"></td>
-                                                        <td><input type="text" class="form-control" name="deskripsi_akun[]"></td>
-                                                        <td><input type="number" class="form-control text-right expense-amount" name="total[]" value="0" required></td>
-                                                        <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
-                                                    `;
+                                                                <td><input type="text" class="form-control" name="kategori[]" placeholder="Contoh: Biaya Listrik"></td>
+                                                                <td><input type="text" class="form-control" name="deskripsi_akun[]"></td>
+                                                                <td><input type="number" class="form-control text-right expense-amount" name="total[]" value="0" required></td>
+                                                                <td><button type="button" class="btn btn-danger btn-sm remove-row-btn">X</button></td>
+                                                            `;
                 syncMobileCards();
             });
 

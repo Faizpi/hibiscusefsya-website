@@ -639,8 +639,7 @@
             @if($exportType !== 'kunjungan')
                 <tr>
                     <td style="border: none; font-weight: bold; font-size: 9px;">Total Grand Total</td>
-                    <td style="border: none; font-size: 9px;">: Rp
-                        {{ format_rupiah($transactions->sum('grand_total')) }}
+                    <td style="border: none; font-size: 9px;">: {{ format_rupiah($transactions->sum('grand_total')) }}
                     </td>
                 </tr>
             @endif
@@ -649,8 +648,7 @@
                 @foreach($typeGroups as $type => $group)
                     <tr>
                         <td style="border: none; font-weight: bold; font-size: 9px;">{{ $type }}</td>
-                        <td style="border: none; font-size: 9px;">: {{ $group->count() }} transaksi — Rp
-                            {{ format_rupiah($group->sum('grand_total'), '') }}
+                        <td style="border: none; font-size: 9px;">: {{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
                         </td>
                     </tr>
                 @endforeach
@@ -672,8 +670,7 @@
                 @foreach($jenisGroups as $jenis => $group)
                     <tr>
                         <td style="border: none; font-weight: bold; font-size: 9px;">{{ ucfirst($jenis) }}</td>
-                        <td style="border: none; font-size: 9px;">: {{ $group->count() }} transaksi — Rp
-                            {{ format_rupiah($group->sum('grand_total'), '') }}
+                        <td style="border: none; font-size: 9px;">: {{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
                         </td>
                     </tr>
                 @endforeach

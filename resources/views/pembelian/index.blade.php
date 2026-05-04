@@ -34,7 +34,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Approval</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ format_rupiah($fakturPending) }}
                             </div>
                         </div>
@@ -52,7 +52,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total (Pending/Approved)
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ format_rupiah($fakturBelumDibayar) }}
                             </div>
                         </div>
@@ -69,7 +69,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Jatuh Tempo Lewat</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ format_rupiah($fakturTelatBayar) }}
                             </div>
                         </div>

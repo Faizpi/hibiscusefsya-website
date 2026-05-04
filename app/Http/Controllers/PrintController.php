@@ -26,7 +26,7 @@ class PrintController extends Controller
 
     private function rp($val)
     {
-        return "Rp " . number_format($val, 2, ',', '.');
+        return format_rupiah($val);
     }
 
     // ========================================================================
@@ -254,7 +254,7 @@ class PrintController extends Controller
         $p .= $this->divItems($data->items);
 
         // 4. Subtotal
-        $p .= $this->divSubtotal($data->items->sum('jumlah_baris'), $data->diskon_akhir, $data->tax_percentage);
+        $p .= $this->divSubtotal(collect($data->items)->sum('jumlah_baris'), $data->diskon_akhir, $data->tax_percentage);
 
         // 5. Grand Total
         $p .= $this->divGrandTotal($data->grand_total);

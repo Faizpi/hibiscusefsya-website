@@ -147,7 +147,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Grand Total</strong></td>
-                                <td>: <span class="font-weight-bold text-primary" style="font-size: 1.25rem;">Rp
+                                <td>: <span class="font-weight-bold text-primary" style="font-size: 1.25rem;">
                                         {{ format_rupiah($biaya->grand_total) }}</span></td>
                             </tr>
                             <tr>

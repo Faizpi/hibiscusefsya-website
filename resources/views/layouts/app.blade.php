@@ -2178,7 +2178,7 @@
                                                             <div class="notification-subtitle">{{ $notif['subtitle'] }}</div>
                                                         </div>
                                                         <div class="notification-meta">
-                                                            <div class="notification-amount">Rp
+                                                            <div class="notification-amount">
                                                                 {{ format_rupiah($notif['amount'] ?? 0) }}
                                                             </div>
                                                             <div class="notification-time">

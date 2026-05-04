@@ -5,7 +5,7 @@
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Buat Permintaan Pembelian</h1>
             {{-- TOTAL ATAS (ID: grand-total-display) --}}
-            <h3 class="font-weight-bold text-right text-primary" id="grand-total-display">Total Rp0,00</h3>
+            <h3 class="font-weight-bold text-right text-primary" id="grand-total-display">Total {{ format_rupiah(0) }}</h3>
         </div>
 
         {{-- ALERT JIKA USER BIASA TIDAK PUNYA GUDANG --}}
@@ -321,7 +321,7 @@
                                 <tbody>
                                     <tr>
                                         <td><strong>Subtotal</strong></td>
-                                        <td id="subtotal-display">Rp0</td>
+                                        <td id="subtotal-display">{{ format_rupiah(0) }}</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -348,12 +348,12 @@
                                     </tr>
                                     <tr>
                                         <td>Jumlah Pajak</td>
-                                        <td id="tax-amount-display">Rp0</td>
+                                        <td id="tax-amount-display">{{ format_rupiah(0) }}</td>
                                     </tr>
                                     <tr class="border-top">
                                         <td class="h5"><strong>Grand Total</strong></td>
                                         {{-- ID: grand-total-bottom --}}
-                                        <td class="h5" id="grand-total-bottom">Rp0</td>
+                                        <td class="h5" id="grand-total-bottom">{{ format_rupiah(0) }}</td>
                                     </tr>
                                 </tbody>
                             </table>

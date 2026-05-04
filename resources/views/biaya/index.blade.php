@@ -26,7 +26,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Biaya Masuk (Approved)
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ format_rupiah($totalBiayaMasuk ?? 0) }}
                             </div>
                         </div>
@@ -44,7 +44,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Biaya Keluar (Approved)
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ format_rupiah($totalBiayaKeluar ?? 0) }}
                             </div>
                         </div>
@@ -61,7 +61,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Bulan Ini</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ format_rupiah($totalBulanIni) }}
                             </div>
                         </div>
@@ -78,7 +78,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Approval</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ format_rupiah($totalBelumDibayar) }}
                             </div>
                         </div>

@@ -286,7 +286,7 @@ class PembayaranController extends Controller
                 // Simpan kelebihan di pembayaran pertama
                 $pembayaranPertama = Pembayaran::find($pembayaranIds[0]);
                 $pembayaranPertama->keterangan = ($pembayaranPertama->keterangan ? $pembayaranPertama->keterangan . '. ' : '')
-                    . 'Kelebihan bayar: Rp ' . number_format($sisaBayar, 2, ',', '.');
+                    . 'Kelebihan bayar: ' . format_rupiah($sisaBayar);
                 $pembayaranPertama->save();
             }
 
