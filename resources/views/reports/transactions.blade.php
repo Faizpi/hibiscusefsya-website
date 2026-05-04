@@ -144,7 +144,6 @@
     <tr>
         <td colspan="3"><strong>Total Grand Total</strong></td>
         <td colspan="13">{{ format_rupiah($transactions->sum('grand_total')) }}</td>
-        </td>
     </tr>
     @php
         $typeGroups = $transactions->groupBy('type');

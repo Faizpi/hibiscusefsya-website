@@ -68,12 +68,10 @@
                         <td>{{ $detail->kategori ?? '-' }}</td>
                         <td>{{ $detail->deskripsi ?? '-' }}</td>
                         <td>{{ format_rupiah($detail->jumlah ?? 0) }}</td>
-                        </td>
                         @if($idx === 0)
                             <td>{{ $item->memo ?? '-' }}</td>
                             <td>{{ $item->tax_percentage ?? 0 }}</td>
                             <td>{{ format_rupiah($item->grand_total ?? 0) }}</td>
-                            </td>
                         @else
                             <td></td>
                             <td></td>
@@ -125,7 +123,6 @@
     <tr>
         <td colspan="3"><strong>Total Grand Total</strong></td>
         <td colspan="17">{{ format_rupiah($transactions->sum('grand_total')) }}</td>
-        </td>
     </tr>
     @php
         $statusGroups = $transactions->groupBy('status');
