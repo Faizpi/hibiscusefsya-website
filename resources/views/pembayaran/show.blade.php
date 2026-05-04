@@ -33,7 +33,7 @@
                             <i class="fas fa-money-bill-wave"></i> Informasi Pembayaran
                         </h6>
                     </div>
-                                       <td>{{ format_rupiah($pembayaran->penjualan->grand_total) }}</td>
+                    <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <table class="table table-borderless">
@@ -117,8 +117,7 @@
                                 </tr>
                                 <tr>
                                     <td><strong>Sisa Hutang</strong></td>
-                                    <td class="text-danger font-weight-bold">{{ format_rupiah($sisaHutang) }}
-                                    </td>
+                                    <td class="text-danger font-weight-bold">{{ format_rupiah($sisaHutang) }}</td>
                                 </tr>
                             </table>
                         @else
@@ -136,13 +135,13 @@
                                     </span>
                                 </h4>
                             </div>
-                                       <td class="text-danger font-weight-bold">{{ format_rupiah($sisaHutang) }}
+                        </div>
 
                         @if($pembayaran->keterangan)
                             <hr>
                             <h6 class="font-weight-bold">Keterangan</h6>
                             <p>{{ $pembayaran->keterangan }}</p>
-                                           {{ format_rupiah($pembayaran->jumlah_bayar) }}
+                        @endif
                     </div>
                 </div>
             </div>
