@@ -241,15 +241,15 @@
                                     <td></td>
                                 @endif
                                 <td>{{ $detail->produk->nama_produk ?? '-' }}</td>
-                                <td class="text-right">{{ number_format($detail->harga_satuan ?? 0, 2, ',', '.') }}</td>
+                                <td class="text-right">{{ format_rupiah($detail->harga_satuan ?? 0) }}</td>
                                 <td class="text-center">{{ $detail->kuantitas ?? 0 }}</td>
                                 <td class="text-right">{{ $detail->diskon ?? 0 }}%</td>
                                 @if($idx === 0)
                                     <td class="text-right">
-                                        {{ number_format(($item->grand_total ?? 0) / (1 + (($item->tax_percentage ?? 0) / 100)), 2, ',', '.') }}
+                                        {{ format_rupiah(($item->grand_total ?? 0) / (1 + (($item->tax_percentage ?? 0) / 100))) }}
                                     </td>
                                     <td>{{ $item->tax_percentage ?? 0 }}%</td>
-                                    <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 2, ',', '.') }}</strong></td>
+                                    <td class="text-right"><strong>{{ format_rupiah($item->grand_total ?? 0) }}</strong></td>
                                     <td>
                                         @if($imagePaths->count() > 0)
                                             @foreach($imagePaths as $imgPath)
@@ -285,10 +285,10 @@
                             <td>-</td>
                             <td>-</td>
                             <td class="text-right">
-                                {{ number_format(($item->grand_total ?? 0) / (1 + (($item->tax_percentage ?? 0) / 100)), 2, ',', '.') }}
+                                {{ format_rupiah(($item->grand_total ?? 0) / (1 + (($item->tax_percentage ?? 0) / 100))) }}
                             </td>
                             <td>{{ $item->tax_percentage ?? 0 }}%</td>
-                            <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 2, ',', '.') }}</strong></td>
+                            <td class="text-right"><strong>{{ format_rupiah($item->grand_total ?? 0) }}</strong></td>
                             <td>-</td>
                         </tr>
                     @endif
@@ -335,12 +335,12 @@
                                     <td></td>
                                 @endif
                                 <td>{{ $detail->produk->nama_produk ?? '-' }}</td>
-                                <td class="text-right">{{ number_format($detail->harga_satuan ?? 0, 2, ',', '.') }}</td>
+                                <td class="text-right">{{ format_rupiah($detail->harga_satuan ?? 0) }}</td>
                                 <td class="text-center">{{ $detail->kuantitas ?? 0 }}</td>
                                 <td class="text-right">{{ format_rupiah($detail->jumlah_baris ?? 0) }}</td>
                                 @if($idx === 0)
                                     <td>{{ $item->tax_percentage ?? 0 }}%</td>
-                                    <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 2, ',', '.') }}</strong></td>
+                                    <td class="text-right"><strong>{{ format_rupiah($item->grand_total ?? 0) }}</strong></td>
                                 @else
                                     <td></td>
                                     <td></td>
@@ -360,7 +360,7 @@
                             <td>-</td>
                             <td>-</td>
                             <td>{{ $item->tax_percentage ?? 0 }}%</td>
-                            <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 2, ',', '.') }}</strong></td>
+                            <td class="text-right"><strong>{{ format_rupiah($item->grand_total ?? 0) }}</strong></td>
                         </tr>
                     @endif
                 @endforeach
@@ -418,7 +418,7 @@
                                 <td class="text-right">{{ format_rupiah($detail->jumlah ?? 0) }}</td>
                                 @if($idx === 0)
                                     <td>{{ $item->tax_percentage ?? 0 }}%</td>
-                                    <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 2, ',', '.') }}</strong></td>
+                                    <td class="text-right"><strong>{{ format_rupiah($item->grand_total ?? 0) }}</strong></td>
                                 @else
                                     <td></td>
                                     <td></td>
@@ -440,7 +440,7 @@
                             <td>-</td>
                             <td>-</td>
                             <td>{{ $item->tax_percentage ?? 0 }}%</td>
-                            <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 2, ',', '.') }}</strong></td>
+                            <td class="text-right"><strong>{{ format_rupiah($item->grand_total ?? 0) }}</strong></td>
                         </tr>
                     @endif
                 @endforeach
@@ -566,7 +566,7 @@
                                     @if($item->type === 'Biaya')
                                         -
                                     @else
-                                        {{ number_format($detail->harga_satuan ?? 0, 2, ',', '.') }}
+                                        {{ format_rupiah($detail->harga_satuan ?? 0) }}
                                     @endif
                                 </td>
                                 <td class="text-center">
@@ -584,7 +584,7 @@
                                     @endif
                                 </td>
                                 @if($idx === 0)
-                                    <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 2, ',', '.') }}</strong></td>
+                                    <td class="text-right"><strong>{{ format_rupiah($item->grand_total ?? 0) }}</strong></td>
                                     <td>
                                         @if($imagePaths->count() > 0)
                                             @foreach($imagePaths as $imgPath)
@@ -617,7 +617,7 @@
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
-                            <td class="text-right"><strong>{{ number_format($item->grand_total ?? 0, 2, ',', '.') }}</strong></td>
+                            <td class="text-right"><strong>{{ format_rupiah($item->grand_total ?? 0) }}</strong></td>
                             <td>-</td>
                         </tr>
                     @endif
@@ -650,7 +650,7 @@
                     <tr>
                         <td style="border: none; font-weight: bold; font-size: 9px;">{{ $type }}</td>
                         <td style="border: none; font-size: 9px;">: {{ $group->count() }} transaksi — Rp
-                            {{ number_format($group->sum('grand_total'), 2, ',', '.') }}
+                            {{ format_rupiah($group->sum('grand_total'), '') }}
                         </td>
                     </tr>
                 @endforeach
@@ -662,7 +662,7 @@
                     <td style="border: none; font-size: 9px;">: {{ $group->count() }}
                         {{ $exportType === 'kunjungan' ? 'kunjungan' : 'transaksi' }}
                         @if($exportType !== 'kunjungan')
-                            — Rp {{ number_format($group->sum('grand_total'), 2, ',', '.') }}
+                            — {{ format_rupiah($group->sum('grand_total'), '') }}
                         @endif
                     </td>
                 </tr>
@@ -673,7 +673,7 @@
                     <tr>
                         <td style="border: none; font-weight: bold; font-size: 9px;">{{ ucfirst($jenis) }}</td>
                         <td style="border: none; font-size: 9px;">: {{ $group->count() }} transaksi — Rp
-                            {{ number_format($group->sum('grand_total'), 2, ',', '.') }}
+                            {{ format_rupiah($group->sum('grand_total'), '') }}
                         </td>
                     </tr>
                 @endforeach

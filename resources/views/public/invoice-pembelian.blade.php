@@ -395,14 +395,14 @@
                         </div>
                         <div class="item-meta">
                             <span>{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }} × Rp
-                                {{ number_format($item->harga_satuan, 2, ',', '.') }}</span>
+                                {{ format_rupiah($item->harga_satuan) }}</span>
                             @if($item->diskon > 0)
                                 <span style="color: var(--danger);">-{{ $item->diskon }}%</span>
                             @endif
                         </div>
                         <div class="item-total">
                             <span>Subtotal</span>
-                            <span>Rp {{ number_format($item->jumlah_baris, 2, ',', '.') }}</span>
+                            <span>{{ format_rupiah($item->jumlah_baris) }}</span>
                         </div>
                     </div>
                 @endforeach

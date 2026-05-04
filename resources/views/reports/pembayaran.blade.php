@@ -71,14 +71,14 @@
     </tr>
     <tr>
         <td colspan="3"><strong>Total Jumlah Bayar</strong></td>
-        <td colspan="7">{{ number_format($transactions->sum('jumlah_bayar'), 2, ',', '.') }}</td>
+        <td colspan="7">{{ format_rupiah($transactions->sum('jumlah_bayar')) }}</td>
     </tr>
     @php $statusGroups = $transactions->groupBy('status'); @endphp
     @foreach($statusGroups as $status => $group)
         <tr>
             <td colspan="3"><strong>{{ $status }}</strong></td>
             <td colspan="7">{{ $group->count() }} pembayaran — Rp
-                {{ number_format($group->sum('jumlah_bayar'), 2, ',', '.') }}
+                {{ format_rupiah($group->sum('jumlah_bayar')) }}
             </td>
         </tr>
     @endforeach

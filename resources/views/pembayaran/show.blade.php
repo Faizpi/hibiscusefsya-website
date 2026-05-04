@@ -33,7 +33,7 @@
                             <i class="fas fa-money-bill-wave"></i> Informasi Pembayaran
                         </h6>
                     </div>
-                    <div class="card-body">
+                                       <td>{{ format_rupiah($pembayaran->penjualan->grand_total) }}</td>
                         <div class="row">
                             <div class="col-md-6">
                                 <table class="table table-borderless">
@@ -113,11 +113,11 @@
                                 </tr>
                                 <tr>
                                     <td><strong>Total Invoice</strong></td>
-                                    <td>Rp {{ number_format($pembayaran->penjualan->grand_total, 2, ',', '.') }}</td>
+                                    <td>{{ format_rupiah($pembayaran->penjualan->grand_total) }}</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Sisa Hutang</strong></td>
-                                    <td class="text-danger font-weight-bold">Rp {{ number_format($sisaHutang, 2, ',', '.') }}
+                                    <td class="text-danger font-weight-bold">{{ format_rupiah($sisaHutang) }}
                                     </td>
                                 </tr>
                             </table>
@@ -136,13 +136,13 @@
                                     </span>
                                 </h4>
                             </div>
-                        </div>
+                                       <td class="text-danger font-weight-bold">{{ format_rupiah($sisaHutang) }}
 
                         @if($pembayaran->keterangan)
                             <hr>
                             <h6 class="font-weight-bold">Keterangan</h6>
                             <p>{{ $pembayaran->keterangan }}</p>
-                        @endif
+                                           {{ format_rupiah($pembayaran->jumlah_bayar) }}
                     </div>
                 </div>
             </div>

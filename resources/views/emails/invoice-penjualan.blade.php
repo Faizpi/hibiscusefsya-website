@@ -388,12 +388,12 @@
             <div class="totals-card">
                 <div class="total-row">
                     <span>Subtotal</span>
-                    <span>Rp {{ number_format($subtotal, 2, ',', '.') }}</span>
+                    <span>{{ format_rupiah($subtotal) }}</span>
                 </div>
                 @if($transaksi->diskon_akhir > 0)
                     <div class="total-row discount">
                         <span>Diskon</span>
-                        <span>- Rp {{ number_format($transaksi->diskon_akhir, 2, ',', '.') }}</span>
+                        <span>- {{ format_rupiah($transaksi->diskon_akhir) }}</span>
                     </div>
                 @endif
                 @if($transaksi->tax_percentage > 0)

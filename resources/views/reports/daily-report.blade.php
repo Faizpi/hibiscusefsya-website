@@ -247,7 +247,7 @@
                             @endif
                         </td>
                         <td class="text-center">{{ number_format($totalQty, 0, ',', '.') }}</td>
-                        <td class="text-right">Rp {{ number_format($item->grand_total, 2, ',', '.') }}</td>
+                        <td class="text-right">{{ format_rupiah($item->grand_total) }}</td>
                         <td>
                             @if($item->status == 'Approved')
                                 <span class="badge badge-success">{{ $item->status }}</span>
@@ -326,7 +326,7 @@
                         <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}
                             {{ $item->created_at ? $item->created_at->format('H:i') : '' }}</td>
                         <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
-                        <td class="text-right">Rp {{ number_format($item->grand_total, 2, ',', '.') }}</td>
+                        <td class="text-right">{{ format_rupiah($item->grand_total) }}</td>
                         <td>
                             @if($item->status == 'Approved')
                                 <span class="badge badge-success">{{ $item->status }}</span>
@@ -407,7 +407,7 @@
                             @endif
                         </td>
                         <td>{{ $item->penerima ?? '-' }}</td>
-                        <td class="text-right">Rp {{ number_format($item->grand_total, 2, ',', '.') }}</td>
+                        <td class="text-right">{{ format_rupiah($item->grand_total) }}</td>
                         <td>
                             @if($item->status == 'Approved')
                                 <span class="badge badge-success">{{ $item->status }}</span>
