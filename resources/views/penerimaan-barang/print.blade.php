@@ -6,6 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Struk Penerimaan Barang</title>
     <style>
+        :root {
+            --receipt-screen-width: 72mm;
+            --receipt-print-width: 58mm;
+            --paper: #fff;
+            --ink: #111;
+        }
+
         @page {
             size: 58mm auto;
             margin: 0;
@@ -16,17 +23,47 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            background: #fff;
             font-family: "Courier New", monospace;
             font-size: 10px;
-            color: #111;
+            color: var(--ink);
+        }
+
+        body {
+            background: #ececec;
+            padding: 8px 0 12px;
         }
 
         .receipt {
-            width: 58mm;
-            margin: 0 auto;
-            padding: 3mm 2mm;
+            position: relative;
+            width: var(--receipt-screen-width);
+            margin: 8px auto;
+            padding: 4mm 3mm 5mm;
             box-sizing: border-box;
+            background: var(--paper);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, .18);
+            border-left: 1px solid rgba(0, 0, 0, .06);
+            border-right: 1px solid rgba(0, 0, 0, .06);
+            overflow: visible;
+        }
+
+        .receipt::before,
+        .receipt::after {
+            content: "";
+            position: absolute;
+            left: -1px;
+            right: -1px;
+            height: 3mm;
+            background: linear-gradient(-45deg, transparent 1.5mm, var(--paper) 0) 0 0 / 3mm 100% repeat-x,
+                linear-gradient(45deg, transparent 1.5mm, var(--paper) 0) 1.5mm 0 / 3mm 100% repeat-x;
+        }
+
+        .receipt::before {
+            top: -3mm;
+        }
+
+        .receipt::after {
+            bottom: -3mm;
+            transform: rotate(180deg);
         }
 
         .center {
@@ -44,9 +81,12 @@
         }
 
         .line {
-            margin: 2px 0;
-            white-space: nowrap;
-            overflow: hidden;
+            margin: 6px 0;
+            border-top: 1px dashed #111;
+            height: 0;
+            font-size: 0;
+            line-height: 0;
+            overflow: visible;
         }
 
         .spacer {
@@ -62,13 +102,22 @@
             vertical-align: top;
             padding: 1px 0;
             line-height: 1.35;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        td:first-child {
+            width: 40%;
+            padding-right: 4px;
+        }
+
+        td:last-child {
+            width: 60%;
         }
 
         td.right {
             text-align: right;
-            white-space: normal;
-            word-break: break-word;
-            overflow-wrap: anywhere;
         }
 
         .item-name {
@@ -91,15 +140,17 @@
             color: #444;
         }
 
-        @media screen {
+        @media print {
             body {
-                background: #ececec;
+                background: #fff;
+                padding: 0;
             }
 
             .receipt {
-                background: #fff;
-                box-shadow: 0 0 8px rgba(0, 0, 0, .2);
-                margin: 12px auto;
+                width: var(--receipt-print-width);
+                margin: 3mm auto;
+                box-shadow: none;
+                border: 0;
             }
         }
     </style>
