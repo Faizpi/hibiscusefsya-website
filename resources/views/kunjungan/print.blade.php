@@ -66,7 +66,13 @@
 
         td.right {
             text-align: right;
-            white-space: nowrap;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .value-wrap {
+            max-width: 32mm;
         }
 
         .item-name {
@@ -108,6 +114,7 @@
         $nomor = 'VST-' . $kunjungan->user_id . '-' . $kunjungan->created_at->format('Ymd') . '-' . str_pad($kunjungan->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $tanggal = $kunjungan->tgl_kunjungan ? $kunjungan->tgl_kunjungan->format('d/m/Y') : '-';
         $jam = $kunjungan->created_at ? $kunjungan->created_at->format('H:i') : '';
+        $noTelepon = $kunjungan->sales_no_telepon ?? optional($kunjungan->kontak)->no_telp ?? '-';
         $formatQty = function ($qty) {
             $qty = (float) $qty;
             if (fmod($qty, 1.0) === 0.0) {
@@ -126,44 +133,44 @@
         <table>
             <tr>
                 <td>Nomor</td>
-                <td class="right">{{ $nomor }}</td>
+                <td class="right value-wrap">{{ $nomor }}</td>
             </tr>
             <tr>
                 <td>Tanggal</td>
-                <td class="right">{{ trim($tanggal . ' | ' . $jam) }}</td>
+                <td class="right value-wrap">{{ trim($tanggal . ' | ' . $jam) }}</td>
             </tr>
             <tr>
                 <td>Tujuan</td>
-                <td class="right">{{ $kunjungan->tujuan ?? '-' }}</td>
+                <td class="right value-wrap">{{ $kunjungan->tujuan ?? '-' }}</td>
             </tr>
             <tr>
                 <td>Pembuat</td>
-                <td class="right">{{ optional($kunjungan->user)->name ?? '-' }}</td>
+                <td class="right value-wrap">{{ optional($kunjungan->user)->name ?? '-' }}</td>
             </tr>
             <tr>
                 <td>Pelanggan</td>
-                <td class="right">{{ $kunjungan->sales_nama ?? optional($kunjungan->kontak)->nama ?? '-' }}</td>
+                <td class="right value-wrap">{{ $kunjungan->sales_nama ?? optional($kunjungan->kontak)->nama ?? '-' }}</td>
             </tr>
             <tr>
                 <td>No. Telepon</td>
-                <td class="right">{{ $kunjungan->sales_no_telepon ?? '-' }}</td>
+                <td class="right value-wrap">{{ $noTelepon }}</td>
             </tr>
             @if(!empty($kunjungan->sales_alamat))
                 <tr>
                     <td>Alamat</td>
-                    <td class="right">{{ $kunjungan->sales_alamat }}</td>
+                    <td class="right value-wrap">{{ $kunjungan->sales_alamat }}</td>
                 </tr>
             @endif
             @if(!empty($kunjungan->koordinat))
                 <tr>
                     <td>Koordinat</td>
-                    <td class="right">{{ $kunjungan->koordinat }}</td>
+                    <td class="right value-wrap">{{ $kunjungan->koordinat }}</td>
                 </tr>
             @endif
             @if(!empty($kunjungan->memo))
                 <tr>
                     <td>Memo</td>
-                    <td class="right">{{ $kunjungan->memo }}</td>
+                    <td class="right value-wrap">{{ $kunjungan->memo }}</td>
                 </tr>
             @endif
         </table>
@@ -182,20 +189,20 @@
             <table>
                 <tr>
                     <td>Qty</td>
-                    <td class="right">{{ $qtyText }} {{ $satuan }}</td>
+                    <td class="right value-wrap">{{ $qtyText }} {{ $satuan }}</td>
                 </tr>
                 <tr>
                     <td>Batch</td>
-                    <td class="right">{{ $batch }}</td>
+                    <td class="right value-wrap">{{ $batch }}</td>
                 </tr>
                 <tr>
                     <td>Exp</td>
-                    <td class="right">{{ $exp }}</td>
+                    <td class="right value-wrap">{{ $exp }}</td>
                 </tr>
                 @if(!empty($item->keterangan))
                     <tr>
                         <td>Ket</td>
-                        <td class="right">{{ $item->keterangan }}</td>
+                        <td class="right value-wrap">{{ $item->keterangan }}</td>
                     </tr>
                 @endif
             </table>

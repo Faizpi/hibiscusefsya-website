@@ -66,7 +66,13 @@
 
         td.right {
             text-align: right;
-            white-space: nowrap;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .value-wrap {
+            max-width: 32mm;
         }
 
         .item-name {
@@ -108,7 +114,7 @@
         $nomor = 'INV-' . $penjualan->user_id . '-' . $penjualan->created_at->format('Ymd') . '-' . str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
         $tanggal = $penjualan->tgl_transaksi ? $penjualan->tgl_transaksi->format('d/m/Y') : '-';
         $jam = $penjualan->created_at ? $penjualan->created_at->format('H:i') : '';
-        $noTelepon = $penjualan->no_telepon ?? $penjualan->email ?? 'N/A';
+        $noTelepon = $penjualan->resolved_no_telepon ?? $penjualan->no_telepon ?? 'N/A';
         $salesPhone = optional($penjualan->user)->no_telp ?? optional($penjualan->user)->no_telepon ?? 'N/A';
         $subtotal = (float) $penjualan->items->sum('jumlah_baris');
         $diskonAkhir = (float) ($penjualan->diskon_akhir ?? 0);
@@ -139,46 +145,46 @@
         <table>
             <tr>
                 <td>Nomor</td>
-                <td class="right">{{ $nomor }}</td>
+                <td class="right value-wrap">{{ $nomor }}</td>
             </tr>
             <tr>
                 <td>Tanggal</td>
-                <td class="right">{{ trim($tanggal . ' | ' . $jam) }}</td>
+                <td class="right value-wrap">{{ trim($tanggal . ' | ' . $jam) }}</td>
             </tr>
             <tr>
                 <td>Jatuh Tempo</td>
-                <td class="right">{{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
+                <td class="right value-wrap">{{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
             </tr>
             <tr>
                 <td>Pembayaran</td>
-                <td class="right">{{ $penjualan->syarat_pembayaran ?? '-' }}</td>
+                <td class="right value-wrap">{{ $penjualan->syarat_pembayaran ?? '-' }}</td>
             </tr>
             <tr>
                 <td>Pelanggan</td>
-                <td class="right">{{ $penjualan->pelanggan ?? '-' }}</td>
+                <td class="right value-wrap">{{ $penjualan->pelanggan ?? '-' }}</td>
             </tr>
             <tr>
                 <td>No. Telepon</td>
-                <td class="right">{{ $noTelepon ?: 'N/A' }}</td>
+                <td class="right value-wrap">{{ $noTelepon ?: 'N/A' }}</td>
             </tr>
             <tr>
                 <td>Sales</td>
-                <td class="right">{{ optional($penjualan->user)->name ?? '-' }}</td>
+                <td class="right value-wrap">{{ optional($penjualan->user)->name ?? '-' }}</td>
             </tr>
             <tr>
                 <td>No. Telp Sales</td>
-                <td class="right">{{ $salesPhone ?: 'N/A' }}</td>
+                <td class="right value-wrap">{{ $salesPhone ?: 'N/A' }}</td>
             </tr>
             @if(!empty($penjualan->no_referensi))
                 <tr>
                     <td>No. Ref</td>
-                    <td class="right">{{ $penjualan->no_referensi }}</td>
+                    <td class="right value-wrap">{{ $penjualan->no_referensi }}</td>
                 </tr>
             @endif
             @if(!empty($penjualan->memo))
                 <tr>
                     <td>Memo</td>
-                    <td class="right">{{ $penjualan->memo }}</td>
+                    <td class="right value-wrap">{{ $penjualan->memo }}</td>
                 </tr>
             @endif
         </table>
@@ -199,7 +205,7 @@
                 <table>
                     <tr>
                         <td>Diskon</td>
-                        <td class="right">{{ $formatPct($diskonItem) }}%</td>
+                        <td class="right value-wrap">{{ $formatPct($diskonItem) }}%</td>
                     </tr>
                 </table>
             @endif
@@ -207,7 +213,7 @@
                 <table>
                     <tr>
                         <td>Ket</td>
-                        <td class="right">{{ $item->deskripsi }}</td>
+                        <td class="right value-wrap">{{ $item->deskripsi }}</td>
                     </tr>
                 </table>
             @endif

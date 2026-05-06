@@ -215,6 +215,11 @@ class PenjualanController extends Controller
                 ->withInput();
         }
 
+        $noTeleponPelanggan = $this->resolvePelangganPhoneFromInput(
+            $request->pelanggan,
+            $request->no_telepon
+        );
+
         // Hitung jatuh tempo dan tentukan status
         $term = $request->syarat_pembayaran;
         $isCash = ($term == 'Cash');
@@ -341,7 +346,7 @@ class PenjualanController extends Controller
                 'gudang_id' => $request->gudang_id,
                 'tipe_harga' => $request->tipe_harga ?? 'retail',
                 'pelanggan' => $request->pelanggan,
-                'email' => $request->email,
+                'no_telepon' => $noTeleponPelanggan,
                 'alamat_penagihan' => $request->alamat_penagihan,
                 'tgl_transaksi' => $request->tgl_transaksi,
                 'tgl_jatuh_tempo' => $tglJatuhTempo,
@@ -496,6 +501,11 @@ class PenjualanController extends Controller
                 ->withInput();
         }
 
+        $noTeleponPelanggan = $this->resolvePelangganPhoneFromInput(
+            $request->pelanggan,
+            $request->no_telepon
+        );
+
         $lampiranPaths = $penjualan->lampiran_paths ?? [];
         $newUploadedPaths = []; // Track newly uploaded files for cleanup on error
 
@@ -596,7 +606,7 @@ class PenjualanController extends Controller
                 'gudang_id' => $request->gudang_id,
                 'tipe_harga' => $request->tipe_harga ?? 'retail',
                 'pelanggan' => $request->pelanggan,
-                'email' => $request->email,
+                'no_telepon' => $noTeleponPelanggan,
                 'alamat_penagihan' => $request->alamat_penagihan,
                 'tgl_transaksi' => $request->tgl_transaksi,
                 'tgl_jatuh_tempo' => $tglJatuhTempo,
@@ -962,6 +972,7 @@ class PenjualanController extends Controller
             return redirect()->route('penjualan.index')->with('error', 'Akses ditolak.');
 
         $penjualan->load('items.produk', 'user', 'gudang', 'approver');
+        $penjualan->resolved_no_telepon = $this->resolvePelangganPhone($penjualan);
 
         $dateCode = $penjualan->created_at->format('Ymd');
         $noUrutPadded = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
@@ -986,6 +997,35 @@ class PenjualanController extends Controller
             return redirect()->route('penjualan.index')->with('error', 'Akses ditolak.');
 
         $penjualan->load('items.produk', 'user', 'gudang', 'approver');
+        $penjualan->resolved_no_telepon = $this->resolvePelangganPhone($penjualan);
         return view('penjualan.print', compact('penjualan'));
+    }
+
+    private function resolvePelangganPhoneFromInput($pelanggan, $inputPhone)
+    {
+        $phone = trim((string) ($inputPhone ?? ''));
+        if ($phone !== '') {
+            return $phone;
+        }
+
+        if (!empty($pelanggan)) {
+            $kontak = Kontak::where('nama', $pelanggan)->first();
+            $kontakPhone = trim((string) optional($kontak)->no_telp);
+            if ($kontakPhone !== '') {
+                return $kontakPhone;
+            }
+        }
+
+        return null;
+    }
+
+    private function resolvePelangganPhone(Penjualan $penjualan)
+    {
+        $phone = trim((string) ($penjualan->no_telepon ?? ''));
+        if ($phone !== '') {
+            return $phone;
+        }
+
+        return $this->resolvePelangganPhoneFromInput($penjualan->pelanggan, null);
     }
 }

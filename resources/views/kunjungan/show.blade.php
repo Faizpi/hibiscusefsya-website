@@ -133,7 +133,7 @@
                             </tr>
                             <tr>
                                 <td><strong>No. Telepon</strong></td>
-                                <td>: {{ $kunjungan->sales_no_telepon ?? '-' }}</td>
+                                <td>: {{ $kunjungan->sales_no_telepon ?? optional($kunjungan->kontak)->no_telp ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Alamat</strong></td>

@@ -66,7 +66,9 @@
 
         td.right {
             text-align: right;
-            white-space: nowrap;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
 
         .item-name {

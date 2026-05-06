@@ -90,7 +90,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Nomor Telepon</strong></td>
-                                <td>: {{ $penjualan->no_telepon ?? '-' }}</td>
+                                <td>: {{ $penjualan->resolved_no_telepon ?? $penjualan->no_telepon ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Tgl. Transaksi</strong></td>
