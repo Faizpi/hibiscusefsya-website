@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Penjualan;
 use App\Pembelian;
 use App\Biaya;
+use App\Kontak;
 use Illuminate\Http\Request;
 
 /**
@@ -56,13 +57,29 @@ class BluetoothPrintController extends Controller
             ];
         });
 
+        // Resolve nomor telepon pelanggan dengan 3 fallback:
+        // 1. Field no_telepon (Flutter API baru)
+        // 2. Field email (digunakan oleh web lama sebagai no_telepon)
+        // 3. Lookup tabel kontaks berdasarkan nama pelanggan
+        $noTelepon = '';
+        if (!empty($data->no_telepon)) {
+            $noTelepon = $data->no_telepon;
+        } elseif (!empty($data->email)) {
+            $noTelepon = $data->email;
+        } elseif (!empty($data->pelanggan)) {
+            $kontak = Kontak::where('nama', $data->pelanggan)->first();
+            if ($kontak && !empty($kontak->no_telp)) {
+                $noTelepon = $kontak->no_telp;
+            }
+        }
+
         return response()->json([
             'nomor' => "INV-{$data->user_id}-{$dateCode}-{$noUrut}",
             'tanggal' => $data->tgl_transaksi->format('d/m/Y') . ' | ' . $data->created_at->format('H:i'),
             'jatuh_tempo' => $data->tgl_jatuh_tempo ? $data->tgl_jatuh_tempo->format('d/m/Y') : '-',
             'pembayaran' => $data->syarat_pembayaran ?? '-',
             'pelanggan' => $data->pelanggan,
-            'no_telepon' => $data->no_telepon ?? '',
+            'no_telepon' => $noTelepon,
             'alamat_penagihan' => $data->alamat_penagihan ?? '',
             'tipe_harga' => $data->tipe_harga ?? '',
             'no_referensi' => $data->no_referensi ?? '',
