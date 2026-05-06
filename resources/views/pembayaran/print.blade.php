@@ -3,8 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Struk Pembayaran</title>
-
     <style>
         @page {
             size: 58mm auto;
@@ -13,227 +13,166 @@
 
         html,
         body {
+            margin: 0;
+            padding: 0;
             width: 100%;
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-        }
-
-        body {
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 10pt;
-            color: #000;
-        }
-
-        * {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+            background: #fff;
+            font-family: "Courier New", monospace;
+            font-size: 10px;
+            color: #111;
         }
 
         .receipt {
             width: 58mm;
             margin: 0 auto;
-            padding: 3mm 1mm;
+            padding: 3mm 2mm;
             box-sizing: border-box;
         }
 
-        @media screen {
-            html {
-                background: #e0e0e0;
-            }
-
-            .receipt {
-                background: #fff;
-                box-shadow: 0 0 6px rgba(0, 0, 0, .3);
-                margin: 2rem auto;
-            }
-        }
-
-        .header {
+        .center {
             text-align: center;
-            margin-bottom: 8px;
-        }
-
-        .logo {
-            max-width: 45mm;
-            margin-bottom: 4px;
         }
 
         .title {
-            font-size: 12pt;
-            font-weight: bold;
+            font-weight: 700;
+            letter-spacing: .5px;
         }
 
-        .divider {
-            border-top: 1px dashed #000;
-            margin: 6px 0;
+        .big {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .line {
+            margin: 2px 0;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .spacer {
+            height: 6px;
         }
 
         table {
             width: 100%;
-            font-size: 9pt;
+            border-collapse: collapse;
         }
 
         td {
-            padding-bottom: 2px;
             vertical-align: top;
+            padding: 1px 0;
+            line-height: 1.35;
         }
 
-        .label {
-            width: 35%;
-        }
-
-        .colon {
-            width: 5%;
-            text-align: center;
-        }
-
-        .value {
-            width: 60%;
-        }
-
-        .val {
+        td.right {
             text-align: right;
+            white-space: nowrap;
         }
 
-        .grand-total {
-            font-weight: bold;
-            font-size: 12pt;
-            border-top: 1px dashed #000;
-            padding-top: 4px;
+        .bold {
+            font-weight: 700;
         }
 
-        .qr-section {
-            text-align: center;
-            margin-top: 10px;
+        .footer-gap {
+            height: 4px;
         }
 
-        .qr-section p {
-            font-size: 8pt;
-            margin-top: 4px;
+        .muted {
+            color: #444;
         }
 
-        .footer {
-            text-align: center;
-            margin-top: 8px;
-            font-size: 9pt;
-        }
+        @media screen {
+            body {
+                background: #ececec;
+            }
 
-        @media print {
-            .no-print {
-                display: none;
+            .receipt {
+                background: #fff;
+                box-shadow: 0 0 8px rgba(0, 0, 0, .2);
+                margin: 12px auto;
             }
         }
     </style>
 </head>
 
 <body onload="window.print()">
+    @php
+        $nomor = $pembayaran->custom_number ?: ('PYM-' . $pembayaran->id);
+        $tanggal = $pembayaran->tgl_pembayaran ? $pembayaran->tgl_pembayaran->format('d/m/Y') : '-';
+        $jam = $pembayaran->created_at ? $pembayaran->created_at->format('H:i') : '';
+        $formatMoney = function ($value) {
+            return 'Rp ' . number_format((float) $value, 3, ',', '.');
+        };
+    @endphp
 
     <div class="receipt">
-
-        @php
-            $invoiceUrl = url('invoice/pembayaran/' . $pembayaran->uuid);
-        @endphp
-
-        <div class="header">
-            <img src="{{ asset('assets/img/logoHE1.png') }}" class="logo">
-            <div class="title">BUKTI PEMBAYARAN</div>
-        </div>
+        <div class="center big">HIBISCUS EFSYA</div>
+        <div class="center title">INVOICE PEMBAYARAN</div>
+        <div class="spacer"></div>
+        <div class="line">--------------------------------</div>
 
         <table>
             <tr>
-                <td class="label">Nomor</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pembayaran->custom_number }}</td>
+                <td>Nomor</td>
+                <td class="right">{{ $nomor }}</td>
             </tr>
             <tr>
-                <td class="label">Tanggal</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pembayaran->tgl_pembayaran->format('d/m/Y') }} |
-                    {{ $pembayaran->created_at->format('H:i') }}
-                </td>
+                <td>Tanggal</td>
+                <td class="right">{{ trim($tanggal . ' | ' . $jam) }}</td>
             </tr>
             <tr>
-                <td class="label">Metode</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pembayaran->metode_pembayaran }}</td>
+                <td>Metode</td>
+                <td class="right">{{ $pembayaran->metode_pembayaran ?? '-' }}</td>
             </tr>
             <tr>
-                <td class="label">Dibuat oleh</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pembayaran->user->name }}</td>
-            </tr>
-            <tr>
-                <td class="label">Disetujui</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pembayaran->status == 'Pending' ? '-' : ($pembayaran->approver->name ?? '-') }}
-                </td>
-            </tr>
-            <tr>
-                <td class="label">Gudang</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pembayaran->gudang->nama_gudang ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td class="label">Status</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $pembayaran->status }}</td>
-            </tr>
-        </table>
-
-        <div class="divider"></div>
-
-        <table>
-            <tr>
-                <td colspan="3"><b>Referensi Invoice:</b></td>
+                <td>Dibuat oleh</td>
+                <td class="right">{{ optional($pembayaran->user)->name ?? '-' }}</td>
             </tr>
             @if($pembayaran->penjualan)
                 <tr>
-                    <td class="label">No. Invoice</td>
-                    <td class="colon">:</td>
-                    <td class="value">{{ $pembayaran->penjualan->custom_number }}</td>
+                    <td>No. Invoice</td>
+                    <td class="right">{{ $pembayaran->penjualan->nomor ?? $pembayaran->penjualan->custom_number ?? '-' }}</td>
                 </tr>
                 <tr>
-                    <td class="label">Pelanggan</td>
-                    <td class="colon">:</td>
-                    <td class="value">{{ $pembayaran->penjualan->pelanggan ?? '-' }}</td>
+                    <td>Pelanggan</td>
+                    <td class="right">{{ $pembayaran->penjualan->pelanggan ?? '-' }}</td>
                 </tr>
+            @endif
+            @if(!empty($pembayaran->keterangan))
                 <tr>
-                    <td class="label">Total Invoice</td>
-                    <td class="colon">:</td>
-                    <td class="value">{{ format_rupiah($pembayaran->penjualan->grand_total) }}</td>
+                    <td>Keterangan</td>
+                    <td class="right">{{ $pembayaran->keterangan }}</td>
                 </tr>
             @endif
         </table>
 
-        <div class="divider"></div>
-
+        <div class="line">--------------------------------</div>
         <table>
             <tr>
-                <td class="grand-total">JUMLAH BAYAR</td>
-                <td class="val grand-total">{{ format_rupiah($pembayaran->jumlah_bayar) }}</td>
+                <td class="bold">JUMLAH BAYAR</td>
+                <td class="right bold">{{ $formatMoney($pembayaran->jumlah_bayar) }}</td>
             </tr>
         </table>
 
-        @if($pembayaran->keterangan)
-            <div class="divider"></div>
-            <p style="font-size: 8pt;"><b>Keterangan:</b> {{ $pembayaran->keterangan }}</p>
-        @endif
-
-        <div class="qr-section">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
-                style="width:90px;height:90px;">
-            <p>Scan untuk melihat bukti pembayaran</p>
+        <div class="line">--------------------------------</div>
+        <div class="footer-gap"></div>
+        <div class="center bold">Periksa Invoice &amp; Ambil Promo !!!</div>
+        <div class="footer-gap"></div>
+        <div class="center muted">- - - - - - - - - - - - - - - -</div>
+        <div class="footer-gap"></div>
+        <div class="center">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode('https://customer.hibiscusefsya.com/') }}"
+                alt="QR Customer" style="width:95px;height:95px;">
         </div>
-
-        <div class="footer">
-            <p>marketing@hibiscusefsya.com</p>
-            <p>-- Terima Kasih --</p>
-        </div>
-
+        <div class="center muted">customer.hibiscusefsya.com</div>
+        <div class="footer-gap"></div>
+        <div class="center muted">- - - - - - - - - - - - - - - -</div>
+        <div class="footer-gap"></div>
+        <div class="center">marketing@hibiscusefsya.com</div>
+        <div class="footer-gap"></div>
+        <div class="center">Official WA Chat: +6285195550202</div>
+        <div class="footer-gap"></div>
+        <div class="center bold">Terima kasih</div>
     </div>
 </body>
 

@@ -3,8 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Struk Penjualan</title>
-
     <style>
         @page {
             size: 58mm auto;
@@ -13,285 +13,260 @@
 
         html,
         body {
+            margin: 0;
+            padding: 0;
             width: 100%;
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-        }
-
-        body {
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 10pt;
-            color: #000;
-        }
-
-        * {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+            background: #fff;
+            font-family: "Courier New", monospace;
+            font-size: 10px;
+            color: #111;
         }
 
         .receipt {
             width: 58mm;
             margin: 0 auto;
-            padding: 3mm 1mm;
+            padding: 3mm 2mm;
             box-sizing: border-box;
         }
 
-        @media screen {
-            html {
-                background: #e0e0e0;
-            }
-
-            .receipt {
-                background: #fff;
-                box-shadow: 0 0 6px rgba(0, 0, 0, .3);
-                margin: 2rem auto;
-            }
-        }
-
-        .header {
+        .center {
             text-align: center;
-            margin-bottom: 8px;
-        }
-
-        .logo {
-            max-width: 45mm;
-            margin-bottom: 4px;
         }
 
         .title {
-            font-size: 12pt;
-            font-weight: bold;
+            font-weight: 700;
+            letter-spacing: .5px;
         }
 
-        .divider {
-            border-top: 1px dashed #000;
-            margin: 6px 0;
+        .big {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .line {
+            margin: 2px 0;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .spacer {
+            height: 6px;
         }
 
         table {
             width: 100%;
-            font-size: 9pt;
+            border-collapse: collapse;
         }
 
         td {
-            padding-bottom: 2px;
             vertical-align: top;
+            padding: 1px 0;
+            line-height: 1.35;
         }
 
-        .label {
-            width: 35%;
-        }
-
-        .colon {
-            width: 5%;
-            text-align: center;
-        }
-
-        .value {
-            width: 60%;
+        td.right {
+            text-align: right;
+            white-space: nowrap;
         }
 
         .item-name {
-            font-size: 11pt;
-            font-weight: bold;
-            margin-bottom: 2px;
-        }
-
-        .val {
-            text-align: right;
-        }
-
-        .grand-total {
-            font-weight: bold;
-            font-size: 12pt;
-            border-top: 1px dashed #000;
-            padding-top: 4px;
-        }
-
-        .qr-section {
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .qr-section p {
-            font-size: 8pt;
+            font-weight: 700;
             margin-top: 4px;
+            margin-bottom: 1px;
+            white-space: normal;
+            word-break: break-word;
         }
 
-        .footer {
-            text-align: center;
-            margin-top: 8px;
-            font-size: 9pt;
+        .muted {
+            color: #444;
         }
 
-        @media print {
-            .no-print {
-                display: none;
+        .bold {
+            font-weight: 700;
+        }
+
+        .footer-gap {
+            height: 4px;
+        }
+
+        @media screen {
+            body {
+                background: #ececec;
+            }
+
+            .receipt {
+                background: #fff;
+                box-shadow: 0 0 8px rgba(0, 0, 0, .2);
+                margin: 12px auto;
             }
         }
     </style>
 </head>
 
 <body onload="window.print()">
+    @php
+        $nomor = 'INV-' . $penjualan->user_id . '-' . $penjualan->created_at->format('Ymd') . '-' . str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
+        $tanggal = $penjualan->tgl_transaksi ? $penjualan->tgl_transaksi->format('d/m/Y') : '-';
+        $jam = $penjualan->created_at ? $penjualan->created_at->format('H:i') : '';
+        $noTelepon = $penjualan->no_telepon ?? $penjualan->email ?? 'N/A';
+        $salesPhone = optional($penjualan->user)->no_telp ?? optional($penjualan->user)->no_telepon ?? 'N/A';
+        $subtotal = (float) $penjualan->items->sum('jumlah_baris');
+        $diskonAkhir = (float) ($penjualan->diskon_akhir ?? 0);
+        $taxPct = (float) ($penjualan->tax_percentage ?? 0);
+        $taxNominal = max(0, $subtotal - $diskonAkhir) * ($taxPct / 100);
+        $formatMoney = function ($value) {
+            return 'Rp ' . number_format((float) $value, 3, ',', '.');
+        };
+        $formatQty = function ($qty) {
+            $qty = (float) $qty;
+            if (fmod($qty, 1.0) === 0.0) {
+                return number_format($qty, 0, ',', '.');
+            }
+            return rtrim(rtrim(number_format($qty, 2, '.', ''), '0'), '.');
+        };
+        $formatPct = function ($pct) {
+            $pct = (float) $pct;
+            return fmod($pct, 1.0) === 0.0 ? number_format($pct, 0) : rtrim(rtrim(number_format($pct, 2, '.', ''), '0'), '.');
+        };
+    @endphp
 
     <div class="receipt">
-
-        @php
-            $dateCode = $penjualan->created_at->format('Ymd');
-            $noUrut = str_pad($penjualan->no_urut_harian, 3, '0', STR_PAD_LEFT);
-            $nomorInvoice = "INV-{$penjualan->user_id}-{$dateCode}-{$noUrut}";
-            $invoiceUrl = url('invoice/penjualan/' . $penjualan->uuid);
-        @endphp
-
-        <div class="header">
-            <img src="{{ asset('assets/img/logoHE1.png') }}" class="logo">
-            <div class="title">INVOICE PENJUALAN</div>
-        </div>
+        <div class="center big">HIBISCUS EFSYA</div>
+        <div class="center title">INVOICE PENJUALAN</div>
+        <div class="spacer"></div>
+        <div class="line">--------------------------------</div>
 
         <table>
             <tr>
-                <td class="label">Nomor</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $nomorInvoice }}</td>
+                <td>Nomor</td>
+                <td class="right">{{ $nomor }}</td>
             </tr>
             <tr>
-                <td class="label">Tanggal</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $penjualan->tgl_transaksi->format('d/m/Y') }} |
-                    {{ $penjualan->created_at->format('H:i') }}
-                </td>
+                <td>Tanggal</td>
+                <td class="right">{{ trim($tanggal . ' | ' . $jam) }}</td>
             </tr>
             <tr>
-                <td class="label">Jatuh Tempo</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}
-                </td>
+                <td>Jatuh Tempo</td>
+                <td class="right">{{ $penjualan->tgl_jatuh_tempo ? $penjualan->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
             </tr>
             <tr>
-                <td class="label">Pembayaran</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $penjualan->syarat_pembayaran ?? '-' }}</td>
+                <td>Pembayaran</td>
+                <td class="right">{{ $penjualan->syarat_pembayaran ?? '-' }}</td>
             </tr>
             <tr>
-                <td class="label">Pelanggan</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $penjualan->pelanggan }}</td>
+                <td>Pelanggan</td>
+                <td class="right">{{ $penjualan->pelanggan ?? '-' }}</td>
             </tr>
             <tr>
-                <td class="label">Tipe Harga</td>
-                <td class="colon">:</td>
-                <td class="value">{{ ucfirst($penjualan->tipe_harga ?? 'retail') }}</td>
+                <td>No. Telepon</td>
+                <td class="right">{{ $noTelepon ?: 'N/A' }}</td>
             </tr>
             <tr>
-                <td class="label">Sales</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $penjualan->user->name }}</td>
+                <td>Sales</td>
+                <td class="right">{{ optional($penjualan->user)->name ?? '-' }}</td>
             </tr>
             <tr>
-                <td class="label">Disetujui</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $penjualan->status == 'Pending' ? '-' : ($penjualan->approver->name ?? '-') }}</td>
+                <td>No. Telp Sales</td>
+                <td class="right">{{ $salesPhone ?: 'N/A' }}</td>
             </tr>
-            <tr>
-                <td class="label">Gudang</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $penjualan->gudang->nama_gudang ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td class="label">Status</td>
-                <td class="colon">:</td>
-                <td class="value">{{ $penjualan->status_display }}</td>
-            </tr>
+            @if(!empty($penjualan->no_referensi))
+                <tr>
+                    <td>No. Ref</td>
+                    <td class="right">{{ $penjualan->no_referensi }}</td>
+                </tr>
+            @endif
+            @if(!empty($penjualan->memo))
+                <tr>
+                    <td>Memo</td>
+                    <td class="right">{{ $penjualan->memo }}</td>
+                </tr>
+            @endif
         </table>
 
-        <div class="divider"></div>
+        <div class="line">--------------------------------</div>
 
         @foreach($penjualan->items as $item)
-            <div>
-                <div class="item-name">{{ $item->produk->nama_produk }}</div>
+            @php
+                $namaProduk = (optional($item->produk)->nama_produk ?? '-') . (optional($item->produk)->item_code ? ' (' . optional($item->produk)->item_code . ')' : '');
+                $batch = $item->batch_number ?: 'N/A';
+                $exp = $item->expired_date ? $item->expired_date->format('d/m/Y') : 'N/A';
+                $qtyText = $formatQty($item->kuantitas);
+                $diskonItem = (float) ($item->diskon ?? 0);
+            @endphp
+            <div class="item-name">{{ $namaProduk }}</div>
+            <div>{{ $batch }} - {{ $exp }}&nbsp;&nbsp;{{ $qtyText }} x {{ $formatMoney($item->harga_satuan) }}</div>
+            @if($diskonItem > 0)
                 <table>
                     <tr>
-                        <td>Qty</td>
-                        <td class="val">{{ $item->kuantitas }} {{ $item->unit ?? 'Pcs' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Harga</td>
-                        <td class="val">{{ format_rupiah($item->harga_satuan) }}</td>
-                    </tr>
-                    @if($item->diskon > 0)
-                        <tr>
-                            <td>Disc</td>
-                            <td class="val">{{ $item->diskon }}%</td>
-                        </tr>
-                    @endif
-                    @if($item->batch_number)
-                        <tr>
-                            <td>Batch</td>
-                            <td class="val">{{ $item->batch_number }}</td>
-                        </tr>
-                    @endif
-                    @if($item->expired_date)
-                        <tr>
-                            <td>Exp</td>
-                            <td class="val">{{ $item->expired_date->format('d/m/Y') }}</td>
-                        </tr>
-                    @endif
-                    <tr>
-                        <td><b>Jumlah</b></td>
-                        <td class="val"><b>{{ format_rupiah($item->jumlah_baris) }}</b></td>
+                        <td>Diskon</td>
+                        <td class="right">{{ $formatPct($diskonItem) }}%</td>
                     </tr>
                 </table>
-            </div>
+            @endif
+            @if(!empty($item->deskripsi))
+                <table>
+                    <tr>
+                        <td>Ket</td>
+                        <td class="right">{{ $item->deskripsi }}</td>
+                    </tr>
+                </table>
+            @endif
+            <table>
+                <tr>
+                    <td>Jumlah</td>
+                    <td class="right">{{ $formatMoney($item->jumlah_baris) }}</td>
+                </tr>
+            </table>
+            <div class="footer-gap"></div>
         @endforeach
 
-        <div class="divider"></div>
-
+        <div class="line">--------------------------------</div>
         <table>
             <tr>
                 <td>Subtotal</td>
-                <td class="val">{{ format_rupiah($penjualan->items->sum('jumlah_baris')) }}</td>
+                <td class="right">{{ $formatMoney($subtotal) }}</td>
             </tr>
-
-            @if($penjualan->diskon_akhir > 0)
+            @if($diskonAkhir > 0)
                 <tr>
                     <td>Diskon</td>
-                    <td class="val">- {{ format_rupiah($penjualan->diskon_akhir) }}</td>
+                    <td class="right">- {{ $formatMoney($diskonAkhir) }}</td>
                 </tr>
             @endif
-
-            @if($penjualan->tax_percentage > 0)
-                @php
-                    $subtotal = $penjualan->items->sum('jumlah_baris');
-                    $kenaPajak = max(0, $subtotal - $penjualan->diskon_akhir);
-                    $pajakNominal = $kenaPajak * ($penjualan->tax_percentage / 100);
-                @endphp
+            @if($taxNominal > 0)
                 <tr>
-                    <td>Pajak ({{ $penjualan->tax_percentage }}%)</td>
-                    <td class="val">{{ format_rupiah($pajakNominal) }}</td>
+                    <td>Pajak ({{ $formatPct($taxPct) }}%)</td>
+                    <td class="right">{{ $formatMoney($taxNominal) }}</td>
                 </tr>
             @endif
+        </table>
 
+        <div class="line">--------------------------------</div>
+        <table>
             <tr>
-                <td class="grand-total">GRAND TOTAL</td>
-                <td class="val grand-total">{{ format_rupiah($penjualan->grand_total) }}</td>
+                <td class="bold">GRAND TOTAL</td>
+                <td class="right bold">{{ $formatMoney($penjualan->grand_total) }}</td>
             </tr>
         </table>
 
-        <div class="qr-section">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($invoiceUrl) }}"
-                style="width:90px;height:90px;">
-            <p>Scan untuk melihat invoice</p>
+        <div class="line">--------------------------------</div>
+        <div class="footer-gap"></div>
+        <div class="center bold">Periksa Invoice &amp; Ambil Promo !!!</div>
+        <div class="footer-gap"></div>
+        <div class="center muted">- - - - - - - - - - - - - - - -</div>
+        <div class="footer-gap"></div>
+        <div class="center">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode('https://customer.hibiscusefsya.com/') }}"
+                alt="QR Customer" style="width:95px;height:95px;">
         </div>
-
-        <div class="footer">
-            <p>marketing@hibiscusefsya.com</p>
-            <p>-- Terima Kasih --</p>
-        </div>
-
+        <div class="center muted">customer.hibiscusefsya.com</div>
+        <div class="footer-gap"></div>
+        <div class="center muted">- - - - - - - - - - - - - - - -</div>
+        <div class="footer-gap"></div>
+        <div class="center">marketing@hibiscusefsya.com</div>
+        <div class="footer-gap"></div>
+        <div class="center">Official WA Chat: +6285195550202</div>
+        <div class="footer-gap"></div>
+        <div class="center bold">Terima kasih</div>
     </div>
 </body>
 
