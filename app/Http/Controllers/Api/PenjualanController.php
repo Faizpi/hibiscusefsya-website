@@ -73,7 +73,25 @@ class PenjualanController extends Controller
             }
         }
 
-        return response()->json($penjualan);
+        // Resolve nomor telepon pelanggan dengan 3 fallback:
+        // 1. no_telepon (Flutter baru)  2. email (web lama)  3. lookup kontak
+        $resolvedPhone = '';
+        if (!empty($penjualan->no_telepon)) {
+            $resolvedPhone = $penjualan->no_telepon;
+        } elseif (!empty($penjualan->email)) {
+            $resolvedPhone = $penjualan->email;
+        } elseif (!empty($penjualan->pelanggan)) {
+            $kontak = Kontak::where('nama', $penjualan->pelanggan)->first();
+            if ($kontak && !empty($kontak->no_telp)) {
+                $resolvedPhone = $kontak->no_telp;
+            }
+        }
+
+        // Inject resolved phone ke response tanpa mengubah data di database
+        $json = $penjualan->toArray();
+        $json['no_telepon'] = $resolvedPhone;
+
+        return response()->json($json);
     }
 
     public function store(Request $request)
