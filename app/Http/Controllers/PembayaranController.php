@@ -355,15 +355,15 @@ class PembayaranController extends Controller
             ? Carbon::parse($request->tanggal_selesai)->endOfDay()
             : $defaultDate->copy()->endOfDay();
 
-        $query = Penjualan::with(['gudang'])
+        $jatuhTempoQuery = Penjualan::with(['gudang'])
             ->where('status', 'Approved')
-            ->where('syarat_pembayaran', '!=', 'Cash')
-            ->whereBetween('tgl_transaksi', [$tanggalMulai->toDateString(), $tanggalSelesai->toDateString()]);
+            ->whereNotNull('tgl_jatuh_tempo')
+            ->whereDate('tgl_jatuh_tempo', '<=', $tanggalSelesai->toDateString());
 
-        $this->applyPenjualanExportAccess($query, $user);
+        $this->applyPenjualanExportAccess($jatuhTempoQuery, $user);
 
-        $invoices = $query->orderBy('tgl_transaksi')
-            ->orderBy('created_at')
+        $jatuhTempoBelumTerbayar = $jatuhTempoQuery->orderBy('tgl_jatuh_tempo')
+            ->orderBy('tgl_transaksi')
             ->get()
             ->map(function ($penjualan) {
                 return $this->withTagihanInfo($penjualan);
@@ -372,6 +372,8 @@ class PembayaranController extends Controller
                 return $penjualan->jumlah_tagihan > 0;
             })
             ->values();
+
+        $invoices = $jatuhTempoBelumTerbayar;
 
         $cashQuery = Penjualan::with(['gudang'])
             ->whereIn('status', ['Approved', 'Lunas'])
@@ -388,29 +390,10 @@ class PembayaranController extends Controller
             })
             ->values();
 
-        $jatuhTempoQuery = Penjualan::with(['gudang'])
-            ->where('status', 'Approved')
-            ->where('syarat_pembayaran', '!=', 'Cash')
-            ->whereNotNull('tgl_jatuh_tempo')
-            ->whereBetween('tgl_jatuh_tempo', [$tanggalMulai->toDateString(), $tanggalSelesai->toDateString()]);
-
-        $this->applyPenjualanExportAccess($jatuhTempoQuery, $user);
-
-        $jatuhTempoBelumTerbayar = $jatuhTempoQuery->orderBy('tgl_jatuh_tempo')
-            ->orderBy('tgl_transaksi')
-            ->get()
-            ->map(function ($penjualan) {
-                return $this->withTagihanInfo($penjualan);
-            })
-            ->filter(function ($penjualan) {
-                return $penjualan->jumlah_tagihan > 0;
-            })
-            ->values();
-
-        $totalJumlah = $invoices->sum('jumlah_tagihan');
+        $totalJumlah = $jatuhTempoBelumTerbayar->sum('jumlah_tagihan');
         $totalCashHariIni = $cashHariIni->sum('grand_total');
         $totalSisaCashHariIni = $cashHariIni->sum('jumlah_tagihan');
-        $totalJatuhTempo = $jatuhTempoBelumTerbayar->sum('jumlah_tagihan');
+        $totalJatuhTempo = $totalJumlah;
 
         $pdf = PDF::loadView('pembayaran.daily-export-pdf', [
             'invoices' => $invoices,

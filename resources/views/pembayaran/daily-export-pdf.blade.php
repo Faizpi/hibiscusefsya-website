@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Export Tagihan Invoice</title>
+    <title>Laporan Tagihan dan Cash</title>
     <style>
         body {
             font-family: 'DejaVu Sans', sans-serif;
@@ -154,6 +154,7 @@
         $totalCashHariIni = $totalCashHariIni ?? 0;
         $totalSisaCashHariIni = $totalSisaCashHariIni ?? 0;
         $totalJatuhTempo = $totalJatuhTempo ?? 0;
+        $totalBelumLunas = $totalSisaCashHariIni + $totalJatuhTempo;
         $isSingleDate = $tanggalMulai->toDateString() === $tanggalSelesai->toDateString();
         $rentangLabel = $isSingleDate
             ? $tanggalMulai->format('d F Y')
@@ -161,10 +162,11 @@
         $cashTitle = $isSingleDate && $tanggalMulai->isToday()
             ? 'Cash Hari Ini'
             : ($isSingleDate ? 'Cash Tanggal ' . $tanggalMulai->format('d/m/Y') : 'Cash Dalam Rentang');
+        $jatuhTempoTitle = 'Tagihan Jatuh Tempo s/d ' . $tanggalSelesai->format('d/m/Y');
     @endphp
 
     <div class="header">
-        <h2>Export Tagihan Invoice Penjualan</h2>
+        <h2>Laporan Tagihan dan Cash Penjualan</h2>
         <div class="meta">
             <strong>Rentang Waktu:</strong> {{ $rentangLabel }} |
             <strong>Dibuat oleh:</strong> {{ $generatedBy }} |
@@ -175,10 +177,6 @@
     <table class="summary">
         <tr>
             <td width="25%">
-                <div class="label">Tagihan Non-Cash</div>
-                <div class="value">{{ format_rupiah($totalJumlah) }}</div>
-            </td>
-            <td width="25%">
                 <div class="label">{{ $cashTitle }}</div>
                 <div class="value">{{ format_rupiah($totalCashHariIni) }}</div>
             </td>
@@ -187,79 +185,15 @@
                 <div class="value">{{ format_rupiah($totalSisaCashHariIni) }}</div>
             </td>
             <td width="25%">
-                <div class="label">Jatuh Tempo Belum Terbayar</div>
+                <div class="label">{{ $jatuhTempoTitle }}</div>
                 <div class="value">{{ format_rupiah($totalJatuhTempo) }}</div>
+            </td>
+            <td width="25%">
+                <div class="label">Total Belum Lunas</div>
+                <div class="value">{{ format_rupiah($totalBelumLunas) }}</div>
             </td>
         </tr>
     </table>
-
-    <div class="section-title">Tagihan Non-Cash Dalam Rentang Transaksi ({{ $invoices->count() }} data)</div>
-    @if($invoices->isEmpty())
-        <div class="empty">Tidak ada tagihan non-cash yang belum lunas pada rentang ini.</div>
-    @else
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th width="3%">No</th>
-                    <th width="11%">Nomor Invoice</th>
-                    <th width="8%">Tgl Transaksi</th>
-                    <th width="8%">Syarat</th>
-                    <th width="8%">Jatuh Tempo</th>
-                    <th width="12%">Nama Toko</th>
-                    <th width="9%">Lokasi</th>
-                    <th width="9%" class="text-right">Total</th>
-                    <th width="9%" class="text-right">Dibayar</th>
-                    <th width="9%" class="text-right">Sisa</th>
-                    <th width="7%">Koordinat</th>
-                    <th width="7%">Lampiran</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($invoices as $index => $item)
-                    @php
-                        $invoiceNomor = $item->nomor ?? $item->custom_number ?? '-';
-                        $lampiranPaths = $item->lampiran_paths ?? [];
-                        if ($item->lampiran_path && !in_array($item->lampiran_path, $lampiranPaths)) {
-                            $lampiranPaths[] = $item->lampiran_path;
-                        }
-                        $imagePaths = collect($lampiranPaths)->filter(function ($path) {
-                            return preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $path);
-                        });
-                    @endphp
-                    <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
-                        <td>{{ $invoiceNomor }}</td>
-                        <td>{{ $item->tgl_transaksi ? $item->tgl_transaksi->format('d/m/Y') : '-' }}</td>
-                        <td>{{ $item->syarat_pembayaran ?? '-' }}</td>
-                        <td>{{ $item->tgl_jatuh_tempo ? $item->tgl_jatuh_tempo->format('d/m/Y') : '-' }}</td>
-                        <td>{{ $item->pelanggan ?? '-' }}</td>
-                        <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
-                        <td class="text-right">{{ format_rupiah($item->grand_total) }}</td>
-                        <td class="text-right">{{ format_rupiah($item->total_bayar_approved) }}</td>
-                        <td class="text-right">{{ format_rupiah($item->jumlah_tagihan) }}</td>
-                        <td>{{ $item->koordinat ?? '-' }}</td>
-                        <td>
-                            @if($imagePaths->count() > 0)
-                                @foreach($imagePaths as $lampiran)
-                                    @php $fullPath = public_path('storage/' . $lampiran); @endphp
-                                    @if(file_exists($fullPath))
-                                        <img src="{{ $fullPath }}" class="lampiran-thumb" alt="Lampiran">
-                                    @endif
-                                @endforeach
-                            @else
-                                -
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-                <tr class="total-row">
-                    <td colspan="9" class="text-right">Total Sisa Tagihan</td>
-                    <td class="text-right">{{ format_rupiah($totalJumlah) }}</td>
-                    <td colspan="2"></td>
-                </tr>
-            </tbody>
-        </table>
-    @endif
 
     <div class="section-title">{{ $cashTitle }} ({{ $cashHariIni->count() }} data)</div>
     @if($cashHariIni->isEmpty())
@@ -337,9 +271,9 @@
         </table>
     @endif
 
-    <div class="section-title">Transaksi Jatuh Tempo Belum Terbayar ({{ $jatuhTempoBelumTerbayar->count() }} data)</div>
+    <div class="section-title">{{ $jatuhTempoTitle }} ({{ $jatuhTempoBelumTerbayar->count() }} data)</div>
     @if($jatuhTempoBelumTerbayar->isEmpty())
-        <div class="empty">Tidak ada transaksi jatuh tempo yang belum terbayar pada rentang ini.</div>
+        <div class="empty">Tidak ada tagihan jatuh tempo yang belum lunas sampai tanggal akhir rentang ini.</div>
     @else
         <table class="data-table">
             <thead>
