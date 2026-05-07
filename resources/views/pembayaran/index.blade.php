@@ -6,9 +6,16 @@
         <h1 class="h3 mb-2 mb-sm-0 text-gray-800">Pembayaran</h1>
         <div class="d-flex flex-wrap align-items-center">
             <form action="{{ route('pembayaran.exportHarianPdf') }}" method="GET" class="form-inline mr-2 mb-2 mb-sm-0">
-                <label for="tanggal_export" class="mr-2 mb-0 small text-muted">Tgl Invoice</label>
-                <input type="date" id="tanggal_export" name="tanggal" class="form-control form-control-sm mr-2"
-                    value="{{ request('tanggal', now()->format('Y-m-d')) }}">
+                @php
+                    $exportStart = request('tanggal_mulai', request('tanggal', now()->format('Y-m-d')));
+                    $exportEnd = request('tanggal_selesai', request('tanggal', now()->format('Y-m-d')));
+                @endphp
+                <label for="tanggal_mulai_export" class="mr-2 mb-0 small text-muted">Dari</label>
+                <input type="date" id="tanggal_mulai_export" name="tanggal_mulai"
+                    class="form-control form-control-sm mr-2" value="{{ $exportStart }}">
+                <label for="tanggal_selesai_export" class="mr-2 mb-0 small text-muted">Sampai</label>
+                <input type="date" id="tanggal_selesai_export" name="tanggal_selesai"
+                    class="form-control form-control-sm mr-2" value="{{ $exportEnd }}">
                 <button type="submit" class="btn btn-sm btn-danger shadow-sm">
                     <i class="fas fa-file-pdf fa-sm text-white-50"></i> Export Tagihan PDF
                 </button>

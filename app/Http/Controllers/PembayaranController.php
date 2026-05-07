@@ -332,48 +332,75 @@ class PembayaranController extends Controller
     }
 
     /**
-     * Export tagihan harian invoice penjualan (Approved, belum Lunas) ke PDF
+     * Export tagihan invoice penjualan ke PDF.
      */
     public function exportHarianPdf(Request $request)
     {
         $request->validate([
             'tanggal' => 'nullable|date',
+            'tanggal_mulai' => 'nullable|date',
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
         ]);
 
         $user = Auth::user();
-        $tanggal = $request->filled('tanggal')
+        $defaultDate = $request->filled('tanggal')
             ? Carbon::parse($request->tanggal)
             : Carbon::today();
 
+        $tanggalMulai = $request->filled('tanggal_mulai')
+            ? Carbon::parse($request->tanggal_mulai)->startOfDay()
+            : $defaultDate->copy()->startOfDay();
+
+        $tanggalSelesai = $request->filled('tanggal_selesai')
+            ? Carbon::parse($request->tanggal_selesai)->endOfDay()
+            : $defaultDate->copy()->endOfDay();
+
         $query = Penjualan::with(['gudang'])
             ->where('status', 'Approved')
-            ->whereDate('tgl_transaksi', $tanggal->toDateString());
+            ->where('syarat_pembayaran', '!=', 'Cash')
+            ->whereBetween('tgl_transaksi', [$tanggalMulai->toDateString(), $tanggalSelesai->toDateString()]);
 
-        if ($user->role == 'super_admin') {
-            // Super admin dapat melihat semua pembayaran
-        } elseif (in_array($user->role, ['admin', 'spectator'])) {
-            $currentGudang = $user->getCurrentGudang();
-            if ($currentGudang) {
-                $query->where('gudang_id', $currentGudang->id);
-            } else {
-                $query->whereRaw('1 = 0');
-            }
-        } else {
-            $query->where('user_id', $user->id);
-        }
+        $this->applyPenjualanExportAccess($query, $user);
 
         $invoices = $query->orderBy('tgl_transaksi')
             ->orderBy('created_at')
             ->get()
             ->map(function ($penjualan) {
-                $totalBayarApproved = Pembayaran::where('penjualan_id', $penjualan->id)
-                    ->where('status', 'Approved')
-                    ->sum('jumlah_bayar');
+                return $this->withTagihanInfo($penjualan);
+            })
+            ->filter(function ($penjualan) {
+                return $penjualan->jumlah_tagihan > 0;
+            })
+            ->values();
 
-                $penjualan->total_bayar_approved = $totalBayarApproved;
-                $penjualan->jumlah_tagihan = max(((float) $penjualan->grand_total) - ((float) $totalBayarApproved), 0);
+        $cashQuery = Penjualan::with(['gudang'])
+            ->whereIn('status', ['Approved', 'Lunas'])
+            ->where('syarat_pembayaran', 'Cash')
+            ->whereBetween('tgl_transaksi', [$tanggalMulai->toDateString(), $tanggalSelesai->toDateString()]);
 
-                return $penjualan;
+        $this->applyPenjualanExportAccess($cashQuery, $user);
+
+        $cashHariIni = $cashQuery->orderBy('tgl_transaksi')
+            ->orderBy('created_at')
+            ->get()
+            ->map(function ($penjualan) {
+                return $this->withTagihanInfo($penjualan);
+            })
+            ->values();
+
+        $jatuhTempoQuery = Penjualan::with(['gudang'])
+            ->where('status', 'Approved')
+            ->where('syarat_pembayaran', '!=', 'Cash')
+            ->whereNotNull('tgl_jatuh_tempo')
+            ->whereBetween('tgl_jatuh_tempo', [$tanggalMulai->toDateString(), $tanggalSelesai->toDateString()]);
+
+        $this->applyPenjualanExportAccess($jatuhTempoQuery, $user);
+
+        $jatuhTempoBelumTerbayar = $jatuhTempoQuery->orderBy('tgl_jatuh_tempo')
+            ->orderBy('tgl_transaksi')
+            ->get()
+            ->map(function ($penjualan) {
+                return $this->withTagihanInfo($penjualan);
             })
             ->filter(function ($penjualan) {
                 return $penjualan->jumlah_tagihan > 0;
@@ -381,18 +408,66 @@ class PembayaranController extends Controller
             ->values();
 
         $totalJumlah = $invoices->sum('jumlah_tagihan');
+        $totalCashHariIni = $cashHariIni->sum('grand_total');
+        $totalSisaCashHariIni = $cashHariIni->sum('jumlah_tagihan');
+        $totalJatuhTempo = $jatuhTempoBelumTerbayar->sum('jumlah_tagihan');
 
         $pdf = PDF::loadView('pembayaran.daily-export-pdf', [
             'invoices' => $invoices,
-            'tanggal' => $tanggal,
+            'cashHariIni' => $cashHariIni,
+            'jatuhTempoBelumTerbayar' => $jatuhTempoBelumTerbayar,
+            'tanggal' => $defaultDate,
+            'tanggalMulai' => $tanggalMulai,
+            'tanggalSelesai' => $tanggalSelesai,
             'generatedBy' => $user->name,
             'generatedAt' => Carbon::now(),
             'totalJumlah' => $totalJumlah,
+            'totalCashHariIni' => $totalCashHariIni,
+            'totalSisaCashHariIni' => $totalSisaCashHariIni,
+            'totalJatuhTempo' => $totalJatuhTempo,
         ]);
 
         $pdf->setPaper('a4', 'landscape');
 
-        return $pdf->download('Tagihan-Invoice-Harian-' . $tanggal->format('Ymd') . '.pdf');
+        return $pdf->download('Tagihan-Invoice-' . $tanggalMulai->format('Ymd') . '-' . $tanggalSelesai->format('Ymd') . '.pdf');
+    }
+
+    private function applyPenjualanExportAccess($query, User $user)
+    {
+        if ($user->role == 'super_admin') {
+            return $query;
+        }
+
+        if (in_array($user->role, ['admin', 'spectator'])) {
+            $currentGudang = $user->getCurrentGudang();
+
+            if ($currentGudang) {
+                return $query->where('gudang_id', $currentGudang->id);
+            }
+
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where('user_id', $user->id);
+    }
+
+    private function withTagihanInfo(Penjualan $penjualan)
+    {
+        $totalBayarApproved = Pembayaran::where('penjualan_id', $penjualan->id)
+            ->where('status', 'Approved')
+            ->sum('jumlah_bayar');
+
+        if ($penjualan->status === 'Lunas') {
+            $penjualan->total_bayar_approved = max((float) $totalBayarApproved, (float) $penjualan->grand_total);
+            $penjualan->jumlah_tagihan = 0;
+
+            return $penjualan;
+        }
+
+        $penjualan->total_bayar_approved = $totalBayarApproved;
+        $penjualan->jumlah_tagihan = max(((float) $penjualan->grand_total) - ((float) $totalBayarApproved), 0);
+
+        return $penjualan;
     }
 
     public function approve(Pembayaran $pembayaran)
