@@ -375,7 +375,7 @@
         document.getElementById('printBluetooth')?.addEventListener('click', function () {
             const type = this.dataset.type;
             const jsonUrl = this.dataset.url;
-            // Logo dimatikan; QR customer portal mengikuti format Flutter 58mm.
+            // Logo dimatikan; ukuran kertas dipilih di dialog Bluetooth.
             printViaBluetooth(this, type, jsonUrl, { printLogo: false });
         });
     </script>

@@ -210,7 +210,7 @@
             </tr>
             <tr>
                 <td>Dibuat oleh</td>
-                <td class="right">{{ optional($pembelian->user)->name ?? '-' }}</td>
+                <td class="right">{{ receipt_limit_text(optional($pembelian->user)->name ?: '-') }}</td>
             </tr>
             @if(!empty($pembelian->tahun_anggaran))
                 <tr>
@@ -236,12 +236,18 @@
                 $diskonItem = (float) ($item->diskon ?? 0);
                 $batch = $item->batch_number ?? $item->batch ?? null;
                 $expDate = $item->expired_date ?? $item->exp ?? null;
+                $batchText = $batch ?: 'N/A';
+                $expText = !empty($expDate) ? \Carbon\Carbon::parse($expDate)->format('d/m/Y') : 'N/A';
             @endphp
             <div class="item-name">{{ $namaProduk }}</div>
             <table>
                 <tr>
+                    <td>Batch</td>
+                    <td class="right">{{ $batchText }} - {{ $expText }}</td>
+                </tr>
+                <tr>
                     <td>Qty</td>
-                    <td class="right">{{ $qtyText }} {{ $unitText }}</td>
+                    <td class="right">{{ $qtyText }} {{ $unitText }} x {{ $formatMoney($item->harga_satuan) }}</td>
                 </tr>
             </table>
             @if($diskonItem > 0)
@@ -249,22 +255,6 @@
                     <tr>
                         <td>Diskon</td>
                         <td class="right">{{ $formatPct($diskonItem) }}%</td>
-                    </tr>
-                </table>
-            @endif
-            @if(!empty($batch))
-                <table>
-                    <tr>
-                        <td>Batch</td>
-                        <td class="right">{{ $batch }}</td>
-                    </tr>
-                </table>
-            @endif
-            @if(!empty($expDate))
-                <table>
-                    <tr>
-                        <td>Exp</td>
-                        <td class="right">{{ \Carbon\Carbon::parse($expDate)->format('d/m/Y') }}</td>
                     </tr>
                 </table>
             @endif
@@ -315,21 +305,15 @@
 
         <div class="line">--------------------------------</div>
         <div class="footer-gap"></div>
-        <div class="center bold">Periksa Invoice &amp; Ambil Promo !!!</div>
-        <div class="footer-gap"></div>
-        <div class="center muted">- - - - - - - - - - - - - - - -</div>
-        <div class="footer-gap"></div>
-        <div class="center">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode('https://customer.hibiscusefsya.com/') }}"
-                alt="QR Customer" style="width:95px;height:95px;">
-        </div>
-        <div class="center muted">customer.hibiscusefsya.com</div>
+        <div class="center bold">Periksa Invoice &amp; Ambil Promo !</div>
         <div class="footer-gap"></div>
         <div class="center muted">- - - - - - - - - - - - - - - -</div>
         <div class="footer-gap"></div>
         <div class="center">marketing@hibiscusefsya.com</div>
         <div class="footer-gap"></div>
-        <div class="center">Official WA Chat: +6285195550202</div>
+        <div class="center muted">- - - - - - - - - - - - - - - -</div>
+        <div class="footer-gap"></div>
+        <div class="center">Official WA Chat: {{ receipt_format_phone('+6285195550202') }}</div>
         <div class="footer-gap"></div>
         <div class="center bold">Terima kasih</div>
     </div>

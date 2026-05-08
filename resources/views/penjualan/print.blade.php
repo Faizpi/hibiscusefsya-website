@@ -212,19 +212,19 @@
             </tr>
             <tr>
                 <td>Pelanggan</td>
-                <td class="right value-wrap">{{ $penjualan->pelanggan ?? '-' }}</td>
+                <td class="right value-wrap">{{ receipt_limit_text($penjualan->pelanggan ?: '-') }}</td>
             </tr>
             <tr>
                 <td>No. Telepon</td>
-                <td class="right value-wrap">{{ $noTelepon ?: 'N/A' }}</td>
+                <td class="right value-wrap">{{ receipt_format_phone($noTelepon) ?: 'N/A' }}</td>
             </tr>
             <tr>
                 <td>Sales</td>
-                <td class="right value-wrap">{{ optional($penjualan->user)->name ?? '-' }}</td>
+                <td class="right value-wrap">{{ receipt_limit_text(optional($penjualan->user)->name ?: '-') }}</td>
             </tr>
             <tr>
                 <td>No. Telp Sales</td>
-                <td class="right value-wrap">{{ $salesPhone ?: 'N/A' }}</td>
+                <td class="right value-wrap">{{ receipt_format_phone($salesPhone) ?: 'N/A' }}</td>
             </tr>
             @if(!empty($penjualan->no_referensi))
                 <tr>
@@ -251,7 +251,16 @@
                 $diskonItem = (float) ($item->diskon ?? 0);
             @endphp
             <div class="item-name">{{ $namaProduk }}</div>
-            <div>{{ $batch }} - {{ $exp }}&nbsp;&nbsp;{{ $qtyText }} x {{ $formatMoney($item->harga_satuan) }}</div>
+            <table>
+                <tr>
+                    <td>Batch</td>
+                    <td class="right value-wrap">{{ $batch }} - {{ $exp }}</td>
+                </tr>
+                <tr>
+                    <td>Qty</td>
+                    <td class="right value-wrap">{{ $qtyText }} {{ $item->unit ?? $item->satuan ?? 'Pcs' }} x {{ $formatMoney($item->harga_satuan) }}</td>
+                </tr>
+            </table>
             @if($diskonItem > 0)
                 <table>
                     <tr>
@@ -307,21 +316,15 @@
 
         <div class="line">--------------------------------</div>
         <div class="footer-gap"></div>
-        <div class="center bold">Periksa Invoice &amp; Ambil Promo !!!</div>
-        <div class="footer-gap"></div>
-        <div class="center muted">- - - - - - - - - - - - - - - -</div>
-        <div class="footer-gap"></div>
-        <div class="center">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode('https://customer.hibiscusefsya.com/') }}"
-                alt="QR Customer" style="width:95px;height:95px;">
-        </div>
-        <div class="center muted">customer.hibiscusefsya.com</div>
+        <div class="center bold">Periksa Invoice &amp; Ambil Promo !</div>
         <div class="footer-gap"></div>
         <div class="center muted">- - - - - - - - - - - - - - - -</div>
         <div class="footer-gap"></div>
         <div class="center">marketing@hibiscusefsya.com</div>
         <div class="footer-gap"></div>
-        <div class="center">Official WA Chat: +6285195550202</div>
+        <div class="center muted">- - - - - - - - - - - - - - - -</div>
+        <div class="footer-gap"></div>
+        <div class="center">Official WA Chat: {{ receipt_format_phone('+6285195550202') }}</div>
         <div class="footer-gap"></div>
         <div class="center bold">Terima kasih</div>
     </div>

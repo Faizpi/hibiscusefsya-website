@@ -7,7 +7,7 @@
  * 
  * Key Optimizations:
  * - Menggunakan ESC * (bit-image) bukan GS v 0 untuk gambar
- * - QR Code di-generate OFFLINE via canvas (no external API)
+ * - QR Code utilities kept for legacy flows; current receipt footer prints text only
  * - Chunk size kecil (128 bytes) untuk BLE stability
  * - Delay antar chunk 150ms untuk mencegah buffer overflow
  * - ALIGN_CENTER command sebelum setiap image
@@ -15,15 +15,20 @@
  * Features:
  * - Text printing with ESC/POS commands
  * - Logo printing (ESC * bitmap - 90% compatible)
- * - QR Code printing (offline canvas generation)
+ * - 58mm and 80mm receipt layouts
  */
 
 class BluetoothThermalPrinter {
     constructor() {
         this.device = null;
         this.characteristic = null;
-        this.WIDTH = 32; // Character width for 58mm printer
-        this.PRINT_WIDTH = 384; // Pixel width for 58mm printer (48mm printable area @ 8 dots/mm)
+        this.PAPER_CONFIGS = {
+            '58mm': { width: 32, printWidth: 384, dashCount: 16, previewClass: '' },
+            '80mm': { width: 48, printWidth: 576, dashCount: 24, previewClass: 'bt-preview-paper-80' }
+        };
+        this.paperSize = '58mm';
+        this.WIDTH = 32;
+        this.PRINT_WIDTH = 384;
         
         // BLE Optimized settings
         this.BLE_CHUNK_SIZE = 128; // Safe chunk size for BLE (64-128 recommended)
@@ -50,6 +55,25 @@ class BluetoothThermalPrinter {
     // Format currency to Rupiah
     formatRupiah(amount) {
         return 'Rp' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+    }
+
+    normalizePaperSize(value) {
+        const text = this.stringValue(value).toLowerCase().replace(/\s+/g, '');
+        return text === '80mm' || text === '80' ? '80mm' : '58mm';
+    }
+
+    setPaperSize(value) {
+        const size = this.normalizePaperSize(value);
+        const config = this.PAPER_CONFIGS[size] || this.PAPER_CONFIGS['58mm'];
+        this.paperSize = size;
+        this.WIDTH = config.width;
+        this.PRINT_WIDTH = config.printWidth;
+        return size;
+    }
+
+    paperDashLine(size = this.paperSize) {
+        const config = this.PAPER_CONFIGS[this.normalizePaperSize(size)] || this.PAPER_CONFIGS['58mm'];
+        return '- '.repeat(config.dashCount);
     }
 
     // Create divider line
@@ -99,15 +123,15 @@ class BluetoothThermalPrinter {
         return output;
     }
 
-    // Build the same 58mm text layout used by the Flutter app.
+    // Build the same text layout used by the Flutter app.
     async buildFlutter58Receipt(type, rawData, options = {}) {
         const data = this.unwrapResponseData(rawData);
         data.type = data.type || type;
-        data.paper_size = '58mm';
+        data.paper_size = this.setPaperSize(options.paperSize || options.paper_size || data.paper_size);
 
-        const printQR = options.printQR !== false;
         const parts = [];
         const lines = this.buildReceiptLines(data);
+        const dashLine = this.paperDashLine(data.paper_size);
 
         let content = this.COMMANDS.RESET;
         content += this.COMMANDS.ALIGN_CENTER;
@@ -124,29 +148,15 @@ class BluetoothThermalPrinter {
         content += this.divider();
         content += '\n';
         content += this.COMMANDS.ALIGN_CENTER + this.COMMANDS.BOLD_ON;
-        content += 'Periksa Invoice & Ambil Promo !!!\n';
+        content += 'Periksa Invoice & Ambil Promo !\n';
         content += this.COMMANDS.BOLD_OFF + '\n';
-        content += '- '.repeat(16) + '\n\n';
+        content += dashLine + '\n';
+        content += 'marketing@hibiscusefsya.com\n';
+        content += dashLine + '\n\n';
         parts.push({ type: 'text', data: content });
 
-        if (printQR) {
-            try {
-                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
-                const qrImage = await this.generateQRCode('https://customer.hibiscusefsya.com/', 150);
-                parts.push({ type: 'image', data: qrImage });
-                parts.push({ type: 'text', data: '\n' + '- '.repeat(16) + '\n\n' });
-            } catch (e) {
-                console.warn('QR customer portal failed:', e);
-                parts.push({
-                    type: 'text',
-                    data: 'https://customer.hibiscusefsya.com/\n\n' + '- '.repeat(16) + '\n\n'
-                });
-            }
-        }
-
         let footer = this.COMMANDS.ALIGN_CENTER;
-        footer += 'marketing@hibiscusefsya.com\n\n';
-        footer += 'Official WA Chat: +6285195550202\n\n';
+        footer += `Official WA Chat: ${this.formatPhone('+6285195550202')}\n\n`;
         footer += 'Terima kasih\n\n\n';
         footer += this.COMMANDS.CUT;
         parts.push({ type: 'text', data: footer });
@@ -171,6 +181,7 @@ class BluetoothThermalPrinter {
     }
 
     buildReceiptLines(data) {
+        data.paper_size = this.setPaperSize(data.paper_size || this.paperSize);
         const type = this.stringValue(data.type).toLowerCase();
         if (type.includes('penjualan')) return this.buildPenjualanLines(data);
         if (type.includes('kunjungan')) return this.buildKunjunganLines(data);
@@ -198,11 +209,14 @@ class BluetoothThermalPrinter {
     async showPreviewDialog(type, rawData, options = {}) {
         const data = this.unwrapResponseData(rawData);
         data.type = data.type || type;
-        data.paper_size = '58mm';
+        data.paper_size = this.setPaperSize(options.paperSize || options.paper_size || data.paper_size);
 
         this.ensurePreviewStyles();
         const title = this.receiptTitle(data);
         const lines = this.buildReceiptLines(data);
+        const paperConfig = this.PAPER_CONFIGS[data.paper_size] || this.PAPER_CONFIGS['58mm'];
+        const paperClass = paperConfig.previewClass ? ` ${paperConfig.previewClass}` : '';
+        const dashLine = this.paperDashLine(data.paper_size);
         const overlay = document.createElement('div');
         overlay.className = 'bt-preview-overlay';
 
@@ -212,24 +226,25 @@ class BluetoothThermalPrinter {
                 <div class="bt-preview-header">
                     <div>
                         <div class="bt-preview-title">Preview Struk Bluetooth</div>
-                        <div class="bt-preview-subtitle">Format thermal 58mm</div>
+                        <div class="bt-preview-subtitle">Format thermal ${this.escapeHtml(data.paper_size)}</div>
                     </div>
                     <button type="button" class="bt-preview-close" aria-label="Tutup">&times;</button>
                 </div>
                 <div class="bt-preview-scroll">
-                    <div class="bt-preview-paper">
+                    <div class="bt-preview-paper${paperClass}">
                         <div class="bt-preview-brand">HIBISCUS EFSYA</div>
                         <div class="bt-preview-doc">${this.escapeHtml(title)}</div>
                         <div class="bt-preview-hr"></div>
                         <div class="bt-preview-lines">${lineHtml}</div>
                         <div class="bt-preview-hr"></div>
-                        <div class="bt-preview-promo">Periksa Invoice & Ambil Promo !!!</div>
-                        <div class="bt-preview-dash">${this.escapeHtml('- '.repeat(16))}</div>
-                        <div class="bt-preview-qr" data-qr></div>
-                        <div class="bt-preview-dash">${this.escapeHtml('- '.repeat(16))}</div>
+                        <div class="bt-preview-promo">Periksa Invoice & Ambil Promo !</div>
+                        <div class="bt-preview-dash">${this.escapeHtml(dashLine)}</div>
                         <div class="bt-preview-footer">
                             marketing@hibiscusefsya.com<br>
-                            Official WA Chat: +6285195550202<br>
+                        </div>
+                        <div class="bt-preview-dash">${this.escapeHtml(dashLine)}</div>
+                        <div class="bt-preview-footer">
+                            Official WA Chat: ${this.escapeHtml(this.formatPhone('+6285195550202'))}<br>
                             Terima kasih
                         </div>
                     </div>
@@ -248,9 +263,6 @@ class BluetoothThermalPrinter {
         const cancelBtn = overlay.querySelector('.bt-preview-cancel');
         const printBtn = overlay.querySelector('.bt-preview-print');
         const dialog = overlay.querySelector('.bt-preview-dialog');
-        const qrTarget = overlay.querySelector('[data-qr]');
-
-        this.renderPreviewQr(qrTarget);
 
         return new Promise(resolve => {
             const cleanup = result => {
@@ -267,6 +279,64 @@ class BluetoothThermalPrinter {
             printBtn.addEventListener('click', () => cleanup(true));
             overlay.addEventListener('click', event => {
                 if (!dialog.contains(event.target)) cleanup(false);
+            });
+            document.addEventListener('keydown', onKeyDown);
+        });
+    }
+
+    async showPaperSizeDialog(defaultPaperSize = '58mm') {
+        this.ensurePreviewStyles();
+        const selected = this.normalizePaperSize(defaultPaperSize);
+        const overlay = document.createElement('div');
+        overlay.className = 'bt-preview-overlay';
+        overlay.innerHTML = `
+            <div class="bt-paper-dialog" role="dialog" aria-modal="true">
+                <div class="bt-preview-header">
+                    <div>
+                        <div class="bt-preview-title">Ukuran Kertas Printer</div>
+                        <div class="bt-preview-subtitle">Pilih sesuai printer Bluetooth</div>
+                    </div>
+                    <button type="button" class="bt-preview-close" aria-label="Tutup">&times;</button>
+                </div>
+                <div class="bt-paper-options">
+                    <button type="button" class="bt-paper-option${selected === '58mm' ? ' active' : ''}" data-paper-size="58mm">
+                        <span class="bt-paper-option-title">58 mm</span>
+                        <span class="bt-paper-option-desc">Printer kecil / standar</span>
+                    </button>
+                    <button type="button" class="bt-paper-option${selected === '80mm' ? ' active' : ''}" data-paper-size="80mm">
+                        <span class="bt-paper-option-title">80 mm</span>
+                        <span class="bt-paper-option-desc">Printer lebar / kasir</span>
+                    </button>
+                </div>
+                <div class="bt-preview-actions">
+                    <button type="button" class="btn btn-light bt-preview-cancel">Batal</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+        const dialog = overlay.querySelector('.bt-paper-dialog');
+        const closeBtn = overlay.querySelector('.bt-preview-close');
+        const cancelBtn = overlay.querySelector('.bt-preview-cancel');
+        const optionBtns = overlay.querySelectorAll('[data-paper-size]');
+
+        return new Promise(resolve => {
+            const cleanup = result => {
+                document.removeEventListener('keydown', onKeyDown);
+                overlay.remove();
+                resolve(result);
+            };
+            const onKeyDown = event => {
+                if (event.key === 'Escape') cleanup(null);
+            };
+
+            closeBtn.addEventListener('click', () => cleanup(null));
+            cancelBtn.addEventListener('click', () => cleanup(null));
+            optionBtns.forEach(btn => {
+                btn.addEventListener('click', () => cleanup(btn.getAttribute('data-paper-size')));
+            });
+            overlay.addEventListener('click', event => {
+                if (!dialog.contains(event.target)) cleanup(null);
             });
             document.addEventListener('keydown', onKeyDown);
         });
@@ -309,29 +379,6 @@ class BluetoothThermalPrinter {
         };
     }
 
-    async renderPreviewQr(target) {
-        if (!target) return;
-        const qrUrl = 'https://customer.hibiscusefsya.com/';
-        target.textContent = '';
-        try {
-            await this.loadQRCodeLibrary();
-            if (typeof QRCode !== 'undefined') {
-                new QRCode(target, {
-                    text: qrUrl,
-                    width: 132,
-                    height: 132,
-                    colorDark: '#000000',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.M
-                });
-                return;
-            }
-        } catch (e) {
-            console.warn('Preview QR failed:', e);
-        }
-        target.innerHTML = '<div class="bt-preview-qr-fallback">QR<br><span>customer.hibiscusefsya.com</span></div>';
-    }
-
     escapeHtml(value) {
         return this.stringValue(value)
             .replace(/&/g, '&amp;')
@@ -357,7 +404,7 @@ class BluetoothThermalPrinter {
                 padding: 16px;
             }
             .bt-preview-dialog {
-                width: min(430px, 100%);
+                width: min(560px, 100%);
                 max-height: calc(100vh - 32px);
                 background: #ffffff;
                 border-radius: 14px;
@@ -401,6 +448,7 @@ class BluetoothThermalPrinter {
             }
             .bt-preview-paper {
                 width: 272px;
+                max-width: calc(100vw - 64px);
                 margin: 0 auto;
                 padding: 14px 12px 18px;
                 background: #fff;
@@ -409,6 +457,9 @@ class BluetoothThermalPrinter {
                 font-size: 11px;
                 line-height: 1.35;
                 box-shadow: 0 8px 22px rgba(15, 23, 42, .15);
+            }
+            .bt-preview-paper-80 {
+                width: 408px;
             }
             .bt-preview-brand {
                 text-align: center;
@@ -506,6 +557,44 @@ class BluetoothThermalPrinter {
                 border-top: 1px solid #e5e7eb;
                 background: #fff;
             }
+            .bt-paper-dialog {
+                width: min(390px, 100%);
+                background: #ffffff;
+                border-radius: 14px;
+                box-shadow: 0 24px 80px rgba(15, 23, 42, .35);
+                overflow: hidden;
+            }
+            .bt-paper-options {
+                display: grid;
+                gap: 10px;
+                padding: 14px 16px 16px;
+            }
+            .bt-paper-option {
+                width: 100%;
+                border: 1px solid #d1d5db;
+                border-radius: 10px;
+                background: #fff;
+                padding: 12px 14px;
+                text-align: left;
+                cursor: pointer;
+            }
+            .bt-paper-option.active,
+            .bt-paper-option:hover {
+                border-color: #4e73df;
+                background: #f5f7ff;
+            }
+            .bt-paper-option-title {
+                display: block;
+                font-size: 14px;
+                font-weight: 700;
+                color: #111827;
+            }
+            .bt-paper-option-desc {
+                display: block;
+                margin-top: 2px;
+                font-size: 12px;
+                color: #6b7280;
+            }
         `;
         document.head.appendChild(style);
     }
@@ -516,10 +605,10 @@ class BluetoothThermalPrinter {
             this.kvLine('Tanggal', this.stringValue(data.tanggal)),
             this.kvLine('Jatuh Tempo', this.stringValue(data.jatuh_tempo)),
             this.kvLine('Pembayaran', this.stringValue(data.pembayaran)),
-            this.kvLine('Pelanggan', this.stringValue(data.pelanggan)),
-            this.kvLine('No. Telepon', this.stringValue(data.no_telepon) || 'N/A'),
-            this.kvLine('Sales', this.stringValue(data.sales)),
-            this.kvLine('No. Telp Sales', this.stringValue(data.sales_no_telp) || 'N/A')
+            this.kvLine('Pelanggan', this.truncateDisplay(data.pelanggan)),
+            this.kvLine('No. Telepon', this.formatPhone(data.no_telepon) || 'N/A'),
+            this.kvLine('Sales', this.truncateDisplay(data.sales)),
+            this.kvLine('No. Telp Sales', this.formatPhone(data.sales_no_telp) || 'N/A')
         ];
 
         if (this.stringValue(data.no_referensi)) lines.push(this.kvLine('No. Ref', this.stringValue(data.no_referensi)));
@@ -533,7 +622,8 @@ class BluetoothThermalPrinter {
             const harga = this.numValue(item.harga ?? item.harga_satuan);
             const batch = this.stringValue(item.batch) || this.stringValue(item.batch_number) || 'N/A';
             const exp = this.formatExpDate(this.stringValue(item.exp) || this.stringValue(item.expired_date)) || 'N/A';
-            lines.push(this.twoColumn(`${batch} - ${exp}`, `${this.formatQty(qty)} ${unit} x ${this.currency(harga)}`));
+            lines.push(this.twoColumn('Batch', `${batch} - ${exp}`));
+            lines.push(this.twoColumn('Qty', `${this.formatQty(qty)} ${unit} x ${this.currency(harga)}`));
 
             const diskon = this.numValue(item.diskon);
             if (diskon > 0) lines.push(this.twoColumn('Diskon', `${this.formatQty(diskon)}%`));
@@ -565,7 +655,7 @@ class BluetoothThermalPrinter {
         ];
         if (this.stringValue(data.urgensi)) lines.push(this.kvLine('Urgensi', this.stringValue(data.urgensi)));
         lines.push(this.kvLine('Vendor', this.stringValue(data.vendor)));
-        lines.push(this.kvLine('Dibuat oleh', this.stringValue(data.sales)));
+        lines.push(this.kvLine('Dibuat oleh', this.truncateDisplay(data.sales)));
         if (this.stringValue(data.tahun_anggaran)) lines.push(this.kvLine('Thn Anggaran', this.stringValue(data.tahun_anggaran)));
         if (this.stringValue(data.staf_penyetuju)) lines.push(this.kvLine('Staf Penyetuju', this.stringValue(data.staf_penyetuju)));
         if (this.stringValue(data.memo)) lines.push(this.kvLine('Memo', this.stringValue(data.memo)));
@@ -578,7 +668,8 @@ class BluetoothThermalPrinter {
             const harga = this.numValue(item.harga ?? item.harga_satuan);
             const batch = this.stringValue(item.batch_number) || this.stringValue(item.batch) || 'N/A';
             const exp = this.formatExpDate(this.stringValue(item.expired_date) || this.stringValue(item.exp)) || 'N/A';
-            lines.push(this.twoColumn(`${batch} - ${exp}`, `${this.formatQty(qty)} ${unit} x ${this.currency(harga)}`));
+            lines.push(this.twoColumn('Batch', `${batch} - ${exp}`));
+            lines.push(this.twoColumn('Qty', `${this.formatQty(qty)} ${unit} x ${this.currency(harga)}`));
 
             const diskon = this.numValue(item.diskon);
             if (diskon > 0) lines.push(this.twoColumn('Diskon', `${this.formatQty(diskon)}%`));
@@ -611,7 +702,7 @@ class BluetoothThermalPrinter {
         if (this.stringValue(data.cara_pembayaran)) lines.push(this.kvLine('Cara Bayar', this.stringValue(data.cara_pembayaran)));
         lines.push(this.kvLine('Penerima', this.stringValue(data.penerima)));
         if (this.stringValue(data.alamat_penagihan)) lines.push(this.kvLine('Alamat', this.stringValue(data.alamat_penagihan)));
-        lines.push(this.kvLine('Dibuat oleh', this.stringValue(data.sales)));
+        lines.push(this.kvLine('Dibuat oleh', this.truncateDisplay(data.sales)));
         if (this.stringValue(data.tag)) lines.push(this.kvLine('Tag', this.stringValue(data.tag)));
         if (this.stringValue(data.koordinat)) lines.push(this.kvLine('Koordinat', this.stringValue(data.koordinat)));
         if (this.stringValue(data.memo)) lines.push(this.kvLine('Memo', this.stringValue(data.memo)));
@@ -643,11 +734,11 @@ class BluetoothThermalPrinter {
         ];
 
         const pembuatNama = this.stringValue(data.dibuat_oleh) || this.stringValue(data.user && data.user.name) || this.stringValue(data.pembuat);
-        if (pembuatNama) lines.push(this.kvLine('Pembuat', pembuatNama));
+        if (pembuatNama) lines.push(this.kvLine('Pembuat', this.truncateDisplay(pembuatNama)));
 
         const pelangganNama = this.stringValue(data.sales_nama) || this.stringValue(data.kontak && data.kontak.nama) || this.stringValue(data.kontak_nama);
-        if (pelangganNama) lines.push(this.kvLine('Pelanggan', pelangganNama));
-        if (this.stringValue(data.sales_no_telepon)) lines.push(this.kvLine('No. Telepon', this.stringValue(data.sales_no_telepon)));
+        if (pelangganNama) lines.push(this.kvLine('Pelanggan', this.truncateDisplay(pelangganNama)));
+        if (this.stringValue(data.sales_no_telepon)) lines.push(this.kvLine('No. Telepon', this.formatPhone(data.sales_no_telepon)));
         if (this.stringValue(data.sales_alamat)) lines.push(...this.rightAlignLines('Alamat', this.stringValue(data.sales_alamat)));
         if (this.stringValue(data.koordinat)) lines.push(...this.rightAlignLines('Koordinat', this.stringValue(data.koordinat)));
         if (this.stringValue(data.memo)) lines.push(this.kvLine('Memo', this.stringValue(data.memo)));
@@ -777,6 +868,41 @@ class BluetoothThermalPrinter {
         if (typeof value === 'string') return value.trim();
         if (typeof value === 'number' || typeof value === 'boolean') return String(value);
         return String(value).trim();
+    }
+
+    truncateDisplay(value, max = 20) {
+        const text = this.stringValue(value);
+        if (text.length <= max) return text;
+        if (max <= 3) return text.substring(0, max);
+        return text.substring(0, max - 3) + '...';
+    }
+
+    formatPhone(value) {
+        const raw = this.stringValue(value);
+        if (!raw) return '';
+        let digits = raw.replace(/\D/g, '');
+        if (!digits) return raw;
+
+        if (digits.startsWith('620')) {
+            digits = '62' + digits.substring(3);
+        }
+        if (digits.startsWith('62')) {
+            return '+62 ' + this.groupPhoneDigits(digits.substring(2));
+        }
+        if (digits.startsWith('0')) {
+            return this.groupPhoneDigits(digits);
+        }
+        if (digits.startsWith('8') && digits.length >= 9) {
+            return '+62 ' + this.groupPhoneDigits(digits);
+        }
+        if (raw.trim().startsWith('+')) {
+            return '+' + this.groupPhoneDigits(digits);
+        }
+        return this.groupPhoneDigits(digits);
+    }
+
+    groupPhoneDigits(digits) {
+        return (digits.match(/.{1,4}/g) || []).join('-');
     }
 
     numValue(value) {
@@ -1706,7 +1832,8 @@ async function printViaBluetooth(button, type, jsonUrl, options = {}) {
     const baseUrl = window.location.origin;
     options = {
         printLogo: true,
-        printQR: true,
+        printQR: false,
+        paperSize: '58mm',
         logoUrl: baseUrl + '/assets/img/logoHE1.png',
         ...options
     };
@@ -1724,6 +1851,15 @@ async function printViaBluetooth(button, type, jsonUrl, options = {}) {
         
         // Debug: log data untuk troubleshooting
         console.log('Bluetooth Print Data:', type, data);
+
+        button.innerHTML = '<i class="fas fa-receipt"></i> Pilih ukuran...';
+        const paperSize = await window.BluetoothPrinter.showPaperSizeDialog(options.paperSize || options.paper_size || '58mm');
+        if (!paperSize) {
+            button.innerHTML = originalHtml;
+            button.disabled = false;
+            return;
+        }
+        options.paperSize = paperSize;
 
         button.innerHTML = '<i class="fas fa-receipt"></i> Preview...';
 

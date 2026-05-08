@@ -179,7 +179,7 @@
             </tr>
             <tr>
                 <td>Dibuat oleh</td>
-                <td class="right">{{ optional($pembayaran->user)->name ?? '-' }}</td>
+                <td class="right">{{ receipt_limit_text(optional($pembayaran->user)->name ?: '-') }}</td>
             </tr>
             @if($pembayaran->penjualan)
                 <tr>
@@ -188,7 +188,7 @@
                 </tr>
                 <tr>
                     <td>Pelanggan</td>
-                    <td class="right">{{ $pembayaran->penjualan->pelanggan ?? '-' }}</td>
+                    <td class="right">{{ receipt_limit_text($pembayaran->penjualan->pelanggan ?: '-') }}</td>
                 </tr>
             @endif
             @if(!empty($pembayaran->keterangan))
@@ -209,21 +209,15 @@
 
         <div class="line">--------------------------------</div>
         <div class="footer-gap"></div>
-        <div class="center bold">Periksa Invoice &amp; Ambil Promo !!!</div>
-        <div class="footer-gap"></div>
-        <div class="center muted">- - - - - - - - - - - - - - - -</div>
-        <div class="footer-gap"></div>
-        <div class="center">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode('https://customer.hibiscusefsya.com/') }}"
-                alt="QR Customer" style="width:95px;height:95px;">
-        </div>
-        <div class="center muted">customer.hibiscusefsya.com</div>
+        <div class="center bold">Periksa Invoice &amp; Ambil Promo !</div>
         <div class="footer-gap"></div>
         <div class="center muted">- - - - - - - - - - - - - - - -</div>
         <div class="footer-gap"></div>
         <div class="center">marketing@hibiscusefsya.com</div>
         <div class="footer-gap"></div>
-        <div class="center">Official WA Chat: +6285195550202</div>
+        <div class="center muted">- - - - - - - - - - - - - - - -</div>
+        <div class="footer-gap"></div>
+        <div class="center">Official WA Chat: {{ receipt_format_phone('+6285195550202') }}</div>
         <div class="footer-gap"></div>
         <div class="center bold">Terima kasih</div>
     </div>
