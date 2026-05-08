@@ -276,10 +276,37 @@ class BluetoothThermalPrinter {
         if (line === null || line === undefined) return '<div class="bt-preview-gap"></div>';
         if (line === '---HR---') return '<div class="bt-preview-hr"></div>';
         const raw = String(line);
+        if (raw.includes('\n')) {
+            return raw.split('\n').map(part => this.previewLineHtml(part)).join('');
+        }
         if (raw.startsWith('\x00R:')) {
             return `<div class="bt-preview-line bt-preview-right">${this.escapeHtml(raw.substring(3))}</div>`;
         }
+
+        const aligned = this.parseAlignedPreviewLine(raw);
+        if (aligned) {
+            return `
+                <div class="bt-preview-line bt-preview-row">
+                    <span class="bt-preview-row-left">${this.escapeHtml(aligned.left)}</span>
+                    <span class="bt-preview-row-right">${this.escapeHtml(aligned.right)}</span>
+                </div>
+            `;
+        }
+
         return `<div class="bt-preview-line">${this.escapeHtml(raw).replace(/\n/g, '<br>')}</div>`;
+    }
+
+    parseAlignedPreviewLine(raw) {
+        const line = this.stringValue(raw);
+        if (!line || line.length > this.WIDTH || raw.startsWith(' ')) return null;
+
+        const match = line.match(/^(.+?\S) {2,}(\S.*)$/);
+        if (!match) return null;
+
+        return {
+            left: match[1],
+            right: match[2]
+        };
     }
 
     async renderPreviewQr(target) {
@@ -399,6 +426,23 @@ class BluetoothThermalPrinter {
                 word-break: break-word;
                 min-height: 15px;
             }
+            .bt-preview-row {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 8px;
+                white-space: normal;
+            }
+            .bt-preview-row-left {
+                min-width: 0;
+                overflow-wrap: anywhere;
+            }
+            .bt-preview-row-right {
+                min-width: max-content;
+                margin-left: auto;
+                text-align: right;
+                overflow-wrap: anywhere;
+            }
             .bt-preview-right {
                 text-align: right;
             }
@@ -487,15 +531,12 @@ class BluetoothThermalPrinter {
             const qty = this.numValue(item.qty ?? item.kuantitas);
             const unit = this.stringValue(item.unit) || this.stringValue(item.satuan) || 'Pcs';
             const harga = this.numValue(item.harga ?? item.harga_satuan);
-            lines.push(this.twoColumn('Qty', `${this.formatQty(qty)} ${unit}`));
-            lines.push(this.twoColumn('Harga', this.currency(harga)));
+            const batch = this.stringValue(item.batch) || this.stringValue(item.batch_number) || 'N/A';
+            const exp = this.formatExpDate(this.stringValue(item.exp) || this.stringValue(item.expired_date)) || 'N/A';
+            lines.push(this.twoColumn(`${batch} - ${exp}`, `${this.formatQty(qty)} ${unit} x ${this.currency(harga)}`));
 
             const diskon = this.numValue(item.diskon);
             if (diskon > 0) lines.push(this.twoColumn('Diskon', `${this.formatQty(diskon)}%`));
-            if (this.stringValue(item.batch)) lines.push(this.twoColumn('Batch', this.stringValue(item.batch)));
-            if (this.stringValue(item.batch_number)) lines.push(this.twoColumn('Batch', this.stringValue(item.batch_number)));
-            if (this.stringValue(item.exp)) lines.push(this.twoColumn('Exp', this.formatExpDate(this.stringValue(item.exp))));
-            if (this.stringValue(item.expired_date)) lines.push(this.twoColumn('Exp', this.formatExpDate(this.stringValue(item.expired_date))));
             if (this.stringValue(item.deskripsi)) lines.push(this.kvLine('Ket', this.stringValue(item.deskripsi)));
             lines.push(this.twoColumn('Jumlah', this.currency(this.numValue(item.jumlah))));
             lines.push(null);
@@ -534,15 +575,13 @@ class BluetoothThermalPrinter {
             lines.push(this.wrapText(this.itemName(item)));
             const qty = this.numValue(item.qty ?? item.kuantitas);
             const unit = this.stringValue(item.unit) || this.stringValue(item.satuan) || 'Pcs';
-            lines.push(this.twoColumn('Qty', `${this.formatQty(qty)} ${unit}`));
-            lines.push(this.twoColumn('Harga', this.currency(this.numValue(item.harga ?? item.harga_satuan))));
+            const harga = this.numValue(item.harga ?? item.harga_satuan);
+            const batch = this.stringValue(item.batch_number) || this.stringValue(item.batch) || 'N/A';
+            const exp = this.formatExpDate(this.stringValue(item.expired_date) || this.stringValue(item.exp)) || 'N/A';
+            lines.push(this.twoColumn(`${batch} - ${exp}`, `${this.formatQty(qty)} ${unit} x ${this.currency(harga)}`));
 
             const diskon = this.numValue(item.diskon);
             if (diskon > 0) lines.push(this.twoColumn('Diskon', `${this.formatQty(diskon)}%`));
-            if (this.stringValue(item.batch_number)) lines.push(this.twoColumn('Batch', this.stringValue(item.batch_number)));
-            if (this.stringValue(item.batch)) lines.push(this.twoColumn('Batch', this.stringValue(item.batch)));
-            if (this.stringValue(item.expired_date)) lines.push(this.twoColumn('Exp', this.formatExpDate(this.stringValue(item.expired_date))));
-            if (this.stringValue(item.exp)) lines.push(this.twoColumn('Exp', this.formatExpDate(this.stringValue(item.exp))));
             if (this.stringValue(item.deskripsi)) lines.push(this.kvLine('Ket', this.stringValue(item.deskripsi)));
             lines.push(this.twoColumn('Jumlah', this.currency(this.numValue(item.jumlah))));
             lines.push(null);
