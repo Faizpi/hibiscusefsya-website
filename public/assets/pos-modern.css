@@ -527,6 +527,7 @@ label {
     align-items: center;
     gap: 0.32rem;
     max-width: 100%;
+    min-width: 0;
     padding: 0.28rem 0.52rem;
     border: 1px solid var(--pos-border);
     border-radius: 999px;
@@ -534,6 +535,17 @@ label {
     color: var(--pos-soft-text);
     font-size: 0.73rem;
     line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.detail-meta-item strong,
+.detail-meta-item span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .detail-meta-item i {
@@ -598,6 +610,46 @@ label {
     }
 }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+    #content>.container-fluid {
+        padding: 1rem;
+    }
+
+    .page-header-mobile {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .show-action-buttons {
+        justify-content: flex-start;
+    }
+
+    .show-action-buttons .btn {
+        min-width: 0;
+    }
+
+    .card-header.d-flex {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .card-header .d-flex,
+    .card-header form {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .card-header .input-group,
+    .card-header select.form-control,
+    .card-header input.form-control {
+        min-width: 220px;
+    }
+
+    .table-responsive .table {
+        min-width: 860px;
+    }
+}
+
 @media (max-width: 1024px) {
     .sidebar {
         width: 14rem !important;
@@ -616,6 +668,27 @@ label {
 
     .topbar {
         padding: 0 0.75rem;
+    }
+
+    .topbar .notification-dropdown {
+        width: calc(100vw - 1rem);
+        min-width: 0;
+        max-width: calc(100vw - 1rem);
+        right: -0.25rem;
+    }
+
+    .notification-dropdown .notification-item {
+        align-items: flex-start;
+    }
+
+    .notification-dropdown .notification-meta {
+        max-width: 38%;
+    }
+
+    .notification-dropdown .notification-amount {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .sidebar,
@@ -637,6 +710,12 @@ label {
         align-items: stretch !important;
     }
 
+    .d-sm-flex.align-items-center.justify-content-between.mb-4>.btn,
+    .d-sm-flex.align-items-center.justify-content-between.mb-4>a.btn,
+    .d-sm-flex.align-items-center.justify-content-between.mb-4>form {
+        width: 100%;
+    }
+
     .page-header-mobile {
         padding: 0.8rem;
     }
@@ -648,6 +727,15 @@ label {
 
     .detail-title-block {
         min-width: 0;
+    }
+
+    .detail-meta {
+        gap: 0.3rem;
+    }
+
+    .detail-meta-item {
+        flex: 1 1 100%;
+        justify-content: flex-start;
     }
 
     .show-action-buttons {
@@ -676,6 +764,11 @@ label {
         flex-wrap: wrap;
     }
 
+    .card-header .d-flex>*,
+    .card-header form>* {
+        min-width: 0;
+    }
+
     .card-header select.form-control,
     .card-header input.form-control,
     .card-header .input-group {
@@ -689,6 +782,10 @@ label {
 
     .table-responsive .table {
         min-width: 760px;
+    }
+
+    .table-responsive {
+        max-width: 100% !important;
     }
 
     .desktop-product-table {
@@ -713,6 +810,33 @@ label {
     .table-borderless td {
         display: block;
         padding: 0.2rem 0;
+    }
+
+    .table-borderless td:nth-child(2):not(:last-child) {
+        display: none;
+    }
+
+    .table-borderless td:last-child {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .table-borderless .badge {
+        white-space: normal;
+        text-align: left;
+    }
+
+    .modal-dialog {
+        margin: 0.75rem;
+    }
+
+    .modal-footer {
+        gap: 0.45rem;
+    }
+
+    .modal-footer .btn,
+    .modal-footer form {
+        flex: 1 1 auto;
     }
 }
 
