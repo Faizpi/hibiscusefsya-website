@@ -39,6 +39,16 @@
         body {
             background: var(--bg-light);
             overflow-x: hidden;
+            zoom: 75%;
+            width: 133.333333%;
+            min-height: 133.333333vh;
+        }
+
+        @supports not (zoom: 1) {
+            body {
+                transform: scale(0.75);
+                transform-origin: top left;
+            }
         }
 
         /* Hide caret on custom dropdown buttons that use ellipsis icon */

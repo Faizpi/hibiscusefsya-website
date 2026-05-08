@@ -16,11 +16,20 @@
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #dbeafe 0%, #f0f4f8 50%, #dbeafe 100%);
-            min-height: 100vh;
+            min-height: 133.333333vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 24px;
+            zoom: 75%;
+            width: 133.333333%;
+        }
+
+        @supports not (zoom: 1) {
+            body {
+                transform: scale(0.75);
+                transform-origin: top left;
+            }
         }
 
         .login-card {
