@@ -99,6 +99,668 @@ class BluetoothThermalPrinter {
         return output;
     }
 
+    // Build the same 58mm text layout used by the Flutter app.
+    async buildFlutter58Receipt(type, rawData, options = {}) {
+        const data = this.unwrapResponseData(rawData);
+        data.type = data.type || type;
+        data.paper_size = '58mm';
+
+        const printQR = options.printQR !== false;
+        const parts = [];
+        const lines = this.buildReceiptLines(data);
+
+        let content = this.COMMANDS.RESET;
+        content += this.COMMANDS.ALIGN_CENTER;
+        content += '\x1D\x21\x11' + this.COMMANDS.BOLD_ON + 'HIBISCUS EFSYA\n';
+        content += '\x1D\x21\x00' + this.COMMANDS.BOLD_OFF;
+
+        const title = this.receiptTitle(data);
+        if (title) {
+            content += this.COMMANDS.BOLD_ON + title + this.COMMANDS.BOLD_OFF + '\n';
+        }
+
+        content += this.COMMANDS.ALIGN_LEFT + this.divider();
+        content += this.renderReceiptLines(lines);
+        content += this.divider();
+        content += '\n';
+        content += this.COMMANDS.ALIGN_CENTER + this.COMMANDS.BOLD_ON;
+        content += 'Periksa Invoice & Ambil Promo !!!\n';
+        content += this.COMMANDS.BOLD_OFF + '\n';
+        content += '- '.repeat(16) + '\n\n';
+        parts.push({ type: 'text', data: content });
+
+        if (printQR) {
+            try {
+                parts.push({ type: 'text', data: this.COMMANDS.ALIGN_CENTER });
+                const qrImage = await this.generateQRCode('https://customer.hibiscusefsya.com/', 150);
+                parts.push({ type: 'image', data: qrImage });
+                parts.push({ type: 'text', data: '\n' + '- '.repeat(16) + '\n\n' });
+            } catch (e) {
+                console.warn('QR customer portal failed:', e);
+                parts.push({
+                    type: 'text',
+                    data: 'https://customer.hibiscusefsya.com/\n\n' + '- '.repeat(16) + '\n\n'
+                });
+            }
+        }
+
+        let footer = this.COMMANDS.ALIGN_CENTER;
+        footer += 'marketing@hibiscusefsya.com\n\n';
+        footer += 'Official WA Chat: +6285195550202\n\n';
+        footer += 'Terima kasih\n\n\n';
+        footer += this.COMMANDS.CUT;
+        parts.push({ type: 'text', data: footer });
+
+        return parts;
+    }
+
+    unwrapResponseData(response) {
+        if (response && typeof response === 'object' && response.data && typeof response.data === 'object' && !Array.isArray(response.data)) {
+            return { ...response.data };
+        }
+        return { ...(response || {}) };
+    }
+
+    receiptTitle(data) {
+        const type = this.stringValue(data.type).toLowerCase();
+        if (type.includes('penjualan')) return 'INVOICE PENJUALAN';
+        if (type.includes('kunjungan')) return 'STRUK KUNJUNGAN';
+        if (type.includes('pembelian')) return 'INVOICE PEMBELIAN';
+        if (type.includes('biaya')) return 'STRUK BIAYA';
+        return 'STRUK';
+    }
+
+    buildReceiptLines(data) {
+        const type = this.stringValue(data.type).toLowerCase();
+        if (type.includes('penjualan')) return this.buildPenjualanLines(data);
+        if (type.includes('kunjungan')) return this.buildKunjunganLines(data);
+        if (type.includes('pembelian')) return this.buildPembelianLines(data);
+        if (type.includes('biaya')) return this.buildBiayaLines(data);
+        return this.buildGenericLines(data);
+    }
+
+    renderReceiptLines(lines) {
+        let output = '';
+        lines.forEach(line => {
+            if (line === null || line === undefined) {
+                output += '\n';
+            } else if (line === '---HR---') {
+                output += this.divider();
+            } else if (String(line).startsWith('\x00R:')) {
+                output += this.rightOnlyLine(String(line).substring(3)) + '\n';
+            } else {
+                output += String(line) + '\n';
+            }
+        });
+        return output;
+    }
+
+    async showPreviewDialog(type, rawData, options = {}) {
+        const data = this.unwrapResponseData(rawData);
+        data.type = data.type || type;
+        data.paper_size = '58mm';
+
+        this.ensurePreviewStyles();
+        const title = this.receiptTitle(data);
+        const lines = this.buildReceiptLines(data);
+        const overlay = document.createElement('div');
+        overlay.className = 'bt-preview-overlay';
+
+        const lineHtml = lines.map(line => this.previewLineHtml(line)).join('');
+        overlay.innerHTML = `
+            <div class="bt-preview-dialog" role="dialog" aria-modal="true">
+                <div class="bt-preview-header">
+                    <div>
+                        <div class="bt-preview-title">Preview Struk Bluetooth</div>
+                        <div class="bt-preview-subtitle">Format thermal 58mm</div>
+                    </div>
+                    <button type="button" class="bt-preview-close" aria-label="Tutup">&times;</button>
+                </div>
+                <div class="bt-preview-scroll">
+                    <div class="bt-preview-paper">
+                        <div class="bt-preview-brand">HIBISCUS EFSYA</div>
+                        <div class="bt-preview-doc">${this.escapeHtml(title)}</div>
+                        <div class="bt-preview-hr"></div>
+                        <div class="bt-preview-lines">${lineHtml}</div>
+                        <div class="bt-preview-hr"></div>
+                        <div class="bt-preview-promo">Periksa Invoice & Ambil Promo !!!</div>
+                        <div class="bt-preview-dash">${this.escapeHtml('- '.repeat(16))}</div>
+                        <div class="bt-preview-qr" data-qr></div>
+                        <div class="bt-preview-dash">${this.escapeHtml('- '.repeat(16))}</div>
+                        <div class="bt-preview-footer">
+                            marketing@hibiscusefsya.com<br>
+                            Official WA Chat: +6285195550202<br>
+                            Terima kasih
+                        </div>
+                    </div>
+                </div>
+                <div class="bt-preview-actions">
+                    <button type="button" class="btn btn-light bt-preview-cancel">Batal</button>
+                    <button type="button" class="btn btn-primary bt-preview-print">
+                        <i class="fab fa-bluetooth-b"></i> Print Bluetooth
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+        const closeBtn = overlay.querySelector('.bt-preview-close');
+        const cancelBtn = overlay.querySelector('.bt-preview-cancel');
+        const printBtn = overlay.querySelector('.bt-preview-print');
+        const dialog = overlay.querySelector('.bt-preview-dialog');
+        const qrTarget = overlay.querySelector('[data-qr]');
+
+        this.renderPreviewQr(qrTarget);
+
+        return new Promise(resolve => {
+            const cleanup = result => {
+                document.removeEventListener('keydown', onKeyDown);
+                overlay.remove();
+                resolve(result);
+            };
+            const onKeyDown = event => {
+                if (event.key === 'Escape') cleanup(false);
+            };
+
+            closeBtn.addEventListener('click', () => cleanup(false));
+            cancelBtn.addEventListener('click', () => cleanup(false));
+            printBtn.addEventListener('click', () => cleanup(true));
+            overlay.addEventListener('click', event => {
+                if (!dialog.contains(event.target)) cleanup(false);
+            });
+            document.addEventListener('keydown', onKeyDown);
+        });
+    }
+
+    previewLineHtml(line) {
+        if (line === null || line === undefined) return '<div class="bt-preview-gap"></div>';
+        if (line === '---HR---') return '<div class="bt-preview-hr"></div>';
+        const raw = String(line);
+        if (raw.startsWith('\x00R:')) {
+            return `<div class="bt-preview-line bt-preview-right">${this.escapeHtml(raw.substring(3))}</div>`;
+        }
+        return `<div class="bt-preview-line">${this.escapeHtml(raw).replace(/\n/g, '<br>')}</div>`;
+    }
+
+    async renderPreviewQr(target) {
+        if (!target) return;
+        const qrUrl = 'https://customer.hibiscusefsya.com/';
+        target.textContent = '';
+        try {
+            await this.loadQRCodeLibrary();
+            if (typeof QRCode !== 'undefined') {
+                new QRCode(target, {
+                    text: qrUrl,
+                    width: 132,
+                    height: 132,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+                return;
+            }
+        } catch (e) {
+            console.warn('Preview QR failed:', e);
+        }
+        target.innerHTML = '<div class="bt-preview-qr-fallback">QR<br><span>customer.hibiscusefsya.com</span></div>';
+    }
+
+    escapeHtml(value) {
+        return this.stringValue(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    ensurePreviewStyles() {
+        if (document.getElementById('bt-preview-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'bt-preview-styles';
+        style.textContent = `
+            .bt-preview-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 20000;
+                background: rgba(15, 23, 42, .58);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+            }
+            .bt-preview-dialog {
+                width: min(430px, 100%);
+                max-height: calc(100vh - 32px);
+                background: #ffffff;
+                border-radius: 14px;
+                box-shadow: 0 24px 80px rgba(15, 23, 42, .35);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            .bt-preview-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 14px 16px;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            .bt-preview-title {
+                font-size: 15px;
+                font-weight: 700;
+                color: #111827;
+            }
+            .bt-preview-subtitle {
+                font-size: 12px;
+                color: #6b7280;
+                margin-top: 1px;
+            }
+            .bt-preview-close {
+                width: 34px;
+                height: 34px;
+                border: 0;
+                border-radius: 8px;
+                background: #f3f4f6;
+                color: #374151;
+                font-size: 24px;
+                line-height: 1;
+                cursor: pointer;
+            }
+            .bt-preview-scroll {
+                overflow: auto;
+                background: #f3f4f6;
+                padding: 16px 0;
+            }
+            .bt-preview-paper {
+                width: 272px;
+                margin: 0 auto;
+                padding: 14px 12px 18px;
+                background: #fff;
+                color: #111;
+                font-family: "Courier New", Courier, monospace;
+                font-size: 11px;
+                line-height: 1.35;
+                box-shadow: 0 8px 22px rgba(15, 23, 42, .15);
+            }
+            .bt-preview-brand {
+                text-align: center;
+                font-size: 18px;
+                line-height: 1.2;
+                font-weight: 800;
+            }
+            .bt-preview-doc {
+                text-align: center;
+                font-weight: 700;
+                margin-top: 2px;
+            }
+            .bt-preview-line {
+                white-space: pre-wrap;
+                word-break: break-word;
+                min-height: 15px;
+            }
+            .bt-preview-right {
+                text-align: right;
+            }
+            .bt-preview-gap {
+                height: 8px;
+            }
+            .bt-preview-hr {
+                border-top: 1px dashed #111;
+                margin: 6px 0;
+            }
+            .bt-preview-promo {
+                text-align: center;
+                font-weight: 700;
+                font-size: 10px;
+                margin: 8px 0;
+            }
+            .bt-preview-dash {
+                text-align: center;
+                white-space: pre;
+                margin: 6px 0;
+            }
+            .bt-preview-qr {
+                width: 132px;
+                height: 132px;
+                margin: 8px auto;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .bt-preview-qr img,
+            .bt-preview-qr canvas {
+                width: 132px !important;
+                height: 132px !important;
+            }
+            .bt-preview-qr-fallback {
+                width: 132px;
+                height: 132px;
+                border: 2px solid #111;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                font-weight: 800;
+                text-align: center;
+            }
+            .bt-preview-qr-fallback span {
+                font-size: 9px;
+                font-weight: 400;
+                margin-top: 4px;
+            }
+            .bt-preview-footer {
+                text-align: center;
+                margin-top: 8px;
+            }
+            .bt-preview-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 8px;
+                padding: 12px 16px;
+                border-top: 1px solid #e5e7eb;
+                background: #fff;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    buildPenjualanLines(data) {
+        const lines = [
+            this.kvLine('Nomor', this.stringValue(data.nomor)),
+            this.kvLine('Tanggal', this.stringValue(data.tanggal)),
+            this.kvLine('Jatuh Tempo', this.stringValue(data.jatuh_tempo)),
+            this.kvLine('Pembayaran', this.stringValue(data.pembayaran)),
+            this.kvLine('Pelanggan', this.stringValue(data.pelanggan)),
+            this.kvLine('No. Telepon', this.stringValue(data.no_telepon) || 'N/A'),
+            this.kvLine('Sales', this.stringValue(data.sales)),
+            this.kvLine('No. Telp Sales', this.stringValue(data.sales_no_telp) || 'N/A')
+        ];
+
+        if (this.stringValue(data.no_referensi)) lines.push(this.kvLine('No. Ref', this.stringValue(data.no_referensi)));
+        if (this.stringValue(data.memo)) lines.push(this.kvLine('Memo', this.stringValue(data.memo)));
+        lines.push('---HR---');
+
+        this.listOfMaps(data.items).forEach(item => {
+            lines.push(this.wrapText(this.itemName(item)));
+            const batchVal = this.stringValue(item.batch) || this.stringValue(item.batch_number) || 'N/A';
+            const expVal = this.formatExpDate(this.stringValue(item.exp) || this.stringValue(item.expired_date));
+            lines.push(this.wrapText(this.itemQuantityPrice(item, batchVal, expVal)));
+
+            const diskon = this.numValue(item.diskon);
+            if (diskon > 0) lines.push(this.twoColumn('Diskon', `${this.formatQty(diskon)}%`));
+            if (this.stringValue(item.deskripsi)) lines.push(this.kvLine('Ket', this.stringValue(item.deskripsi)));
+            lines.push(this.twoColumn('Jumlah', this.currency(this.numValue(item.jumlah))));
+            lines.push(null);
+        });
+
+        this.removeTrailingBlank(lines);
+        lines.push('---HR---');
+        lines.push(this.twoColumn('Subtotal', this.currency(this.numValue(data.subtotal))));
+        if (this.numValue(data.diskon_akhir) > 0) {
+            lines.push(this.twoColumn('Diskon', `- ${this.currency(this.numValue(data.diskon_akhir))}`));
+        }
+        if (this.numValue(data.pajak) > 0) {
+            lines.push(this.twoColumn(`Pajak (${this.formatQty(this.numValue(data.tax_percentage))}%)`, this.currency(this.numValue(data.pajak))));
+        }
+        lines.push('---HR---');
+        lines.push(this.twoColumn('GRAND TOTAL', this.currency(this.numValue(data.grand_total))));
+        return lines;
+    }
+
+    buildPembelianLines(data) {
+        const lines = [
+            this.kvLine('Nomor', this.stringValue(data.nomor)),
+            this.kvLine('Tanggal', this.stringValue(data.tanggal)),
+            this.kvLine('Jatuh Tempo', this.stringValue(data.jatuh_tempo)),
+            this.kvLine('Pembayaran', this.stringValue(data.pembayaran))
+        ];
+        if (this.stringValue(data.urgensi)) lines.push(this.kvLine('Urgensi', this.stringValue(data.urgensi)));
+        lines.push(this.kvLine('Vendor', this.stringValue(data.vendor)));
+        lines.push(this.kvLine('Dibuat oleh', this.stringValue(data.sales)));
+        if (this.stringValue(data.tahun_anggaran)) lines.push(this.kvLine('Thn Anggaran', this.stringValue(data.tahun_anggaran)));
+        if (this.stringValue(data.staf_penyetuju)) lines.push(this.kvLine('Staf Penyetuju', this.stringValue(data.staf_penyetuju)));
+        if (this.stringValue(data.memo)) lines.push(this.kvLine('Memo', this.stringValue(data.memo)));
+        lines.push('---HR---');
+
+        this.listOfMaps(data.items).forEach(item => {
+            lines.push(this.wrapText(this.itemName(item)));
+            const qty = this.numValue(item.qty ?? item.kuantitas);
+            const unit = this.stringValue(item.unit) || this.stringValue(item.satuan) || 'Pcs';
+            lines.push(this.twoColumn('Qty', `${this.formatQty(qty)} ${unit}`));
+
+            const diskon = this.numValue(item.diskon);
+            if (diskon > 0) lines.push(this.twoColumn('Diskon', `${this.formatQty(diskon)}%`));
+            if (this.stringValue(item.batch_number)) lines.push(this.kvLine('Batch', this.stringValue(item.batch_number)));
+            if (this.stringValue(item.batch)) lines.push(this.kvLine('Batch', this.stringValue(item.batch)));
+            if (this.stringValue(item.expired_date)) lines.push(this.kvLine('Exp', this.stringValue(item.expired_date)));
+            if (this.stringValue(item.exp)) lines.push(this.kvLine('Exp', this.stringValue(item.exp)));
+            if (this.stringValue(item.deskripsi)) lines.push(this.kvLine('Ket', this.stringValue(item.deskripsi)));
+            lines.push(this.twoColumn('Jumlah', this.currency(this.numValue(item.jumlah))));
+            lines.push(null);
+        });
+
+        this.removeTrailingBlank(lines);
+        lines.push('---HR---');
+        lines.push(this.twoColumn('Subtotal', this.currency(this.numValue(data.subtotal))));
+        if (this.numValue(data.diskon_akhir) > 0) {
+            lines.push(this.twoColumn('Diskon', `- ${this.currency(this.numValue(data.diskon_akhir))}`));
+        }
+        if (this.numValue(data.pajak) > 0) {
+            lines.push(this.twoColumn(`Pajak (${this.formatQty(this.numValue(data.tax_percentage))}%)`, this.currency(this.numValue(data.pajak))));
+        }
+        lines.push('---HR---');
+        lines.push(this.twoColumn('GRAND TOTAL', this.currency(this.numValue(data.grand_total))));
+        return lines;
+    }
+
+    buildBiayaLines(data) {
+        const lines = [
+            this.kvLine('Nomor', this.stringValue(data.nomor)),
+            this.kvLine('Tanggal', this.stringValue(data.tanggal)),
+            this.kvLine('Jenis Biaya', this.stringValue(data.jenis_biaya)),
+            this.kvLine('Bayar Dari', this.stringValue(data.bayar_dari))
+        ];
+        if (this.stringValue(data.cara_pembayaran)) lines.push(this.kvLine('Cara Bayar', this.stringValue(data.cara_pembayaran)));
+        lines.push(this.kvLine('Penerima', this.stringValue(data.penerima)));
+        if (this.stringValue(data.alamat_penagihan)) lines.push(this.kvLine('Alamat', this.stringValue(data.alamat_penagihan)));
+        lines.push(this.kvLine('Dibuat oleh', this.stringValue(data.sales)));
+        if (this.stringValue(data.tag)) lines.push(this.kvLine('Tag', this.stringValue(data.tag)));
+        if (this.stringValue(data.koordinat)) lines.push(this.kvLine('Koordinat', this.stringValue(data.koordinat)));
+        if (this.stringValue(data.memo)) lines.push(this.kvLine('Memo', this.stringValue(data.memo)));
+        lines.push('---HR---');
+
+        this.listOfMaps(data.items).forEach(item => {
+            lines.push(this.wrapText(this.stringValue(item.kategori)));
+            if (this.stringValue(item.deskripsi)) lines.push(this.kvLine('Ket', this.stringValue(item.deskripsi)));
+            lines.push(this.twoColumn('Jumlah', this.currency(this.numValue(item.jumlah))));
+            lines.push(null);
+        });
+
+        this.removeTrailingBlank(lines);
+        lines.push('---HR---');
+        if (this.numValue(data.subtotal) > 0) lines.push(this.twoColumn('Subtotal', this.currency(this.numValue(data.subtotal))));
+        if (this.numValue(data.pajak) > 0) {
+            lines.push(this.twoColumn(`Pajak (${this.formatQty(this.numValue(data.tax_percentage))}%)`, this.currency(this.numValue(data.pajak))));
+        }
+        lines.push('---HR---');
+        lines.push(this.twoColumn('GRAND TOTAL', this.currency(this.numValue(data.grand_total))));
+        return lines;
+    }
+
+    buildKunjunganLines(data) {
+        const lines = [
+            this.kvLine('Nomor', this.stringValue(data.nomor)),
+            this.kvLine('Tanggal', this.stringValue(data.tanggal)),
+            this.kvLine('Tujuan', this.stringValue(data.tujuan))
+        ];
+
+        const pembuatNama = this.stringValue(data.dibuat_oleh) || this.stringValue(data.user && data.user.name) || this.stringValue(data.pembuat);
+        if (pembuatNama) lines.push(this.kvLine('Pembuat', pembuatNama));
+
+        const pelangganNama = this.stringValue(data.sales_nama) || this.stringValue(data.kontak && data.kontak.nama) || this.stringValue(data.kontak_nama);
+        if (pelangganNama) lines.push(this.kvLine('Pelanggan', pelangganNama));
+        if (this.stringValue(data.sales_no_telepon)) lines.push(this.kvLine('No. Telepon', this.stringValue(data.sales_no_telepon)));
+        if (this.stringValue(data.sales_alamat)) lines.push(...this.rightAlignLines('Alamat', this.stringValue(data.sales_alamat)));
+        if (this.stringValue(data.koordinat)) lines.push(...this.rightAlignLines('Koordinat', this.stringValue(data.koordinat)));
+        if (this.stringValue(data.memo)) lines.push(this.kvLine('Memo', this.stringValue(data.memo)));
+        lines.push('---HR---');
+
+        this.listOfMaps(data.items).forEach(item => {
+            let produkNama = this.stringValue(item.nama) || this.stringValue(item.nama_produk);
+            if (!produkNama && item.produk) produkNama = this.stringValue(item.produk.nama_produk);
+            lines.push(this.wrapText(produkNama || '-'));
+
+            let satuan = this.stringValue(item.unit) || this.stringValue(item.satuan);
+            if (!satuan && item.produk) satuan = this.stringValue(item.produk.satuan);
+            const qty = this.numValue(item.qty ?? item.kuantitas);
+            lines.push(this.twoColumn('Qty', `${this.formatQty(qty)} ${satuan || 'Pcs'}`));
+
+            if (this.stringValue(item.tipe_stok)) lines.push(this.kvLine('Tipe', this.stringValue(item.tipe_stok)));
+            if (this.stringValue(item.batch)) lines.push(this.kvLine('Batch', this.stringValue(item.batch)));
+            if (this.stringValue(item.batch_number)) lines.push(this.kvLine('Batch', this.stringValue(item.batch_number)));
+            if (this.stringValue(item.exp)) lines.push(this.kvLine('Exp', this.stringValue(item.exp)));
+            if (this.stringValue(item.expired_date)) lines.push(this.kvLine('Exp', this.stringValue(item.expired_date)));
+            if (this.stringValue(item.keterangan)) lines.push(this.kvLine('Ket', this.stringValue(item.keterangan)));
+            lines.push(null);
+        });
+
+        this.removeTrailingBlank(lines);
+        return lines;
+    }
+
+    buildGenericLines(data) {
+        return Object.entries(data)
+            .filter(([key]) => key !== 'items')
+            .map(([key, value]) => this.kvLine(key.replaceAll('_', ' ').toUpperCase(), this.stringValue(value)));
+    }
+
+    kvLine(label, value) {
+        return this.twoColumn(label, this.stringValue(value) || '-');
+    }
+
+    twoColumn(left, right) {
+        const leftText = this.stringValue(left);
+        const rightText = this.stringValue(right) || '-';
+        const available = this.WIDTH - leftText.length - rightText.length;
+        if (available <= 1) return `${leftText} ${rightText}`;
+        return leftText + ' '.repeat(available) + rightText;
+    }
+
+    rightAlignLines(label, value) {
+        const lbl = this.stringValue(label);
+        const val = this.stringValue(value) || '-';
+        const maxValWidth = Math.max(1, this.WIDTH - lbl.length - 1);
+        const chunks = this.wrapChunks(val, maxValWidth);
+        return chunks.map((chunk, index) => {
+            if (index === 0) {
+                const pad = this.WIDTH - lbl.length - 1 - chunk.length;
+                return lbl + ' '.repeat(Math.max(2, pad)) + chunk;
+            }
+            return '\x00R:' + chunk;
+        });
+    }
+
+    rightOnlyLine(value) {
+        const text = this.stringValue(value);
+        return ' '.repeat(Math.max(0, this.WIDTH - text.length)) + text;
+    }
+
+    wrapText(value, width = this.WIDTH) {
+        return this.wrapChunks(this.stringValue(value), width).join('\n');
+    }
+
+    wrapChunks(value, width) {
+        const text = this.stringValue(value);
+        if (!text) return [''];
+        if (text.length <= width) return [text];
+
+        const words = text.split(/\s+/);
+        const lines = [];
+        let current = '';
+
+        words.forEach(word => {
+            if (!current) {
+                current = word;
+            } else if ((current.length + 1 + word.length) <= width) {
+                current += ' ' + word;
+            } else {
+                lines.push(current);
+                current = word;
+            }
+
+            while (current.length > width) {
+                lines.push(current.substring(0, width));
+                current = current.substring(width);
+            }
+        });
+
+        if (current) lines.push(current);
+        return lines;
+    }
+
+    itemName(item) {
+        return this.stringValue(item.nama) || this.stringValue(item.nama_produk) || '-';
+    }
+
+    itemQuantityPrice(item, batchVal, expVal) {
+        const qty = this.numValue(item.qty ?? item.kuantitas);
+        const unit = this.stringValue(item.unit) || this.stringValue(item.satuan) || 'Pcs';
+        const harga = this.numValue(item.harga ?? item.harga_satuan);
+        const qtyText = this.formatQty(qty);
+        if (batchVal !== undefined && expVal !== undefined) {
+            return `${batchVal} - ${expVal}  ${qtyText} x ${this.currency(harga)}`;
+        }
+        return `${qtyText} ${unit} x ${this.currency(harga)}`;
+    }
+
+    listOfMaps(value) {
+        return Array.isArray(value) ? value.filter(item => item && typeof item === 'object') : [];
+    }
+
+    stringValue(value) {
+        if (value === null || value === undefined) return '';
+        if (typeof value === 'string') return value.trim();
+        if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+        return String(value).trim();
+    }
+
+    numValue(value) {
+        if (value === null || value === undefined || value === '') return 0;
+        if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+        const cleaned = String(value).trim().replace(/[^0-9,.\-]/g, '');
+        if (!cleaned || cleaned === '-') return 0;
+        if (cleaned.includes(',')) {
+            return Number(cleaned.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+        if (/^-?\d{1,3}(\.\d{3})+$/.test(cleaned)) {
+            return Number(cleaned.replace(/\./g, '')) || 0;
+        }
+        return Number(cleaned) || 0;
+    }
+
+    formatQty(value) {
+        const num = this.numValue(value);
+        return Number.isInteger(num) ? String(num) : num.toFixed(2);
+    }
+
+    currency(value) {
+        return this.formatRupiah(this.numValue(value)).replace(/\u00a0/g, '');
+    }
+
+    formatExpDate(raw) {
+        const value = this.stringValue(raw);
+        if (!value) return 'N/A';
+        const parts = value.split('-');
+        if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        return value;
+    }
+
+    removeTrailingBlank(lines) {
+        if (lines.length && lines[lines.length - 1] === null) lines.pop();
+    }
+
     /**
      * Load image and convert to ESC * bitmap format
      * ESC * is MUCH more compatible with cheap BLE printers than GS v 0
@@ -394,6 +1056,7 @@ class BluetoothThermalPrinter {
 
     // Build receipt content for Penjualan
     async buildPenjualanReceipt(data, options = {}) {
+        return this.buildFlutter58Receipt('penjualan', data, options);
         const printLogo = options.printLogo !== false;
         const printQR = options.printQR !== false;
         // Use absolute URL for logo to ensure it loads correctly
@@ -507,6 +1170,7 @@ class BluetoothThermalPrinter {
 
     // Build receipt content for Pembelian
     async buildPembelianReceipt(data, options = {}) {
+        return this.buildFlutter58Receipt('pembelian', data, options);
         const printLogo = options.printLogo !== false;
         const printQR = options.printQR !== false;
         // Use absolute URL for logo to ensure it loads correctly
@@ -610,6 +1274,7 @@ class BluetoothThermalPrinter {
 
     // Build receipt content for Biaya
     async buildBiayaReceipt(data, options = {}) {
+        return this.buildFlutter58Receipt('biaya', data, options);
         const printLogo = options.printLogo !== false;
         const printQR = options.printQR !== false;
         // Use absolute URL for logo to ensure it loads correctly
@@ -715,6 +1380,7 @@ class BluetoothThermalPrinter {
 
     // Build receipt content for Kunjungan
     async buildKunjunganReceipt(data, options = {}) {
+        return this.buildFlutter58Receipt('kunjungan', data, options);
         const printLogo = options.printLogo !== false;
         const printQR = options.printQR !== false;
         // Use absolute URL for logo to ensure it loads correctly
@@ -993,13 +1659,8 @@ async function printViaBluetooth(button, type, jsonUrl, options = {}) {
     };
     
     try {
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
-        button.disabled = true;
-
-        // Connect to printer
-        await window.BluetoothPrinter.connect();
-
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading data...';
+        button.disabled = true;
 
         // Fetch JSON data from server
         const response = await fetch(jsonUrl);
@@ -1010,6 +1671,20 @@ async function printViaBluetooth(button, type, jsonUrl, options = {}) {
         
         // Debug: log data untuk troubleshooting
         console.log('Bluetooth Print Data:', type, data);
+
+        button.innerHTML = '<i class="fas fa-receipt"></i> Preview...';
+
+        const proceed = await window.BluetoothPrinter.showPreviewDialog(type, data, options);
+        if (!proceed) {
+            button.innerHTML = originalHtml;
+            button.disabled = false;
+            return;
+        }
+
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
+
+        // Connect to printer after user confirms preview
+        await window.BluetoothPrinter.connect();
 
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing...';
 

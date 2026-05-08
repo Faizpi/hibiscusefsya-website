@@ -349,7 +349,7 @@
     </div>
 
     <!-- Include Bluetooth Print JS -->
-    <script src="{{ asset('js/bluetooth-print.js') }}"></script>
+    <script src="{{ asset('js/bluetooth-print.js') }}?v={{ filemtime(public_path('js/bluetooth-print.js')) }}"></script>
     <script>
         function copyPublicUrl() {
             const input = document.getElementById('publicUrlInput');
@@ -368,8 +368,8 @@
         document.getElementById('printBluetooth')?.addEventListener('click', function () {
             const type = this.dataset.type;
             const jsonUrl = this.dataset.url;
-            // Disable QR & Logo untuk biaya - printer BLE sering glitch dengan image
-            printViaBluetooth(this, type, jsonUrl, { printLogo: false, printQR: false });
+            // Logo dimatikan; QR customer portal mengikuti format Flutter 58mm.
+            printViaBluetooth(this, type, jsonUrl, { printLogo: false });
         });
     </script>
 @endsection

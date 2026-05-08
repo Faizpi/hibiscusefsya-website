@@ -53,6 +53,7 @@ class BluetoothPrintController extends Controller
                 'diskon' => $item->diskon ?? 0,
                 'batch' => $item->batch_number,
                 'exp' => $item->expired_date ? $item->expired_date->format('Y-m-d') : null,
+                'deskripsi' => $item->deskripsi ?? '',
                 'jumlah' => $item->jumlah_baris
             ];
         });
@@ -127,6 +128,9 @@ class BluetoothPrintController extends Controller
                 'unit' => $item->unit ?? 'Pcs',
                 'harga' => $item->harga_satuan,
                 'diskon' => $item->diskon ?? 0,
+                'batch' => $item->batch_number ?? null,
+                'exp' => $item->expired_date ? $item->expired_date->format('Y-m-d') : null,
+                'deskripsi' => $item->deskripsi ?? '',
                 'jumlah' => $item->jumlah_baris
             ];
         });
@@ -137,6 +141,10 @@ class BluetoothPrintController extends Controller
             'jatuh_tempo' => $data->tgl_jatuh_tempo ? $data->tgl_jatuh_tempo->format('d/m/Y') : '-',
             'pembayaran' => $data->syarat_pembayaran ?? '-',
             'vendor' => $data->staf_penyetuju ?? '-',
+            'urgensi' => $data->urgensi ?? '',
+            'tahun_anggaran' => $data->tahun_anggaran ?? '',
+            'staf_penyetuju' => $data->staf_penyetuju ?? '',
+            'memo' => $data->memo ?? '',
             'sales' => optional($data->user)->name ?? '-',
             'approver' => ($data->status != 'Pending' && $data->approver) ? $data->approver->name : '-',
             'gudang' => optional($data->gudang)->nama_gudang ?? '-',
@@ -184,6 +192,10 @@ class BluetoothPrintController extends Controller
             'cara_pembayaran' => $data->cara_pembayaran ?? '-',
             'bayar_dari' => $data->bayar_dari ?? '-',
             'penerima' => $data->penerima ?? '-',
+            'alamat_penagihan' => $data->alamat_penagihan ?? '',
+            'tag' => $data->tag ?? '',
+            'koordinat' => $data->koordinat ?? '',
+            'memo' => $data->memo ?? '',
             'gudang' => optional($data->gudang)->nama_gudang ?? '-',
             'sales' => optional($data->user)->name ?? '-',
             'approver' => ($data->status != 'Pending' && $data->approver) ? $data->approver->name : '-',
@@ -215,6 +227,7 @@ class BluetoothPrintController extends Controller
                     'kode' => optional($item->produk)->item_code ?? '-',
                     'nama' => optional($item->produk)->nama_produk ?? '-',
                     'qty' => $item->jumlah ?? 1,
+                    'unit' => optional($item->produk)->satuan ?? 'Pcs',
                     'batch' => $item->batch_number,
                     'exp' => $item->expired_date ? $item->expired_date->format('Y-m-d') : null,
                     'keterangan' => $item->keterangan ?? '',
