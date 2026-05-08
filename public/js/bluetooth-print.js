@@ -484,12 +484,18 @@ class BluetoothThermalPrinter {
 
         this.listOfMaps(data.items).forEach(item => {
             lines.push(this.wrapText(this.itemName(item)));
-            const batchVal = this.stringValue(item.batch) || this.stringValue(item.batch_number) || 'N/A';
-            const expVal = this.formatExpDate(this.stringValue(item.exp) || this.stringValue(item.expired_date));
-            lines.push(this.wrapText(this.itemQuantityPrice(item, batchVal, expVal)));
+            const qty = this.numValue(item.qty ?? item.kuantitas);
+            const unit = this.stringValue(item.unit) || this.stringValue(item.satuan) || 'Pcs';
+            const harga = this.numValue(item.harga ?? item.harga_satuan);
+            lines.push(this.twoColumn('Qty', `${this.formatQty(qty)} ${unit}`));
+            lines.push(this.twoColumn('Harga', this.currency(harga)));
 
             const diskon = this.numValue(item.diskon);
             if (diskon > 0) lines.push(this.twoColumn('Diskon', `${this.formatQty(diskon)}%`));
+            if (this.stringValue(item.batch)) lines.push(this.twoColumn('Batch', this.stringValue(item.batch)));
+            if (this.stringValue(item.batch_number)) lines.push(this.twoColumn('Batch', this.stringValue(item.batch_number)));
+            if (this.stringValue(item.exp)) lines.push(this.twoColumn('Exp', this.formatExpDate(this.stringValue(item.exp))));
+            if (this.stringValue(item.expired_date)) lines.push(this.twoColumn('Exp', this.formatExpDate(this.stringValue(item.expired_date))));
             if (this.stringValue(item.deskripsi)) lines.push(this.kvLine('Ket', this.stringValue(item.deskripsi)));
             lines.push(this.twoColumn('Jumlah', this.currency(this.numValue(item.jumlah))));
             lines.push(null);
@@ -529,13 +535,14 @@ class BluetoothThermalPrinter {
             const qty = this.numValue(item.qty ?? item.kuantitas);
             const unit = this.stringValue(item.unit) || this.stringValue(item.satuan) || 'Pcs';
             lines.push(this.twoColumn('Qty', `${this.formatQty(qty)} ${unit}`));
+            lines.push(this.twoColumn('Harga', this.currency(this.numValue(item.harga ?? item.harga_satuan))));
 
             const diskon = this.numValue(item.diskon);
             if (diskon > 0) lines.push(this.twoColumn('Diskon', `${this.formatQty(diskon)}%`));
-            if (this.stringValue(item.batch_number)) lines.push(this.kvLine('Batch', this.stringValue(item.batch_number)));
-            if (this.stringValue(item.batch)) lines.push(this.kvLine('Batch', this.stringValue(item.batch)));
-            if (this.stringValue(item.expired_date)) lines.push(this.kvLine('Exp', this.stringValue(item.expired_date)));
-            if (this.stringValue(item.exp)) lines.push(this.kvLine('Exp', this.stringValue(item.exp)));
+            if (this.stringValue(item.batch_number)) lines.push(this.twoColumn('Batch', this.stringValue(item.batch_number)));
+            if (this.stringValue(item.batch)) lines.push(this.twoColumn('Batch', this.stringValue(item.batch)));
+            if (this.stringValue(item.expired_date)) lines.push(this.twoColumn('Exp', this.formatExpDate(this.stringValue(item.expired_date))));
+            if (this.stringValue(item.exp)) lines.push(this.twoColumn('Exp', this.formatExpDate(this.stringValue(item.exp))));
             if (this.stringValue(item.deskripsi)) lines.push(this.kvLine('Ket', this.stringValue(item.deskripsi)));
             lines.push(this.twoColumn('Jumlah', this.currency(this.numValue(item.jumlah))));
             lines.push(null);
@@ -573,7 +580,7 @@ class BluetoothThermalPrinter {
 
         this.listOfMaps(data.items).forEach(item => {
             lines.push(this.wrapText(this.stringValue(item.kategori)));
-            if (this.stringValue(item.deskripsi)) lines.push(this.kvLine('Ket', this.stringValue(item.deskripsi)));
+            if (this.stringValue(item.deskripsi)) lines.push(this.kvLine('Deskripsi', this.stringValue(item.deskripsi)));
             lines.push(this.twoColumn('Jumlah', this.currency(this.numValue(item.jumlah))));
             lines.push(null);
         });
@@ -618,10 +625,8 @@ class BluetoothThermalPrinter {
             lines.push(this.twoColumn('Qty', `${this.formatQty(qty)} ${satuan || 'Pcs'}`));
 
             if (this.stringValue(item.tipe_stok)) lines.push(this.kvLine('Tipe', this.stringValue(item.tipe_stok)));
-            if (this.stringValue(item.batch)) lines.push(this.kvLine('Batch', this.stringValue(item.batch)));
-            if (this.stringValue(item.batch_number)) lines.push(this.kvLine('Batch', this.stringValue(item.batch_number)));
-            if (this.stringValue(item.exp)) lines.push(this.kvLine('Exp', this.stringValue(item.exp)));
-            if (this.stringValue(item.expired_date)) lines.push(this.kvLine('Exp', this.stringValue(item.expired_date)));
+            lines.push(this.twoColumn('Batch', this.stringValue(item.batch) || this.stringValue(item.batch_number) || 'N/A'));
+            lines.push(this.twoColumn('Exp', this.formatExpDate(this.stringValue(item.exp) || this.stringValue(item.expired_date))));
             if (this.stringValue(item.keterangan)) lines.push(this.kvLine('Ket', this.stringValue(item.keterangan)));
             lines.push(null);
         });
@@ -643,9 +648,18 @@ class BluetoothThermalPrinter {
     twoColumn(left, right) {
         const leftText = this.stringValue(left);
         const rightText = this.stringValue(right) || '-';
-        const available = this.WIDTH - leftText.length - rightText.length;
-        if (available <= 1) return `${leftText} ${rightText}`;
-        return leftText + ' '.repeat(available) + rightText;
+        const rightWidth = Math.max(1, this.WIDTH - leftText.length - 1);
+        const chunks = this.wrapChunks(rightText, rightWidth);
+        const rows = chunks.map((chunk, index) => {
+            if (index === 0) {
+                const available = this.WIDTH - leftText.length - chunk.length;
+                return leftText + ' '.repeat(Math.max(1, available)) + chunk;
+            }
+
+            return this.rightOnlyLine(chunk);
+        });
+
+        return rows.join('\n');
     }
 
     rightAlignLines(label, value) {
