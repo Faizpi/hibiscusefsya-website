@@ -3,7 +3,14 @@
 @section('content')
     <div class="container-fluid">
         <div class="d-flex align-items-center justify-content-between mb-4 page-header-mobile">
-            <h1 class="h3 mb-0 text-gray-800">Detail Pembayaran</h1>
+            <div class="detail-title-block">
+                <h1 class="h3 mb-0 text-gray-800">Detail Pembayaran #{{ $pembayaran->custom_number ?? $pembayaran->id }}</h1>
+                <div class="detail-meta">
+                    <span class="detail-meta-item"><i class="fas fa-circle"></i><strong>{{ $pembayaran->status }}</strong></span>
+                    <span class="detail-meta-item"><i class="fas fa-calendar-alt"></i>{{ $pembayaran->tgl_pembayaran->format('d M Y') }}</span>
+                    <span class="detail-meta-item"><i class="fas fa-warehouse"></i>{{ $pembayaran->gudang->nama_gudang ?? '-' }}</span>
+                </div>
+            </div>
             <div class="show-action-buttons">
                 <a href="{{ route('pembayaran.print', $pembayaran->id) }}" class="btn btn-info btn-sm shadow-sm"
                     target="_blank">

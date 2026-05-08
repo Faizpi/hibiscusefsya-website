@@ -2025,6 +2025,8 @@
             }
         }
     </style>
+    <link href="{{ asset('assets/pos-modern.css') }}?v={{ filemtime(public_path('assets/pos-modern.css')) }}"
+        rel="stylesheet">
 </head>
 
 <body id="page-top">

@@ -4,7 +4,14 @@
     <div class="container-fluid">
 
         <div class="d-flex align-items-center justify-content-between mb-4 page-header-mobile">
-            <h1 class="h3 mb-0 text-gray-800">Detail Kunjungan #{{ $kunjungan->custom_number ?? $kunjungan->id }}</h1>
+            <div class="detail-title-block">
+                <h1 class="h3 mb-0 text-gray-800">Detail Kunjungan #{{ $kunjungan->custom_number ?? $kunjungan->id }}</h1>
+                <div class="detail-meta">
+                    <span class="detail-meta-item"><i class="fas fa-circle"></i><strong>{{ $kunjungan->status }}</strong></span>
+                    <span class="detail-meta-item"><i class="fas fa-calendar-alt"></i>{{ $kunjungan->tgl_kunjungan->format('d M Y') }}</span>
+                    <span class="detail-meta-item"><i class="fas fa-warehouse"></i>{{ optional($kunjungan->gudang)->nama_gudang ?? '-' }}</span>
+                </div>
+            </div>
             <div class="show-action-buttons">
                 @php $user = auth()->user(); @endphp
 

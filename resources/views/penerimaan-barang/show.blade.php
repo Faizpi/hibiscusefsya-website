@@ -3,7 +3,14 @@
 @section('content')
     <div class="container-fluid">
         <div class="d-flex align-items-center justify-content-between mb-4 page-header-mobile">
-            <h1 class="h3 mb-0 text-gray-800">Detail Penerimaan Barang</h1>
+            <div class="detail-title-block">
+                <h1 class="h3 mb-0 text-gray-800">Detail Penerimaan Barang #{{ $penerimaan->custom_number ?? $penerimaan->id }}</h1>
+                <div class="detail-meta">
+                    <span class="detail-meta-item"><i class="fas fa-circle"></i><strong>{{ $penerimaan->status }}</strong></span>
+                    <span class="detail-meta-item"><i class="fas fa-calendar-alt"></i>{{ $penerimaan->tgl_penerimaan->format('d M Y') }}</span>
+                    <span class="detail-meta-item"><i class="fas fa-warehouse"></i>{{ $penerimaan->gudang->nama_gudang ?? '-' }}</span>
+                </div>
+            </div>
             <div class="show-action-buttons">
                 <a href="{{ route('penerimaan-barang.print', $penerimaan->id) }}" class="btn btn-info btn-sm shadow-sm"
                     target="_blank">
