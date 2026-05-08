@@ -32,6 +32,10 @@
             --bg-light: #f9fafb;
         }
 
+        html {
+            font-size: 75%;
+        }
+
         * {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
@@ -39,16 +43,6 @@
         body {
             background: var(--bg-light);
             overflow-x: hidden;
-            zoom: 75%;
-            width: 133.333333%;
-            min-height: 133.333333vh;
-        }
-
-        @supports not (zoom: 1) {
-            body {
-                transform: scale(0.75);
-                transform-origin: top left;
-            }
         }
 
         /* Hide caret on custom dropdown buttons that use ellipsis icon */
@@ -80,6 +74,26 @@
             top: 65px;
             left: 0;
             padding-top: 0.5rem;
+            padding-bottom: 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
 
         .sidebar .sidebar-brand {
