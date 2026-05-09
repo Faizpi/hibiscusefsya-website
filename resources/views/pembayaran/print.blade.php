@@ -128,6 +128,11 @@
             height: 4px;
         }
 
+        .receipt-footer {
+            font-size: 8px;
+            line-height: 1.25;
+        }
+
         .muted {
             color: #444;
         }
@@ -208,19 +213,21 @@
         </table>
 
         <div class="line">--------------------------------</div>
-        <div class="footer-gap"></div>
-        <div class="center bold">Periksa Invoice &amp; Ambil Promo !</div>
-        <div class="footer-gap"></div>
-        <div class="center muted">- - - - - - - - - - - - - - - -</div>
-        <div class="footer-gap"></div>
-        <div class="center">marketing@hibiscusefsya.com</div>
-        <div class="footer-gap"></div>
-        <div class="center muted">- - - - - - - - - - - - - - - -</div>
-        <div class="footer-gap"></div>
-        <div class="center">Official WA Chat:</div>
-        <div class="center">{{ receipt_format_phone('+6285195550202') }}</div>
-        <div class="footer-gap"></div>
-        <div class="center bold">Terima kasih</div>
+        <div class="receipt-footer">
+            <div class="footer-gap"></div>
+            <div class="center bold">Periksa Invoice &amp; Ambil Promo !</div>
+            <div class="footer-gap"></div>
+            <div class="center muted">- - - - - - - - - - - - - - - -</div>
+            <div class="footer-gap"></div>
+            <div class="center">marketing@hibiscusefsya.com</div>
+            <div class="footer-gap"></div>
+            <div class="center muted">- - - - - - - - - - - - - - - -</div>
+            <div class="footer-gap"></div>
+            <div class="center">Official WA Chat:</div>
+            <div class="center">{{ receipt_format_phone('+6285195550202') }}</div>
+            <div class="footer-gap"></div>
+            <div class="center bold">Terima kasih</div>
+        </div>
     </div>
 </body>
 

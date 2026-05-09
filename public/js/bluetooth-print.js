@@ -44,6 +44,8 @@ class BluetoothThermalPrinter {
             ALIGN_LEFT: '\x1B\x61\x00',
             ALIGN_CENTER: '\x1B\x61\x01',
             ALIGN_RIGHT: '\x1B\x61\x02',
+            FONT_A: '\x1B\x4D\x00',
+            FONT_B: '\x1B\x4D\x01',
             CUT: '\x1D\x56\x00',
             FEED: '\n'
         };
@@ -147,7 +149,7 @@ class BluetoothThermalPrinter {
         content += this.renderReceiptLines(lines);
         content += this.divider();
         content += '\n';
-        content += this.COMMANDS.ALIGN_CENTER + this.COMMANDS.BOLD_ON;
+        content += this.COMMANDS.ALIGN_CENTER + this.COMMANDS.FONT_B + this.COMMANDS.BOLD_ON;
         content += 'Periksa Invoice & Ambil Promo !\n';
         content += this.COMMANDS.BOLD_OFF + '\n';
         content += dashLine + '\n';
@@ -155,9 +157,10 @@ class BluetoothThermalPrinter {
         content += dashLine + '\n\n';
         parts.push({ type: 'text', data: content });
 
-        let footer = this.COMMANDS.ALIGN_CENTER;
+        let footer = this.COMMANDS.ALIGN_CENTER + this.COMMANDS.FONT_B;
         footer += `Official WA Chat:\n${this.formatPhone('+6285195550202')}\n\n`;
         footer += 'Terima kasih\n\n\n';
+        footer += this.COMMANDS.FONT_A;
         footer += this.COMMANDS.CUT;
         parts.push({ type: 'text', data: footer });
 
@@ -508,12 +511,15 @@ class BluetoothThermalPrinter {
             .bt-preview-promo {
                 text-align: center;
                 font-weight: 700;
-                font-size: 10px;
+                font-size: 9px;
+                line-height: 1.25;
                 margin: 8px 0;
             }
             .bt-preview-dash {
                 text-align: center;
                 white-space: pre;
+                font-size: 9px;
+                line-height: 1.25;
                 margin: 6px 0;
             }
             .bt-preview-qr {
@@ -548,6 +554,8 @@ class BluetoothThermalPrinter {
             }
             .bt-preview-footer {
                 text-align: center;
+                font-size: 9px;
+                line-height: 1.25;
                 margin-top: 8px;
             }
             .bt-preview-actions {
