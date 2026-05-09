@@ -156,7 +156,7 @@ class BluetoothThermalPrinter {
         parts.push({ type: 'text', data: content });
 
         let footer = this.COMMANDS.ALIGN_CENTER;
-        footer += `Official WA Chat: ${this.formatPhone('+6285195550202')}\n\n`;
+        footer += `Official WA Chat:\n${this.formatPhone('+6285195550202')}\n\n`;
         footer += 'Terima kasih\n\n\n';
         footer += this.COMMANDS.CUT;
         parts.push({ type: 'text', data: footer });
@@ -244,7 +244,8 @@ class BluetoothThermalPrinter {
                         </div>
                         <div class="bt-preview-dash">${this.escapeHtml(dashLine)}</div>
                         <div class="bt-preview-footer">
-                            Official WA Chat: ${this.escapeHtml(this.formatPhone('+6285195550202'))}<br>
+                            Official WA Chat:<br>
+                            ${this.escapeHtml(this.formatPhone('+6285195550202'))}<br>
                             Terima kasih
                         </div>
                     </div>
