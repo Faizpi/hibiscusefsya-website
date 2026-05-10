@@ -4,8 +4,9 @@
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-2 mb-sm-0 text-gray-800">Pembayaran</h1>
-        <div class="d-flex flex-wrap align-items-center">
-            <form action="{{ route('pembayaran.exportHarianPdf') }}" method="GET" class="form-inline mr-2 mb-2 mb-sm-0">
+        <div class="d-flex flex-wrap align-items-center justify-content-sm-end page-action-toolbar">
+            <form action="{{ route('pembayaran.exportHarianPdf') }}" method="GET"
+                class="form-inline daily-export-form">
                 @php
                     $exportStart = request('tanggal_mulai', request('tanggal', now()->format('Y-m-d')));
                     $exportEnd = request('tanggal_selesai', request('tanggal', now()->format('Y-m-d')));
@@ -22,7 +23,7 @@
             </form>
 
             @if(auth()->user()->role !== 'spectator')
-                <a href="{{ route('pembayaran.create') }}" class="btn btn-primary shadow-sm mb-2 mb-sm-0">
+                <a href="{{ route('pembayaran.create') }}" class="btn btn-primary shadow-sm">
                     <i class="fas fa-plus fa-sm text-white-50"></i> Buat Pembayaran Baru
                 </a>
             @endif
