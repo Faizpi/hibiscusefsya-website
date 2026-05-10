@@ -1,156 +1,151 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid py-4">
+@php
+    $gudang = $user->getCurrentGudang();
+    $roleLabel = ucfirst(str_replace('_', ' ', $user->role));
+    $infoItems = [
+        ['icon' => 'fas fa-user', 'label' => 'Nama', 'value' => $user->name],
+        ['icon' => 'fas fa-envelope', 'label' => 'Email', 'value' => $user->email],
+        ['icon' => 'fas fa-phone', 'label' => 'No. Telepon', 'value' => $user->no_telp ?? '-'],
+        ['icon' => 'fas fa-map-marker-alt', 'label' => 'Alamat', 'value' => $user->alamat ?? '-'],
+    ];
 
-    {{-- Page Header --}}
-    <div class="d-flex align-items-center mb-4">
-        <div class="mr-3" style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#3B82F6,#8B5CF6);display:flex;align-items:center;justify-content:center;">
-            <i class="fas fa-user-circle" style="color:#fff;font-size:1.25rem;"></i>
+    if ($gudang) {
+        $infoItems[] = ['icon' => 'fas fa-warehouse', 'label' => 'Gudang Aktif', 'value' => $gudang->nama_gudang];
+    }
+@endphp
+
+<div class="profile-page">
+    <div class="profile-hero">
+        <div class="profile-hero-title">
+            <div class="profile-hero-icon">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="profile-hero-copy">
+                <h1>Profil Saya</h1>
+                <p>Kelola identitas akun dan keamanan login.</p>
+            </div>
         </div>
-        <div>
-            <h1 class="mb-0" style="font-size:1.35rem;font-weight:700;color:var(--text-primary);">Profil Saya</h1>
-            <p class="mb-0" style="font-size:0.8rem;color:var(--text-muted);">Kelola informasi akun Anda</p>
+        <div class="profile-hero-meta">
+            <span class="profile-meta-pill">
+                <i class="fas fa-id-badge"></i>{{ $roleLabel }}
+            </span>
+            @if($gudang)
+                <span class="profile-meta-pill profile-meta-pill-muted">
+                    <i class="fas fa-warehouse"></i>{{ $gudang->nama_gudang }}
+                </span>
+            @endif
         </div>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert"
-             style="border-radius:10px;border:none;background:rgba(16,185,129,0.1);color:#065f46;border-left:4px solid #10b981;">
-            <i class="fas fa-check-circle mr-2"></i>
-            {{ session('success') }}
+        <div class="alert alert-success alert-dismissible fade show profile-alert profile-alert-success" role="alert">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ session('success') }}</span>
             <button type="button" class="close ml-auto" data-dismiss="alert"><span>&times;</span></button>
         </div>
     @endif
 
     @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert"
-             style="border-radius:10px;border:none;background:rgba(239,68,68,0.1);color:#7f1d1d;border-left:4px solid #ef4444;">
-            <i class="fas fa-exclamation-circle mr-2"></i>
-            <div>@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>
+        <div class="alert alert-danger alert-dismissible fade show profile-alert profile-alert-danger" role="alert">
+            <i class="fas fa-exclamation-circle"></i>
+            <div>
+                @foreach($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                @endforeach
+            </div>
             <button type="button" class="close ml-auto" data-dismiss="alert"><span>&times;</span></button>
         </div>
     @endif
 
-    <div class="row">
-        {{-- Kolom Kiri --}}
-        <div class="col-lg-4 mb-4">
-
-            {{-- Avatar Card --}}
-            <div class="card mb-3" style="border-radius:16px;overflow:hidden;position:relative;border:none;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
-                {{-- Banner gradient (posisi absolute di belakang) --}}
-                <div style="position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(135deg,#3B82F6,#8B5CF6);z-index:1;"></div>
-
-                <div class="card-body text-center" style="padding-top:80px;position:relative;z-index:2;">
-                    {{-- Avatar circle -- ditarik ke atas overlap banner --}}
-                    <div class="profile-avatar-wrapper" style="position:relative;display:inline-block;margin-top:-44px;margin-bottom:12px;z-index:10;">
-                        <div id="avatarCircle" style="
-                            width:88px;height:88px;border-radius:50%;
-                            overflow:hidden;
-                            border:4px solid #fff;
-                            box-shadow:0 4px 14px rgba(59,130,246,0.25);
-                            background:linear-gradient(135deg,#3B82F6,#8B5CF6);
-                            display:flex;align-items:center;justify-content:center;
-                            position:relative;
-                        ">
+    <div class="row profile-layout">
+        <div class="col-xl-4 col-lg-5 mb-4">
+            <div class="card profile-card profile-avatar-card mb-4">
+                <div class="profile-avatar-cover"></div>
+                <div class="card-body profile-avatar-body">
+                    <div class="profile-avatar-wrapper">
+                        <div id="avatarCircle" class="profile-avatar">
                             @if($user->avatar)
-                                <img id="avatarImg" src="{{ $user->avatarUrl() }}" alt="Avatar"
-                                     style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                <img id="avatarImg" src="{{ $user->avatarUrl() }}" alt="Avatar">
                             @else
-                                <span id="avatarInitial" style="color:#fff;font-size:2.25rem;font-weight:700;line-height:1;">
-                                    {{ strtoupper(substr($user->name, 0, 1)) }}
-                                </span>
+                                <span id="avatarInitial">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
                             @endif
                         </div>
 
-                        {{-- Tombol kamera overlay --}}
-                        <label for="avatarFileInput" title="Ganti Foto" style="
-                            position:absolute;bottom:2px;right:2px;
-                            width:28px;height:28px;border-radius:50%;
-                            background:#3B82F6;border:2px solid #fff;
-                            display:flex;align-items:center;justify-content:center;
-                            cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);
-                            transition:background .15s;
-                        " onmouseover="this.style.background='#1D4ED8'" onmouseout="this.style.background='#3B82F6'">
-                            <i class="fas fa-camera" style="color:#fff;font-size:0.65rem;"></i>
+                        <label for="avatarFileInput" class="profile-avatar-edit" title="Ganti foto profil" aria-label="Ganti foto profil">
+                            <i class="fas fa-camera"></i>
                         </label>
                     </div>
 
-                    <h5 class="mb-0" style="font-weight:700;color:var(--text-primary);">{{ $user->name }}</h5>
-                    <p class="text-muted mb-2" style="font-size:0.8rem;">{{ $user->email }}</p>
-                    <span class="badge badge-pill" style="background:rgba(59,130,246,0.12);color:#3B82F6;font-size:0.75rem;padding:6px 14px;font-weight:600;">
-                        {{ ucfirst(str_replace('_', ' ', $user->role)) }}
-                    </span>
+                    <h2 class="profile-user-name">{{ $user->name }}</h2>
+                    <p class="profile-user-email">{{ $user->email }}</p>
+                    <span class="profile-role-badge">{{ $roleLabel }}</span>
 
-                    {{-- Upload form (hidden, triggered by label) --}}
-                    <form id="avatarForm" action="{{ route('profil.avatar') }}" method="POST" enctype="multipart/form-data" class="mt-3">
+                    <form id="avatarForm" action="{{ route('profil.avatar') }}" method="POST" enctype="multipart/form-data" class="profile-avatar-form">
                         @csrf
-                        <input type="file" id="avatarFileInput" name="avatar" accept="image/*" style="display:none;">
-                        <div id="avatarPreviewBar" style="display:none;" class="mt-2">
-                            <img id="avatarPreviewImg" src="" alt="Preview" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #3B82F6;margin-bottom:8px;">
-                            <br>
-                            <button type="submit" class="btn btn-sm btn-primary mr-1">
-                                <i class="fas fa-upload mr-1"></i> Simpan Foto
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cancelAvatarPreview()">
-                                Batal
-                            </button>
+                        <input type="file" id="avatarFileInput" name="avatar" accept="image/*" class="profile-file-input">
+                        <div id="avatarPreviewBar" class="profile-avatar-preview">
+                            <img id="avatarPreviewImg" src="" alt="Preview">
+                            <div class="profile-avatar-actions">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-upload"></i> Simpan Foto
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cancelAvatarPreview()">
+                                    Batal
+                                </button>
+                            </div>
                         </div>
                     </form>
 
-                    {{-- Hapus foto --}}
                     @if($user->avatar)
-                        <form action="{{ route('profil.avatar.delete') }}" method="POST" class="mt-1" id="deleteAvatarForm">
+                        <form action="{{ route('profil.avatar.delete') }}" method="POST" class="profile-delete-avatar" id="deleteAvatarForm">
                             @csrf
                             @method('DELETE')
-                            <button type="button" class="btn btn-sm btn-link text-danger p-0" style="font-size:0.75rem;"
-                                    onclick="if(confirm('Hapus foto profil?')) document.getElementById('deleteAvatarForm').submit();">
-                                <i class="fas fa-trash-alt mr-1"></i> Hapus Foto
+                            <button type="button" class="btn btn-sm btn-link text-danger"
+                                onclick="if(confirm('Hapus foto profil?')) document.getElementById('deleteAvatarForm').submit();">
+                                <i class="fas fa-trash-alt"></i> Hapus Foto
                             </button>
                         </form>
                     @endif
                 </div>
             </div>
 
-            {{-- Info Ringkas --}}
-            <div class="card" style="border-radius:16px;">
-                <div class="card-body" style="padding:1.25rem;">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-info-circle text-primary mr-2"></i>
-                        <strong style="font-size:0.875rem;">Informasi Akun</strong>
+            <div class="card profile-card profile-info-card">
+                <div class="profile-card-heading">
+                    <div class="profile-section-icon profile-section-icon-info">
+                        <i class="fas fa-info-circle"></i>
                     </div>
-                    @php
-                        $infoItems = [
-                            ['label' => 'Nama',        'value' => $user->name],
-                            ['label' => 'Email',       'value' => $user->email],
-                            ['label' => 'No. Telepon', 'value' => $user->no_telp ?? '-'],
-                            ['label' => 'Alamat',      'value' => $user->alamat  ?? '-'],
-                        ];
-                        $gudang = $user->getCurrentGudang();
-                        if ($gudang) $infoItems[] = ['label' => 'Gudang Aktif', 'value' => $gudang->nama_gudang];
-                    @endphp
-                    @foreach($infoItems as $i => $info)
-                        @if($i > 0)<hr style="margin:.75rem 0;border-color:var(--border-color);">@endif
-                        <div>
-                            <small class="text-muted d-block" style="font-size:0.7rem;text-transform:uppercase;font-weight:600;letter-spacing:.5px;">{{ $info['label'] }}</small>
-                            <span style="font-size:0.875rem;color:var(--text-primary);">{{ $info['value'] }}</span>
+                    <div>
+                        <h2>Informasi Akun</h2>
+                        <p>Ringkasan data pengguna.</p>
+                    </div>
+                </div>
+                <div class="profile-info-list">
+                    @foreach($infoItems as $info)
+                        <div class="profile-info-item">
+                            <div class="profile-info-icon">
+                                <i class="{{ $info['icon'] }}"></i>
+                            </div>
+                            <div>
+                                <span class="profile-info-label">{{ $info['label'] }}</span>
+                                <span class="profile-info-value">{{ $info['value'] }}</span>
+                            </div>
                         </div>
                     @endforeach
                 </div>
             </div>
         </div>
 
-        {{-- Kolom Kanan --}}
-        <div class="col-lg-8">
-
-            {{-- Form Edit Profil --}}
-            <div class="card mb-4" style="border-radius:16px;">
-                <div class="card-header" style="border-radius:16px 16px 0 0;background:#fff;">
-                    <div class="d-flex align-items-center">
-                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;margin-right:.75rem;">
-                            <i class="fas fa-edit" style="color:#3B82F6;font-size:0.875rem;"></i>
-                        </div>
-                        <strong>Edit Profil</strong>
+        <div class="col-xl-8 col-lg-7">
+            <div class="card profile-card profile-form-card mb-4">
+                <div class="profile-card-heading">
+                    <div class="profile-section-icon profile-section-icon-primary">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div>
+                        <h2>Edit Profil</h2>
+                        <p>Perbarui nomor telepon dan alamat.</p>
                     </div>
                 </div>
                 <div class="card-body">
@@ -158,85 +153,79 @@
                         @csrf
                         @method('PUT')
 
-                        {{-- Nama (readonly) --}}
-                        <div class="form-group">
-                            <label for="name">
-                                Nama
-                                <span style="background:rgba(107,114,128,0.1);color:#6b7280;font-size:0.65rem;padding:2px 7px;border-radius:4px;font-weight:600;margin-left:4px;">
-                                    <i class="fas fa-lock" style="font-size:0.55rem;"></i> Hanya Baca
-                                </span>
-                            </label>
-                            <input type="text" id="name" class="form-control" value="{{ $user->name }}"
-                                   readonly style="background:#f9fafb;cursor:not-allowed;color:var(--text-muted);">
-                            <small class="form-text text-muted">Nama tidak dapat diubah. Hubungi Super Admin jika perlu perubahan.</small>
+                        <div class="profile-form-grid">
+                            <div class="form-group">
+                                <label for="name">
+                                    Nama
+                                    <span class="profile-readonly-badge">
+                                        <i class="fas fa-lock"></i> Hanya Baca
+                                    </span>
+                                </label>
+                                <input type="text" id="name" class="form-control profile-readonly-control" value="{{ $user->name }}" readonly>
+                                <small class="form-text text-muted">Hubungi Super Admin untuk perubahan nama.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">
+                                    Email
+                                    <span class="profile-readonly-badge">
+                                        <i class="fas fa-lock"></i> Hanya Baca
+                                    </span>
+                                </label>
+                                <input type="email" id="email" class="form-control profile-readonly-control" value="{{ $user->email }}" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="no_telp">No. Telepon</label>
+                                <input type="tel" id="no_telp" name="no_telp" class="form-control @error('no_telp') is-invalid @enderror"
+                                    value="{{ old('no_telp', $user->no_telp) }}" placeholder="Contoh: 08123456789" maxlength="20">
+                                @error('no_telp')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+
+                            <div class="form-group profile-form-full">
+                                <label for="alamat">Alamat</label>
+                                <textarea id="alamat" name="alamat" class="form-control @error('alamat') is-invalid @enderror"
+                                    rows="4" placeholder="Masukkan alamat lengkap">{{ old('alamat', $user->alamat) }}</textarea>
+                                @error('alamat')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
                         </div>
 
-                        {{-- Email (readonly) --}}
-                        <div class="form-group">
-                            <label for="email">
-                                Email
-                                <span style="background:rgba(107,114,128,0.1);color:#6b7280;font-size:0.65rem;padding:2px 7px;border-radius:4px;font-weight:600;margin-left:4px;">
-                                    <i class="fas fa-lock" style="font-size:0.55rem;"></i> Hanya Baca
-                                </span>
-                            </label>
-                            <input type="email" id="email" class="form-control" value="{{ $user->email }}"
-                                   readonly style="background:#f9fafb;cursor:not-allowed;color:var(--text-muted);">
-                        </div>
-
-                        {{-- No Telp --}}
-                        <div class="form-group">
-                            <label for="no_telp">No. Telepon</label>
-                            <input type="tel" id="no_telp" name="no_telp" class="form-control @error('no_telp') is-invalid @enderror"
-                                   value="{{ old('no_telp', $user->no_telp) }}"
-                                   placeholder="Contoh: 08123456789" maxlength="20">
-                            @error('no_telp')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
-
-                        {{-- Alamat --}}
-                        <div class="form-group">
-                            <label for="alamat">Alamat</label>
-                            <textarea id="alamat" name="alamat" class="form-control @error('alamat') is-invalid @enderror"
-                                      rows="3" placeholder="Masukkan alamat lengkap">{{ old('alamat', $user->alamat) }}</textarea>
-                            @error('alamat')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
-
-                        <div class="d-flex justify-content-end">
+                        <div class="profile-form-actions">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save mr-1"></i> Simpan Perubahan
+                                <i class="fas fa-save"></i> Simpan Perubahan
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            {{-- Form Ubah Password --}}
-            <div class="card" style="border-radius:16px;">
-                <div class="card-header" style="border-radius:16px 16px 0 0;background:#fff;">
-                    <div class="d-flex align-items-center">
-                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;margin-right:.75rem;">
-                            <i class="fas fa-lock" style="color:#f59e0b;font-size:0.875rem;"></i>
-                        </div>
-                        <strong>Ubah Password</strong>
+            <div class="card profile-card profile-form-card">
+                <div class="profile-card-heading">
+                    <div class="profile-section-icon profile-section-icon-warning">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div>
+                        <h2>Ubah Password</h2>
+                        <p>Gunakan password baru minimal 8 karakter.</p>
                     </div>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('profil.change-password') }}" method="POST">
                         @csrf
                         @foreach([
-                            ['id' => 'current_password', 'name' => 'current_password', 'label' => 'Password Saat Ini',       'placeholder' => 'Masukkan password saat ini'],
-                            ['id' => 'new_password',     'name' => 'new_password',     'label' => 'Password Baru',            'placeholder' => 'Minimal 8 karakter'],
+                            ['id' => 'current_password', 'name' => 'current_password', 'label' => 'Password Saat Ini', 'placeholder' => 'Masukkan password saat ini'],
+                            ['id' => 'new_password', 'name' => 'new_password', 'label' => 'Password Baru', 'placeholder' => 'Minimal 8 karakter'],
                             ['id' => 'confirm_password', 'name' => 'new_password_confirmation', 'label' => 'Konfirmasi Password Baru', 'placeholder' => 'Ulangi password baru'],
                         ] as $field)
                             <div class="form-group">
                                 <label for="{{ $field['id'] }}">{{ $field['label'] }}</label>
-                                <div class="input-group">
+                                <div class="input-group profile-password-field">
                                     <input type="password" id="{{ $field['id'] }}" name="{{ $field['name'] }}"
-                                           class="form-control @error($field['name']) is-invalid @enderror"
-                                           placeholder="{{ $field['placeholder'] }}">
+                                        class="form-control @error($field['name']) is-invalid @enderror"
+                                        placeholder="{{ $field['placeholder'] }}">
                                     <div class="input-group-append">
-                                        <button class="btn btn-outline-secondary toggle-pass" type="button"
-                                                data-target="{{ $field['id'] }}"
-                                                style="border-radius:0 8px 8px 0;border-color:var(--border-color);">
+                                        <button class="btn btn-outline-secondary toggle-pass profile-password-toggle" type="button"
+                                            data-target="{{ $field['id'] }}" aria-label="Tampilkan password">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
@@ -245,9 +234,9 @@
                             </div>
                         @endforeach
 
-                        <div class="d-flex justify-content-end">
+                        <div class="profile-form-actions">
                             <button type="submit" class="btn btn-warning text-white">
-                                <i class="fas fa-key mr-1"></i> Ubah Password
+                                <i class="fas fa-key"></i> Ubah Password
                             </button>
                         </div>
                     </form>
@@ -258,29 +247,30 @@
 </div>
 
 <script>
-    // Toggle show/hide password
     document.querySelectorAll('.toggle-pass').forEach(function(btn) {
         btn.addEventListener('click', function() {
-            const input = document.getElementById(this.dataset.target);
-            const icon  = this.querySelector('i');
-            input.type  = input.type === 'password' ? 'text' : 'password';
+            var input = document.getElementById(this.dataset.target);
+            var icon = this.querySelector('i');
+            input.type = input.type === 'password' ? 'text' : 'password';
             icon.classList.toggle('fa-eye');
             icon.classList.toggle('fa-eye-slash');
         });
     });
 
-    // Avatar file preview before upload
-    document.getElementById('avatarFileInput').addEventListener('change', function() {
-        const file = this.files[0];
-        if (!file) return;
+    var avatarInput = document.getElementById('avatarFileInput');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function() {
+            var file = this.files[0];
+            if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('avatarPreviewImg').src = e.target.result;
-            document.getElementById('avatarPreviewBar').style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-    });
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatarPreviewImg').src = e.target.result;
+                document.getElementById('avatarPreviewBar').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     function cancelAvatarPreview() {
         document.getElementById('avatarFileInput').value = '';
