@@ -356,7 +356,7 @@ h1.h3 {
 .card.border-left-purple .card-body {
     position: relative;
     z-index: 1;
-    padding: 1rem 1.05rem 1rem 1.15rem;
+    padding: 1.05rem 1.1rem 1.05rem 1.55rem;
 }
 
 .card.border-left-primary .row.no-gutters.align-items-center,
@@ -379,9 +379,10 @@ h1.h3 {
 .card.border-left-dark .text-xs.font-weight-bold,
 .card.border-left-purple .text-xs.font-weight-bold {
     color: var(--summary-accent) !important;
-    font-size: 0.66rem;
+    margin-bottom: 0.42rem !important;
+    font-size: 0.7rem;
     letter-spacing: 0.04em;
-    line-height: 1.35;
+    line-height: 1.45;
 }
 
 .card.border-left-primary .h5,
@@ -393,8 +394,9 @@ h1.h3 {
 .card.border-left-dark .h5,
 .card.border-left-purple .h5 {
     color: var(--pos-text) !important;
-    font-size: 1.08rem;
-    line-height: 1.28;
+    margin-bottom: 0.32rem !important;
+    font-size: 1.1rem;
+    line-height: 1.35;
     overflow-wrap: anywhere;
 }
 
@@ -439,6 +441,8 @@ h1.h3 {
 .card.border-left-dark small,
 .card.border-left-purple small {
     color: var(--pos-muted) !important;
+    display: block;
+    line-height: 1.45;
 }
 
 .text-xs {
@@ -1282,6 +1286,25 @@ label {
         width: 14rem !important;
         min-width: 14rem;
     }
+
+    .card[class*="border-left-"] .card-body {
+        padding: 1.05rem 1rem 1.05rem 1.75rem;
+    }
+
+    .card[class*="border-left-"] .text-xs.font-weight-bold {
+        font-size: 0.72rem;
+        line-height: 1.5;
+    }
+
+    .card[class*="border-left-"] .h5 {
+        font-size: 1.08rem;
+        line-height: 1.4;
+    }
+
+    .card[class*="border-left-"] small {
+        font-size: 0.78rem;
+        line-height: 1.5;
+    }
 }
 
 @media (max-width: 768px) {
@@ -1444,7 +1467,7 @@ label {
     }
 
     .card[class*="border-left-"] .card-body {
-        padding: 0.85rem 0.9rem 0.85rem 1.35rem;
+        padding: 1.05rem 0.95rem 1.05rem 1.85rem;
     }
 
     .card[class*="border-left-"] .row.no-gutters.align-items-center {
@@ -1452,7 +1475,7 @@ label {
     }
 
     .card[class*="border-left-"] .h5 {
-        font-size: 0.98rem;
+        font-size: 1.08rem;
     }
 
     .card[class*="border-left-"] .col-auto {
@@ -1625,7 +1648,7 @@ label {
     }
 
     .card[class*="border-left-"] .card-body {
-        padding-left: 1.3rem;
+        padding-left: 1.75rem;
     }
 
     .h3.text-gray-800,
