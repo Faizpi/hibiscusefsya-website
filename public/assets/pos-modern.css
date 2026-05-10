@@ -1444,7 +1444,7 @@ label {
     }
 
     .card[class*="border-left-"] .card-body {
-        padding: 0.85rem 0.9rem 0.85rem 1rem;
+        padding: 0.85rem 0.9rem 0.85rem 1.35rem;
     }
 
     .card[class*="border-left-"] .row.no-gutters.align-items-center {
@@ -1622,6 +1622,10 @@ label {
         width: 34px;
         height: 34px;
         margin-left: 0.4rem;
+    }
+
+    .card[class*="border-left-"] .card-body {
+        padding-left: 1.3rem;
     }
 
     .h3.text-gray-800,
