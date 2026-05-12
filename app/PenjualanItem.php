@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $unit
  * @property float $harga_satuan
  * @property float|null $diskon
+ * @property float|null $diskon_nominal
  * @property float $jumlah_baris
  * @property-read \App\Penjualan $penjualan
  * @property-read \App\Produk $produk
@@ -29,6 +30,7 @@ class PenjualanItem extends Model
         'unit',
         'harga_satuan',
         'diskon',
+        'diskon_nominal',
         'batch_number',
         'expired_date',
         'jumlah_baris',

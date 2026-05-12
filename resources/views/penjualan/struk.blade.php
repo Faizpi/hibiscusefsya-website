@@ -225,8 +225,8 @@
             <table class="details-table">
                 <tr><td class="lbl">Qty</td><td class="val">{{ $item->kuantitas }} Pcs</td></tr>
                 <tr><td class="lbl">Harga</td><td class="val">{{ format_rupiah($item->harga_satuan) }}</td></tr>
-                @if($item->diskon_per_item > 0)
-                <tr><td class="lbl">Diskon</td><td class="val">- {{ format_rupiah($item->diskon_per_item) }}</td></tr>
+                @if(($item->diskon_nominal ?? 0) > 0)
+                <tr><td class="lbl">Diskon Rp</td><td class="val">- {{ format_rupiah($item->diskon_nominal) }}</td></tr>
                 @endif
                 @if($item->batch_number)
                 <tr><td class="lbl">Batch</td><td class="val">{{ $item->batch_number }}</td></tr>

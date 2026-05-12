@@ -365,6 +365,9 @@
                             @if($item->diskon > 0)
                                 <span style="color: #ef4444;"> -{{ $item->diskon }}%</span>
                             @endif
+                            @if(($item->diskon_nominal ?? 0) > 0)
+                                <span style="color: #ef4444;"> -{{ format_rupiah($item->diskon_nominal) }}</span>
+                            @endif
                         </div>
                         @if($item->batch_number || $item->expired_date)
                             <div class="item-meta" style="font-size: 11px; color: #9ca3af;">

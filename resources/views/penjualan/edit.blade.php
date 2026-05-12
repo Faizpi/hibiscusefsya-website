@@ -162,7 +162,8 @@
                                     <th width="8%">Qty</th>
                                     <th width="8%">Unit</th>
                                     <th width="12%">Harga</th>
-                                    <th width="8%">Disc%</th>
+                                    <th width="7%">Disc%</th>
+                                    <th width="11%">Disc Rp</th>
                                     <th width="10%">Batch</th>
                                     <th width="10%">Exp</th>
                                     <th width="12%" class="text-right">Total</th>
@@ -180,6 +181,7 @@
                                         $oldUnit = $isOld ? old('unit.' . $index) : $item->unit;
                                         $oldPrice = $isOld ? old('harga_satuan.' . $index) : $item->harga_satuan;
                                         $oldDisc = $isOld ? old('diskon.' . $index) : $item->diskon;
+                                        $oldDiscNominal = $isOld ? old('diskon_nominal.' . $index, 0) : ($item->diskon_nominal ?? 0);
                                         $oldBatch = $isOld ? old('batch_number.' . $index) : $item->batch_number;
                                         $oldExp = $isOld ? old('expired_date.' . $index) : ($item->expired_date ? (is_string($item->expired_date) ? $item->expired_date : $item->expired_date->format('Y-m-d')) : '');
                                     @endphp
@@ -200,10 +202,19 @@
                                                 value="{{ $oldQty }}" min="1" required></td>
                                         <td><input type="text" class="form-control product-unit" name="unit[]"
                                                 value="{{ $oldUnit }}" readonly></td>
-                                        <td><input type="number" class="form-control text-right product-price"
-                                                name="harga_satuan[]" value="{{ $oldPrice }}" required></td>
+                                        <td>
+                                            <input type="hidden" class="product-price" name="harga_satuan[]" value="{{ $oldPrice }}">
+                                            <input type="text" class="form-control text-right product-price-display bg-light"
+                                                value="{{ format_rupiah($oldPrice) }}" readonly>
+                                        </td>
                                         <td><input type="number" class="form-control text-right product-discount"
                                                 name="diskon[]" value="{{ $oldDisc }}" min="0" max="100"></td>
+                                        <td>
+                                            <input type="hidden" class="product-discount-nominal" name="diskon_nominal[]"
+                                                value="{{ $oldDiscNominal }}">
+                                            <input type="text" class="form-control text-right product-discount-nominal-display"
+                                                value="{{ format_rupiah($oldDiscNominal) }}" inputmode="decimal">
+                                        </td>
                                         <td><input type="text" class="form-control product-batch" name="batch_number[]"
                                                 value="{{ $oldBatch }}" placeholder="Batch"></td>
                                         <td><input type="date" class="form-control product-exp" name="expired_date[]"
@@ -319,7 +330,7 @@
             const alamatInput = document.getElementById('alamat-input');
 
             // Product Options HTML for mobile cards
-            const productOptionsHtml = `@foreach($produks as $produk)<option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-deskripsi="{{ $produk->deskripsi }}">{{ $produk->nama_produk }}</option>@endforeach`;
+            const productOptionsHtml = `@foreach($produks as $produk)<option value="{{ $produk->id }}" data-harga="{{ $produk->harga }}" data-harga-grosir="{{ $produk->harga_grosir ?? 0 }}" data-deskripsi="{{ $produk->deskripsi }}" data-satuan="{{ $produk->satuan ?? 'Pcs' }}">{{ $produk->nama_produk }}</option>@endforeach`;
 
             // --- JATUH TEMPO AUTO ---
             function updateDueDate() {
@@ -387,7 +398,7 @@
                     let option = this.options[this.selectedIndex];
                     let row = this.closest('tr');
                     if (row) {
-                        row.querySelector('.product-price').value = getHargaByTipe(option);
+                        setRowPrice(row, getHargaByTipe(option));
                         row.querySelector('.product-description').value = option.dataset.deskripsi || '';
                         row.querySelector('.product-unit').value = option.dataset.satuan || 'Pcs';
                         if (kontakSelect) {
@@ -408,11 +419,41 @@
 
             const formatRupiah = (angka) => 'Rp' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(angka);
 
+            function parseMoney(value) {
+                if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+                value = String(value || '').replace(/Rp/gi, '').replace(/\s/g, '').trim();
+                if (!value) return 0;
+                if (value.includes(',')) {
+                    value = value.replace(/\./g, '').replace(',', '.');
+                } else {
+                    value = value.replace(/,/g, '');
+                }
+                const parsed = parseFloat(value);
+                return Number.isFinite(parsed) ? parsed : 0;
+            }
+
+            function setRowPrice(row, price) {
+                const normalized = parseMoney(price);
+                const priceInput = row.querySelector('.product-price');
+                const priceDisplay = row.querySelector('.product-price-display');
+                if (priceInput) priceInput.value = normalized.toFixed(2);
+                if (priceDisplay) priceDisplay.value = formatRupiah(normalized);
+            }
+
+            function setRowDiscountNominal(row, value, formatDisplay = false) {
+                const normalized = parseMoney(value);
+                const hiddenInput = row.querySelector('.product-discount-nominal');
+                const displayInput = row.querySelector('.product-discount-nominal-display');
+                if (hiddenInput) hiddenInput.value = normalized.toFixed(2);
+                if (formatDisplay && displayInput) displayInput.value = formatRupiah(normalized);
+            }
+
             const calculateRow = (row, skipMobileSync = false) => {
                 const quantity = parseFloat(row.querySelector('.product-quantity').value) || 0;
-                const price = parseFloat(row.querySelector('.product-price').value) || 0;
+                const price = parseMoney(row.querySelector('.product-price').value);
                 const discount = parseFloat(row.querySelector('.product-discount').value) || 0;
-                const total = quantity * price * (1 - (discount / 100));
+                const discountNominal = parseMoney(row.querySelector('.product-discount-nominal')?.value);
+                const total = Math.max(0, quantity * price * (1 - (discount / 100)) - discountNominal);
                 row.querySelector('.product-line-total').value = total.toFixed(2);
                 calculateGrandTotal();
 
@@ -436,7 +477,7 @@
                     const lineTotal = parseFloat(row.querySelector('.product-line-total').value) || 0;
                     subtotal += lineTotal;
                 });
-                let diskonAkhir = parseFloat(discAkhirInput.value) || 0;
+                let diskonAkhir = parseMoney(discAkhirInput.value);
                 let kenaPajak = Math.max(0, subtotal - diskonAkhir);
                 let taxPercentage = parseFloat(taxInput.value) || 0;
                 let taxAmount = kenaPajak * (taxPercentage / 100);
@@ -460,8 +501,9 @@
                     const desc = row.querySelector('.product-description').value || '-';
                     const qty = row.querySelector('.product-quantity').value || 0;
                     const unit = row.querySelector('.product-unit').value || 'Pcs';
-                    const price = row.querySelector('.product-price').value || 0;
+                    const price = row.querySelector('.product-price-display').value || formatRupiah(parseMoney(row.querySelector('.product-price').value));
                     const disc = row.querySelector('.product-discount').value || 0;
+                    const discNominal = row.querySelector('.product-discount-nominal-display').value || formatRupiah(parseMoney(row.querySelector('.product-discount-nominal')?.value));
                     const batch = row.querySelector('.product-batch') ? row.querySelector('.product-batch').value || '' : '';
                     const exp = row.querySelector('.product-exp') ? row.querySelector('.product-exp').value || '' : '';
                     const total = row.querySelector('.product-line-total').value || 0;
@@ -492,11 +534,15 @@
                                                                                                 </div>
                                                                                                 <div class="field-group">
                                                                                                     <span class="field-label">Harga</span>
-                                                                                                    <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
+                                                                                                    <input type="text" class="form-control product-price-mobile bg-light" data-row="${index}" value="${price}" readonly>
                                                                                                 </div>
                                                                                                 <div class="field-group">
                                                                                                     <span class="field-label">Disc%</span>
                                                                                                     <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
+                                                                                                </div>
+                                                                                                <div class="field-group">
+                                                                                                    <span class="field-label">Disc Rp</span>
+                                                                                                    <input type="text" class="form-control product-disc-nominal-mobile" data-row="${index}" value="${discNominal}" inputmode="decimal">
                                                                                                 </div>
                                                                                                 <div class="field-group">
                                                                                                     <span class="field-label">Batch</span>
@@ -539,7 +585,7 @@
                         const deskripsi = selectedOption.dataset.deskripsi || '';
 
                         // Update desktop table
-                        row.querySelector('.product-price').value = harga;
+                        setRowPrice(row, harga);
                         row.querySelector('.product-description').value = deskripsi;
 
                         // Check dan apply discount dari kontak
@@ -555,7 +601,7 @@
                             const priceMobile = card.querySelector('.product-price-mobile');
                             const descMobile = card.querySelector('.product-desc-mobile');
                             const discMobile = card.querySelector('.product-disc-mobile');
-                            if (priceMobile) priceMobile.value = harga;
+                            if (priceMobile) priceMobile.value = formatRupiah(harga);
                             if (descMobile) descMobile.value = deskripsi;
                             if (discMobile && kontakSelect && kontakSelect.selectedIndex > 0) {
                                 const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
@@ -570,7 +616,7 @@
                         if (card) {
                             const totalValue = card.querySelector('.total-value');
                             if (totalValue) {
-                                totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-line-total').value) || 0);
+                                totalValue.textContent = formatRupiah(parseMoney(row.querySelector('.product-line-total').value));
                             }
                         }
                     }
@@ -593,19 +639,7 @@
                         if (card) {
                             const totalValue = card.querySelector('.total-value');
                             if (totalValue) {
-                                totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-line-total').value) || 0);
-                            }
-                        }
-                    }
-                    if (e.target.classList.contains('product-price-mobile')) {
-                        row.querySelector('.product-price').value = e.target.value;
-                        calculateRow(row, true); // Skip mobile sync untuk mencegah rebuild
-                        // Update total di card ini saja
-                        const card = e.target.closest('.product-card-mobile');
-                        if (card) {
-                            const totalValue = card.querySelector('.total-value');
-                            if (totalValue) {
-                                totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-line-total').value) || 0);
+                                totalValue.textContent = formatRupiah(parseMoney(row.querySelector('.product-line-total').value));
                             }
                         }
                     }
@@ -617,7 +651,18 @@
                         if (card) {
                             const totalValue = card.querySelector('.total-value');
                             if (totalValue) {
-                                totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-line-total').value) || 0);
+                                totalValue.textContent = formatRupiah(parseMoney(row.querySelector('.product-line-total').value));
+                            }
+                        }
+                    }
+                    if (e.target.classList.contains('product-disc-nominal-mobile')) {
+                        setRowDiscountNominal(row, e.target.value);
+                        calculateRow(row, true);
+                        const card = e.target.closest('.product-card-mobile');
+                        if (card) {
+                            const totalValue = card.querySelector('.total-value');
+                            if (totalValue) {
+                                totalValue.textContent = formatRupiah(parseMoney(row.querySelector('.product-line-total').value));
                             }
                         }
                     }
@@ -648,7 +693,7 @@
                 if (!event.target.classList.contains('product-select')) return;
                 const selectedOption = event.target.options[event.target.selectedIndex];
                 const row = event.target.closest('tr');
-                row.querySelector('.product-price').value = getHargaByTipe(selectedOption);
+                setRowPrice(row, getHargaByTipe(selectedOption));
                 row.querySelector('.product-description').value = selectedOption.dataset.deskripsi || '';
                 const kontakOption = kontakSelect.options[kontakSelect.selectedIndex];
                 if (kontakOption) {
@@ -659,8 +704,11 @@
             };
 
             tableBody.addEventListener('input', function (event) {
-                if (event.target.matches('.product-quantity, .product-price, .product-discount')) {
+                if (event.target.matches('.product-quantity, .product-discount, .product-discount-nominal-display')) {
                     const row = event.target.closest('tr');
+                    if (event.target.classList.contains('product-discount-nominal-display')) {
+                        setRowDiscountNominal(row, event.target.value);
+                    }
                     calculateRow(row, true); // Skip mobile sync untuk mencegah keyboard close
                     // Update mobile card values tanpa rebuild
                     if (mobileCardsContainer) {
@@ -669,9 +717,27 @@
                         if (card) {
                             const totalValue = card.querySelector('.total-value');
                             if (totalValue) {
-                                totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-total').value) || 0);
+                                totalValue.textContent = formatRupiah(parseMoney(row.querySelector('.product-line-total').value));
+                            }
+                            const discNominalMobile = card.querySelector('.product-disc-nominal-mobile');
+                            if (discNominalMobile && event.target.classList.contains('product-discount-nominal-display')) {
+                                discNominalMobile.value = event.target.value;
                             }
                         }
+                    }
+                }
+            });
+            document.addEventListener('focusout', function (event) {
+                if (event.target.classList.contains('product-discount-nominal-display')) {
+                    setRowDiscountNominal(event.target.closest('tr'), event.target.value, true);
+                    calculateRow(event.target.closest('tr'), true);
+                }
+                if (event.target.classList.contains('product-disc-nominal-mobile')) {
+                    const row = tableBody.querySelectorAll('tr')[event.target.dataset.row];
+                    if (row) {
+                        setRowDiscountNominal(row, event.target.value, true);
+                        event.target.value = row.querySelector('.product-discount-nominal-display')?.value || formatRupiah(0);
+                        calculateRow(row, true);
                     }
                 }
             });
@@ -686,7 +752,7 @@
                         const select = row.querySelector('.product-select');
                         if (select && select.value) {
                             const option = select.options[select.selectedIndex];
-                            row.querySelector('.product-price').value = getHargaByTipe(option);
+                            setRowPrice(row, getHargaByTipe(option));
                             calculateRow(row);
                         }
                     });
@@ -700,8 +766,15 @@
                                                                                     <td><input type="text" class="form-control product-description" name="deskripsi[]"></td>
                                                                                     <td><input type="number" class="form-control product-quantity" name="kuantitas[]" value="1" min="1"></td>
                                                                                     <td><input type="text" class="form-control product-unit" name="unit[]" value="" readonly></td>
-                                                                                    <td><input type="number" class="form-control text-right product-price" name="harga_satuan[]" placeholder="0" required></td>
+                                                                                    <td>
+                                                                                        <input type="hidden" class="product-price" name="harga_satuan[]" value="0">
+                                                                                        <input type="text" class="form-control text-right product-price-display bg-light" value="Rp0,00" readonly>
+                                                                                    </td>
                                                                                     <td><input type="number" class="form-control text-right product-discount" name="diskon[]" placeholder="0" min="0" max="100"></td>
+                                                                                    <td>
+                                                                                        <input type="hidden" class="product-discount-nominal" name="diskon_nominal[]" value="0">
+                                                                                        <input type="text" class="form-control text-right product-discount-nominal-display" value="Rp0,00" inputmode="decimal">
+                                                                                    </td>
                                                                                     <td><input type="text" class="form-control product-batch" name="batch_number[]" placeholder="Batch"></td>
                                                                                     <td><input type="date" class="form-control product-exp" name="expired_date[]"></td>
                                                                                     <td><input type="text" class="form-control text-right product-line-total" readonly></td>
@@ -724,7 +797,16 @@
 
             // INIT: Hitung semua baris saat halaman dimuat
             setTimeout(function () {
-                tableBody.querySelectorAll('tr').forEach(row => calculateRow(row));
+                tableBody.querySelectorAll('tr').forEach(row => {
+                    const select = row.querySelector('.product-select');
+                    if (select && select.value) {
+                        setRowPrice(row, getHargaByTipe(select.options[select.selectedIndex]));
+                    } else {
+                        setRowPrice(row, row.querySelector('.product-price')?.value || 0);
+                    }
+                    setRowDiscountNominal(row, row.querySelector('.product-discount-nominal-display')?.value || row.querySelector('.product-discount-nominal')?.value || 0, true);
+                    calculateRow(row);
+                });
                 syncMobileCards();
             }, 100);
         });

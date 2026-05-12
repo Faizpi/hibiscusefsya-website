@@ -109,12 +109,13 @@ class PenjualanController extends Controller
             'gudang_id' => 'required|exists:gudangs,id',
             'tipe_harga' => 'nullable|in:retail,grosir',
             'tax_percentage' => 'required|numeric|min:0',
-            'diskon_akhir' => 'nullable|numeric|min:0',
+            'diskon_akhir' => 'nullable',
             'items' => 'required|array|min:1',
             'items.*.produk_id' => 'required|exists:produks,id',
             'items.*.kuantitas' => 'required|numeric|min:1',
-            'items.*.harga_satuan' => 'required|numeric|min:0',
+            'items.*.harga_satuan' => 'nullable',
             'items.*.diskon' => 'nullable|numeric|min:0|max:100',
+            'items.*.diskon_nominal' => 'nullable',
         ]);
 
         if (in_array($user->role, ['admin', 'spectator'])) {
@@ -159,13 +160,11 @@ class PenjualanController extends Controller
             }
         }
 
-        $subTotal = 0;
-        foreach ($request->items as $item) {
-            $disc = $item['diskon'] ?? 0;
-            $subTotal += ($item['kuantitas'] * $item['harga_satuan']) * (1 - ($disc / 100));
-        }
+        $tipeHarga = $request->tipe_harga ?? 'retail';
+        $itemRows = $this->buildPenjualanItemRows($request->items, $tipeHarga);
+        $subTotal = round(array_sum(array_column($itemRows, 'jumlah_baris')), 2);
 
-        $diskonAkhir = $request->diskon_akhir ?? 0;
+        $diskonAkhir = max(0, $this->normalizeMoneyInput($request->diskon_akhir ?? 0));
         $kenaPajak = max(0, $subTotal - $diskonAkhir);
         $pajakPersen = $request->tax_percentage ?? 0;
         $grandTotal = $kenaPajak + ($kenaPajak * ($pajakPersen / 100));
@@ -189,7 +188,7 @@ class PenjualanController extends Controller
                 'no_urut_harian' => $noUrut,
                 'nomor' => $nomor,
                 'gudang_id' => $request->gudang_id,
-                'tipe_harga' => $request->tipe_harga ?? 'retail',
+                'tipe_harga' => $tipeHarga,
                 'pelanggan' => $request->pelanggan,
                 'no_telepon' => $request->no_telepon,
                 'alamat_penagihan' => $request->alamat_penagihan,
@@ -224,25 +223,10 @@ class PenjualanController extends Controller
                 $penjualan->update(['lampiran_paths' => $lampiranPaths]);
             }
 
-            foreach ($request->items as $item) {
-                $produk = Produk::findOrFail($item['produk_id']);
-                $disc = $item['diskon'] ?? 0;
-                $total = ($item['kuantitas'] * $item['harga_satuan']) * (1 - ($disc / 100));
-
+            foreach ($itemRows as $itemRow) {
                 PenjualanItem::create([
                     'penjualan_id' => $penjualan->id,
-                    'produk_id' => $produk->id,
-                    'nama_produk' => $produk->nama_produk,
-                    'deskripsi' => $item['deskripsi'] ?? null,
-                    'kuantitas' => $item['kuantitas'],
-                    'unit' => $item['unit'] ?? null,
-                    'satuan' => $produk->satuan,
-                    'harga_satuan' => $item['harga_satuan'],
-                    'diskon' => $disc,
-                    'batch_number' => $item['batch_number'] ?? null,
-                    'expired_date' => $item['expired_date'] ?? null,
-                    'jumlah_baris' => $total,
-                ]);
+                ] + $itemRow);
             }
 
             DB::commit();
@@ -313,12 +297,13 @@ class PenjualanController extends Controller
             'gudang_id' => 'required|exists:gudangs,id',
             'tipe_harga' => 'nullable|in:retail,grosir',
             'tax_percentage' => 'required|numeric|min:0',
-            'diskon_akhir' => 'nullable|numeric|min:0',
+            'diskon_akhir' => 'nullable',
             'items' => 'required|array|min:1',
             'items.*.produk_id' => 'required|exists:produks,id',
             'items.*.kuantitas' => 'required|numeric|min:1',
-            'items.*.harga_satuan' => 'required|numeric|min:0',
+            'items.*.harga_satuan' => 'nullable',
             'items.*.diskon' => 'nullable|numeric|min:0|max:100',
+            'items.*.diskon_nominal' => 'nullable',
         ]);
 
         // Validasi stok
@@ -355,12 +340,10 @@ class PenjualanController extends Controller
         }
 
         // Calculate totals
-        $subTotal = 0;
-        foreach ($request->items as $item) {
-            $disc = $item['diskon'] ?? 0;
-            $subTotal += ($item['kuantitas'] * $item['harga_satuan']) * (1 - ($disc / 100));
-        }
-        $diskonAkhir = $request->diskon_akhir ?? 0;
+        $tipeHarga = $request->tipe_harga ?? 'retail';
+        $itemRows = $this->buildPenjualanItemRows($request->items, $tipeHarga);
+        $subTotal = round(array_sum(array_column($itemRows, 'jumlah_baris')), 2);
+        $diskonAkhir = max(0, $this->normalizeMoneyInput($request->diskon_akhir ?? 0));
         $kenaPajak = max(0, $subTotal - $diskonAkhir);
         $pajakPersen = $request->tax_percentage ?? 0;
         $grandTotal = $kenaPajak + ($kenaPajak * ($pajakPersen / 100));
@@ -391,7 +374,7 @@ class PenjualanController extends Controller
                 'status' => $statusBaru,
                 'approver_id' => $approverId,
                 'gudang_id' => $request->gudang_id,
-                'tipe_harga' => $request->tipe_harga ?? 'retail',
+                'tipe_harga' => $tipeHarga,
                 'pelanggan' => $request->pelanggan,
                 'no_telepon' => $request->no_telepon,
                 'alamat_penagihan' => $request->alamat_penagihan,
@@ -410,25 +393,10 @@ class PenjualanController extends Controller
 
             $penjualan->items()->delete();
 
-            foreach ($request->items as $item) {
-                $produk = Produk::findOrFail($item['produk_id']);
-                $disc = $item['diskon'] ?? 0;
-                $total = ($item['kuantitas'] * $item['harga_satuan']) * (1 - ($disc / 100));
-
+            foreach ($itemRows as $itemRow) {
                 PenjualanItem::create([
                     'penjualan_id' => $penjualan->id,
-                    'produk_id' => $produk->id,
-                    'nama_produk' => $produk->nama_produk,
-                    'deskripsi' => $item['deskripsi'] ?? null,
-                    'kuantitas' => $item['kuantitas'],
-                    'unit' => $item['unit'] ?? null,
-                    'satuan' => $produk->satuan,
-                    'harga_satuan' => $item['harga_satuan'],
-                    'diskon' => $disc,
-                    'batch_number' => $item['batch_number'] ?? null,
-                    'expired_date' => $item['expired_date'] ?? null,
-                    'jumlah_baris' => $total,
-                ]);
+                ] + $itemRow);
             }
 
             DB::commit();
@@ -558,6 +526,78 @@ class PenjualanController extends Controller
         $penjualan->update(['status' => 'Approved']);
 
         return response()->json(['message' => 'Status penjualan dikembalikan ke Approved.', 'data' => $penjualan]);
+    }
+
+    private function buildPenjualanItemRows(array $items, $tipeHarga)
+    {
+        $produkIds = collect($items)->pluck('produk_id')->filter()->values()->all();
+        $produks = Produk::whereIn('id', $produkIds)->get()->keyBy('id');
+        $rows = [];
+
+        foreach ($items as $item) {
+            $produk = $produks->get($item['produk_id']);
+            if (!$produk) {
+                continue;
+            }
+
+            $qty = (float) ($item['kuantitas'] ?? 0);
+            $price = $this->getProdukHargaByTipe($produk, $tipeHarga);
+            $discPercent = max(0, min(100, (float) ($item['diskon'] ?? 0)));
+            $discNominal = max(0, $this->normalizeMoneyInput($item['diskon_nominal'] ?? 0));
+            $gross = $qty * $price;
+            $jumlahBaris = round(max(0, ($gross * (1 - ($discPercent / 100))) - $discNominal), 2);
+
+            $rows[] = [
+                'produk_id' => $produk->id,
+                'nama_produk' => $produk->nama_produk,
+                'deskripsi' => $item['deskripsi'] ?? null,
+                'kuantitas' => $qty,
+                'unit' => $item['unit'] ?? $produk->satuan,
+                'satuan' => $produk->satuan,
+                'harga_satuan' => $price,
+                'diskon' => $discPercent,
+                'diskon_nominal' => $discNominal,
+                'batch_number' => $item['batch_number'] ?? null,
+                'expired_date' => $item['expired_date'] ?? null,
+                'jumlah_baris' => $jumlahBaris,
+            ];
+        }
+
+        return $rows;
+    }
+
+    private function getProdukHargaByTipe(Produk $produk, $tipeHarga)
+    {
+        $hargaRetail = $this->normalizeMoneyInput($produk->harga);
+        $hargaGrosir = $this->normalizeMoneyInput($produk->harga_grosir ?? 0);
+
+        if ($tipeHarga === 'grosir' && $hargaGrosir > 0) {
+            return $hargaGrosir;
+        }
+
+        return $hargaRetail;
+    }
+
+    private function normalizeMoneyInput($value)
+    {
+        if (is_numeric($value)) {
+            return round((float) $value, 2);
+        }
+
+        $value = trim((string) ($value ?? ''));
+        if ($value === '') {
+            return 0.0;
+        }
+
+        $value = str_replace(['Rp', 'rp', ' ', "\xc2\xa0"], '', $value);
+        if (strpos($value, ',') !== false) {
+            $value = str_replace('.', '', $value);
+            $value = str_replace(',', '.', $value);
+        } else {
+            $value = str_replace(',', '', $value);
+        }
+
+        return is_numeric($value) ? round((float) $value, 2) : 0.0;
     }
 
     private function findApprover($user, $gudangId)

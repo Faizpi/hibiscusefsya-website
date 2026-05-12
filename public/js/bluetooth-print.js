@@ -636,6 +636,8 @@ class BluetoothThermalPrinter {
 
             const diskon = this.numValue(item.diskon);
             if (diskon > 0) lines.push(this.twoColumn('Diskon', `${this.formatQty(diskon)}%`));
+            const diskonNominal = this.numValue(item.diskon_nominal);
+            if (diskonNominal > 0) lines.push(this.twoColumn('Disc Rp', `- ${this.currency(diskonNominal)}`));
             if (this.stringValue(item.deskripsi)) lines.push(this.kvLine('Ket', this.stringValue(item.deskripsi)));
             lines.push(this.twoColumn('Jumlah', this.currency(this.numValue(item.jumlah))));
             lines.push(null);
@@ -1297,6 +1299,9 @@ class BluetoothThermalPrinter {
             body += this.padLine('Harga', this.formatRupiah(item.harga));
             if (item.diskon > 0) {
                 body += this.padLine('Disc', item.diskon + '%');
+            }
+            if (this.numValue(item.diskon_nominal) > 0) {
+                body += this.padLine('Disc Rp', '- ' + this.formatRupiah(item.diskon_nominal));
             }
             body += this.padLine('Jumlah', this.formatRupiah(item.jumlah));
         });

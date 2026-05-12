@@ -229,7 +229,8 @@
                                     <th style="width: 8%;">Qty</th>
                                     <th style="width: 8%;">Unit</th>
                                     <th style="width: 12%;">Harga</th>
-                                    <th style="width: 8%;">Disc%</th>
+                                    <th style="width: 7%;">Disc%</th>
+                                    <th style="width: 11%;">Disc Rp</th>
                                     <th style="width: 10%;">Batch</th>
                                     <th style="width: 10%;">Exp</th>
                                     <th class="text-right" style="width: 12%;">Jumlah</th>
@@ -275,10 +276,20 @@
                                                     value="{{ old('unit.' . $index, $renderProduks->firstWhere('id', $oldPid)->satuan ?? 'Pcs') }}"
                                                     readonly>
                                             </td>
-                                            <td><input type="number" class="form-control text-right product-price"
-                                                    name="harga_satuan[]" value="{{ old('harga_satuan.' . $index) }}" required></td>
+                                            <td>
+                                                <input type="hidden" class="product-price" name="harga_satuan[]"
+                                                    value="{{ old('harga_satuan.' . $index) }}">
+                                                <input type="text" class="form-control text-right product-price-display bg-light"
+                                                    value="{{ old('harga_satuan.' . $index) }}" readonly>
+                                            </td>
                                             <td><input type="number" class="form-control text-right product-disc" name="diskon[]"
                                                     value="{{ old('diskon.' . $index) }}" min="0"></td>
+                                            <td>
+                                                <input type="hidden" class="product-disc-nominal" name="diskon_nominal[]"
+                                                    value="{{ old('diskon_nominal.' . $index, 0) }}">
+                                                <input type="text" class="form-control text-right product-disc-nominal-display"
+                                                    value="{{ old('diskon_nominal.' . $index, 0) }}" inputmode="decimal">
+                                            </td>
                                             <td><input type="text" class="form-control product-batch" name="batch_number[]"
                                                     value="{{ old('batch_number.' . $index) }}" placeholder="Batch"></td>
                                             <td><input type="date" class="form-control product-exp" name="expired_date[]"
@@ -320,10 +331,18 @@
                                             <input type="text" class="form-control product-unit" name="unit[]" value=""
                                                 readonly>
                                         </td>
-                                        <td><input type="number" class="form-control text-right product-price"
-                                                name="harga_satuan[]" value="0" required></td>
+                                        <td>
+                                            <input type="hidden" class="product-price" name="harga_satuan[]" value="0">
+                                            <input type="text" class="form-control text-right product-price-display bg-light"
+                                                value="Rp0,00" readonly>
+                                        </td>
                                         <td><input type="number" class="form-control text-right product-disc" name="diskon[]"
                                                 value="0" min="0"></td>
+                                        <td>
+                                            <input type="hidden" class="product-disc-nominal" name="diskon_nominal[]" value="0">
+                                            <input type="text" class="form-control text-right product-disc-nominal-display"
+                                                value="Rp0,00" inputmode="decimal">
+                                        </td>
                                         <td><input type="text" class="form-control product-batch" name="batch_number[]"
                                                 placeholder="Batch"></td>
                                         <td><input type="date" class="form-control product-exp" name="expired_date[]"></td>
@@ -544,7 +563,7 @@
                                 // Reset row jika produk tidak ada di gudang baru
                                 const row = select.closest('tr');
                                 if (row) {
-                                    row.querySelector('.product-price').value = 0;
+                                    setRowPrice(row, 0);
                                     row.querySelector('.product-desc').value = '';
                                     row.querySelector('.product-total').value = 0;
                                     calculateGrandTotal();
@@ -575,7 +594,7 @@
                     let option = this.options[this.selectedIndex];
                     let row = this.closest('tr');
                     if (row) {
-                        row.querySelector('.product-price').value = getHargaByTipe(option);
+                        setRowPrice(row, getHargaByTipe(option));
                         row.querySelector('.product-desc').value = option.dataset.deskripsi || '';
                         row.querySelector('.product-unit').value = option.dataset.satuan || 'Pcs';
 
@@ -623,11 +642,41 @@
                 return 'Rp' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
             }
 
+            function parseMoney(value) {
+                if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+                value = String(value || '').replace(/Rp/gi, '').replace(/\s/g, '').trim();
+                if (!value) return 0;
+                if (value.includes(',')) {
+                    value = value.replace(/\./g, '').replace(',', '.');
+                } else {
+                    value = value.replace(/,/g, '');
+                }
+                const parsed = parseFloat(value);
+                return Number.isFinite(parsed) ? parsed : 0;
+            }
+
+            function setRowPrice(row, price) {
+                const normalized = parseMoney(price);
+                const priceInput = row.querySelector('.product-price');
+                const priceDisplay = row.querySelector('.product-price-display');
+                if (priceInput) priceInput.value = normalized.toFixed(2);
+                if (priceDisplay) priceDisplay.value = formatRupiah(normalized);
+            }
+
+            function setRowDiscountNominal(row, value, formatDisplay = false) {
+                const normalized = parseMoney(value);
+                const hiddenInput = row.querySelector('.product-disc-nominal');
+                const displayInput = row.querySelector('.product-disc-nominal-display');
+                if (hiddenInput) hiddenInput.value = normalized.toFixed(2);
+                if (formatDisplay && displayInput) displayInput.value = formatRupiah(normalized);
+            }
+
             function calculateRow(row, skipMobileSync = false) {
                 const qty = parseFloat(row.querySelector('.product-qty').value) || 0;
-                const price = parseFloat(row.querySelector('.product-price').value) || 0;
+                const price = parseMoney(row.querySelector('.product-price').value);
                 const disc = parseFloat(row.querySelector('.product-disc').value) || 0;
-                const total = (qty * price) * (1 - (disc / 100));
+                const discNominal = parseMoney(row.querySelector('.product-disc-nominal')?.value);
+                const total = Math.max(0, (qty * price) * (1 - (disc / 100)) - discNominal);
                 row.querySelector('.product-total').value = total.toFixed(2);
                 calculateGrandTotal();
 
@@ -651,7 +700,7 @@
                     subtotal += parseFloat(input.value) || 0;
                 });
 
-                let diskonAkhir = parseFloat(discAkhirInput.value) || 0;
+                let diskonAkhir = parseMoney(discAkhirInput.value);
                 let kenaPajak = Math.max(0, subtotal - diskonAkhir);
 
                 let taxPercentage = parseFloat(taxInput.value) || 0;
@@ -679,8 +728,9 @@
                     const desc = row.querySelector('.product-desc').value || '-';
                     const qty = row.querySelector('.product-qty').value || 0;
                     const unit = row.querySelector('.product-unit').value || 'Pcs';
-                    const price = row.querySelector('.product-price').value || 0;
+                    const price = row.querySelector('.product-price-display').value || formatRupiah(parseMoney(row.querySelector('.product-price').value));
                     const disc = row.querySelector('.product-disc').value || 0;
+                    const discNominal = row.querySelector('.product-disc-nominal-display').value || formatRupiah(parseMoney(row.querySelector('.product-disc-nominal')?.value));
                     const batch = row.querySelector('.product-batch').value || '';
                     const exp = row.querySelector('.product-exp').value || '';
                     const total = row.querySelector('.product-total').value || 0;
@@ -716,11 +766,15 @@
                                                     </div>
                                                     <div class="field-group">
                                                         <span class="field-label">Harga</span>
-                                                        <input type="number" class="form-control product-price-mobile" data-row="${index}" value="${price}">
+                                                        <input type="text" class="form-control product-price-mobile bg-light" data-row="${index}" value="${price}" readonly>
                                                     </div>
                                                     <div class="field-group">
                                                         <span class="field-label">Disc%</span>
                                                         <input type="number" class="form-control product-disc-mobile" data-row="${index}" value="${disc}" min="0" max="100">
+                                                    </div>
+                                                    <div class="field-group">
+                                                        <span class="field-label">Disc Rp</span>
+                                                        <input type="text" class="form-control product-disc-nominal-mobile" data-row="${index}" value="${discNominal}" inputmode="decimal">
                                                     </div>
                                                     <div class="field-group">
                                                         <span class="field-label">Batch</span>
@@ -754,7 +808,8 @@
                         if (tableRow) {
                             const opt = e.params.data.element;
                             $(tableRow).find('.product-select').val(e.params.data.id).trigger('change');
-                            tableRow.querySelector('.product-price').value = opt?.dataset?.harga || 0;
+                            const harga = getHargaByTipe(opt);
+                            setRowPrice(tableRow, harga);
                             tableRow.querySelector('.product-desc').value = opt?.dataset?.deskripsi || '';
                             tableRow.querySelector('.product-unit').value = opt?.dataset?.satuan || 'Pcs';
 
@@ -764,7 +819,7 @@
                                 const priceMobile = card.querySelector('.product-price-mobile');
                                 const descMobile = card.querySelector('.product-desc-mobile');
                                 const unitMobile = card.querySelector('.product-unit-mobile');
-                                if (priceMobile) priceMobile.value = opt?.dataset?.harga || 0;
+                                if (priceMobile) priceMobile.value = formatRupiah(harga);
                                 if (descMobile) descMobile.value = opt?.dataset?.deskripsi || '';
                                 if (unitMobile) unitMobile.value = opt?.dataset?.satuan || 'Pcs';
                             }
@@ -807,7 +862,7 @@
                         const satuan = selectedOption.dataset.satuan || 'Pcs';
 
                         // Update desktop table
-                        row.querySelector('.product-price').value = harga;
+                        setRowPrice(row, harga);
                         row.querySelector('.product-desc').value = deskripsi;
                         row.querySelector('.product-unit').value = satuan;
 
@@ -825,7 +880,7 @@
                             const descMobile = card.querySelector('.product-desc-mobile');
                             const unitMobile = card.querySelector('.product-unit-mobile');
                             const discMobile = card.querySelector('.product-disc-mobile');
-                            if (priceMobile) priceMobile.value = harga;
+                            if (priceMobile) priceMobile.value = formatRupiah(harga);
                             if (descMobile) descMobile.value = deskripsi;
                             if (unitMobile) unitMobile.value = satuan;
                             if (discMobile && kontakSelect && kontakSelect.selectedIndex > 0) {
@@ -841,7 +896,7 @@
                         if (card) {
                             const totalValue = card.querySelector('.total-value');
                             if (totalValue) {
-                                totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-total').value) || 0);
+                                totalValue.textContent = formatRupiah(parseMoney(row.querySelector('.product-total').value));
                             }
                         }
                     }
@@ -864,19 +919,7 @@
                         if (card) {
                             const totalValue = card.querySelector('.total-value');
                             if (totalValue) {
-                                totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-total').value) || 0);
-                            }
-                        }
-                    }
-                    if (e.target.classList.contains('product-price-mobile')) {
-                        row.querySelector('.product-price').value = e.target.value;
-                        calculateRow(row, true); // Skip mobile sync untuk mencegah rebuild
-                        // Update total di card ini saja
-                        const card = e.target.closest('.product-card-mobile');
-                        if (card) {
-                            const totalValue = card.querySelector('.total-value');
-                            if (totalValue) {
-                                totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-total').value) || 0);
+                                totalValue.textContent = formatRupiah(parseMoney(row.querySelector('.product-total').value));
                             }
                         }
                     }
@@ -888,7 +931,18 @@
                         if (card) {
                             const totalValue = card.querySelector('.total-value');
                             if (totalValue) {
-                                totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-total').value) || 0);
+                                totalValue.textContent = formatRupiah(parseMoney(row.querySelector('.product-total').value));
+                            }
+                        }
+                    }
+                    if (e.target.classList.contains('product-disc-nominal-mobile')) {
+                        setRowDiscountNominal(row, e.target.value);
+                        calculateRow(row, true);
+                        const card = e.target.closest('.product-card-mobile');
+                        if (card) {
+                            const totalValue = card.querySelector('.total-value');
+                            if (totalValue) {
+                                totalValue.textContent = formatRupiah(parseMoney(row.querySelector('.product-total').value));
                             }
                         }
                     }
@@ -924,9 +978,12 @@
 
             // --- 3. EVENT LISTENERS (AGAR REALTIME) ---
 
-            // Listener untuk Input di Tabel (Qty, Harga, Disc)
+            // Listener untuk Input di Tabel (Qty, Diskon)
             document.addEventListener('input', function (e) {
-                if (e.target.matches('.product-qty, .product-price, .product-disc')) {
+                if (e.target.matches('.product-qty, .product-disc, .product-disc-nominal-display')) {
+                    if (e.target.classList.contains('product-disc-nominal-display')) {
+                        setRowDiscountNominal(e.target.closest('tr'), e.target.value);
+                    }
                     calculateRow(e.target.closest('tr'), true); // Skip mobile sync untuk mencegah rebuild
                     // Update mobile card total jika ada
                     const row = e.target.closest('tr');
@@ -936,21 +993,38 @@
                         if (card) {
                             const totalValue = card.querySelector('.total-value');
                             if (totalValue) {
-                                totalValue.textContent = formatRupiah(parseFloat(row.querySelector('.product-total').value) || 0);
+                                totalValue.textContent = formatRupiah(parseMoney(row.querySelector('.product-total').value));
                             }
                             // Sync input values ke mobile card
                             const qtyMobile = card.querySelector('.product-qty-mobile');
                             const priceMobile = card.querySelector('.product-price-mobile');
                             const discMobile = card.querySelector('.product-disc-mobile');
+                            const discNominalMobile = card.querySelector('.product-disc-nominal-mobile');
                             if (qtyMobile && e.target.classList.contains('product-qty')) qtyMobile.value = e.target.value;
-                            if (priceMobile && e.target.classList.contains('product-price')) priceMobile.value = e.target.value;
+                            if (priceMobile && e.target.classList.contains('product-price')) priceMobile.value = formatRupiah(parseMoney(e.target.value));
                             if (discMobile && e.target.classList.contains('product-disc')) discMobile.value = e.target.value;
+                            if (discNominalMobile && e.target.classList.contains('product-disc-nominal-display')) discNominalMobile.value = e.target.value;
                         }
                     }
                 }
                 // Listener KHUSUS untuk Diskon Akhir & Pajak
                 if (e.target.id === 'diskon_akhir_input' || e.target.id === 'tax_percentage_input') {
                     calculateGrandTotal();
+                }
+            });
+
+            document.addEventListener('focusout', function (e) {
+                if (e.target.classList.contains('product-disc-nominal-display')) {
+                    setRowDiscountNominal(e.target.closest('tr'), e.target.value, true);
+                    calculateRow(e.target.closest('tr'), true);
+                }
+                if (e.target.classList.contains('product-disc-nominal-mobile')) {
+                    const row = tableBody.querySelectorAll('tr')[e.target.dataset.row];
+                    if (row) {
+                        setRowDiscountNominal(row, e.target.value, true);
+                        e.target.value = row.querySelector('.product-disc-nominal-display')?.value || formatRupiah(0);
+                        calculateRow(row, true);
+                    }
                 }
             });
 
@@ -998,7 +1072,7 @@
                         const select = row.querySelector('.product-select');
                         if (select && select.value) {
                             const option = select.options[select.selectedIndex];
-                            row.querySelector('.product-price').value = getHargaByTipe(option);
+                            setRowPrice(row, getHargaByTipe(option));
                             calculateRow(row);
                         }
                     });
@@ -1010,7 +1084,7 @@
                 if (e.target.classList.contains('product-select')) {
                     let option = e.target.options[e.target.selectedIndex];
                     let row = e.target.closest('tr');
-                    row.querySelector('.product-price').value = getHargaByTipe(option);
+                    setRowPrice(row, getHargaByTipe(option));
                     row.querySelector('.product-desc').value = option.dataset.deskripsi || '';
 
                     // Cek Diskon Kontak
@@ -1035,7 +1109,8 @@
                 let row = firstRow.cloneNode(true);
                 row.querySelectorAll('input').forEach(i => i.value = '');
                 row.querySelector('.product-qty').value = 1;
-                row.querySelector('.product-price').value = 0;
+                setRowPrice(row, 0);
+                setRowDiscountNominal(row, 0, true);
 
                 // Update product options berdasarkan gudang yang dipilih
                 let productSelect = row.querySelector('.product-select');
@@ -1080,7 +1155,16 @@
             });
 
             // Init Calc
-            tableBody.querySelectorAll('tr').forEach(row => calculateRow(row));
+            tableBody.querySelectorAll('tr').forEach(row => {
+                const select = row.querySelector('.product-select');
+                if (select && select.value) {
+                    setRowPrice(row, getHargaByTipe(select.options[select.selectedIndex]));
+                } else {
+                    setRowPrice(row, row.querySelector('.product-price')?.value || 0);
+                }
+                setRowDiscountNominal(row, row.querySelector('.product-disc-nominal-display')?.value || row.querySelector('.product-disc-nominal')?.value || 0, true);
+                calculateRow(row);
+            });
             syncMobileCards();
 
             // --- 8. KOORDINAT LOKASI ---

@@ -231,6 +231,7 @@
                                 <th class="text-center">Qty</th>
                                 <th class="text-right">Harga</th>
                                 <th class="text-center">Disc%</th>
+                                <th class="text-right">Disc Rp</th>
                                 <th>Batch</th>
                                 <th>Exp</th>
                                 <th class="text-right">Total</th>
@@ -245,6 +246,7 @@
                                     <td class="text-center">{{ $item->kuantitas }} {{ $item->unit }}</td>
                                     <td class="text-right">{{ format_rupiah($item->harga_satuan) }}</td>
                                     <td class="text-center">{{ $item->diskon }}%</td>
+                                    <td class="text-right">{{ format_rupiah($item->diskon_nominal ?? 0) }}</td>
                                     <td>{{ $item->batch_number ?? '-' }}</td>
                                     <td>{{ $item->expired_date ? $item->expired_date->format('d/m/Y') : '-' }}</td>
                                     <td class="text-right">{{ format_rupiah($item->jumlah_baris) }}</td>
@@ -275,6 +277,10 @@
                                 <div class="detail-item">
                                     <div class="label">Disc</div>
                                     <div class="value">{{ $item->diskon }}%</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="label">Disc Rp</div>
+                                    <div class="value">{{ format_rupiah($item->diskon_nominal ?? 0) }}</div>
                                 </div>
                                 @if($item->batch_number)
                                     <div class="detail-item">

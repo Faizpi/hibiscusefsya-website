@@ -149,6 +149,9 @@ class PrintController extends Controller
             if ($item->diskon > 0) {
                 $out .= $this->fmtJustify("Disc", ($item->diskon + 0) . "%");
             }
+            if (($item->diskon_nominal ?? 0) > 0) {
+                $out .= $this->fmtJustify("Disc Rp", "- " . $this->rp($item->diskon_nominal));
+            }
 
             // Baris Batch (Jika ada)
             if ($item->batch_number) {

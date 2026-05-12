@@ -285,7 +285,12 @@
                             style="color:#999">({{ $item->produk->item_code ?? '-' }})</small></td>
                     <td>{{ $item->kuantitas }} Pcs</td>
                     <td>{{ format_rupiah($item->harga_satuan) }}</td>
-                    <td>{{ format_rupiah($item->diskon_per_item ?? 0) }}</td>
+                    <td>
+                        {{ $item->diskon > 0 ? $item->diskon . '%' : '-' }}
+                        @if(($item->diskon_nominal ?? 0) > 0)
+                            <br>- {{ format_rupiah($item->diskon_nominal) }}
+                        @endif
+                    </td>
                     <td>{{ $item->batch_number ?? '-' }}</td>
                     <td>{{ $item->expired_date ? $item->expired_date->format('d/m/Y') : '-' }}</td>
                     <td>{{ format_rupiah($item->jumlah_baris) }}</td>

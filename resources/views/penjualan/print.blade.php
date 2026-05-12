@@ -177,7 +177,7 @@
         $taxPct = (float) ($penjualan->tax_percentage ?? 0);
         $taxNominal = max(0, $subtotal - $diskonAkhir) * ($taxPct / 100);
         $formatMoney = function ($value) {
-            return 'Rp ' . number_format((float) $value, 3, ',', '.');
+            return 'Rp ' . number_format((float) $value, 2, ',', '.');
         };
         $formatQty = function ($qty) {
             $qty = (float) $qty;
@@ -254,6 +254,7 @@
                 $exp = $item->expired_date ? $item->expired_date->format('d/m/Y') : 'N/A';
                 $qtyText = $formatQty($item->kuantitas);
                 $diskonItem = (float) ($item->diskon ?? 0);
+                $diskonNominalItem = (float) ($item->diskon_nominal ?? 0);
             @endphp
             <div class="item-name">{{ $namaProduk }}</div>
             <table>
@@ -271,6 +272,14 @@
                     <tr>
                         <td>Diskon</td>
                         <td class="right value-wrap">{{ $formatPct($diskonItem) }}%</td>
+                    </tr>
+                </table>
+            @endif
+            @if($diskonNominalItem > 0)
+                <table>
+                    <tr>
+                        <td>Diskon Rp</td>
+                        <td class="right value-wrap">- {{ $formatMoney($diskonNominalItem) }}</td>
                     </tr>
                 </table>
             @endif

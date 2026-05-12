@@ -216,6 +216,12 @@
                             <td class="val">{{ $item->diskon }}%</td>
                         </tr>
                     @endif
+                    @if(($item->diskon_nominal ?? 0) > 0)
+                        <tr>
+                            <td>Disc Rp</td>
+                            <td class="val">- {{ format_rupiah($item->diskon_nominal) }}</td>
+                        </tr>
+                    @endif
                     @if($item->batch_number)
                         <tr>
                             <td>Batch</td>
