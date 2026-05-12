@@ -154,15 +154,15 @@
                             {{-- KOORDINAT LOKASI (AUTO) --}}
                             <div class="form-group">
                                 <label for="koordinat">Koordinat Lokasi</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="koordinat" name="koordinat"
+                                <div class="pos-coordinate-group">
+                                    <input type="text" class="form-control pos-coordinate-field" id="koordinat" name="koordinat"
                                         value="{{ old('koordinat') }}" placeholder="-6.123456, 106.123456" readonly>
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-primary" id="btn-get-location"
+                                    <div class="pos-coordinate-actions">
+                                        <button type="button" class="btn pos-coordinate-action" id="btn-get-location"
                                             title="Refresh Lokasi">
                                             <i class="fas fa-map-marker-alt"></i>
                                         </button>
-                                        <a href="#" class="btn btn-outline-success" id="btn-open-maps" target="_blank"
+                                        <a href="#" class="btn pos-coordinate-action" id="btn-open-maps" target="_blank"
                                             title="Buka di Google Maps">
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>
@@ -217,7 +217,7 @@
                                                 </select>
                                             </td>
                                             <td class="text-center"><button type="button"
-                                                    class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i
+                                                    class="btn pos-inline-icon-action btn-sm btn-scan-produk" title="Scan Barcode"><i
                                                         class="fas fa-camera"></i></button></td>
                                             <td><input type="text" class="form-control product-desc" name="deskripsi[]"
                                                     value="{{ old('deskripsi.' . $index) }}"></td>
@@ -257,7 +257,7 @@
                                             </select>
                                         </td>
                                         <td class="text-center"><button type="button"
-                                                class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i
+                                                class="btn pos-inline-icon-action btn-sm btn-scan-produk" title="Scan Barcode"><i
                                                     class="fas fa-camera"></i></button></td>
                                         <td><input type="text" class="form-control product-desc" name="deskripsi[]"></td>
                                         <td><input type="number" class="form-control product-qty" name="kuantitas[]" value="1"
@@ -554,7 +554,7 @@
                                         <option value="">Pilih...</option>
                                         ${productOptionsHtml}
                                     </select>
-                                    <button type="button" class="btn btn-outline-info btn-sm ml-1 btn-scan-produk-mobile" data-row="${index}" title="Scan Barcode">
+                                    <button type="button" class="btn pos-inline-icon-action btn-sm ml-1 btn-scan-produk-mobile" data-row="${index}" title="Scan Barcode">
                                         <i class="fas fa-camera"></i>
                                     </button>
                                 </div>

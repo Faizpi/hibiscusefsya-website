@@ -51,12 +51,12 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="btn-group ml-2 flex-shrink-0" role="group">
-                                                <a href="{{ route('kontak.create') }}" class="btn btn-outline-primary"
+                                            <div class="pos-dual-action ml-2 flex-shrink-0" role="group" aria-label="Aksi kontak">
+                                                <a href="{{ route('kontak.create') }}" class="btn pos-icon-action"
                                                     target="_blank" rel="noopener" title="Buat Kontak Baru">
                                                     <i class="fas fa-user-plus"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-outline-primary"
+                                                <button type="button" class="btn pos-icon-action"
                                                     onclick="scanKontak(document.getElementById('kontak-select'))"
                                                     title="Scan Barcode/QR Kontak">
                                                     <i class="fas fa-camera"></i>
@@ -114,8 +114,24 @@
                                     value="{{ old('tag', $penjualan->tag) }}" readonly></div>
                             <div class="form-group">
                                 <label>Koordinat Lokasi</label>
-                                <input type="text" class="form-control bg-light" name="koordinat"
-                                    value="{{ old('koordinat', $penjualan->koordinat) }}" readonly>
+                                @php
+                                    $koordinatValue = old('koordinat', $penjualan->koordinat);
+                                @endphp
+                                <div class="pos-coordinate-group">
+                                    <input type="text" class="form-control pos-coordinate-field" name="koordinat"
+                                        value="{{ $koordinatValue }}" readonly>
+                                    <div class="pos-coordinate-actions">
+                                        <button type="button" class="btn pos-coordinate-action" disabled
+                                            title="Koordinat transaksi">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </button>
+                                        <a href="{{ $koordinatValue ? 'https://www.google.com/maps?q=' . str_replace(' ', '', $koordinatValue) : '#' }}"
+                                            class="btn pos-coordinate-action {{ $koordinatValue ? '' : 'disabled' }}"
+                                            target="_blank" title="Buka di Google Maps">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    </div>
+                                </div>
                                 @if($penjualan->koordinat)
                                     <small class="text-muted">Koordinat diambil saat transaksi dibuat</small>
                                 @endif
@@ -138,13 +154,13 @@
                             {{-- TIPE HARGA --}}
                             <div class="form-group">
                                 <label>Tipe Harga *</label>
-                                <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
+                                <div class="pos-segmented pos-price-toggle btn-group-toggle d-flex" data-toggle="buttons">
                                     <label
-                                        class="btn btn-outline-primary flex-fill {{ old('tipe_harga', $penjualan->tipe_harga ?? 'retail') == 'retail' ? 'active' : '' }}">
+                                        class="btn pos-price-option flex-fill {{ old('tipe_harga', $penjualan->tipe_harga ?? 'retail') == 'retail' ? 'active' : '' }}">
                                         <input type="radio" name="tipe_harga" value="retail" {{ old('tipe_harga', $penjualan->tipe_harga ?? 'retail') == 'retail' ? 'checked' : '' }}> Retail
                                     </label>
                                     <label
-                                        class="btn btn-outline-success flex-fill {{ old('tipe_harga', $penjualan->tipe_harga ?? 'retail') == 'grosir' ? 'active' : '' }}">
+                                        class="btn pos-price-option flex-fill {{ old('tipe_harga', $penjualan->tipe_harga ?? 'retail') == 'grosir' ? 'active' : '' }}">
                                         <input type="radio" name="tipe_harga" value="grosir" {{ old('tipe_harga', $penjualan->tipe_harga ?? 'retail') == 'grosir' ? 'checked' : '' }}> Grosir
                                     </label>
                                 </div>

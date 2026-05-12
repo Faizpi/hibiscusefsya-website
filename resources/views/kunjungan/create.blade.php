@@ -66,12 +66,12 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="btn-group ml-2 flex-shrink-0" role="group">
-                                        <a href="{{ route('kontak.create') }}" class="btn btn-outline-primary"
+                                    <div class="pos-dual-action ml-2 flex-shrink-0" role="group" aria-label="Aksi kontak">
+                                        <a href="{{ route('kontak.create') }}" class="btn pos-icon-action"
                                             target="_blank" rel="noopener" title="Buat Kontak Baru">
                                             <i class="fas fa-user-plus"></i>
                                         </a>
-                                        <button type="button" class="btn btn-outline-primary"
+                                        <button type="button" class="btn pos-icon-action"
                                             onclick="scanKontak(document.getElementById('kontak_id'))"
                                             title="Scan Barcode/QR Kontak">
                                             <i class="fas fa-camera"></i>
@@ -142,15 +142,15 @@
                             {{-- KOORDINAT LOKASI (AUTO) --}}
                             <div class="form-group">
                                 <label for="koordinat">Koordinat Lokasi</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="koordinat" name="koordinat"
+                                <div class="pos-coordinate-group">
+                                    <input type="text" class="form-control pos-coordinate-field" id="koordinat" name="koordinat"
                                         value="{{ old('koordinat') }}" placeholder="-6.123456, 106.123456" readonly>
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-primary" id="btn-get-location"
+                                    <div class="pos-coordinate-actions">
+                                        <button type="button" class="btn pos-coordinate-action" id="btn-get-location"
                                             title="Refresh Lokasi">
                                             <i class="fas fa-map-marker-alt"></i>
                                         </button>
-                                        <a href="#" class="btn btn-outline-success" id="btn-open-maps" target="_blank"
+                                        <a href="#" class="btn pos-coordinate-action" id="btn-open-maps" target="_blank"
                                             title="Buka di Google Maps">
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>
@@ -229,7 +229,7 @@
                                         value="{{ old('expired_date.0') }}">
                                 </div>
                                 <div class="col-md-1">
-                                    <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk"
+                                    <button type="button" class="btn pos-inline-icon-action btn-sm btn-scan-produk"
                                         title="Scan Barcode">
                                         <i class="fas fa-camera"></i>
                                     </button>
@@ -463,7 +463,7 @@
                                                                         <input type="date" class="form-control produk-exp" name="expired_date[]">
                                                                     </div>
                                                                     <div class="col-md-1">
-                                                                        <button type="button" class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode">
+                                                                        <button type="button" class="btn pos-inline-icon-action btn-sm btn-scan-produk" title="Scan Barcode">
                                                                             <i class="fas fa-camera"></i>
                                                                         </button>
                                                                     </div>

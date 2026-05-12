@@ -58,12 +58,12 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="btn-group ml-2 flex-shrink-0" role="group">
-                                                <a href="{{ route('kontak.create') }}" class="btn btn-outline-primary"
+                                            <div class="pos-dual-action ml-2 flex-shrink-0" role="group" aria-label="Aksi kontak">
+                                                <a href="{{ route('kontak.create') }}" class="btn pos-icon-action"
                                                     target="_blank" rel="noopener" title="Buat Kontak Baru">
                                                     <i class="fas fa-user-plus"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-outline-primary"
+                                                <button type="button" class="btn pos-icon-action"
                                                     onclick="scanKontak(document.getElementById('kontak-select'))"
                                                     title="Scan Barcode/QR Kontak">
                                                     <i class="fas fa-camera"></i>
@@ -143,16 +143,16 @@
                             </div>
                             <div class="form-group">
                                 <label for="koordinat">Koordinat Lokasi</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control @error('koordinat') is-invalid @enderror"
+                                <div class="pos-coordinate-group">
+                                    <input type="text" class="form-control pos-coordinate-field @error('koordinat') is-invalid @enderror"
                                         id="koordinat" name="koordinat" value="{{ old('koordinat') }}"
                                         placeholder="-6.123456, 106.123456" readonly>
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-primary" id="btn-get-location"
+                                    <div class="pos-coordinate-actions">
+                                        <button type="button" class="btn pos-coordinate-action" id="btn-get-location"
                                             title="Ambil Lokasi Saat Ini">
                                             <i class="fas fa-map-marker-alt"></i>
                                         </button>
-                                        <a href="#" class="btn btn-outline-success" id="btn-open-maps" target="_blank"
+                                        <a href="#" class="btn pos-coordinate-action" id="btn-open-maps" target="_blank"
                                             title="Buka di Google Maps">
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>
@@ -204,13 +204,13 @@
                             {{-- TIPE HARGA --}}
                             <div class="form-group">
                                 <label>Tipe Harga *</label>
-                                <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
+                                <div class="pos-segmented pos-price-toggle btn-group-toggle d-flex" data-toggle="buttons">
                                     <label
-                                        class="btn btn-outline-primary flex-fill {{ old('tipe_harga', 'retail') == 'retail' ? 'active' : '' }}">
+                                        class="btn pos-price-option flex-fill {{ old('tipe_harga', 'retail') == 'retail' ? 'active' : '' }}">
                                         <input type="radio" name="tipe_harga" id="tipe_harga_retail" value="retail" {{ old('tipe_harga', 'retail') == 'retail' ? 'checked' : '' }}> Retail
                                     </label>
                                     <label
-                                        class="btn btn-outline-success flex-fill {{ old('tipe_harga') == 'grosir' ? 'active' : '' }}">
+                                        class="btn pos-price-option flex-fill {{ old('tipe_harga') == 'grosir' ? 'active' : '' }}">
                                         <input type="radio" name="tipe_harga" id="tipe_harga_grosir" value="grosir" {{ old('tipe_harga') == 'grosir' ? 'checked' : '' }}> Grosir
                                     </label>
                                 </div>
@@ -265,7 +265,7 @@
                                                 </select>
                                             </td>
                                             <td class="text-center"><button type="button"
-                                                    class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i
+                                                    class="btn pos-inline-icon-action btn-sm btn-scan-produk" title="Scan Barcode"><i
                                                         class="fas fa-camera"></i></button></td>
                                             <td><input type="text" class="form-control product-desc" name="deskripsi[]"
                                                     value="{{ old('deskripsi.' . $index) }}"></td>
@@ -322,7 +322,7 @@
                                             </select>
                                         </td>
                                         <td class="text-center"><button type="button"
-                                                class="btn btn-outline-info btn-sm btn-scan-produk" title="Scan Barcode"><i
+                                                class="btn pos-inline-icon-action btn-sm btn-scan-produk" title="Scan Barcode"><i
                                                     class="fas fa-camera"></i></button></td>
                                         <td><input type="text" class="form-control product-desc" name="deskripsi[]"></td>
                                         <td><input type="number" class="form-control product-qty" name="kuantitas[]" value="1"
@@ -745,7 +745,7 @@
                                                             <option value="">Pilih...</option>
                                                             ${productOptionsHtml}
                                                         </select>
-                                                        <button type="button" class="btn btn-outline-info btn-sm ml-1 btn-scan-produk-mobile" data-row="${index}" title="Scan Barcode">
+                                                        <button type="button" class="btn pos-inline-icon-action btn-sm ml-1 btn-scan-produk-mobile" data-row="${index}" title="Scan Barcode">
                                                             <i class="fas fa-camera"></i>
                                                         </button>
                                                     </div>

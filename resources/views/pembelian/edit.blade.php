@@ -105,8 +105,24 @@
                             </div>
                             <div class="form-group">
                                 <label>Koordinat Lokasi</label>
-                                <input type="text" class="form-control bg-light" name="koordinat"
-                                    value="{{ old('koordinat', $pembelian->koordinat) }}" readonly>
+                                @php
+                                    $koordinatValue = old('koordinat', $pembelian->koordinat);
+                                @endphp
+                                <div class="pos-coordinate-group">
+                                    <input type="text" class="form-control pos-coordinate-field" name="koordinat"
+                                        value="{{ $koordinatValue }}" readonly>
+                                    <div class="pos-coordinate-actions">
+                                        <button type="button" class="btn pos-coordinate-action" disabled
+                                            title="Koordinat transaksi">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </button>
+                                        <a href="{{ $koordinatValue ? 'https://www.google.com/maps?q=' . str_replace(' ', '', $koordinatValue) : '#' }}"
+                                            class="btn pos-coordinate-action {{ $koordinatValue ? '' : 'disabled' }}"
+                                            target="_blank" title="Buka di Google Maps">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    </div>
+                                </div>
                                 @if($pembelian->koordinat)
                                     <small class="text-muted">Koordinat diambil saat transaksi dibuat</small>
                                 @endif
