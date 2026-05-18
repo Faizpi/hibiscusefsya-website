@@ -111,6 +111,69 @@ class DashboardController extends Controller
             ->whereYear('tgl_transaksi', $now->year)
             ->count();
 
+        // ==================== DAILY & MONTHLY PEMBAYARAN / PENJUALAN / BIAYA ====================
+        // Build pembayaran query scoped by role
+        if ($role == 'super_admin') {
+            $pembayaranQuery = Pembayaran::where('status', '!=', 'Canceled');
+        } elseif (in_array($role, ['admin', 'spectator'])) {
+            $pembayaranQuery = Pembayaran::where('status', '!=', 'Canceled')
+                ->where('gudang_id', $gudangId);
+        } else {
+            $pembayaranQuery = Pembayaran::where('status', '!=', 'Canceled')
+                ->where('user_id', $user->id);
+        }
+
+        // Daily penjualan
+        $data['daily_penjualan'] = (clone $penjualanQuery)
+            ->whereDate('tgl_transaksi', $now->toDateString())
+            ->sum('grand_total');
+
+        $data['daily_penjualan_count'] = (clone $penjualanQuery)
+            ->whereDate('tgl_transaksi', $now->toDateString())
+            ->count();
+
+        // Daily biaya
+        $data['daily_biaya'] = (clone $biayaQuery)
+            ->whereDate('tgl_transaksi', $now->toDateString())
+            ->sum('grand_total');
+
+        $data['daily_biaya_count'] = (clone $biayaQuery)
+            ->whereDate('tgl_transaksi', $now->toDateString())
+            ->count();
+
+        // Daily pembayaran
+        $data['daily_pembayaran'] = (clone $pembayaranQuery)
+            ->whereDate('tgl_pembayaran', $now->toDateString())
+            ->sum('jumlah_bayar');
+
+        $data['daily_pembayaran_count'] = (clone $pembayaranQuery)
+            ->whereDate('tgl_pembayaran', $now->toDateString())
+            ->count();
+
+        // Monthly pembayaran
+        $data['total_pembayaran_bulan_ini'] = (clone $pembayaranQuery)
+            ->whereMonth('tgl_pembayaran', $now->month)
+            ->whereYear('tgl_pembayaran', $now->year)
+            ->sum('jumlah_bayar');
+
+        $data['pembayaran_bulan_ini'] = (clone $pembayaranQuery)
+            ->whereMonth('tgl_pembayaran', $now->month)
+            ->whereYear('tgl_pembayaran', $now->year)
+            ->count();
+
+        // Penjualan count bulan ini (sum already in total_penjualan_bulan_ini)
+        $data['penjualan_count_bulan_ini'] = (clone $penjualanQuery)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->whereYear('tgl_transaksi', $now->year)
+            ->count();
+
+        // Biaya count bulan ini
+        $data['biaya_count_bulan_ini'] = (clone $biayaQuery)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->whereYear('tgl_transaksi', $now->year)
+            ->count();
+        // ==================== END DAILY & MONTHLY ====================
+
         $pendingPembelianQuery = Pembelian::where('status', 'Pending');
         if (in_array($role, ['admin', 'spectator'])) {
             $pendingPembelianQuery->where('gudang_id', $gudangId);

@@ -164,6 +164,14 @@ class DashboardController extends Controller
                     'biayaTotal' => 0,
                     'kunjunganTotal' => 0,
                     'pembelianNominalBulanIni' => 0,
+                    'penjualanHariIni' => 0,
+                    'biayaHariIni' => 0,
+                    'pembayaranHariIni' => 0,
+                    'penjualanCountHariIni' => 0,
+                    'biayaCountHariIni' => 0,
+                    'pembayaranCountHariIni' => 0,
+                    'pembayaranBulanIni' => 0,
+                    'pembayaranCountBulanIni' => 0,
                     'availableGudangs' => collect(),
                     'selectedGudangId' => null,
                     'gudangs' => collect(),
@@ -217,6 +225,14 @@ class DashboardController extends Controller
                     'biayaTotal' => 0,
                     'kunjunganTotal' => 0,
                     'pembelianNominalBulanIni' => 0,
+                    'penjualanHariIni' => 0,
+                    'biayaHariIni' => 0,
+                    'pembayaranHariIni' => 0,
+                    'penjualanCountHariIni' => 0,
+                    'biayaCountHariIni' => 0,
+                    'pembayaranCountHariIni' => 0,
+                    'pembayaranBulanIni' => 0,
+                    'pembayaranCountBulanIni' => 0,
                     'availableGudangs' => collect(),
                     'selectedGudangId' => null,
                     'gudangs' => collect(),
@@ -575,6 +591,72 @@ class DashboardController extends Controller
 
         $data['canceledBulanIni'] = $canceledPenjualan + $canceledPembelian + $canceledBiaya + $canceledKunjungan;
         $data['canceledCountBulanIni'] = $data['canceledBulanIni'];
+
+        // ==================== DAILY & MONTHLY PEMBAYARAN / PENJUALAN / BIAYA ====================
+        // Build pembayaran query scoped by role
+        if ($role == 'super_admin') {
+            $pembayaranQuery = Pembayaran::where('status', '!=', 'Canceled')
+                ->when($selectedGudangId, function ($q) use ($selectedGudangId) {
+                    return $q->where('gudang_id', $selectedGudangId);
+                });
+        } elseif (in_array($role, ['admin', 'spectator'])) {
+            $pembayaranQuery = Pembayaran::where('status', '!=', 'Canceled')
+                ->where('gudang_id', $selectedGudangId);
+        } else {
+            $pembayaranQuery = Pembayaran::where('status', '!=', 'Canceled')
+                ->where('user_id', $userId);
+        }
+
+        // Penjualan hari ini
+        $data['penjualanHariIni'] = (clone $penjualanQuery)
+            ->whereDate('tgl_transaksi', $now->toDateString())
+            ->sum('grand_total');
+
+        $data['penjualanCountHariIni'] = (clone $penjualanQuery)
+            ->whereDate('tgl_transaksi', $now->toDateString())
+            ->count();
+
+        // Biaya hari ini
+        $data['biayaHariIni'] = (clone $biayaQuery)
+            ->whereDate('tgl_transaksi', $now->toDateString())
+            ->sum('grand_total');
+
+        $data['biayaCountHariIni'] = (clone $biayaQuery)
+            ->whereDate('tgl_transaksi', $now->toDateString())
+            ->count();
+
+        // Pembayaran hari ini
+        $data['pembayaranHariIni'] = (clone $pembayaranQuery)
+            ->whereDate('tgl_pembayaran', $now->toDateString())
+            ->sum('jumlah_bayar');
+
+        $data['pembayaranCountHariIni'] = (clone $pembayaranQuery)
+            ->whereDate('tgl_pembayaran', $now->toDateString())
+            ->count();
+
+        // Pembayaran bulan ini
+        $data['pembayaranBulanIni'] = (clone $pembayaranQuery)
+            ->whereYear('tgl_pembayaran', $now->year)
+            ->whereMonth('tgl_pembayaran', $now->month)
+            ->sum('jumlah_bayar');
+
+        $data['pembayaranCountBulanIni'] = (clone $pembayaranQuery)
+            ->whereYear('tgl_pembayaran', $now->year)
+            ->whereMonth('tgl_pembayaran', $now->month)
+            ->count();
+
+        // Penjualan count bulan ini (sum already in $data['penjualanBulanIni'])
+        $data['penjualanCountBulanIni'] = (clone $penjualanQuery)
+            ->whereYear('tgl_transaksi', $now->year)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->count();
+
+        // Biaya count bulan ini (sum already in $data['biayaBulanIni'])
+        $data['biayaCountBulanIni'] = (clone $biayaQuery)
+            ->whereYear('tgl_transaksi', $now->year)
+            ->whereMonth('tgl_transaksi', $now->month)
+            ->count();
+        // ==================== END DAILY & MONTHLY ====================
 
         $data['selectedGudangId'] = $selectedGudangId;
         $data['availableGudangs'] = $availableGudangs;
