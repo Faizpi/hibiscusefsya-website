@@ -42,18 +42,40 @@ class KontakController extends Controller
     }
 
     /**
-     * Scope kontak query by user's gudang access.
-     * Kontaks with null gudang_id are visible to everyone (legacy data).
+     * Scope kontak query by user's role-based access.
+     * - super_admin & spectator: see all
+     * - admin: see kontaks in their accessible gudangs + null gudang (legacy)
+     * - user/sales: see only kontaks they created, or legacy kontaks linked via penjualan
      */
     private function scopeByGudang($query, $user)
     {
-        $gudangIds = $this->getAccessibleGudangIds($user);
-        if ($gudangIds === null)
-            return $query; // super_admin sees all
+        if (in_array($user->role, ['super_admin', 'spectator'])) {
+            return $query; // see all
+        }
 
-        $query->where(function ($q) use ($gudangIds) {
-            $q->whereIn('gudang_id', $gudangIds)
-                ->orWhereNull('gudang_id');
+        if ($user->role === 'admin') {
+            $gudangIds = $this->getAccessibleGudangIds($user);
+            $query->where(function ($q) use ($gudangIds) {
+                $q->whereIn('gudang_id', $gudangIds)
+                    ->orWhereNull('gudang_id');
+            });
+            return $query;
+        }
+
+        // user/sales: only see kontaks they created OR legacy kontaks linked via penjualan
+        $userId = $user->id;
+        $query->where(function ($q) use ($userId) {
+            $q->where('created_by', $userId)
+                ->orWhere(function ($sub) use ($userId) {
+                    // Legacy: created_by is null but has penjualan by this user
+                    $sub->whereNull('created_by')
+                        ->whereIn('nama', function ($penjualanQuery) use ($userId) {
+                            $penjualanQuery->select('pelanggan')
+                                ->from('penjualans')
+                                ->where('user_id', $userId)
+                                ->whereNotNull('pelanggan');
+                        });
+                });
         });
 
         return $query;
@@ -167,6 +189,9 @@ class KontakController extends Controller
         if ($gudang) {
             $data['gudang_id'] = $gudang->id;
         }
+
+        // Catat user yang membuat kontak agar bisa difilter berdasarkan sales.
+        $data['created_by'] = $user->id;
 
         Kontak::create($data);
 
@@ -291,12 +316,29 @@ class KontakController extends Controller
      */
     private function canAccessKontak($user, $kontak)
     {
-        if ($user->role === 'super_admin')
+        if (in_array($user->role, ['super_admin', 'spectator'])) {
             return true;
-        if ($kontak->gudang_id === null)
-            return true; // legacy data visible to all
+        }
 
-        $gudangIds = $this->getAccessibleGudangIds($user);
-        return in_array($kontak->gudang_id, $gudangIds);
+        if ($user->role === 'admin') {
+            if ($kontak->gudang_id === null) {
+                return true; // legacy data
+            }
+            $gudangIds = $this->getAccessibleGudangIds($user);
+            return in_array($kontak->gudang_id, $gudangIds);
+        }
+
+        if ((int) $kontak->created_by === (int) $user->id) {
+            return true;
+        }
+
+        // Legacy: kontak belum punya created_by, fallback dari penjualan yang dibuat user.
+        if ($kontak->created_by === null) {
+            return \App\Penjualan::where('user_id', $user->id)
+                ->where('pelanggan', $kontak->nama)
+                ->exists();
+        }
+
+        return false;
     }
 }

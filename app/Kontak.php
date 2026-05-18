@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property int $id
@@ -12,8 +13,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $no_telp
  * @property string|null $alamat
  * @property float|null $diskon_persen
+ * @property int|null $created_by
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
+ * @property-read \App\User|null $creator
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Kunjungan[] $kunjungans
  */
 class Kontak extends Model
@@ -29,10 +32,11 @@ class Kontak extends Model
         'alamat',
         'diskon_persen',
         'gudang_id',
+        'created_by',
     ];
 
     /**
-     * Boot method - auto-generate kode_kontak
+     * Boot method - auto-generate kode_kontak and set created_by
      */
     protected static function boot()
     {
@@ -44,12 +48,21 @@ class Kontak extends Model
                 $nextId = $lastKontak ? $lastKontak->id + 1 : 1;
                 $model->kode_kontak = 'KT' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
             }
+
+            if (empty($model->created_by) && Auth::check()) {
+                $model->created_by = Auth::id();
+            }
         });
     }
 
     /**
-     * Relasi ke kunjungan
+     * User yang membuat kontak ini.
      */
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function gudang()
     {
         return $this->belongsTo(Gudang::class);

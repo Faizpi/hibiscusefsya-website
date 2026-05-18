@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Kontak;
+use App\Penjualan;
 use Illuminate\Http\Request;
 
 class KontakController extends Controller
@@ -13,15 +14,29 @@ class KontakController extends Controller
         $user = auth()->user();
         $query = Kontak::query();
 
-        if ($user->role === 'super_admin') {
-            // lihat semua
+        if (in_array($user->role, ['super_admin', 'spectator'])) {
+            // see all
+        } elseif ($user->role === 'admin') {
+            // admin: kontaks in accessible gudangs + null gudang (legacy)
+            $gudangIds = $this->getAccessibleGudangIds($user);
+            $query->where(function ($q) use ($gudangIds) {
+                $q->whereIn('gudang_id', $gudangIds)
+                    ->orWhereNull('gudang_id');
+            });
         } else {
-            $currentGudang = $user->getCurrentGudang();
-            $query->where(function ($q) use ($currentGudang) {
-                $q->whereNull('gudang_id');
-                if ($currentGudang) {
-                    $q->orWhere('gudang_id', $currentGudang->id);
-                }
+            // user/sales: only kontaks they created OR legacy linked via penjualan
+            $userId = $user->id;
+            $query->where(function ($q) use ($userId) {
+                $q->where('created_by', $userId)
+                    ->orWhere(function ($sub) use ($userId) {
+                        $sub->whereNull('created_by')
+                            ->whereIn('nama', function ($pq) use ($userId) {
+                                $pq->select('pelanggan')
+                                    ->from('penjualans')
+                                    ->where('user_id', $userId)
+                                    ->whereNotNull('pelanggan');
+                            });
+                    });
             });
         }
 
@@ -42,13 +57,8 @@ class KontakController extends Controller
         $user = auth()->user();
         $kontak = Kontak::findOrFail($id);
 
-        if ($user->role !== 'super_admin') {
-            $currentGudang = $user->getCurrentGudang();
-            $allowedGudangId = $currentGudang ? $currentGudang->id : null;
-
-            if (!is_null($kontak->gudang_id) && $kontak->gudang_id != $allowedGudangId) {
-                return response()->json(['message' => 'Unauthorized'], 403);
-            }
+        if (!$this->canAccessKontak($user, $kontak)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         return response()->json($kontak);
@@ -69,14 +79,15 @@ class KontakController extends Controller
         $currentGudang = $user->getCurrentGudang();
 
         $kontak = Kontak::create([
-            'kode_kontak' => $request->kode_kontak,
-            'nama' => $request->nama,
-            'email' => $request->email,
-            'no_telp' => $request->no_telp,
-            'pin' => $request->pin,
-            'alamat' => $request->alamat,
+            'kode_kontak'   => $request->kode_kontak,
+            'nama'          => $request->nama,
+            'email'         => $request->email,
+            'no_telp'       => $request->no_telp,
+            'pin'           => $request->pin,
+            'alamat'        => $request->alamat,
             'diskon_persen' => $request->diskon_persen ?? 0,
-            'gudang_id' => $request->gudang_id ?? ($currentGudang ? $currentGudang->id : null),
+            'gudang_id'     => $request->gudang_id ?? ($currentGudang ? $currentGudang->id : null),
+            'created_by'    => $user->id,
         ]);
 
         return response()->json(['message' => 'Kontak berhasil dibuat.', 'data' => $kontak], 201);
@@ -84,14 +95,19 @@ class KontakController extends Controller
 
     public function update(Request $request, $id)
     {
+        $user = auth()->user();
         $kontak = Kontak::findOrFail($id);
 
+        if (!$this->canAccessKontak($user, $kontak)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $request->validate([
-            'nama' => 'required|string|max:255',
-            'no_telp' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'nama'        => 'required|string|max:255',
+            'no_telp'     => 'nullable|string|max:20',
+            'email'       => 'nullable|email|max:255',
             'kode_kontak' => 'nullable|string|max:50',
-            'pin' => 'nullable|string|size:6',
+            'pin'         => 'nullable|string|size:6',
         ]);
 
         $kontak->update($request->only(['nama', 'email', 'no_telp', 'alamat', 'diskon_persen', 'kode_kontak', 'pin']));
@@ -101,9 +117,62 @@ class KontakController extends Controller
 
     public function destroy($id)
     {
+        $user = auth()->user();
         $kontak = Kontak::findOrFail($id);
+
+        if (!$this->canAccessKontak($user, $kontak)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $kontak->delete();
 
         return response()->json(['message' => 'Kontak berhasil dihapus.']);
     }
+
+    /**
+     * Get accessible gudang IDs for admin.
+     */
+    private function getAccessibleGudangIds($user): array
+    {
+        $ids = $user->gudangs->pluck('id')->toArray();
+        if ($user->current_gudang_id) {
+            $ids[] = $user->current_gudang_id;
+        }
+        if ($user->gudang_id) {
+            $ids[] = $user->gudang_id;
+        }
+        return array_unique($ids);
+    }
+
+    /**
+     * Check if user can access a specific kontak.
+     */
+    private function canAccessKontak($user, $kontak): bool
+    {
+        if (in_array($user->role, ['super_admin', 'spectator'])) {
+            return true;
+        }
+
+        if ($user->role === 'admin') {
+            if ($kontak->gudang_id === null) {
+                return true;
+            }
+            return in_array($kontak->gudang_id, $this->getAccessibleGudangIds($user));
+        }
+
+        // user/sales
+        if ((int) $kontak->created_by === (int) $user->id) {
+            return true;
+        }
+
+        // Legacy fallback
+        if ($kontak->created_by === null) {
+            return Penjualan::where('user_id', $user->id)
+                ->where('pelanggan', $kontak->nama)
+                ->exists();
+        }
+
+        return false;
+    }
 }
+
