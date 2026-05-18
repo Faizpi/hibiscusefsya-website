@@ -155,8 +155,7 @@ class BluetoothThermalPrinter {
         content += dashLine + '\n';
         content += 'customer.hibiscusefsya.com\n';
         content += dashLine + '\n';
-        content += 'marketing@hibiscusefsya.com\n';
-        content += dashLine + '\n\n';
+        content += 'marketing@hibiscusefsya.com\n\n';
         parts.push({ type: 'text', data: content });
 
         let footer = this.COMMANDS.ALIGN_CENTER + this.COMMANDS.FONT_B;
@@ -251,7 +250,6 @@ class BluetoothThermalPrinter {
                         <div class="bt-preview-footer">
                             marketing@hibiscusefsya.com<br>
                         </div>
-                        <div class="bt-preview-dash">${this.escapeHtml(dashLine)}</div>
                         <div class="bt-preview-footer">
                             Official WA Chat:<br>
                             ${this.escapeHtml(this.formatPhone('+6285195550202'))}<br>
