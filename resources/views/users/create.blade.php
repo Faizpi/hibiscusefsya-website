@@ -110,33 +110,6 @@
                         </div>
                     </div>
 
-                    {{-- Export Permission (admin only) --}}
-                    <div id="export_permission_section" style="display:none;">
-                        <hr>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>Export Permission</label>
-                                    <small class="form-text text-muted mb-2">Tentukan format export yang diizinkan untuk admin ini.</small>
-                                    <div class="border rounded p-3">
-                                        <div class="custom-control custom-checkbox mb-2">
-                                            <input type="checkbox" class="custom-control-input" id="can_export_pdf"
-                                                name="can_export_pdf" value="1"
-                                                {{ old('can_export_pdf') ? 'checked' : '' }}>
-                                            <label class="custom-control-label" for="can_export_pdf">Export PDF</label>
-                                        </div>
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="can_export_excel"
-                                                name="can_export_excel" value="1"
-                                                {{ old('can_export_excel') ? 'checked' : '' }}>
-                                            <label class="custom-control-label" for="can_export_excel">Export Excel</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <hr>
 
                     <div class="row">
@@ -183,11 +156,9 @@
                     if (role === 'admin') {
                         $('#multi_gudang_label').text('Gudang yang Dikelola');
                         $('#multi_gudang_help').text('Pilih satu atau lebih gudang yang akan dikelola admin ini. Admin dapat mengelola stock dan transaksi di gudang yang dipilih.');
-                        $('#export_permission_section').show();
                     } else {
                         $('#multi_gudang_label').text('Gudang yang Dapat Diakses');
                         $('#multi_gudang_help').text('Pilih satu atau lebih gudang untuk spectator ini. Spectator hanya dapat melihat (read-only) data dari gudang yang dipilih.');
-                        $('#export_permission_section').hide();
                     }
                 } else if (role === 'user') {
                     // Show single select for user
@@ -195,14 +166,12 @@
                     $('#multi_gudang_section').hide();
                     $('#gudang_id').prop('required', true);
                     $('#gudang_required').show();
-                    $('#export_permission_section').hide();
                 } else {
                     // Hide both for other roles
                     $('#single_gudang_section').show();
                     $('#multi_gudang_section').hide();
                     $('#gudang_id').prop('required', false);
                     $('#gudang_required').hide();
-                    $('#export_permission_section').hide();
                 }
             }
 

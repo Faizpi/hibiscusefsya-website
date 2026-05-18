@@ -203,6 +203,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Manajemen User & Role
         Route::patch('users/{user}/email-recipient', 'UserController@updateEmailRecipient')->name('users.update-email-recipient');
+        Route::patch('users/{user}/export-permission', 'UserController@updateExportPermission')->name('users.update-export-permission');
         Route::resource('users', 'UserController');
 
         // Master Data Inti

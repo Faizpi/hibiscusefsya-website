@@ -325,4 +325,27 @@ class UserController extends Controller
         return redirect()->route('users.index', $request->only('role', 'search', 'page'))
             ->with('success', 'Pengaturan email untuk user ' . $user->name . ' berhasil diperbarui.');
     }
+
+    /**
+     * Toggle hak akses export PDF/Excel untuk admin (Super Admin only).
+     */
+    public function updateExportPermission(Request $request, User $user)
+    {
+        if ($user->role !== 'admin') {
+            return redirect()->route('users.index', $request->only('role', 'search', 'page'))
+                ->with('error', 'Hak akses export hanya berlaku untuk role Admin.');
+        }
+
+        $request->validate([
+            'can_export_pdf' => ['nullable', 'boolean'],
+            'can_export_excel' => ['nullable', 'boolean'],
+        ]);
+
+        $user->can_export_pdf = $request->boolean('can_export_pdf');
+        $user->can_export_excel = $request->boolean('can_export_excel');
+        $user->save();
+
+        return redirect()->route('users.index', $request->only('role', 'search', 'page'))
+            ->with('success', 'Hak akses export untuk user ' . $user->name . ' berhasil diperbarui.');
+    }
 }

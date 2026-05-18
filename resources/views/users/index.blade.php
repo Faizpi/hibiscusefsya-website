@@ -67,7 +67,8 @@
                                 <th>Email</th>
                                 <th>Role</th>
                                 <th>Gudang</th>
-                                <th class="text-center" width="180">Penerima Email</th>
+                                <th class="text-center" width="160">Penerima Email</th>
+                                <th class="text-center" width="160">Hak Export</th>
                                 <th class="text-center" width="80">Aksi</th>
                             </tr>
                         </thead>
@@ -181,6 +182,41 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        @if($user->role === 'admin')
+                                            <form method="POST" action="{{ route('users.update-export-permission', $user->id) }}" class="d-inline-block">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="role" value="{{ request('role') }}">
+                                                <input type="hidden" name="search" value="{{ request('search') }}">
+                                                <input type="hidden" name="page" value="{{ request('page') }}">
+                                                <input type="hidden" name="can_export_pdf" value="0">
+                                                <input type="hidden" name="can_export_excel" value="0">
+                                                <div class="d-flex flex-column align-items-start" style="gap:2px;">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                            id="export_pdf_{{ $user->id }}"
+                                                            name="can_export_pdf" value="1"
+                                                            {{ $user->can_export_pdf ? 'checked' : '' }}
+                                                            onchange="this.form.submit()">
+                                                        <label class="custom-control-label small" for="export_pdf_{{ $user->id }}">PDF</label>
+                                                    </div>
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                            id="export_excel_{{ $user->id }}"
+                                                            name="can_export_excel" value="1"
+                                                            {{ $user->can_export_excel ? 'checked' : '' }}
+                                                            onchange="this.form.submit()">
+                                                        <label class="custom-control-label small" for="export_excel_{{ $user->id }}">Excel</label>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        @elseif($user->role === 'super_admin')
+                                            <span class="text-muted small"><i class="fas fa-check-double mr-1"></i>Semua</span>
+                                        @else
+                                            <span class="text-muted small">Tidak berlaku</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
                                         <div class="dropdown action-dropdown">
                                             <button class="btn btn-sm dropdown-toggle no-caret" type="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -205,7 +241,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4">
+                                    <td colspan="7" class="text-center py-4">
                                         <i class="fas fa-users fa-2x text-muted mb-2"></i>
                                         <p class="text-muted mb-0">Belum ada data user.</p>
                                     </td>
