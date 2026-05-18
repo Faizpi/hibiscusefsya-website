@@ -18,6 +18,8 @@ use Illuminate\Notifications\Notifiable;
  * @property int|null $gudang_id
  * @property int|null $current_gudang_id
  * @property bool $receives_transaction_email
+ * @property bool $can_export_pdf
+ * @property bool $can_export_excel
  * @property \Carbon\Carbon|null $email_verified_at
  * @property string|null $remember_token
  * @property \Carbon\Carbon $created_at
@@ -46,6 +48,8 @@ class User extends Authenticatable
         'gudang_id',
         'current_gudang_id',
         'receives_transaction_email',
+        'can_export_pdf',
+        'can_export_excel',
     ];
 
     /**
@@ -66,6 +70,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'receives_transaction_email' => 'boolean',
+        'can_export_pdf' => 'boolean',
+        'can_export_excel' => 'boolean',
     ];
 
     /**
@@ -200,6 +206,54 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return in_array($this->role, ['admin', 'super_admin']);
+    }
+
+    /**
+     * Check if user can export PDF reports.
+     * Super admin always allowed, admin checks per-user permission.
+     *
+     * @return bool
+     */
+    public function canExportPdf()
+    {
+        if ($this->role === 'super_admin') {
+            return true;
+        }
+
+        if ($this->role === 'admin') {
+            return (bool) $this->can_export_pdf;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user can export Excel reports.
+     * Super admin always allowed, admin checks per-user permission.
+     *
+     * @return bool
+     */
+    public function canExportExcel()
+    {
+        if ($this->role === 'super_admin') {
+            return true;
+        }
+
+        if ($this->role === 'admin') {
+            return (bool) $this->can_export_excel;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user can export any report format (PDF or Excel).
+     *
+     * @return bool
+     */
+    public function canExportReport()
+    {
+        return $this->canExportPdf() || $this->canExportExcel();
     }
 
     /**

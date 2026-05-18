@@ -287,6 +287,14 @@ class DashboardController extends Controller
         $gudangs = collect();
         $salesUsers = collect();
 
+        $allowedFormats = [];
+        if ($user->canExportPdf()) {
+            $allowedFormats[] = 'pdf';
+        }
+        if ($user->canExportExcel()) {
+            $allowedFormats[] = 'excel';
+        }
+
         if ($role === 'super_admin') {
             $gudangs = Gudang::orderBy('nama_gudang')
                 ->get(['id', 'nama_gudang']);
@@ -310,8 +318,11 @@ class DashboardController extends Controller
         return response()->json([
             'role' => $role,
             'permissions' => [
-                'can_export_full_report' => in_array($role, ['admin', 'super_admin']),
+                'can_export_full_report' => $user->canExportReport(),
+                'can_export_pdf' => $user->canExportPdf(),
+                'can_export_excel' => $user->canExportExcel(),
                 'can_export_daily_pdf' => true,
+                'allowed_formats' => $allowedFormats,
             ],
             'transaction_types' => [
                 ['value' => 'all', 'label' => 'Semua Transaksi'],
@@ -361,7 +372,28 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['admin', 'super_admin'])) {
+        // Permission check: super_admin always allowed, admin checks per-format permission
+        $exportFormat = $request->input('export_format', 'excel');
+
+        if ($user->role === 'super_admin') {
+            // Always allowed
+        } elseif ($user->role === 'admin') {
+            if ($exportFormat === 'pdf' && !$user->canExportPdf()) {
+                return response()->json([
+                    'message' => 'Anda tidak memiliki izin untuk export PDF.'
+                ], 403);
+            }
+            if ($exportFormat === 'excel' && !$user->canExportExcel()) {
+                return response()->json([
+                    'message' => 'Anda tidak memiliki izin untuk export Excel.'
+                ], 403);
+            }
+            if (!$user->canExportReport()) {
+                return response()->json([
+                    'message' => 'Anda tidak memiliki izin untuk export laporan.'
+                ], 403);
+            }
+        } else {
             return response()->json([
                 'message' => 'Akses ditolak. Hanya admin/super_admin yang dapat export laporan ini.'
             ], 403);

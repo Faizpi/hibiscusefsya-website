@@ -73,6 +73,11 @@ class UserController extends Controller
             $rules['gudang_id'] = 'required|exists:gudangs,id';
         }
 
+        if ($request->role === 'admin') {
+            $rules['can_export_pdf'] = 'nullable|boolean';
+            $rules['can_export_excel'] = 'nullable|boolean';
+        }
+
         $request->validate($rules);
 
         $newUser = User::create([
@@ -83,6 +88,8 @@ class UserController extends Controller
             'alamat' => $request->alamat,
             'no_telp' => $request->no_telp,
             'gudang_id' => ($request->role === 'user') ? $request->gudang_id : null,
+            'can_export_pdf' => $request->role === 'admin' ? (bool) $request->input('can_export_pdf', false) : false,
+            'can_export_excel' => $request->role === 'admin' ? (bool) $request->input('can_export_excel', false) : false,
         ]);
 
         if ($request->role === 'admin' && $request->gudangs) {
@@ -121,6 +128,11 @@ class UserController extends Controller
             $rules['gudang_id'] = 'required|exists:gudangs,id';
         }
 
+        if ($request->role === 'admin') {
+            $rules['can_export_pdf'] = 'nullable|boolean';
+            $rules['can_export_excel'] = 'nullable|boolean';
+        }
+
         $request->validate($rules);
 
         $data = $request->only('name', 'email', 'alamat', 'no_telp', 'role');
@@ -128,6 +140,15 @@ class UserController extends Controller
             $data['gudang_id'] = $request->gudang_id;
         } else {
             $data['gudang_id'] = null;
+        }
+
+        // Export permissions: only meaningful for admin role
+        if ($request->role === 'admin') {
+            $data['can_export_pdf'] = (bool) $request->input('can_export_pdf', false);
+            $data['can_export_excel'] = (bool) $request->input('can_export_excel', false);
+        } else {
+            $data['can_export_pdf'] = false;
+            $data['can_export_excel'] = false;
         }
 
         if ($request->filled('password')) {

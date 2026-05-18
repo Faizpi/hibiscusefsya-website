@@ -607,6 +607,23 @@ class DashboardController extends Controller
         $salesId = $request->sales_id;
         $user = Auth::user();
 
+        // Permission check: super_admin always allowed, admin checks per-format permission
+        if ($user->role === 'super_admin') {
+            // Always allowed
+        } elseif ($user->role === 'admin') {
+            if ($exportFormat === 'pdf' && !$user->canExportPdf()) {
+                abort(403, 'Anda tidak memiliki izin untuk export PDF.');
+            }
+            if ($exportFormat === 'excel' && !$user->canExportExcel()) {
+                abort(403, 'Anda tidak memiliki izin untuk export Excel.');
+            }
+            if (!$user->canExportReport()) {
+                abort(403, 'Anda tidak memiliki izin untuk export laporan.');
+            }
+        } else {
+            abort(403, 'Anda tidak memiliki izin untuk export laporan.');
+        }
+
         $penjualans = collect();
         $pembelians = collect();
         $biayas = collect();

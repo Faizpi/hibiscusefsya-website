@@ -41,7 +41,12 @@ class UserController extends Controller
     {
         $gudangs = Gudang::all();
         $roles = User::getAvailableRoles();
-        return view('users.create', compact('gudangs', 'roles'));
+        $exportPermissions = [
+            'can_export_pdf' => false,
+            'can_export_excel' => false,
+        ];
+
+        return view('users.create', compact('gudangs', 'roles', 'exportPermissions'));
     }
 
     public function store(Request $request)
@@ -61,6 +66,8 @@ class UserController extends Controller
                 'no_telp' => ['nullable', 'string', 'max:20'],
                 'gudangs' => ['required', 'array', 'min:1'],
                 'gudangs.*' => ['exists:gudangs,id'],
+                'can_export_pdf' => ['nullable', 'boolean'],
+                'can_export_excel' => ['nullable', 'boolean'],
             ];
             $messages = [
                 'gudangs.required' => 'Pilih minimal satu gudang untuk ' . ucfirst($request->role) . '.',
@@ -103,6 +110,8 @@ class UserController extends Controller
             'alamat' => $request->alamat,
             'no_telp' => $request->no_telp,
             'gudang_id' => ($request->role === 'user') ? $request->gudang_id : null,
+            'can_export_pdf' => $request->role === 'admin' ? $request->boolean('can_export_pdf') : false,
+            'can_export_excel' => $request->role === 'admin' ? $request->boolean('can_export_excel') : false,
         ]);
 
         // Jika role admin, sync gudang ke pivot table admin_gudang
@@ -132,7 +141,12 @@ class UserController extends Controller
 
         $gudangs = Gudang::all();
         $roles = User::getAvailableRoles();
-        return view('users.edit', compact('user', 'gudangs', 'roles'));
+        $exportPermissions = [
+            'can_export_pdf' => $user->can_export_pdf,
+            'can_export_excel' => $user->can_export_excel,
+        ];
+
+        return view('users.edit', compact('user', 'gudangs', 'roles', 'exportPermissions'));
     }
 
     public function update(Request $request, User $user)
@@ -160,6 +174,8 @@ class UserController extends Controller
                 'gudangs' => ['required', 'array', 'min:1'],
                 'gudangs.*' => ['exists:gudangs,id'],
                 'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+                'can_export_pdf' => ['nullable', 'boolean'],
+                'can_export_excel' => ['nullable', 'boolean'],
             ];
             $messages = [
                 'gudangs.required' => 'Pilih minimal satu gudang untuk role ' . ucfirst($request->role) . '.',
@@ -196,6 +212,16 @@ class UserController extends Controller
         $request->validate($validationRules, $messages);
 
         $data = $request->only('name', 'email', 'alamat', 'no_telp');
+
+        // Set export permissions for admin role (only super_admin can set these)
+        if ($request->role === 'admin' && auth()->user()->isSuperAdmin()) {
+            $data['can_export_pdf'] = $request->boolean('can_export_pdf');
+            $data['can_export_excel'] = $request->boolean('can_export_excel');
+        } elseif ($request->role !== 'admin') {
+            // Reset export permissions if role is not admin
+            $data['can_export_pdf'] = false;
+            $data['can_export_excel'] = false;
+        }
 
         // Set gudang_id for user role, null for admin/spectator (they use pivot tables)
         if ($request->role === 'user') {
