@@ -74,22 +74,32 @@ class TransactionsExport implements FromView, WithTitle, ShouldAutoSize, WithSty
 
     public function columnFormats(): array
     {
-        // Phone number column position varies per export type
+        // Phone number column positions per export type:
+        // penjualan: G = No Telepon (kontak), H = Nomor Telepon, N = No Telp Sales
+        // kunjungan: G = No Telepon (kontak), H = No Telepon Sales
+        // biaya: H = No Telepon
+        // all: H = No Telp Sales, M = No Telepon
+        // pembayaran: F = No Telepon
 
         $map = [
-            'penjualan' => 'G',
-            'kunjungan' => 'G',
-            'biaya' => 'H',
-            'all' => 'H',
-            'pembayaran' => 'F',
+            'penjualan' => ['G', 'H', 'N'],
+            'kunjungan' => ['G', 'H'],
+            'biaya'     => ['H'],
+            'all'       => ['H', 'M'],
+            'pembayaran'=> ['F'],
         ];
 
-        $phoneColumn = $map[$this->exportType] ?? null;
+        $columns = $map[$this->exportType] ?? [];
 
-        if ($phoneColumn) {
-            return [$phoneColumn => NumberFormat::FORMAT_TEXT];
+        if (empty($columns)) {
+            return [];
         }
 
-        return [];
+        $formats = [];
+        foreach ($columns as $col) {
+            $formats[$col] = NumberFormat::FORMAT_TEXT;
+        }
+
+        return $formats;
     }
 }

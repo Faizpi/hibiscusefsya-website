@@ -2,7 +2,7 @@
 <table>
     <thead>
         <tr>
-            <td colspan="17"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
+            <td colspan="20"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
                     {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
         </tr>
         <tr>
@@ -22,7 +22,10 @@
             <th>Status</th>
             <th>Produk</th>
             <th>Kuantitas</th>
-            <th>Memo</th>
+            <th>Tipe Stok</th>
+            <th>Batch</th>
+            <th>Exp</th>
+            <th>Memo/Keterangan</th>
         </tr>
     </thead>
     <tbody>
@@ -47,6 +50,9 @@
                         <td>{{ $item->status }}</td>
                         <td>{{ $itemDetail->produk->item_code ?? '-' }} - {{ $itemDetail->produk->nama_produk ?? '-' }}</td>
                         <td>{{ $itemDetail->jumlah }}</td>
+                        <td>{{ $itemDetail->tipe_stok ?? ($item->tujuan === 'Promo Gratis' ? 'gratis' : ($item->tujuan === 'Promo Sample' ? 'sample' : '-')) }}</td>
+                        <td>{{ $itemDetail->batch_number ?? '-' }}</td>
+                        <td>{{ $itemDetail->expired_date ? (is_string($itemDetail->expired_date) ? \Carbon\Carbon::parse($itemDetail->expired_date)->format('d/m/Y') : $itemDetail->expired_date->format('d/m/Y')) : '-' }}</td>
                         <td>{{ $itemDetail->keterangan ?? ($itemIdx === 0 ? ($item->memo ?? '-') : '-') }}</td>
                     </tr>
                 @endforeach
@@ -68,6 +74,9 @@
                     <td>{{ $item->status }}</td>
                     <td>-</td>
                     <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
                     <td>{{ $item->memo ?? '-' }}</td>
                 </tr>
             @endif
@@ -78,15 +87,15 @@
 {{-- RINGKASAN --}}
 <table>
     <tr>
-        <td colspan="17"></td>
+        <td colspan="20"></td>
     </tr>
     <tr>
         <td colspan="3"><strong>RINGKASAN</strong></td>
-        <td colspan="14"></td>
+        <td colspan="17"></td>
     </tr>
     <tr>
         <td colspan="3"><strong>Total Kunjungan</strong></td>
-        <td colspan="14">{{ $transactions->count() }} kunjungan</td>
+        <td colspan="17">{{ $transactions->count() }} kunjungan</td>
     </tr>
     @php
         $statusGroups = $transactions->groupBy('status');
@@ -94,7 +103,7 @@
     @foreach($statusGroups as $status => $group)
         <tr>
             <td colspan="3"><strong>{{ $status }}</strong></td>
-            <td colspan="14">{{ $group->count() }} kunjungan</td>
+            <td colspan="17">{{ $group->count() }} kunjungan</td>
         </tr>
     @endforeach
     @php
@@ -103,7 +112,7 @@
     @foreach($tujuanGroups as $tujuan => $group)
         <tr>
             <td colspan="3"><strong>{{ $tujuan }}</strong></td>
-            <td colspan="14">{{ $group->count() }} kunjungan</td>
+            <td colspan="17">{{ $group->count() }} kunjungan</td>
         </tr>
     @endforeach
 </table>

@@ -2,7 +2,7 @@
 <table>
     <thead>
         <tr>
-            <td colspan="26"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
+            <td colspan="32"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
                     {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
         </tr>
         <tr>
@@ -16,18 +16,24 @@
             <th>Nomor Telepon</th>
             <th>Alamat Penagihan</th>
             <th>Syarat Pembayaran</th>
+            <th>Tipe Harga</th>
             <th>Gudang</th>
             <th>Pembuat</th>
+            <th>No Telp Sales</th>
             <th>Approver</th>
             <th>Status</th>
             <th>Produk</th>
             <th>Harga Satuan</th>
             <th>Kuantitas</th>
-            <th>Diskon Item</th>
+            <th>Diskon Item (%)</th>
+            <th>Diskon Nominal</th>
             <th>Batch</th>
             <th>Exp</th>
+            <th>Deskripsi Item</th>
             <th>Jumlah Baris</th>
             <th>No Referensi</th>
+            <th>Tag</th>
+            <th>Koordinat</th>
             <th>Memo</th>
             <th>Diskon Akhir</th>
             <th>Pajak (%)</th>
@@ -51,11 +57,15 @@
                             <td>{{ $item->no_telepon ?? '-' }}</td>
                             <td>{{ $item->alamat_penagihan ?? '-' }}</td>
                             <td>{{ $item->syarat_pembayaran ?? '-' }}</td>
+                            <td>{{ $item->tipe_harga ?? '-' }}</td>
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->user->name ?? '-' }}</td>
+                            <td>{{ $item->user->no_telp ?? '-' }}</td>
                             <td>{{ $item->approver->name ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
                         @else
+                            <td></td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -77,16 +87,22 @@
                         <td>{{ $detail->harga_satuan ?? 0 }}</td>
                         <td>{{ $detail->kuantitas ?? 0 }}</td>
                         <td>{{ $detail->diskon ?? 0 }}</td>
+                        <td>{{ $detail->diskon_nominal ?? 0 }}</td>
                         <td>{{ $detail->batch_number ?? '-' }}</td>
                         <td>{{ $detail->expired_date ? $detail->expired_date->format('d/m/Y') : '-' }}</td>
+                        <td>{{ $detail->deskripsi ?? '-' }}</td>
                         <td>{{ $detail->jumlah_baris ?? 0 }}</td>
                         @if($idx === 0)
                             <td>{{ $item->no_referensi ?? '-' }}</td>
+                            <td>{{ $item->tag ?? '-' }}</td>
+                            <td>{{ $item->koordinat ?? '-' }}</td>
                             <td>{{ $item->memo ?? '-' }}</td>
                             <td>{{ $item->diskon_akhir ?? 0 }}</td>
                             <td>{{ $item->tax_percentage ?? 0 }}</td>
                             <td>{{ $item->grand_total }}</td>
                         @else
+                            <td></td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -107,8 +123,10 @@
                     <td>{{ $item->no_telepon ?? '-' }}</td>
                     <td>{{ $item->alamat_penagihan ?? '-' }}</td>
                     <td>{{ $item->syarat_pembayaran ?? '-' }}</td>
+                    <td>{{ $item->tipe_harga ?? '-' }}</td>
                     <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                     <td>{{ $item->user->name ?? '-' }}</td>
+                    <td>{{ $item->user->no_telp ?? '-' }}</td>
                     <td>{{ $item->approver->name ?? '-' }}</td>
                     <td>{{ $item->status }}</td>
                     <td>-</td>
@@ -118,7 +136,11 @@
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
                     <td>{{ $item->no_referensi ?? '-' }}</td>
+                    <td>{{ $item->tag ?? '-' }}</td>
+                    <td>{{ $item->koordinat ?? '-' }}</td>
                     <td>{{ $item->memo ?? '-' }}</td>
                     <td>{{ $item->diskon_akhir ?? 0 }}</td>
                     <td>{{ $item->tax_percentage ?? 0 }}</td>
@@ -132,19 +154,19 @@
 {{-- RINGKASAN --}}
 <table>
     <tr>
-        <td colspan="26"></td>
+        <td colspan="32"></td>
     </tr>
     <tr>
         <td colspan="3"><strong>RINGKASAN</strong></td>
-        <td colspan="23"></td>
+        <td colspan="29"></td>
     </tr>
     <tr>
         <td colspan="3"><strong>Total Transaksi</strong></td>
-        <td colspan="23">{{ $transactions->count() }} transaksi</td>
+        <td colspan="29">{{ $transactions->count() }} transaksi</td>
     </tr>
     <tr>
         <td colspan="3"><strong>Total Grand Total</strong></td>
-        <td colspan="23">{{ format_rupiah($transactions->sum('grand_total')) }}</td>
+        <td colspan="29">{{ format_rupiah($transactions->sum('grand_total')) }}</td>
     </tr>
     @php
         $statusGroups = $transactions->groupBy('status');
@@ -152,7 +174,7 @@
     @foreach($statusGroups as $status => $group)
         <tr>
             <td colspan="3"><strong>{{ $status }}</strong></td>
-            <td colspan="23">{{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
+            <td colspan="29">{{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
             </td>
         </tr>
     @endforeach

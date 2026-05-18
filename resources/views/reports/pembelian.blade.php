@@ -2,7 +2,7 @@
 <table>
     <thead>
         <tr>
-            <td colspan="23"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
+            <td colspan="26"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
                     {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
         </tr>
         <tr>
@@ -24,6 +24,9 @@
             <th>Harga Satuan</th>
             <th>Kuantitas</th>
             <th>Diskon Item</th>
+            <th>Batch</th>
+            <th>Exp</th>
+            <th>Deskripsi Item</th>
             <th>Jumlah Baris</th>
             <th>Memo</th>
             <th>Diskon Akhir</th>
@@ -74,6 +77,9 @@
                         <td>{{ $detail->harga_satuan ?? 0 }}</td>
                         <td>{{ $detail->kuantitas ?? 0 }}</td>
                         <td>{{ $detail->diskon ?? 0 }}</td>
+                        <td>{{ $detail->batch_number ?? '-' }}</td>
+                        <td>{{ $detail->expired_date ? (is_string($detail->expired_date) ? \Carbon\Carbon::parse($detail->expired_date)->format('d/m/Y') : $detail->expired_date->format('d/m/Y')) : '-' }}</td>
+                        <td>{{ $detail->deskripsi ?? '-' }}</td>
                         <td>{{ $detail->jumlah_baris ?? 0 }}</td>
                         @if($idx === 0)
                             <td>{{ $item->memo ?? '-' }}</td>
@@ -109,6 +115,9 @@
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
                     <td>{{ $item->memo ?? '-' }}</td>
                     <td>{{ $item->diskon_akhir ?? 0 }}</td>
                     <td>{{ $item->tax_percentage ?? 0 }}</td>
@@ -122,19 +131,19 @@
 {{-- RINGKASAN --}}
 <table>
     <tr>
-        <td colspan="23"></td>
+        <td colspan="26"></td>
     </tr>
     <tr>
         <td colspan="3"><strong>RINGKASAN</strong></td>
-        <td colspan="20"></td>
+        <td colspan="23"></td>
     </tr>
     <tr>
         <td colspan="3"><strong>Total Transaksi</strong></td>
-        <td colspan="20">{{ $transactions->count() }} transaksi</td>
+        <td colspan="23">{{ $transactions->count() }} transaksi</td>
     </tr>
     <tr>
         <td colspan="3"><strong>Total Grand Total</strong></td>
-        <td colspan="20">{{ format_rupiah($transactions->sum('grand_total')) }}</td>
+        <td colspan="23">{{ format_rupiah($transactions->sum('grand_total')) }}</td>
     </tr>
     @php
         $statusGroups = $transactions->groupBy('status');
@@ -142,7 +151,7 @@
     @foreach($statusGroups as $status => $group)
         <tr>
             <td colspan="3"><strong>{{ $status }}</strong></td>
-            <td colspan="20">{{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
+            <td colspan="23">{{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
             </td>
         </tr>
     @endforeach

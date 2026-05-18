@@ -2,7 +2,7 @@
 <table>
     <thead>
         <tr>
-            <td colspan="20"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
+            <td colspan="22"><strong>Dibuat oleh: {{ $generatedBy ?? '-' }} | Tanggal cetak:
                     {{ $generatedAt ?? now()->format('d/m/Y H:i:s') }}</strong></td>
         </tr>
         <tr>
@@ -20,6 +20,8 @@
             <th>Gudang</th>
             <th>Approver</th>
             <th>Status</th>
+            <th>Tag</th>
+            <th>Koordinat</th>
             <th>Kategori Item</th>
             <th>Deskripsi Item</th>
             <th>Jumlah Item</th>
@@ -49,7 +51,11 @@
                             <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->approver->name ?? '-' }}</td>
                             <td>{{ $item->status }}</td>
+                            <td>{{ $item->tag ?? '-' }}</td>
+                            <td>{{ $item->koordinat ?? '-' }}</td>
                         @else
+                            <td></td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -95,6 +101,8 @@
                     <td>{{ optional($item->gudang)->nama_gudang ?? '-' }}</td>
                     <td>{{ $item->approver->name ?? '-' }}</td>
                     <td>{{ $item->status }}</td>
+                    <td>{{ $item->tag ?? '-' }}</td>
+                    <td>{{ $item->koordinat ?? '-' }}</td>
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
@@ -110,19 +118,19 @@
 {{-- RINGKASAN --}}
 <table>
     <tr>
-        <td colspan="20"></td>
+        <td colspan="22"></td>
     </tr>
     <tr>
         <td colspan="3"><strong>RINGKASAN</strong></td>
-        <td colspan="17"></td>
+        <td colspan="19"></td>
     </tr>
     <tr>
         <td colspan="3"><strong>Total Transaksi</strong></td>
-        <td colspan="17">{{ $transactions->count() }} transaksi</td>
+        <td colspan="19">{{ $transactions->count() }} transaksi</td>
     </tr>
     <tr>
         <td colspan="3"><strong>Total Grand Total</strong></td>
-        <td colspan="17">{{ format_rupiah($transactions->sum('grand_total')) }}</td>
+        <td colspan="19">{{ format_rupiah($transactions->sum('grand_total')) }}</td>
     </tr>
     @php
         $statusGroups = $transactions->groupBy('status');
@@ -130,7 +138,7 @@
     @foreach($statusGroups as $status => $group)
         <tr>
             <td colspan="3"><strong>{{ $status }}</strong></td>
-            <td colspan="17">{{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
+            <td colspan="19">{{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
             </td>
         </tr>
     @endforeach
@@ -140,7 +148,7 @@
     @foreach($jenisGroups as $jenis => $group)
         <tr>
             <td colspan="3"><strong>{{ ucfirst($jenis) }}</strong></td>
-            <td colspan="17">{{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
+            <td colspan="19">{{ $group->count() }} transaksi — {{ format_rupiah($group->sum('grand_total')) }}
             </td>
         </tr>
     @endforeach
