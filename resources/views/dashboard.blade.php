@@ -58,6 +58,78 @@
         @endif
     </div>
 
+    {{-- ROW 0: Kanban Preview Hari Ini dan Bulan Ini --}}
+    <div class="row">
+        {{-- Kanban Hari Ini --}}
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-info text-uppercase mb-3">
+                        <i class="fas fa-calendar-day mr-1"></i> Hari Ini
+                    </div>
+                    <div class="row no-gutters align-items-center mb-3">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color:#4e73df;">Penjualan</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ format_rupiah($penjualanHariIni ?? 0) }}</div>
+                            <div class="text-xs text-muted mt-1">{{ $penjualanCountHariIni ?? 0 }} transaksi</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-shopping-cart fa-2x text-gray-300"></i></div>
+                    </div>
+                    <div class="row no-gutters align-items-center mb-3">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color:#1cc88a;">Biaya</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ format_rupiah($biayaHariIni ?? 0) }}</div>
+                            <div class="text-xs text-muted mt-1">{{ $biayaCountHariIni ?? 0 }} transaksi</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-wallet fa-2x text-gray-300"></i></div>
+                    </div>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color:#36b9cc;">Pembayaran</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ format_rupiah($pembayaranHariIni ?? 0) }}</div>
+                            <div class="text-xs text-muted mt-1">{{ $pembayaranCountHariIni ?? 0 }} transaksi</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-money-bill-wave fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- Kanban Bulan Ini --}}
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-3">
+                        <i class="fas fa-calendar-alt mr-1"></i> Bulan Ini
+                    </div>
+                    <div class="row no-gutters align-items-center mb-3">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color:#4e73df;">Penjualan</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ format_rupiah($penjualanBulanIni ?? 0) }}</div>
+                            <div class="text-xs text-muted mt-1">{{ $penjualanCountBulanIni ?? 0 }} transaksi</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-shopping-cart fa-2x text-gray-300"></i></div>
+                    </div>
+                    <div class="row no-gutters align-items-center mb-3">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color:#1cc88a;">Biaya</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ format_rupiah($biayaBulanIni ?? 0) }}</div>
+                            <div class="text-xs text-muted mt-1">{{ $biayaCountBulanIni ?? 0 }} transaksi</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-wallet fa-2x text-gray-300"></i></div>
+                    </div>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color:#36b9cc;">Pembayaran</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ format_rupiah($pembayaranBulanIni ?? 0) }}</div>
+                            <div class="text-xs text-muted mt-1">{{ $pembayaranCountBulanIni ?? 0 }} transaksi</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-money-bill-wave fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- ROW 1: Cards Utama --}}
     <div class="row">
         {{-- Card Penjualan --}}
@@ -135,114 +207,6 @@
                             </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-times-circle fa-2x text-gray-300"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ROW 1.5: Kanban Preview Hari Ini dan Bulan Ini --}}
-    <div class="row">
-        {{-- Kanban Hari Ini --}}
-        <div class="col-xl-6 col-md-6 mb-4">
-            <div class="card shadow h-100">
-                <div class="card-header bg-info text-white font-weight-bold">
-                    Hari Ini
-                </div>
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center mb-3">
-                        <div class="col-auto mr-3">
-                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
-                        </div>
-                        <div class="col">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Penjualan</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ format_rupiah($penjualanHariIni ?? 0) }}
-                            </div>
-                            <div class="text-xs text-muted mt-1">
-                                {{ $penjualanCountHariIni ?? 0 }} transaksi
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row no-gutters align-items-center mb-3">
-                        <div class="col-auto mr-3">
-                            <i class="fas fa-wallet fa-2x text-gray-300"></i>
-                        </div>
-                        <div class="col">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Biaya</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ format_rupiah($biayaHariIni ?? 0) }}
-                            </div>
-                            <div class="text-xs text-muted mt-1">
-                                {{ $biayaCountHariIni ?? 0 }} transaksi
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row no-gutters align-items-center">
-                        <div class="col-auto mr-3">
-                            <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
-                        </div>
-                        <div class="col">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Pembayaran</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ format_rupiah($pembayaranHariIni ?? 0) }}
-                            </div>
-                            <div class="text-xs text-muted mt-1">
-                                {{ $pembayaranCountHariIni ?? 0 }} transaksi
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- Kanban Bulan Ini --}}
-        <div class="col-xl-6 col-md-6 mb-4">
-            <div class="card shadow h-100">
-                <div class="card-header bg-primary text-white font-weight-bold">
-                    Bulan Ini
-                </div>
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center mb-3">
-                        <div class="col-auto mr-3">
-                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
-                        </div>
-                        <div class="col">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Penjualan</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ format_rupiah($penjualanBulanIni ?? 0) }}
-                            </div>
-                            <div class="text-xs text-muted mt-1">
-                                {{ $penjualanCountBulanIni ?? 0 }} transaksi
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row no-gutters align-items-center mb-3">
-                        <div class="col-auto mr-3">
-                            <i class="fas fa-wallet fa-2x text-gray-300"></i>
-                        </div>
-                        <div class="col">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Biaya</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ format_rupiah($biayaBulanIni ?? 0) }}
-                            </div>
-                            <div class="text-xs text-muted mt-1">
-                                {{ $biayaCountBulanIni ?? 0 }} transaksi
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row no-gutters align-items-center">
-                        <div class="col-auto mr-3">
-                            <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
-                        </div>
-                        <div class="col">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Pembayaran</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ format_rupiah($pembayaranBulanIni ?? 0) }}
-                            </div>
-                            <div class="text-xs text-muted mt-1">
-                                {{ $pembayaranCountBulanIni ?? 0 }} transaksi
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
