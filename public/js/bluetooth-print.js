@@ -153,6 +153,8 @@ class BluetoothThermalPrinter {
         content += 'Periksa Invoice & Ambil Promo !\n';
         content += this.COMMANDS.BOLD_OFF + '\n';
         content += dashLine + '\n';
+        content += 'customer.hibiscusefsya.com\n';
+        content += dashLine + '\n';
         content += 'marketing@hibiscusefsya.com\n';
         content += dashLine + '\n\n';
         parts.push({ type: 'text', data: content });
@@ -241,6 +243,10 @@ class BluetoothThermalPrinter {
                         <div class="bt-preview-lines">${lineHtml}</div>
                         <div class="bt-preview-hr"></div>
                         <div class="bt-preview-promo">Periksa Invoice & Ambil Promo !</div>
+                        <div class="bt-preview-dash">${this.escapeHtml(dashLine)}</div>
+                        <div class="bt-preview-footer">
+                            customer.hibiscusefsya.com
+                        </div>
                         <div class="bt-preview-dash">${this.escapeHtml(dashLine)}</div>
                         <div class="bt-preview-footer">
                             marketing@hibiscusefsya.com<br>
@@ -898,13 +904,13 @@ class BluetoothThermalPrinter {
             digits = '62' + digits.substring(3);
         }
         if (digits.startsWith('62')) {
-            return '+62 ' + this.groupPhoneDigits(digits.substring(2));
+            return '+62' + this.groupPhoneDigits(digits.substring(2));
         }
         if (digits.startsWith('0')) {
             return this.groupPhoneDigits(digits);
         }
         if (digits.startsWith('8') && digits.length >= 9) {
-            return '+62 ' + this.groupPhoneDigits(digits);
+            return '+62' + this.groupPhoneDigits(digits);
         }
         if (raw.trim().startsWith('+')) {
             return '+' + this.groupPhoneDigits(digits);
@@ -913,6 +919,10 @@ class BluetoothThermalPrinter {
     }
 
     groupPhoneDigits(digits) {
+        // Format: 3-4-4 (e.g. 851-9555-0202)
+        if (digits.length >= 10) {
+            return digits.substring(0, 3) + '-' + digits.substring(3, 7) + '-' + digits.substring(7);
+        }
         return (digits.match(/.{1,4}/g) || []).join('-');
     }
 

@@ -73,11 +73,15 @@ if (!function_exists('receipt_format_phone')) {
         }
 
         $groupDigits = function ($numbers) {
+            // Format: 3-4-4 (e.g. 851-9555-0202)
+            if (strlen($numbers) >= 10) {
+                return substr($numbers, 0, 3) . '-' . substr($numbers, 3, 4) . '-' . substr($numbers, 7);
+            }
             return implode('-', str_split($numbers, 4));
         };
 
         if (substr($digits, 0, 2) === '62') {
-            return '+62 ' . $groupDigits(substr($digits, 2));
+            return '+62' . $groupDigits(substr($digits, 2));
         }
 
         if (substr($digits, 0, 1) === '0') {
@@ -85,7 +89,7 @@ if (!function_exists('receipt_format_phone')) {
         }
 
         if (substr($digits, 0, 1) === '8' && strlen($digits) >= 9) {
-            return '+62 ' . $groupDigits($digits);
+            return '+62' . $groupDigits($digits);
         }
 
         if (substr($raw, 0, 1) === '+') {
