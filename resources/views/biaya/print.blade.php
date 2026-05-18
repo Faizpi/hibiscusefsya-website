@@ -286,11 +286,7 @@
             <div class="footer-gap"></div>
             <div class="center">customer.hibiscusefsya.com</div>
             <div class="footer-gap"></div>
-            <div class="center muted">- - - - - - - - - - - - - - - -</div>
-            <div class="footer-gap"></div>
             <div class="center">marketing@hibiscusefsya.com</div>
-            <div class="footer-gap"></div>
-            <div class="center muted">- - - - - - - - - - - - - - - -</div>
             <div class="footer-gap"></div>
             <div class="center">Official WA Chat:</div>
             <div class="center">{{ receipt_format_phone('+6285195550202') }}</div>
